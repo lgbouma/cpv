@@ -2,18 +2,18 @@
 Given a TIC ID, make a river plot.
 """
 
-from complexrotators.paths import RESULTSDIR
+from complexrotators.helpers import get_complexrot_data
+from complexrotators.plotting import plot_river
 
 ticid = '177309964'
+cyclewindows = [None, (0,800), (1550,2000)]
 
-from astrobase.services.tesslightcurves import (
-    get_two_minute_spoc_lightcurves
-)
+# important keys: times, fluxs, period, t0, lsp.
+d = get_complexrot_data(ticid)
 
-#FIXME
+titlestr = f'TIC{ticid}'
 
-outdir = ''
-lcfiles = glob(os.path.join(outdir,'mastDownload','TESS','*','tess*fits'))
-if len(lcfiles) == 0:
-    lcfiles = get_two_minute_spoc_lightcurves(ticid, download_dir=outdir)
+for cyclewindow in cyclewindows:
 
+    plot_river(d['times'], d['fluxs'], d['period'], d['outdir'],
+               titlestr=titlestr, cmap='viridis', cyclewindow=cyclewindow)
