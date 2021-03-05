@@ -9,6 +9,7 @@ import numpy as np, matplotlib.pyplot as plt, pandas as pd, pymc3 as pm
 from numpy import array as nparr
 
 import matplotlib as mpl
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from astropy import units as u, constants as const
 from astropy.coordinates import SkyCoord
@@ -22,7 +23,7 @@ from matplotlib.ticker import MaxNLocator
 from aesthetic.plot import savefig, format_ax, set_style
 
 def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
-               cyclewindow=None):
+               cyclewindow=None, idstr=None):
     """
     Make a river plot
     """
@@ -76,16 +77,19 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
             use_flux = flux[sel]
             flux_arr[:, cycle_ind] = use_flux
 
-    vmin = np.nanmedian(flux)-5*np.nanstd(flux)
-    vmax = np.nanmedian(flux)+5*np.nanstd(flux)
+    vmin = np.nanmedian(flux)-4*np.nanstd(flux)
+    vmax = np.nanmedian(flux)+4*np.nanstd(flux)
 
-    fig, ax = plt.subplots(figsize=(4,10))
+    fig, ax = plt.subplots(figsize=(6,10))
     c = ax.pcolor(np.arange(0, period, cadence),
                   list(range(cycle_min, cycle_max)),
                   flux_arr.T,
-                  cmap=cmap, vmin=vmin, vmax=vmax)
+                  cmap=cmap, vmin=vmin, vmax=vmax,
+                  shading='auto')
 
-    fig.colorbar(c, ax=ax)
+    divider0 = make_axes_locatable(ax)
+    cax0 = divider0.append_axes('right', size='5%', pad=0.05)
+    cb0 = fig.colorbar(c, ax=ax, cax=cax0, extend='both')
 
     if isinstance(titlestr, str):
         ax.set_title(titlestr)
@@ -95,14 +99,14 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
     if isinstance(cyclewindow, tuple):
         ax.set_ylim(cyclewindow)
 
-    if isinstance(titlestr, str):
+    if isinstance(idstr, str):
         estr = ''
         if isinstance(cyclewindow, tuple):
             estr += (
                 "_"+repr(cyclewindow).
                 replace(', ','_').replace('(','').replace(')','')
             )
-        outpath = os.path.join(outdir, f'{titlestr}_river_{cmap}{estr}.png')
+        outpath = os.path.join(outdir, f'{idstr}_river_{cmap}{estr}.png')
     else:
         raise NotImplementedError
 
