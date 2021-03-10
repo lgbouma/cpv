@@ -15,11 +15,8 @@ cyclewindowss = [
 
 def many_ticids():
 
-    # cmap = 'viridis'
-    # cmap = 'bwr'
-    # cmap = 'BrBG'
-    cmap = 'spectral'
     cmap = 'seismic'
+    cmap = 'viridis'
 
     for ticid, cyclewindows in zip(ticids, cyclewindowss):
 
@@ -52,5 +49,27 @@ def single_ticid():
                    idstr=idstr)
 
 
+
+def single_kicid():
+
+    kicid = '7740983'
+    cyclewindows = [None] #[None,(0,350),(4830,5200)]
+
+    # important keys: times, fluxs, period, t0, lsp.
+    d = get_complexrot_data(None, kicid=kicid)
+
+    idstr = f'KIC{kicid}'
+    titlestr = f'KIC{kicid}. P: {d["period"]:.7f}d'
+
+    for cyclewindow in cyclewindows:
+
+        plot_river(d['times'], d['fluxs'], d['period'], d['outdir'],
+                   titlestr=titlestr, cmap='viridis', cyclewindow=cyclewindow,
+                   idstr=idstr)
+
+
+
+
 if __name__ == "__main__":
-    many_ticids()
+    single_kicid()
+    # many_ticids()
