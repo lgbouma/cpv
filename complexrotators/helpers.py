@@ -41,15 +41,17 @@ def get_complexrot_data(ticid, kicid=None):
                 data, ticid, outdir=outdir, get_lc=1, require_quality_zero=0
             )
         else:
-            ## Saul Rappaport's space-separated format.
-            #datapath = os.path.join(DATADIR, 'photometry', 'kepler',
-            #                        f'{kicid}_CR.dat')
-            #df = pd.read_csv(datapath, delim_whitespace=True,
-            #                 names=['quarter', 'time', 'flux'])
+            # Saul Rappaport's space-separated and whitened format.
             datapath = os.path.join(DATADIR, 'photometry', 'kepler',
-                                    f'kic{kicid}_whitened.csv')
-            df = pd.read_csv(datapath)
-            times, fluxs = np.array(df['time']), np.array(df['flux_r1'])
+                                    f'{kicid}_minus_3p3.dat')
+            df = pd.read_csv(datapath, delim_whitespace=True,
+                             names=['int', 'time', 'flux', 'raw_flux', 'smoothfn'])
+            times, fluxs = np.array(df['time']), np.array(df['flux'])
+            ## LGB's whitened format
+            # datapath = os.path.join(DATADIR, 'photometry', 'kepler',
+            #                         f'kic{kicid}_whitened.csv')
+            # df = pd.read_csv(datapath)
+            # times, fluxs = np.array(df['time']), np.array(df['flux_r1'])
 
         sep = 1
         if len(times) > 1e4:
@@ -57,8 +59,12 @@ def get_complexrot_data(ticid, kicid=None):
         if len(times) > 1e5:
             sep = 100
 
-        startp, endp = 0.1, 5
-        delta_P = 0.2
+        # startp, endp = 0.1, 5
+        # delta_P = 0.2
+        # stepsize = 1e-5 # for the fine-tuning
+
+        startp, endp = 0.4037144, 0.4037146
+        delta_P = 1e-5
         stepsize = 1e-5 # for the fine-tuning
 
         lsp = periodbase.pgen_lsp(

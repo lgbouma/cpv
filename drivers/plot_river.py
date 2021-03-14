@@ -13,10 +13,9 @@ cyclewindowss = [
     [None,(0,350),(4830,5200)]
 ]
 
-def many_ticids():
+cmap = 'seismic'
 
-    cmap = 'seismic'
-    cmap = 'viridis'
+def many_ticids():
 
     for ticid, cyclewindows in zip(ticids, cyclewindowss):
 
@@ -45,7 +44,7 @@ def single_ticid():
     for cyclewindow in cyclewindows:
 
         plot_river(d['times'], d['fluxs'], d['period'], d['outdir'],
-                   titlestr=titlestr, cmap='viridis', cyclewindow=cyclewindow,
+                   titlestr=titlestr, cmap=cmap, cyclewindow=cyclewindow,
                    idstr=idstr)
 
 
@@ -64,7 +63,7 @@ def single_kicid():
     for cyclewindow in cyclewindows:
 
         plot_river(d['times'], d['fluxs'], d['period'], d['outdir'],
-                   titlestr=titlestr, cmap='viridis', cyclewindow=cyclewindow,
+                   titlestr=titlestr, cmap=cmap, cyclewindow=cyclewindow,
                    idstr=idstr)
 
 
