@@ -165,6 +165,27 @@ def plot_phase(outdir):
     plot_phased_light_curve(time, flux, t0, period, outpath, titlestr=titlestr)
 
 
+def plot_multicolor_phase(outdir):
+    raise NotImplementedError
+
+    # get data (20sec, hardcopy for TIC 262400835)
+    df0 = pd.read_csv('/Users/luke/Dropbox/proj/complexrotators/results/river/tic_262400835/HARDCOPY_spoc_tess_lightcurve_median_PDCSAP_FLUX_allsector_sigclipped.csv')
+    time, flux = np.array(df.time), np.array(df.flux)
+
+    t0 = np.nanmin(time) + 0.5/24
+    period = 0.29822 # manually tuned...
+
+    outpath = os.path.join(outdir, 'TIC262400835_phase.png')
+
+    titlestr = 'TIC262400835 S32 20sec'
+
+    plot_phased_light_curve(time, flux, t0, period, outpath, titlestr=titlestr)
+
+
+
+
+
+
 
 def plot_phased_light_curve(
     time, flux, t0, period, outpath,
@@ -182,7 +203,7 @@ def plot_phased_light_curve(
     # time units
     # x_fold = (x - t0 + 0.5 * period) % period - 0.5 * period
     # phase units
-    _pd = phase_magseries(x, y, period, t0, wrap=False, sort=True)
+    _pd = phase_magseries(x, y, period, t0, wrap=True, sort=True)
     x_fold = _pd['phase']
     y = _pd['mags']
 
@@ -212,7 +233,7 @@ def plot_phased_light_curve(
 
 
     if isinstance(titlestr,str):
-        ax.set_title(titlestr)
+        ax.set_title(titlestr, fontsize='small')
     ax.set_ylabel(r"Relative flux [$\times 10^{-2}$]")
     ax.set_xlabel("Phase")
 
