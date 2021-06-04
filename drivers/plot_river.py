@@ -14,6 +14,7 @@ cyclewindowss = [
 ]
 
 cmap = 'seismic'
+cmap = 'viridis'
 
 def many_ticids():
 
@@ -51,7 +52,8 @@ def single_ticid():
 
 def single_kicid():
 
-    kicid = '7740983'
+    # kicid = '7740983' # saul's Kepler CR
+    kicid = '6184894' # kepler1627
     cyclewindows = [None] #[None,(0,350),(4830,5200)]
 
     # important keys: times, fluxs, period, t0, lsp.
