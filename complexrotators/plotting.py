@@ -1,6 +1,9 @@
 """
 Contents:
+    plot_TEMPLATE
+
     plot_river
+    plot_phase
 """
 import os, corner, pickle
 from glob import glob
@@ -21,6 +24,39 @@ import matplotlib.patheffects as pe
 from matplotlib.ticker import MaxNLocator
 
 from aesthetic.plot import savefig, format_ax, set_style
+from astrobase.lcmath import (
+    phase_magseries, phase_bin_magseries, sigclip_magseries,
+    find_lc_timegroups, phase_magseries_with_errs, time_bin_magseries
+)
+
+def plot_TEMPLATE(outdir):
+
+    # get data
+
+    # make plot
+    plt.close('all')
+    set_style()
+
+    fig, ax = plt.subplots(figsize=(4,3))
+    fig = plt.figure(figsize=(4,3))
+    axd = fig.subplot_mosaic(
+        """
+        AB
+        CD
+        """#,
+        #gridspec_kw={
+        #    "width_ratios": [1, 1, 1, 1]
+        #}
+    )
+
+
+    # set naming options
+    s = ''
+
+    bn = inspect.stack()[0][3].split("_")[1]
+    outpath = os.path.join(outdir, f'{bn}{s}.png')
+    savefig(fig, outpath, dpi=400)
+
 
 def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
                cyclewindow=None, idstr=None):
@@ -111,3 +147,81 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
         raise NotImplementedError
 
     savefig(fig, outpath, writepdf=0)
+
+
+def plot_phase(outdir):
+
+    # get data (20sec, hardcopy for TIC 262400835)
+    df = pd.read_csv('/Users/luke/Dropbox/proj/complexrotators/results/river/tic_262400835/HARDCOPY_spoc_tess_lightcurve_median_PDCSAP_FLUX_allsector_sigclipped.csv')
+    time, flux = np.array(df.time), np.array(df.flux)
+
+    t0 = np.nanmin(time) + 0.5/24
+    period = 0.29822 # manually tuned...
+
+    outpath = os.path.join(outdir, 'TIC262400835_phase.png')
+
+    titlestr = 'TIC262400835 S32 20sec'
+
+    plot_phased_light_curve(time, flux, t0, period, outpath, titlestr=titlestr)
+
+
+
+def plot_phased_light_curve(
+    time, flux, t0, period, outpath,
+    ylimd=None, binsize_minutes=2, BINMS=2, titlestr=None
+):
+
+    x,y = time, flux-np.nanmean(flux)
+
+    # make plot
+    plt.close('all')
+    set_style()
+
+    fig, ax = plt.subplots(figsize=(4,3))
+
+    # time units
+    # x_fold = (x - t0 + 0.5 * period) % period - 0.5 * period
+    # phase units
+    _pd = phase_magseries(x, y, period, t0, wrap=False, sort=True)
+    x_fold = _pd['phase']
+    y = _pd['mags']
+
+    if len(x_fold) > int(2e4):
+        # see https://github.com/matplotlib/matplotlib/issues/5907
+        mpl.rcParams['agg.path.chunksize'] = 10000
+
+    #
+    # begin the plot!
+    #
+    ax.scatter(x_fold, 1e2*(y), color="darkgray", label="data", marker='.',
+               s=1, rasterized=True, alpha=0.3, linewidths=0)
+
+    binsize_days = (binsize_minutes / (60*24))
+    orb_bd = phase_bin_magseries(
+        x_fold, y, binsize=binsize_days, minbinelems=3
+    )
+    ax.scatter(
+        orb_bd['binnedphases'], 1e2*(orb_bd['binnedmags']), color='k',
+        s=BINMS, linewidths=0,
+        alpha=1, zorder=1002#, linewidths=0.2, edgecolors='white'
+    )
+    txt = f'$t_0$ [BTJD]: {t0-2457000:.6f}\n$P$: {period:.6f} d'
+    ax.text(0.97,0.03,txt,
+            transform=ax.transAxes,
+            ha='right',va='bottom', color='k', fontsize='xx-small')
+
+
+    if isinstance(titlestr,str):
+        ax.set_title(titlestr)
+    ax.set_ylabel(r"Relative flux [$\times 10^{-2}$]")
+    ax.set_xlabel("Phase")
+
+
+    if isinstance(ylimd, dict):
+        a.set_ylim(ylimd[k])
+    format_ax(ax)
+
+    fig.tight_layout()
+
+    savefig(fig, outpath, dpi=350)
+    plt.close('all')

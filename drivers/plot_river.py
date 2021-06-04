@@ -2,7 +2,9 @@
 Given a TIC ID, make a river plot.
 """
 
-from complexrotators.helpers import get_complexrot_data
+from complexrotators.helpers import (get_complexrot_data,
+    get_complexrot_twentysec_data
+)
 from complexrotators.plotting import plot_river
 
 ticids = ['177309964','206544316','300651846','201789285']
@@ -14,7 +16,6 @@ cyclewindowss = [
 ]
 
 cmap = 'seismic'
-cmap = 'viridis'
 
 def many_ticids():
 
@@ -33,11 +34,13 @@ def many_ticids():
 
 def single_ticid():
 
-    ticid = '201789285'
-    cyclewindows = [None,(0,350),(4830,5200)]
+    ticid = '262400835'
+    cyclewindows = [None] #[None,(0,350),(4830,5200)]
 
     # important keys: times, fluxs, period, t0, lsp.
-    d = get_complexrot_data(ticid)
+    d = get_complexrot_twentysec_data(ticid)
+
+    d['period'] = 0.29822
 
     idstr = f'TIC{ticid}'
     titlestr = f'TIC{ticid}. P: {d["period"]:.7f}d'
@@ -72,5 +75,6 @@ def single_kicid():
 
 
 if __name__ == "__main__":
-    single_kicid()
+    single_ticid()
+    # single_kicid()
     # many_ticids()
