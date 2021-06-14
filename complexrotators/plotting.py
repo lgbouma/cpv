@@ -342,15 +342,13 @@ def plot_multicolor_phase(outdir, BINMS=2):
     plt.close('all')
 
 
-
-
-
 def plot_phased_light_curve(
     time, flux, t0, period, outpath,
     ylimd=None, bs_min=2, BINMS=2, titlestr=None,
-    savethefigure=True, showtext=True, figsize=None,
+    showtext=True, showtitle=False, figsize=None,
     c0='darkgray', alpha0=0.3,
-    c1='k', alpha1=1, phasewrap=True, plotnotscatter=False
+    c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
+    fig=None, ax=None, savethefigure=True
 ):
     """
     Non-obvious args:
@@ -362,16 +360,22 @@ def plot_phased_light_curve(
         alpha1 (float): alpha for -binned points.
         phasewrap: [-1,1] or [0,1] in phase.
         plotnotscatter: if True, uses ax.plot to show non-binned points
+
+        savethefigure: if False, returns fig and ax
+        fig, ax: if passed, overrides default
     """
 
     # make plot
     plt.close('all')
     set_style()
 
-    if figsize is None:
-        fig, ax = plt.subplots(figsize=(4,3))
+    if fig is None and ax is None:
+        if figsize is None:
+            fig, ax = plt.subplots(figsize=(4,3))
+        else:
+            fig, ax = plt.subplots(figsize=figsize)
     else:
-        fig, ax = plt.subplots(figsize=figsize)
+        pass
 
     x,y = time, flux-np.nanmean(flux)
 
@@ -408,7 +412,7 @@ def plot_phased_light_curve(
         ax.text(0.97,0.03,txt,
                 transform=ax.transAxes,
                 ha='right',va='bottom', color='k', fontsize='xx-small')
-    else:
+    if showtitle:
         txt = f'$t_0$ [BTJD]: {t0-2457000:.6f}. $P$: {period:.6f} d'
         ax.set_title(txt, fontsize='small')
 
