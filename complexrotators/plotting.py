@@ -5,6 +5,7 @@ Contents:
     plot_river
     plot_phase
     plot_multicolor_phase
+    plot_phased_light_curve
 """
 import os, corner, pickle
 from glob import glob
@@ -347,8 +348,21 @@ def plot_multicolor_phase(outdir, BINMS=2):
 def plot_phased_light_curve(
     time, flux, t0, period, outpath,
     ylimd=None, bs_min=2, BINMS=2, titlestr=None,
-    savethefigure=True, showtext=True, figsize=None
+    savethefigure=True, showtext=True, figsize=None,
+    c0='darkgray', alpha0=0.3,
+    c1='k', alpha1=1, phasewrap=True, plotnotscatter=False
 ):
+    """
+    Non-obvious args:
+        bs_min (float): binsize in units of minutes.
+        BINMS (float): markersize for binned points.
+        c0 (str): color of non-binned points.
+        alpha0 (float): alpha for non-binned points.
+        c1 (str): color of binned points.
+        alpha1 (float): alpha for -binned points.
+        phasewrap: [-1,1] or [0,1] in phase.
+        plotnotscatter: if True, uses ax.plot to show non-binned points
+    """
 
     # make plot
     plt.close('all')
@@ -364,7 +378,7 @@ def plot_phased_light_curve(
     # time units
     # x_fold = (x - t0 + 0.5 * period) % period - 0.5 * period
     # phase units
-    _pd = phase_magseries(x, y, period, t0, wrap=True, sort=True)
+    _pd = phase_magseries(x, y, period, t0, wrap=phasewrap, sort=True)
     x_fold = _pd['phase']
     y = _pd['mags']
 
@@ -375,15 +389,19 @@ def plot_phased_light_curve(
     #
     # begin the plot!
     #
-    ax.scatter(x_fold, 1e2*(y), color="darkgray", label="data", marker='.',
-               s=1, rasterized=True, alpha=0.3, linewidths=0)
+    if not plotnotscatter:
+        ax.scatter(x_fold, 1e2*(y), color=c0, label="data", marker='.',
+                   s=1, rasterized=True, alpha=alpha0, linewidths=0)
+    else:
+        ax.plot(x_fold, 1e2*(y), color=c0, label="data",
+                lw=0.5, rasterized=True, alpha=alpha0)
 
     bs_days = (bs_min / (60*24))
     orb_bd = phase_bin_magseries(x_fold, y, binsize=bs_days, minbinelems=3)
     ax.scatter(
-        orb_bd['binnedphases'], 1e2*(orb_bd['binnedmags']), color='k',
+        orb_bd['binnedphases'], 1e2*(orb_bd['binnedmags']), color=c1,
         s=BINMS, linewidths=0,
-        alpha=1, zorder=1002#, linewidths=0.2, edgecolors='white'
+        alpha=alpha1, zorder=1002#, linewidths=0.2, edgecolors='white'
     )
     if showtext:
         txt = f'$t_0$ [BTJD]: {t0-2457000:.6f}\n$P$: {period:.6f} d'
