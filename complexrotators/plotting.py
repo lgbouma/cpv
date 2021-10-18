@@ -33,6 +33,10 @@ from astrobase.lcmath import (
 )
 
 from complexrotators.paths import DATADIR, PHOTDIR
+from complexrotators.helpers import (
+    get_complexrot_data,
+    get_complexrot_twentysec_data
+)
 
 def plot_TEMPLATE(outdir):
 
@@ -155,23 +159,36 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
 
 
 def plot_phase(outdir):
-    # currently hard-coded for TIC 262400835
+    ##########################################
+    # change these
+    ticid = '238597707'
+    is_20s = False
+    MANUAL_PERIOD = 2.01665
+    tstr = 'S34 2-minute'
+    ylim = [-15,10]
+    bs_min = 10
+    ##########################################
 
-    # get data (20 sec)
-    df = pd.read_csv(
-        '/Users/luke/Dropbox/proj/complexrotators/results/river/tic_262400835/'
-        'HARDCOPY_spoc_tess_lightcurve_median_PDCSAP_FLUX_allsector_sigclipped.csv'
-    )
-    time, flux = np.array(df.time), np.array(df.flux)
+    # important keys: times, fluxs, period, t0, lsp.
+    if is_20s:
+        d = get_complexrot_twentysec_data(ticid)
+    else:
+        d = get_complexrot_data(ticid)
 
-    t0 = np.nanmin(time) + 0.5/24
-    period = 0.29822 # manually tuned...
+    t0 = np.nanmin(d['times'])
 
-    outpath = os.path.join(outdir, 'TIC262400835_phase.png')
+    idstr = f'TIC{ticid}'
 
-    titlestr = 'TIC262400835 S32 20sec'
+    if MANUAL_PERIOD:
+        d['period'] = MANUAL_PERIOD
+    time, flux = d['times'], d['fluxs']
+    period = d['period']
 
-    plot_phased_light_curve(time, flux, t0, period, outpath, titlestr=titlestr)
+    outpath = os.path.join(outdir, f'{idstr}_phase.png')
+    titlestr = f'{idstr} {tstr}'
+
+    plot_phased_light_curve(time, flux, t0, period, outpath, titlestr=titlestr,
+                            ylim=ylim, bs_min=bs_min)
 
 
 def _get_all_tic262400835_data():
@@ -344,7 +361,7 @@ def plot_multicolor_phase(outdir, BINMS=2):
 
 def plot_phased_light_curve(
     time, flux, t0, period, outpath,
-    ylimd=None, bs_min=2, BINMS=2, titlestr=None,
+    ylim=None, bs_min=2, BINMS=2, titlestr=None,
     showtext=True, showtitle=False, figsize=None,
     c0='darkgray', alpha0=0.3,
     c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
@@ -382,7 +399,12 @@ def plot_phased_light_curve(
     # time units
     # x_fold = (x - t0 + 0.5 * period) % period - 0.5 * period
     # phase units
-    _pd = phase_magseries(x, y, period, t0, wrap=phasewrap, sort=True)
+    if plotnotscatter:
+        _pd = phase_magseries(x, y, period, t0, wrap=phasewrap,
+                              sort=False)
+    else:
+        _pd = phase_magseries(x, y, period, t0, wrap=phasewrap,
+                              sort=True)
     x_fold = _pd['phase']
     y = _pd['mags']
 
@@ -423,8 +445,8 @@ def plot_phased_light_curve(
     ax.set_xlabel("Phase")
 
 
-    if isinstance(ylimd, dict):
-        a.set_ylim(ylimd[k])
+    if isinstance(ylim, (list, tuple)):
+        ax.set_ylim(ylim)
     format_ax(ax)
 
     fig.tight_layout()

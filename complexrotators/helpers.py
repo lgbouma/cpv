@@ -40,7 +40,8 @@ def get_complexrot_data(ticid, kicid=None):
         if ticid is not None:
             data = get_tess_data(ticid, outdir=outdir, spoc=1)
             times, fluxs = explore_flux_lightcurves(
-                data, ticid, outdir=outdir, get_lc=1, require_quality_zero=0
+                data, ticid, outdir=outdir, get_lc=1, require_quality_zero=0,
+                pipeline='spoc'
             )
         else:
             # # Saul Rappaport's space-separated and whitened format.

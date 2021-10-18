@@ -2,22 +2,23 @@
 Given a TIC ID, make a river plot.
 """
 
-from complexrotators.helpers import (get_complexrot_data,
+from complexrotators.helpers import (
+    get_complexrot_data,
     get_complexrot_twentysec_data
 )
 from complexrotators.plotting import plot_river
 
-ticids = ['177309964','206544316','300651846','201789285']
-cyclewindowss = [
-    [None, (0,800), (1550,2000)],
-    [None, (0,180), (2280, 2450)],
-    [None],
-    [None,(0,350),(4830,5200)]
-]
-
 cmap = 'seismic'
 
 def many_ticids():
+
+    ticids = ['177309964','206544316','300651846','201789285']
+    cyclewindowss = [
+        [None, (0,800), (1550,2000)],
+        [None, (0,180), (2280, 2450)],
+        [None],
+        [None,(0,350),(4830,5200)]
+    ]
 
     for ticid, cyclewindows in zip(ticids, cyclewindowss):
 
@@ -34,13 +35,21 @@ def many_ticids():
 
 def single_ticid():
 
-    ticid = '262400835'
+    ##########################################
+    # change these
+    ticid = '238597707'
     cyclewindows = [None] #[None,(0,350),(4830,5200)]
+    is_20s = False
+    MANUAL_PERIOD = 2.01665
+    ##########################################
 
     # important keys: times, fluxs, period, t0, lsp.
-    d = get_complexrot_twentysec_data(ticid)
+    if is_20s:
+        d = get_complexrot_twentysec_data(ticid)
+    else:
+        d = get_complexrot_data(ticid)
 
-    d['period'] = 0.29822
+    d['period'] = MANUAL_PERIOD
 
     idstr = f'TIC{ticid}'
     titlestr = f'TIC{ticid}. P: {d["period"]:.7f}d'
@@ -75,6 +84,7 @@ def single_kicid():
 
 
 if __name__ == "__main__":
+
     single_ticid()
     # single_kicid()
     # many_ticids()
