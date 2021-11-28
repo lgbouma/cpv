@@ -12,13 +12,15 @@ cmap = 'seismic'
 
 def many_ticids():
 
-    ticids = ['177309964','206544316','300651846','201789285']
-    cyclewindowss = [
-        [None, (0,800), (1550,2000)],
-        [None, (0,180), (2280, 2450)],
-        [None],
-        [None,(0,350),(4830,5200)]
-    ]
+    #ticids = ['177309964','206544316','300651846','201789285']
+    #cyclewindowss = [
+    #    [None, (0,800), (1550,2000)],
+    #    [None, (0,180), (2280, 2450)],
+    #    [None],
+    #    [None,(0,350),(4830,5200)]
+    #]
+    ticids = '59129133,245902096,118769116'.split(',')
+    cyclewindowss = [[None],[None],[None]]
 
     for ticid, cyclewindows in zip(ticids, cyclewindowss):
 
@@ -85,6 +87,6 @@ def single_kicid():
 
 if __name__ == "__main__":
 
-    single_ticid()
+    #single_ticid()
     # single_kicid()
-    # many_ticids()
+    many_ticids()
