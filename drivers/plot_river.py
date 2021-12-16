@@ -7,6 +7,8 @@ from complexrotators.helpers import (
     get_complexrot_twentysec_data
 )
 from complexrotators.plotting import plot_river
+from complexrotators.paths import CSVDIR
+from os.path import join
 
 cmap = 'seismic'
 
@@ -39,17 +41,23 @@ def single_ticid():
 
     ##########################################
     # change these
-    ticid = '238597707'
-    cyclewindows = [None] #[None,(0,350),(4830,5200)]
+    ticid = '364075855'
+    cyclewindows = [None,(0,65),(145,190)] # [None] #
     is_20s = False
-    MANUAL_PERIOD = 2.01665
+    MANUAL_PERIOD = 1.317741
+
+    # typically None
+    readcsv = join(
+        CSVDIR,
+        'TIC364075855_cdips_tess_lightcurve_minimal_PCA1_allsector_sigclipped.csv'
+    )
     ##########################################
 
     # important keys: times, fluxs, period, t0, lsp.
     if is_20s:
         d = get_complexrot_twentysec_data(ticid)
     else:
-        d = get_complexrot_data(ticid)
+        d = get_complexrot_data(ticid, hardcsv=readcsv)
 
     d['period'] = MANUAL_PERIOD
 
@@ -87,6 +95,6 @@ def single_kicid():
 
 if __name__ == "__main__":
 
-    #single_ticid()
+    single_ticid()
     # single_kicid()
-    many_ticids()
+    #many_ticids()

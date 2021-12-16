@@ -4,6 +4,7 @@ Contents:
     get_complexrot_twentysec_data
 """
 import numpy as np, pandas as pd
+from numpy import array as nparr
 
 import os, multiprocessing, pickle
 from complexrotators.paths import RESULTSDIR, DATADIR
@@ -17,7 +18,7 @@ from cdips_followup.quicklooktools import (
     get_tess_data, explore_flux_lightcurves, make_periodogram
 )
 
-def get_complexrot_data(ticid, kicid=None):
+def get_complexrot_data(ticid, kicid=None, hardcsv=None):
     """
     ticid: str or None
     kicid: str or None
@@ -37,7 +38,11 @@ def get_complexrot_data(ticid, kicid=None):
 
     if not os.path.exists(pklpath):
 
-        if ticid is not None:
+        if hardcsv is not None:
+            df = pd.read_csv(hardcsv)
+            times, fluxs = nparr(df.time), nparr(df.flux)
+
+        elif ticid is not None:
             data = get_tess_data(ticid, outdir=outdir, spoc=1)
             times, fluxs = explore_flux_lightcurves(
                 data, ticid, outdir=outdir, get_lc=1, require_quality_zero=0,
