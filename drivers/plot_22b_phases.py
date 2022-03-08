@@ -24,9 +24,12 @@ for ticid in df.ticid.astype(str):
 
     print(f'Beginning {ticid}')
 
-    cp.plot_phase(
-        outdir,
-        ticid='TIC_'+ticid,
-        lc_cadences='2min_20sec',
-        binsize_minutes=10
-    )
+    try:
+        cp.plot_phase(
+            outdir,
+            ticid='TIC_'+ticid,
+            lc_cadences='2min_20sec',
+            binsize_minutes=10
+        )
+    except Exception as e:
+        print(f'ERROR! {e}')

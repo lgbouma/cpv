@@ -246,7 +246,7 @@ def plot_phase(
         titlestr = f'{starid} S{str(sector).zfill(4)} {cadence_sec}sec'
 
         plot_quicklook_cr(
-            time, flux, x_trend, y_trend, d['times'], d['fluxs'], outpath,
+            x_obs, y_obs, x_trend, y_trend, d['times'], d['fluxs'], outpath,
             titlestr
         )
 
