@@ -7,9 +7,10 @@ Contents:
     plot_multicolor_phase
     plot_phased_light_curve
 """
-import os, corner, pickle
+import os, pickle
 from glob import glob
 from datetime import datetime
+from copy import deepcopy
 import numpy as np, matplotlib.pyplot as plt, pandas as pd, pymc3 as pm
 from numpy import array as nparr
 from collections import OrderedDict
@@ -37,6 +38,16 @@ from complexrotators.helpers import (
     get_complexrot_data,
     get_complexrot_twentysec_data
 )
+
+from complexrotators.getters import (
+    get_2min_cadence_spoc_tess_lightcurve,
+    get_20sec_cadence_spoc_tess_lightcurve
+)
+from complexrotators.lcprocessing import (
+    cr_periodsearch
+)
+
+from cdips.lcproc import detrend as dtr
 
 def plot_TEMPLATE(outdir):
 
@@ -158,37 +169,246 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
     savefig(fig, outpath, writepdf=0)
 
 
-def plot_phase(outdir):
-    ##########################################
-    # change these
-    ticid = '238597707'
-    is_20s = False
-    MANUAL_PERIOD = 2.01665
-    tstr = 'S34 2-minute'
-    ylim = [-15,10]
-    bs_min = 10
-    ##########################################
+def plot_phase(
+    outdir,
+    ticid=None,
+    lc_cadences='2min_20sec',
+    MANUAL_PERIOD=None,
+    ylim=None,
+    binsize_minutes=10
+):
+    """
+    lc_cadences: string like "2min_20sec", "30min_2min_20sec", etc, for the types
+    of light curves to pull for the given TIC ID.
+    """
 
-    # important keys: times, fluxs, period, t0, lsp.
-    if is_20s:
-        d = get_complexrot_twentysec_data(ticid)
+    # get the light curves for all desired cadences
+    lc_cadences = lc_cadences.split('_')
+    lclist_2min, lclist_20sec = [], []
+    for lctype in lc_cadences:
+        print(f'Getting {lctype} cadence light curves...')
+        lk_searchstr = ticid.replace('_', ' ')
+        if lctype == '2min':
+            lclist_2min = get_2min_cadence_spoc_tess_lightcurve(lk_searchstr)
+        elif lctype == '20sec':
+            lclist_20sec = get_20sec_cadence_spoc_tess_lightcurve(lk_searchstr)
+        else:
+            raise NotImplementedError
+    print('Done getting light curves!')
+    lclist = lclist_20sec + lclist_2min
+
+    if len(lclist) == 0:
+        print(f'WRN! Did not find light curves for {ticid}. Escaping.')
+        return 0
+
+    # for each light curve (sector / cadence specific), detrend if needed, get
+    # the best period, and then phase-fold.
+    for lc in lclist:
+
+        # metadata
+        sector = lc.meta['SECTOR']
+
+        # light curve data
+        time = lc.time.value
+        flux = lc.pdcsap_flux.value
+        qual = lc.quality.value
+
+        # remove non-zero quality flags
+        sel = (qual == 0)
+
+        x_obs = time[sel]
+        y_obs = flux[sel]
+
+        # normalize around 1
+        flux /= np.nanmedian(flux)
+
+        # what is the cadence?
+        cadence_sec = int(np.round(np.nanmedian(np.diff(x_obs))*24*60*60))
+
+        # "light" detrending by default
+        y_flat, y_trend = dtr.detrend_flux(
+            x_obs, y_obs, method='biweight', cval=2, window_length=4.0,
+            break_tolerance=0.5
+        )
+        x_trend = deepcopy(x_obs)
+
+        # get t0, period, lsp
+        d = cr_periodsearch(x_obs, y_flat, ticid, outdir)
+
+        starid = f'{ticid}'
+
+        # make the quicklook plot
+        outpath = os.path.join(
+            outdir, f'{starid}_S{sector}_{cadence_sec}sec_quicklook.png'
+        )
+        titlestr = f'{starid} S{sector} {cadence_sec}sec'
+
+        plot_quicklook_cr(
+            time, flux, x_trend, y_trend, d['times'], d['fluxs'], outpath,
+            titlestr
+        )
+
+        # make the phased plot
+        outpath = os.path.join(
+            outdir, f'{starid}_S{sector}_{cadence_sec}sec_phase.png'
+        )
+        period = d['period']
+        if isinstance(MANUAL_PERIOD, float):
+            period = MANUAL_PERIOD
+
+        plot_phased_light_curve(
+            d['times'], d['fluxs'], d['t0'], period, outpath,
+            titlestr=titlestr, ylim=ylim, binsize_minutes=binsize_minutes
+        )
+
+
+def plot_quicklook_cr(x_obs, y_obs, x_trend, y_trend, x_flat, y_flat, outpath,
+                      titlestr):
+
+    from astrobase.lcmath import find_lc_timegroups
+    ngroups, groups = find_lc_timegroups(x_obs, mingap=3/24)
+
+    plt.close('all')
+    set_style()
+    fig, axs = plt.subplots(figsize=(12,7), nrows=2, sharex=True)
+
+    for g in groups:
+
+        ax = axs[0]
+        ax.scatter(x_obs, 1e2*(y_obs-1), c="k", s=0.5, rasterized=True,
+                   linewidths=0, zorder=42)
+        ax.plot(x_trend, 1e2*(y_trend-1), color="C2", zorder=43, lw=0.5)
+        ax.set_xticklabels([])
+
+        # C: data - GP on same 100 day slice.  see residual transits IN THE DATA.
+        ax = axs[1]
+        ax.axhline(0, color="#aaaaaa", lw=0.5, zorder=-1)
+        ax.scatter(x_flat, 1e2*(y_flat - 1), c="k", s=0.5, rasterized=True,
+                   linewidths=0, zorder=42)
+
+    fig.text(-0.01,0.5, r"Relative flux [$\times 10^{-2}$]", va='center',
+             rotation=90)
+
+    ax.set_xlabel('Time [TJD]')
+
+    format_ax(ax)
+    fig.tight_layout()
+
+    savefig(fig, outpath, dpi=350)
+
+
+
+
+def plot_phased_light_curve(
+    time, flux, t0, period, outpath,
+    ylim=None, binsize_minutes=2, BINMS=2, titlestr=None,
+    showtext=True, showtitle=False, figsize=None,
+    c0='darkgray', alpha0=0.3,
+    c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
+    fig=None, ax=None, savethefigure=True
+    ):
+    """
+    Non-obvious args:
+        binsize_minutes (float): binsize in units of minutes.
+        BINMS (float): markersize for binned points.
+        c0 (str): color of non-binned points.
+        alpha0 (float): alpha for non-binned points.
+        c1 (str): color of binned points.
+        alpha1 (float): alpha for -binned points.
+        phasewrap: [-1,1] or [0,1] in phase.
+        plotnotscatter: if True, uses ax.plot to show non-binned points
+
+        savethefigure: if False, returns fig and ax
+        fig, ax: if passed, overrides default
+    """
+
+    # make plot
+    plt.close('all')
+    set_style()
+
+    if fig is None and ax is None:
+        if figsize is None:
+            fig, ax = plt.subplots(figsize=(4,3))
+        else:
+            fig, ax = plt.subplots(figsize=figsize)
     else:
-        d = get_complexrot_data(ticid)
+        pass
 
-    t0 = np.nanmin(d['times'])
+    x,y = time, flux-np.nanmean(flux)
 
-    idstr = f'TIC{ticid}'
+    # time units
+    # x_fold = (x - t0 + 0.5 * period) % period - 0.5 * period
+    # phase units
+    if plotnotscatter:
+        _pd = phase_magseries(x, y, period, t0, wrap=phasewrap,
+                              sort=False)
+    else:
+        _pd = phase_magseries(x, y, period, t0, wrap=phasewrap,
+                              sort=True)
+    x_fold = _pd['phase']
+    y = _pd['mags']
 
-    if MANUAL_PERIOD:
-        d['period'] = MANUAL_PERIOD
-    time, flux = d['times'], d['fluxs']
-    period = d['period']
+    if len(x_fold) > int(2e4):
+        # see https://github.com/matplotlib/matplotlib/issues/5907
+        mpl.rcParams['agg.path.chunksize'] = 10000
 
-    outpath = os.path.join(outdir, f'{idstr}_phase.png')
-    titlestr = f'{idstr} {tstr}'
+    #
+    # begin the plot!
+    #
+    if not plotnotscatter:
+        ax.scatter(x_fold, 1e2*(y), color=c0, label="data", marker='.',
+                   s=1, rasterized=True, alpha=alpha0, linewidths=0)
+    else:
+        ax.plot(x_fold, 1e2*(y), color=c0, label="data",
+                lw=0.5, rasterized=True, alpha=alpha0)
 
-    plot_phased_light_curve(time, flux, t0, period, outpath, titlestr=titlestr,
-                            ylim=ylim, bs_min=bs_min)
+    bs_days = (binsize_minutes / (60*24))
+    orb_bd = phase_bin_magseries(x_fold, y, binsize=bs_days, minbinelems=3)
+    ax.scatter(
+        orb_bd['binnedphases'], 1e2*(orb_bd['binnedmags']), color=c1,
+        s=BINMS, linewidths=0,
+        alpha=alpha1, zorder=1002#, linewidths=0.2, edgecolors='white'
+    )
+    if showtext:
+        txt = f'$t_0$ [BTJD]: {t0-2457000:.6f}\n$P$: {period:.6f} d'
+        ax.text(0.97,0.03,txt,
+                transform=ax.transAxes,
+                ha='right',va='bottom', color='k', fontsize='xx-small')
+    if showtitle:
+        txt = f'$t_0$ [BTJD]: {t0-2457000:.6f}. $P$: {period:.6f} d'
+        ax.set_title(txt, fontsize='small')
+
+
+    if isinstance(titlestr,str):
+        ax.set_title(titlestr, fontsize='small')
+    ax.set_ylabel(r"Relative flux [$\times 10^{-2}$]")
+    ax.set_xlabel("Phase")
+
+
+    if isinstance(ylim, (list, tuple)):
+        ax.set_ylim(ylim)
+    else:
+        ylim = get_ylimguess(1e2*orb_bd['binnedmags'])
+        ax.set_ylim(ylim)
+
+    format_ax(ax)
+
+    fig.tight_layout()
+
+    if savethefigure:
+        savefig(fig, outpath, dpi=350)
+        plt.close('all')
+    else:
+        return fig, ax
+
+
+def get_ylimguess(y):
+    ylow = np.nanpercentile(y, 0.1)
+    yhigh = np.nanpercentile(y, 99.9)
+    ydiff = (yhigh-ylow)
+    ymin = ylow - 0.3*ydiff
+    ymax = yhigh + 0.3*ydiff
+    return [ymin,ymax]
 
 
 def _get_all_tic262400835_data():
@@ -282,8 +502,8 @@ def plot_multicolor_phase(outdir, BINMS=2):
         ax.scatter(x_fold, 1e2*(y)+y_offset, color=color, label="data", marker='.',
                    s=1, rasterized=True, alpha=0.3, linewidths=0)
 
-        bs_min = 15
-        bs_days = (bs_min / (60*24))
+        binsize_minutes = 15
+        bs_days = (binsize_minutes / (60*24))
         orb_bd = phase_bin_magseries(x_fold, y, binsize=bs_days, minbinelems=1)
         ax.scatter(
             orb_bd['binnedphases'], 1e2*(orb_bd['binnedmags'])+y_offset, color=color,
@@ -357,103 +577,3 @@ def plot_multicolor_phase(outdir, BINMS=2):
 
     savefig(fig, outpath, dpi=350)
     plt.close('all')
-
-
-def plot_phased_light_curve(
-    time, flux, t0, period, outpath,
-    ylim=None, bs_min=2, BINMS=2, titlestr=None,
-    showtext=True, showtitle=False, figsize=None,
-    c0='darkgray', alpha0=0.3,
-    c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
-    fig=None, ax=None, savethefigure=True
-):
-    """
-    Non-obvious args:
-        bs_min (float): binsize in units of minutes.
-        BINMS (float): markersize for binned points.
-        c0 (str): color of non-binned points.
-        alpha0 (float): alpha for non-binned points.
-        c1 (str): color of binned points.
-        alpha1 (float): alpha for -binned points.
-        phasewrap: [-1,1] or [0,1] in phase.
-        plotnotscatter: if True, uses ax.plot to show non-binned points
-
-        savethefigure: if False, returns fig and ax
-        fig, ax: if passed, overrides default
-    """
-
-    # make plot
-    plt.close('all')
-    set_style()
-
-    if fig is None and ax is None:
-        if figsize is None:
-            fig, ax = plt.subplots(figsize=(4,3))
-        else:
-            fig, ax = plt.subplots(figsize=figsize)
-    else:
-        pass
-
-    x,y = time, flux-np.nanmean(flux)
-
-    # time units
-    # x_fold = (x - t0 + 0.5 * period) % period - 0.5 * period
-    # phase units
-    if plotnotscatter:
-        _pd = phase_magseries(x, y, period, t0, wrap=phasewrap,
-                              sort=False)
-    else:
-        _pd = phase_magseries(x, y, period, t0, wrap=phasewrap,
-                              sort=True)
-    x_fold = _pd['phase']
-    y = _pd['mags']
-
-    if len(x_fold) > int(2e4):
-        # see https://github.com/matplotlib/matplotlib/issues/5907
-        mpl.rcParams['agg.path.chunksize'] = 10000
-
-    #
-    # begin the plot!
-    #
-    if not plotnotscatter:
-        ax.scatter(x_fold, 1e2*(y), color=c0, label="data", marker='.',
-                   s=1, rasterized=True, alpha=alpha0, linewidths=0)
-    else:
-        ax.plot(x_fold, 1e2*(y), color=c0, label="data",
-                lw=0.5, rasterized=True, alpha=alpha0)
-
-    bs_days = (bs_min / (60*24))
-    orb_bd = phase_bin_magseries(x_fold, y, binsize=bs_days, minbinelems=3)
-    ax.scatter(
-        orb_bd['binnedphases'], 1e2*(orb_bd['binnedmags']), color=c1,
-        s=BINMS, linewidths=0,
-        alpha=alpha1, zorder=1002#, linewidths=0.2, edgecolors='white'
-    )
-    if showtext:
-        txt = f'$t_0$ [BTJD]: {t0-2457000:.6f}\n$P$: {period:.6f} d'
-        ax.text(0.97,0.03,txt,
-                transform=ax.transAxes,
-                ha='right',va='bottom', color='k', fontsize='xx-small')
-    if showtitle:
-        txt = f'$t_0$ [BTJD]: {t0-2457000:.6f}. $P$: {period:.6f} d'
-        ax.set_title(txt, fontsize='small')
-
-
-    if isinstance(titlestr,str):
-        ax.set_title(titlestr, fontsize='small')
-    ax.set_ylabel(r"Relative flux [$\times 10^{-2}$]")
-    ax.set_xlabel("Phase")
-
-
-    if isinstance(ylim, (list, tuple)):
-        ax.set_ylim(ylim)
-    format_ax(ax)
-
-    fig.tight_layout()
-
-    if savethefigure:
-        savefig(fig, outpath, dpi=350)
-        plt.close('all')
-    else:
-        return fig, ax
-
