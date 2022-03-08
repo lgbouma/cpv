@@ -1,5 +1,5 @@
 """
-Contents:
+Contents (mostly deprecated because each tries to do too much):
     get_complexrot_data
     get_complexrot_twentysec_data
 """
