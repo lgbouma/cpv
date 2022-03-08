@@ -22,6 +22,8 @@ for ticid in df.ticid.astype(str):
         print(f"Found {phasepaths}, skipping.")
         continue
 
+    print(f'Beginning {ticid}')
+
     cp.plot_phase(
         outdir,
         ticid='TIC_'+ticid,

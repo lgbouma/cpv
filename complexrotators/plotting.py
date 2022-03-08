@@ -220,7 +220,7 @@ def plot_phase(
         y_obs = flux[sel]
 
         # normalize around 1
-        flux /= np.nanmedian(flux)
+        y_obs /= np.nanmedian(y_obs)
 
         # what is the cadence?
         cadence_sec = int(np.round(np.nanmedian(np.diff(x_obs))*24*60*60))
@@ -233,15 +233,17 @@ def plot_phase(
         x_trend = deepcopy(x_obs)
 
         # get t0, period, lsp
-        d = cr_periodsearch(x_obs, y_flat, ticid, outdir)
+        d = cr_periodsearch(
+            x_obs, y_flat, f'{ticid}_S{sector}_{cadence_sec}sec', outdir
+        )
 
         starid = f'{ticid}'
 
         # make the quicklook plot
         outpath = os.path.join(
-            outdir, f'{starid}_S{sector}_{cadence_sec}sec_quicklook.png'
+            outdir, f'{starid}_S{str(sector).zfill(4)}_{cadence_sec}sec_quicklook.png'
         )
-        titlestr = f'{starid} S{sector} {cadence_sec}sec'
+        titlestr = f'{starid} S{str(sector).zfill(4)} {cadence_sec}sec'
 
         plot_quicklook_cr(
             time, flux, x_trend, y_trend, d['times'], d['fluxs'], outpath,
@@ -250,7 +252,7 @@ def plot_phase(
 
         # make the phased plot
         outpath = os.path.join(
-            outdir, f'{starid}_S{sector}_{cadence_sec}sec_phase.png'
+            outdir, f'{starid}_S{str(sector).zfill(4)}_{cadence_sec}sec_phase.png'
         )
         period = d['period']
         if isinstance(MANUAL_PERIOD, float):
@@ -270,7 +272,7 @@ def plot_quicklook_cr(x_obs, y_obs, x_trend, y_trend, x_flat, y_flat, outpath,
 
     plt.close('all')
     set_style()
-    fig, axs = plt.subplots(figsize=(12,7), nrows=2, sharex=True)
+    fig, axs = plt.subplots(figsize=(12,7), nrows=2)
 
     for g in groups:
 
