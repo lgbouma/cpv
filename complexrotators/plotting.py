@@ -148,7 +148,7 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
     cb0 = fig.colorbar(c, ax=ax, cax=cax0, extend='both')
 
     if isinstance(titlestr, str):
-        ax.set_title(titlestr)
+        ax.set_title(titlestr.replace("_", " "))
     ax.set_ylabel('Cycle number')
     ax.set_xlabel('Time [days]')
 
@@ -173,7 +173,7 @@ def plot_phase(
     outdir,
     ticid=None,
     lc_cadences='2min_20sec',
-    MANUAL_PERIOD=None,
+    manual_period=None,
     ylim=None,
     binsize_minutes=10
 ):
@@ -182,7 +182,9 @@ def plot_phase(
     of light curves to pull for the given TIC ID.
     """
 
+    #
     # get the light curves for all desired cadences
+    #
     lc_cadences = lc_cadences.split('_')
     lclist_2min, lclist_20sec = [], []
     for lctype in lc_cadences:
@@ -225,38 +227,58 @@ def plot_phase(
         # what is the cadence?
         cadence_sec = int(np.round(np.nanmedian(np.diff(x_obs))*24*60*60))
 
-        # "light" detrending by default
-        y_flat, y_trend = dtr.detrend_flux(
-            x_obs, y_obs, method='biweight', cval=2, window_length=4.0,
-            break_tolerance=0.5
-        )
-        x_trend = deepcopy(x_obs)
+        starid = f'{ticid}_S{str(sector).zfill(4)}_{cadence_sec}sec'
+
+        #
+        # "light" detrending by default. (& cache it)
+        #
+        pklpath = os.path.join(outdir, f"{starid}_dtr_lightcurve.pkl")
+        if os.path.exists(pklpath):
+            print(f"Found {pklpath}, loading and continuing.")
+            with open(pklpath, 'rb') as f:
+                lcd = pickle.load(f)
+            y_flat = lcd['y_flat']
+            y_trend = lcd['y_trend']
+            x_trend = lcd['x_trend']
+        else:
+            y_flat, y_trend = dtr.detrend_flux(
+                x_obs, y_obs, method='biweight', cval=2, window_length=4.0,
+                break_tolerance=0.5
+            )
+            x_trend = deepcopy(x_obs)
+            lcd = {
+                'y_flat':y_flat,
+                'y_trend':y_trend,
+                'x_trend':x_trend
+            }
+            with open(pklpath, 'wb') as f:
+                pickle.dump(lcd, f)
+                print(f'Made {pklpath}')
 
         # get t0, period, lsp
         d = cr_periodsearch(
-            x_obs, y_flat, f'{ticid}_S{sector}_{cadence_sec}sec', outdir
+            x_obs, y_flat, starid, outdir
         )
-
-        starid = f'{ticid}'
 
         # make the quicklook plot
         outpath = os.path.join(
-            outdir, f'{starid}_S{str(sector).zfill(4)}_{cadence_sec}sec_quicklook.png'
+            outdir, f'{starid}_quicklook.png'
         )
-        titlestr = f'{starid} S{str(sector).zfill(4)} {cadence_sec}sec'
+        titlestr = starid.replace('_',' ')
 
-        plot_quicklook_cr(
-            x_obs, y_obs, x_trend, y_trend, d['times'], d['fluxs'], outpath,
-            titlestr
-        )
+        if not os.path.exists(outpath):
+            plot_quicklook_cr(
+                x_obs, y_obs, x_trend, y_trend, d['times'], d['fluxs'], outpath,
+                titlestr
+            )
 
         # make the phased plot
         outpath = os.path.join(
-            outdir, f'{starid}_S{str(sector).zfill(4)}_{cadence_sec}sec_phase.png'
+            outdir, f'{ticid}_S{str(sector).zfill(4)}_{cadence_sec}sec_phase.png'
         )
         period = d['period']
-        if isinstance(MANUAL_PERIOD, float):
-            period = MANUAL_PERIOD
+        if isinstance(manual_period, float):
+            period = manual_period
 
         plot_phased_light_curve(
             d['times'], d['fluxs'], d['t0'], period, outpath,
@@ -372,20 +394,24 @@ def plot_phased_light_curve(
         alpha=alpha1, zorder=1002#, linewidths=0.2, edgecolors='white'
     )
     if showtext:
-        txt = f'$t_0$ [BTJD]: {t0-2457000:.6f}\n$P$: {period:.6f} d'
+        if isinstance(t0, float):
+            txt = f'$t_0$ [BTJD]: {t0:.6f}\n$P$: {period:.6f} d'
+        elif isinstance(t0, int):
+            txt = f'$t_0$ [BTJD]: {t0:.1f}\n$P$: {period:.6f} d'
         ax.text(0.97,0.03,txt,
                 transform=ax.transAxes,
                 ha='right',va='bottom', color='k', fontsize='xx-small')
     if showtitle:
-        txt = f'$t_0$ [BTJD]: {t0-2457000:.6f}. $P$: {period:.6f} d'
+        txt = f'$t_0$ [BTJD]: {t0:.6f}. $P$: {period:.6f} d'
         ax.set_title(txt, fontsize='small')
 
-
     if isinstance(titlestr,str):
-        ax.set_title(titlestr, fontsize='small')
+        ax.set_title(titlestr.replace("_"," "), fontsize='small')
+
     ax.set_ylabel(r"Relative flux [$\times 10^{-2}$]")
     ax.set_xlabel("Phase")
 
+    ax.set_xlim([-1,1])
 
     if isinstance(ylim, (list, tuple)):
         ax.set_ylim(ylim)
@@ -408,8 +434,8 @@ def get_ylimguess(y):
     ylow = np.nanpercentile(y, 0.1)
     yhigh = np.nanpercentile(y, 99.9)
     ydiff = (yhigh-ylow)
-    ymin = ylow - 0.3*ydiff
-    ymax = yhigh + 0.3*ydiff
+    ymin = ylow - 0.35*ydiff
+    ymax = yhigh + 0.35*ydiff
     return [ymin,ymax]
 
 

@@ -35,7 +35,7 @@ def get_2min_cadence_spoc_tess_lightcurve(
          np.isclose(
              120,
              np.nanmedian(np.diff(_l.remove_outliers().time.value))*24*60*60,
-             atol=1
+             atol=5
          )
     ]
 
@@ -73,7 +73,7 @@ def get_20sec_cadence_spoc_tess_lightcurve(
          np.isclose(
              20,
              np.nanmedian(np.diff(_l.remove_outliers().time.value))*24*60*60,
-             atol=1
+             atol=5
          )
     ]
 

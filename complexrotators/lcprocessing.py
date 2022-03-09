@@ -23,7 +23,7 @@ def cr_periodsearch(times, fluxs, starid, outdir):
 
     A dictionary of the results is returned, containing:
         'lsp':lsp, 'fine_lsp':fine_lsp, 'times':times, 'fluxs':fluxs,
-        'period':fine_lsp['bestperiod'], 't0':np.nanmin(times), 'outdir':outdir
+        'period':fine_lsp['bestperiod'], 't0': 1618, 'outdir':outdir
     """
 
     assert isinstance(starid, str)
@@ -74,7 +74,7 @@ def cr_periodsearch(times, fluxs, starid, outdir):
 
     d = {
         'lsp':lsp, 'fine_lsp':fine_lsp, 'times':times, 'fluxs':fluxs,
-        'period':fine_lsp['bestperiod'], 't0':np.nanmin(times), 'outdir':outdir
+        'period':fine_lsp['bestperiod'], 't0': 1618, 'outdir':outdir
         }
 
     with open(pklpath, 'wb') as f:
