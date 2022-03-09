@@ -11,10 +11,19 @@ if not os.path.exists(PLOTDIR):
 targetlist = os.path.join(TARGETSDIR, '20220115_RahulJayararaman_CR_list.csv')
 df = pd.read_csv(targetlist)
 
+manualperiodfile = os.path.join(TARGETSDIR, 'ticids_manual_periods.csv')
+mpdf = pd.read_csv(manualperiodfile)
+
 for ticid in df.ticid.astype(str):
     outdir = os.path.join(PLOTDIR, f'TIC_{ticid}')
     if not os.path.exists(outdir):
         os.mkdir(outdir)
+
+    row = mpdf.loc[mpdf.ticid.astype(str) == ticid]
+    if len(row) > 0:
+        manual_period = float(row.manual_period)
+    else:
+        manual_period = None
 
     phasepaths = glob(os.path.join(outdir, '*_phase.png'))
 
@@ -29,7 +38,8 @@ for ticid in df.ticid.astype(str):
             outdir,
             ticid='TIC_'+ticid,
             lc_cadences='2min_20sec',
-            binsize_minutes=10
+            binsize_minutes=10,
+            manual_period=manual_period
         )
     except Exception as e:
         print(f'ERROR! {e}')
