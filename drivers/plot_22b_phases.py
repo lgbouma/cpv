@@ -42,4 +42,4 @@ for ticid in df.ticid.astype(str):
             manual_period=manual_period
         )
     except Exception as e:
-        print(f'ERROR! {e}')
+        print(f'ERROR! {ticid} failed.\n Reason was...{e}')
