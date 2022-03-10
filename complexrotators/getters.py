@@ -18,7 +18,13 @@ def get_2min_cadence_spoc_tess_lightcurve(
     """
 
     # get the light curve
-    lcc = lk.search_lightcurve(ticstr).download_all()
+    lcset = lk.search_lightcurve(ticstr)
+
+    if len(lcset) == 0:
+        return []
+
+    sel = (lcset.author=='SPOC') & (lcset.exptime.value == 120)
+    lcc = lcset[sel].download_all()
 
     if lcc is None:
         return []
@@ -56,7 +62,13 @@ def get_20sec_cadence_spoc_tess_lightcurve(
     """
 
     # get the light curve
-    lcc = lk.search_lightcurve(ticstr).download_all()
+    lcset = lk.search_lightcurve(ticstr)
+
+    if len(lcset) == 0:
+        return []
+
+    sel = (lcset.author=='SPOC') & (lcset.exptime.value == 20)
+    lcc = lcset[sel].download_all()
 
     if lcc is None:
         return []
