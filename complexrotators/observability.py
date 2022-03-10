@@ -16,6 +16,11 @@ import os, pickle
 from glob import glob
 from functools import partial
 
+import astropy.units as u
+from astropy.time import Time
+from astropy.coordinates import SkyCoord
+
+
 from astrobase.lcmodels.eclipses import invgauss_eclipses_curvefit_func
 from astrobase.services.identifiers import tic_to_gaiadr2
 
@@ -203,13 +208,60 @@ def check_tesspoint(ra, dec, ticid):
     return outdf
 
 
-def check_astroplan_observability(ticid):
+def check_astroplan_months_observable(
+    starid, ra, dec,
+    site = 'keck',
+    min_altitude = 30*u.deg,
+    twilight_limit = 'nautical',
+    minokmoonsep=30*u.deg
+):
+    """
+    Given a TIC ID (ra/dec), an observing run start/stop time, and a site
+    location, figure out whether a star will be visible at night.
 
-    #FIXME FIXME in the morning...
+    Args:
+        starid: string, e.g. "TIC_12345678"
+        ra/dec: float degrees
+    """
 
-    #TODO
-    pass
+    from astroplan import (FixedTarget, Observer, is_observable,
+                           months_observable,
+                           AtNightConstraint, AltitudeConstraint,
+                           LocalTimeConstraint, MoonSeparationConstraint,
+                           AirmassConstraint, moon)
 
-def merge_to_obsevability_table(ticid):
+    target_coord = SkyCoord(ra=ra*u.deg, dec=dec*u.deg)
+    target = FixedTarget(coord=target_coord, name=starid)
+    observer = Observer.at_site(site)
+
+    if twilight_limit == 'astronomical':
+        twilight_constraint = AtNightConstraint.twilight_astronomical()
+    elif twilight_limit == 'nautical':
+        twilight_constraint = AtNightConstraint.twilight_nautical()
+    else:
+        raise NotImplementedError('civil twilight is janky.')
+
+    constraints = [twilight_constraint,
+                   AltitudeConstraint(min=min_altitude),
+                   MoonSeparationConstraint(min=minokmoonsep)]
+
+    best_months = months_observable(constraints, observer, [target])
+
+    # computed observability on "best_months" grid of 0.5 hr
+    print(f'for {starid}, got best-months on 0.5 hour grid:')
+    print(best_months)
+    print('where 1 = Jan, 2 = Feb, etc.')
+
+    joiner = lambda x: ','.join(np.array(x).astype(str))
+
+    outdf = pd.DataFrame({
+        'bestmonths': joiner(list(best_months[0])),
+    }, index=[0])
+
+    return outdf
+
+
+
+def merge_to_observability_table(ticid):
     #TODO
     pass
