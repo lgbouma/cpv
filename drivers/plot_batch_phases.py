@@ -4,11 +4,16 @@ from glob import glob
 import complexrotators.plotting as cp
 from complexrotators.paths import RESULTSDIR, TARGETSDIR
 
-PLOTDIR = os.path.join(RESULTSDIR, '22b_phase')
+# begin options
+PLOTDIRNAME = 'year3_ddt_phase'
+TARGETLISTNAME = 'complex_rotators_ddt_merge_tic8.csv'
+# end options
+
+PLOTDIR = os.path.join(RESULTSDIR, PLOTDIRNAME)
 if not os.path.exists(PLOTDIR):
     os.mkdir(PLOTDIR)
 
-targetlist = os.path.join(TARGETSDIR, '20220115_RahulJayararaman_CR_list.csv')
+targetlist = os.path.join(TARGETSDIR, TARGETLISTNAME)
 df = pd.read_csv(targetlist)
 
 manualperiodfile = os.path.join(TARGETSDIR, 'ticids_manual_periods.csv')
