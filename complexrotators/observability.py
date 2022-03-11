@@ -46,19 +46,41 @@ def get_gaia_rows(ticid):
     groupname = f'gaia_dr2_{source_id}'
     source_ids = np.array([np.int64(source_id)])
 
-    gaia_r = given_source_ids_get_gaia_data(
-        source_ids, groupname, n_max=10000, overwrite=False,
-        enforce_all_sourceids_viable=True, savstr='', whichcolumns='*',
-        gaia_datarelease='gaiaedr3', getdr2ruwe=False
-    )
+    try:
+        gaia_r = given_source_ids_get_gaia_data(
+            source_ids, groupname, n_max=10000, overwrite=False,
+            enforce_all_sourceids_viable=True, savstr='', whichcolumns='*',
+            gaia_datarelease='gaiaedr3', getdr2ruwe=False
+        )
 
-    SELCOLS = (
-        'source_id,ra,dec,parallax,parallax_error,pmra,pmdec,'+
-        'phot_g_mean_mag,phot_rp_mean_mag,phot_bp_mean_mag,bp_rp,'+
-        'dr2_radial_velocity,ruwe'
-    ).split(',')
+        SELCOLS = (
+            'source_id,ra,dec,parallax,parallax_error,pmra,pmdec,'+
+            'phot_g_mean_mag,phot_rp_mean_mag,phot_bp_mean_mag,bp_rp,'+
+            'dr2_radial_velocity,ruwe'
+        ).split(',')
+
+        gaia_datarelease = 'gaiaedr3'
+    except AssertionError:
+        gaia_r = given_source_ids_get_gaia_data(
+            source_ids, groupname, n_max=10000, overwrite=False,
+            enforce_all_sourceids_viable=True, savstr='', whichcolumns='*',
+            gaia_datarelease='gaiadr2', getdr2ruwe=False
+        )
+
+        SELCOLS = (
+            'source_id,ra,dec,parallax,parallax_error,pmra,pmdec,'+
+            'phot_g_mean_mag,phot_rp_mean_mag,phot_bp_mean_mag,bp_rp,'+
+            'radial_velocity'
+        ).split(',')
+
+        gaia_datarelease = 'gaiadr2'
 
     outdf = gaia_r[SELCOLS]
+
+    if gaia_datarelease == 'gaiadr2':
+        outdf = outdf.rename({'radial_velocity':'dr2_radial_velocity'},
+                             axis='columns')
+        outdf['ruwe'] = np.nan
 
     d_pc, upper_unc, lower_unc  = parallax_to_distance_highsn(
         float(outdf['parallax']),
@@ -82,7 +104,7 @@ def given_ticid_get_period(ticid):
     row = mpdf.loc[mpdf.ticid.astype(str) == ticid]
     if len(row) > 0:
         period = float(row.manual_period)
-        return period
+        return period, 0.01
 
     # next, check the plot_22b_phase cache.  NOTE: by default, this is where
     # the meat is found.  otherwise, this getter would need to be reformatted
