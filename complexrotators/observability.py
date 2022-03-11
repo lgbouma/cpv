@@ -234,7 +234,7 @@ def check_astroplan_months_observable(
     starid, ra, dec,
     site = 'keck',
     min_altitude = 30*u.deg,
-    twilight_limit = 'nautical',
+    twilight_limit = 'astronomical',
     minokmoonsep=30*u.deg
 ):
     """
@@ -267,23 +267,35 @@ def check_astroplan_months_observable(
                    AltitudeConstraint(min=min_altitude),
                    MoonSeparationConstraint(min=minokmoonsep)]
 
-    best_months = months_observable(constraints, observer, [target])
+    bestmonths = months_observable(constraints, observer, [target])
 
-    # computed observability on "best_months" grid of 0.5 hr
+    # computed observability on "bestmonths" grid of 0.5 hr
     print(f'for {starid}, got best-months on 0.5 hour grid:')
-    print(best_months)
+    print(bestmonths)
     print('where 1 = Jan, 2 = Feb, etc.')
 
     joiner = lambda x: ','.join(np.array(x).astype(str))
 
+    if bestmonths == [set()]:
+        bestmonths = str(-1)
+    else:
+        bestmonths = joiner(list(bestmonths[0]))
+
     outdf = pd.DataFrame({
-        'bestmonths': joiner(list(best_months[0])),
+        'bestmonths': bestmonths,
     }, index=[0])
 
     return outdf
 
 
 
-def merge_to_observability_table(ticid):
-    #TODO
-    pass
+def merge_to_observability_table(
+    csvpath, r_gaia, r_tess, r_tic8, r_tesspoint, r_astroplan
+    ):
+
+    outdf = pd.concat(
+        (r_gaia, r_tess, r_tic8, r_tesspoint, r_astroplan), axis=1
+    )
+
+    outdf.to_csv(csvpath, index=False)
+    print(f'Wrote {csvpath}')
