@@ -12,10 +12,17 @@ from complexrotators.observability import (
 from complexrotators.paths import RESULTSDIR, TARGETSDIR, TABLEDIR
 from cdips.utils.catalogs import get_tic_star_information
 
-targetlist = os.path.join(TARGETSDIR, '20220115_RahulJayararaman_CR_list.csv')
+# begin options
+listname = "20220115_RahulJayararaman_CR_list.csv"
+listname = "LAH_TESS_GI_Sector_43_thru_45_CRs.csv"
+listname = 'LGB_complex_rotators_ddt_merge_tic8.csv'
+# end options
+
+listid = listname.replace('.csv', '')
+targetlist = os.path.join(TARGETSDIR, listname)
 df = pd.read_csv(targetlist)
 
-outdir = os.path.join(TABLEDIR, '22b_observability')
+outdir = os.path.join(TABLEDIR, f'22b_observability_{listid}')
 if not os.path.exists(outdir):
     os.mkdir(outdir)
 
@@ -79,7 +86,7 @@ df = df.reset_index()
 df = df.drop(['index','ra.1','dec.1'], axis='columns')
 df = df.rename({'ID':'ticid'}, axis='columns')
 
-outpath = os.path.join(outdir, '22b_CR_observability.csv')
+outpath = os.path.join(outdir, f'22b_CR_observability_{listid}.csv')
 df.to_csv(outpath, index=False, sep='|')
 print(f'Made {outpath}')
 
@@ -122,7 +129,7 @@ for xy in xytuples:
 
 selcols=['ticid','bp_rp','ruwe','dist_pc','period','a_5_95','phot_g_mean_mag','Vmag','Tmag']
 
-outpath = os.path.join(outdir, f'22b_keck_observable_distance_sorted.csv')
+outpath = os.path.join(outdir, f'22b_keck_observable_distance_sorted_{listid}.csv')
 
 outdf = sdf[selcols].sort_values(by='dist_pc').round(2)
 outdf.to_csv(outpath, index=False, sep="|")

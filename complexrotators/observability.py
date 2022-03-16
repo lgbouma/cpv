@@ -111,7 +111,7 @@ def given_ticid_get_period(ticid):
     # to pull the lightcurve and do that analysis from the light curves
     # themselves.
 
-    cachedir = os.path.join(RESULTSDIR, '22b_phase', f'TIC_{ticid}')
+    cachedir = os.path.join(RESULTSDIR, '*_phase', f'TIC_{ticid}')
     # all cadences, over all sectors
     pklpaths = glob(os.path.join(cachedir, f'*{ticid}*cr_periodsearch.pkl'))
     assert len(pklpaths) > 0
@@ -137,7 +137,7 @@ def given_ticid_get_variability_params(ticid, period_guess=None):
     # pull the lightcurve and do that analysis from the light curves
     # themselves.
 
-    cachedir = os.path.join(RESULTSDIR, '22b_phase', f'TIC_{ticid}')
+    cachedir = os.path.join(RESULTSDIR, '*_phase', f'TIC_{ticid}')
     # all cadences, over all sectors
     pklpaths = glob(os.path.join(cachedir, f'*{ticid}*dtr_lightcurve.pkl'))
     assert len(pklpaths) > 0

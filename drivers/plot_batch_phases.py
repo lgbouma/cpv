@@ -5,8 +5,13 @@ import complexrotators.plotting as cp
 from complexrotators.paths import RESULTSDIR, TARGETSDIR
 
 # begin options
-PLOTDIRNAME = 'year3_ddt_phase'
+# PLOTDIRNAME = 'Rahul_22b_phase'
+# TARGETLISTNAME = '20220115_RahulJayararaman_CR_list.csv'
+# PLOTDIRNAME = 'LAH_S43_to_S45_CRs'
+# TARGETLISTNAME = 'LAH_TESS_GI_Sector_43_thru_45_CRs.csv'
+PLOTDIRNAME = 'year3_LGB_ddt_phase'
 TARGETLISTNAME = 'complex_rotators_ddt_merge_tic8.csv'
+
 # end options
 
 PLOTDIR = os.path.join(RESULTSDIR, PLOTDIRNAME)
