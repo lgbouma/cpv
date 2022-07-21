@@ -8,8 +8,9 @@ get_tess_stats
     given_ticid_get_variability_params
     given_ticid_get_period
 check_tesspoint
-check_astroplan_observability
-merge_to_obsevability_table
+check_astroplan_months_observable
+get_bestmonth_hoursobservable
+merge_to_observability_table
 """
 import pandas as pd, numpy as np, matplotlib.pyplot as plt
 import os, pickle
@@ -238,8 +239,8 @@ def check_astroplan_months_observable(
     minokmoonsep=30*u.deg
 ):
     """
-    Given a TIC ID (ra/dec), an observing run start/stop time, and a site
-    location, figure out whether a star will be visible at night.
+    Given a star ID, ra/dec, and a site location, figure out the best
+    months for observing a star.
 
     Args:
         starid: string, e.g. "TIC_12345678"
@@ -286,6 +287,78 @@ def check_astroplan_months_observable(
     }, index=[0])
 
     return outdf
+
+
+def get_bestmonth_hoursobservable(
+    starid, ra, dec,
+    site = 'keck',
+    min_altitude = 35*u.deg,
+    twilight_limit = 'astronomical',
+    minokmoonsep=30*u.deg,
+    semester='22B'
+):
+    """
+    Given a star ID, ra/dec, an observing run start/stop time, and a site
+    location, figure out how many HOURS the star will observable at
+    >40 deg altitude per night.
+
+    Args:
+        starid: string, e.g. "TIC_12345678"
+        ra/dec: float degrees
+    """
+
+    from astroplan import (FixedTarget, Observer, is_observable,
+                           months_observable,
+                           AtNightConstraint, AltitudeConstraint,
+                           LocalTimeConstraint, MoonSeparationConstraint,
+                           AirmassConstraint, moon,
+                           observability_table)
+
+    target_coord = SkyCoord(ra=ra*u.deg, dec=dec*u.deg)
+    target = FixedTarget(coord=target_coord, name=starid)
+    observer = Observer.at_site(site)
+
+    if twilight_limit == 'astronomical':
+        twilight_constraint = AtNightConstraint.twilight_astronomical()
+    elif twilight_limit == 'nautical':
+        twilight_constraint = AtNightConstraint.twilight_nautical()
+    else:
+        raise NotImplementedError('civil twilight is janky.')
+
+    constraints = [twilight_constraint,
+                   AltitudeConstraint(min=min_altitude),
+                   MoonSeparationConstraint(min=minokmoonsep)]
+
+    if semester.endswith("B"):
+        # B semester example:
+        #min_time = Time('2022-07-31 23:59:00'),
+        #max_time = Time('2023-01-31 23:59:00')
+        starttime = Time('2022-08-15 23:59:00')
+        times = [starttime + ix*30*u.day for ix in range(6)]
+    elif semester.endswith("A"):
+        pass
+
+    obs_tables = {}
+    hrs_visible_per_night = {}
+    for time in times:
+        obs_table = observability_table(
+            constraints,
+            observer,
+            [target],
+            time_range=time,
+            time_grid_resolution=0.25*u.hour
+        )
+        obs_tables[time] = obs_table
+        # hours observable per night at this time
+        month_key = time.to_datetime().month
+        hrs_visible_per_night[month_key] = np.round(float(
+            obs_table['fraction of time observable']
+        )*24,1)
+
+    outdf = pd.DataFrame(hrs_visible_per_night, index=[0])
+
+    return outdf
+
 
 
 
