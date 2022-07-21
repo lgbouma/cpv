@@ -41,16 +41,13 @@ def single_ticid():
 
     ##########################################
     # change these
-    ticid = '364075855'
-    cyclewindows = [None,(0,65),(145,190)] # [None] #
+    ticid = '118769116'
+    cyclewindows = [None] # [None,(0,65),(145,190)] # [None] #
     is_20s = False
-    MANUAL_PERIOD = 1.317741
+    MANUAL_PERIOD = 0.356888
 
     # typically None
-    readcsv = join(
-        CSVDIR,
-        'TIC364075855_cdips_tess_lightcurve_minimal_PCA1_allsector_sigclipped.csv'
-    )
+    readcsv = None
     ##########################################
 
     # important keys: times, fluxs, period, t0, lsp.
@@ -62,7 +59,7 @@ def single_ticid():
     d['period'] = MANUAL_PERIOD
 
     idstr = f'TIC{ticid}'
-    titlestr = f'TIC{ticid}. P: {d["period"]:.7f}d'
+    titlestr = f'TIC{ticid}. S43+S44. P = {d["period"]:.7f}d.'
 
     for cyclewindow in cyclewindows:
 
