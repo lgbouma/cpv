@@ -146,6 +146,7 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
     divider0 = make_axes_locatable(ax)
     cax0 = divider0.append_axes('right', size='5%', pad=0.05)
     cb0 = fig.colorbar(c, ax=ax, cax=cax0, extend='both')
+    cb0.set_label("Relative flux", rotation=270, labelpad=10)
 
     if isinstance(titlestr, str):
         ax.set_title(titlestr.replace("_", " "))
