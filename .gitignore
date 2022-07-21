@@ -13,3 +13,4 @@ drivers/oneoffs*
 *secret*
 SANDBOX*
 proposal*
+*ipynb_checkpoints*
