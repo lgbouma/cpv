@@ -106,13 +106,13 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
 
         sel = (time > begin) & (time <= end)
 
-        if len(flux[sel]) < (N_obs_per_cycle-5):
+        if len(flux[sel])/N_obs_per_cycle < 0.9:
             # for significantly empty cycles, do all nan.  "significantly
             # empty" here means any more than 5 cadences (10 minutes, out of a
             # ~1 day periods typically) off.
             flux_arr[:, cycle_ind] = 0
 
-        elif len(flux[sel]) < N_obs_per_cycle:
+        elif len(flux[sel]) <= (N_obs_per_cycle-1):
             # for cycles a few cadences short, pad with a few nans at the end
             # of the array
             use_flux = np.ones(N_obs_per_cycle)*0
@@ -122,12 +122,9 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
 
             flux_arr[:, cycle_ind] = use_flux
 
-        elif len(flux[sel]) < (N_obs_per_cycle+5):
+        elif len(flux[sel]) > N_obs_per_cycle:
             use_flux = flux[sel][:N_obs_per_cycle]
             flux_arr[:, cycle_ind] = use_flux
-
-        elif len(flux[sel]) > (N_obs_per_cycle+5):
-            raise NotImplementedError('How did this happen?')
 
         else:
             use_flux = flux[sel]
