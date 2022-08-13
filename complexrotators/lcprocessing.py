@@ -11,15 +11,23 @@ from complexrotators.paths import RESULTSDIR, DATADIR
 from astropy.io import fits
 from astrobase import periodbase, checkplot
 
+from astrobase.lcmath import phase_magseries, phase_bin_magseries
+
+
 nworkers = multiprocessing.cpu_count()
 
-def cr_periodsearch(times, fluxs, starid, outdir):
+def cr_periodsearch(times, fluxs, starid, outdir, t0=None):
     """
     Given time and flux, run a period-search for objects expected to be complex
     rotators.
 
     A few plots and pickle files will be written to `outdir` using the `starid`
     string.
+
+    t0:
+        - None defaults to 1618.
+        - "binmin" defaults to phase-folding, and taking the arg-minimum
+        - Any int or float will be passed as the manual phase.
 
     A dictionary of the results is returned, containing:
         'lsp':lsp, 'fine_lsp':fine_lsp, 'times':times, 'fluxs':fluxs,
@@ -72,9 +80,34 @@ def cr_periodsearch(times, fluxs, starid, outdir):
                             plotxlim=(-0.8,0.8), plotdpi=200,
                             outfile=outfile, verbose=True)
 
+    if t0 is None:
+        # default phase
+        t0 = 1642.
+
+    elif t0 == 'binmin':
+        # bin the phase-fold to 50 points, take the minimum index.
+
+        period = fine_lsp['bestperiod']
+        x,y = times, fluxs-np.nanmean(fluxs)
+        t0_ini = np.nanmin(x)
+        _pd = phase_magseries(x, y, period, t0_ini, wrap=False,
+                              sort=False)
+        x_fold = _pd['phase']
+        y = _pd['mags']
+        bs_days = period/50
+        orb_bd = phase_bin_magseries(x_fold, y, binsize=bs_days, minbinelems=3)
+        min_phase = orb_bd['binnedphases'][np.argmin(orb_bd['binnedmags'])]
+        t0 = t0_ini + min_phase*period
+
+    elif isinstance(t0, (int, float)):
+        pass
+
+    else:
+        raise NotImplementedError
+
     d = {
         'lsp':lsp, 'fine_lsp':fine_lsp, 'times':times, 'fluxs':fluxs,
-        'period':fine_lsp['bestperiod'], 't0': 1618, 'outdir':outdir
+        'period':fine_lsp['bestperiod'], 't0': t0, 'outdir':outdir
         }
 
     with open(pklpath, 'wb') as f:
