@@ -173,11 +173,19 @@ def plot_phase(
     lc_cadences='2min_20sec',
     manual_period=None,
     ylim=None,
-    binsize_minutes=10
+    binsize_minutes=10,
+    t0='binmin',
+    xlim=[-0.6,0.6]
 ):
     """
-    lc_cadences: string like "2min_20sec", "30min_2min_20sec", etc, for the types
-    of light curves to pull for the given TIC ID.
+    lc_cadences:
+        string like "2min_20sec", "30min_2min_20sec", etc, for the types of
+        light curves to pull for the given TIC ID.
+
+    t0:
+        - None defaults to 1618.
+        - "binmin" defaults to phase-folding, and taking the arg-minimum
+        - Any int or float will be passed as the manual phase.
     """
 
     #
@@ -255,7 +263,7 @@ def plot_phase(
 
         # get t0, period, lsp
         d = cr_periodsearch(
-            x_obs, y_flat, starid, outdir
+            x_obs, y_flat, starid, outdir, t0=t0
         )
 
         # make the quicklook plot
@@ -280,7 +288,8 @@ def plot_phase(
 
         plot_phased_light_curve(
             d['times'], d['fluxs'], d['t0'], period, outpath,
-            titlestr=titlestr, ylim=ylim, binsize_minutes=binsize_minutes
+            titlestr=titlestr, ylim=ylim, binsize_minutes=binsize_minutes,
+            xlim=xlim
         )
 
 
@@ -323,7 +332,7 @@ def plot_quicklook_cr(x_obs, y_obs, x_trend, y_trend, x_flat, y_flat, outpath,
 
 def plot_phased_light_curve(
     time, flux, t0, period, outpath,
-    ylim=None, binsize_minutes=2, BINMS=2, titlestr=None,
+    ylim=None, xlim=[-1,1], binsize_minutes=2, BINMS=2, titlestr=None,
     showtext=True, showtitle=False, figsize=None,
     c0='darkgray', alpha0=0.3,
     c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
@@ -393,12 +402,15 @@ def plot_phased_light_curve(
     )
     if showtext:
         if isinstance(t0, float):
-            txt = f'$t_0$ [BTJD]: {t0:.6f}\n$P$: {period:.6f} d'
+            #txt = f'$t_0$ [BTJD]: {t0:.6f}\n$P$: {period:.6f} d'
+            txt = f'$P$: {period*24:.2f} hr' # simpler label
+            fontsize='small'
         elif isinstance(t0, int):
             txt = f'$t_0$ [BTJD]: {t0:.1f}\n$P$: {period:.6f} d'
+            fontsize='xx-small'
         ax.text(0.97,0.03,txt,
                 transform=ax.transAxes,
-                ha='right',va='bottom', color='k', fontsize='xx-small')
+                ha='right',va='bottom', color='k', fontsize=fontsize)
     if showtitle:
         txt = f'$t_0$ [BTJD]: {t0:.6f}. $P$: {period:.6f} d'
         ax.set_title(txt, fontsize='small')
@@ -409,7 +421,10 @@ def plot_phased_light_curve(
     ax.set_ylabel(r"Relative flux [$\times 10^{-2}$]")
     ax.set_xlabel("Phase")
 
-    ax.set_xlim([-1,1])
+    ax.set_xlim(xlim)
+    if xlim == [-0.6,0.6]:
+        ax.set_xticks([-0.5, -0.25, 0, 0.25, 0.5])
+        ax.set_xticklabels([-0.5, -0.25, 0, 0.25, 0.5])
 
     if isinstance(ylim, (list, tuple)):
         ax.set_ylim(ylim)
