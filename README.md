@@ -1,5 +1,6 @@
 # complex rotators
 
+== complex periodic variables
 == Stauffer stars
 == transient-dipping T Tauris
 == "scallops", but at 2 minute cadence (cf. Gunther+2020)
