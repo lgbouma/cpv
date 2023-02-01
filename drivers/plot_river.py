@@ -41,10 +41,10 @@ def single_ticid():
 
     ##########################################
     # change these
-    ticid = '118769116'
-    cyclewindows = [None] # [None,(0,65),(145,190)] # [None] #
+    ticid = '2234723'
+    cyclewindows = [None,(0,12),(260,300)] # [None,(0,65),(145,190)] # [None] #
     is_20s = False
-    MANUAL_PERIOD = 0.356888
+    MANUAL_PERIOD = 2.4624
 
     # typically None
     readcsv = None
@@ -59,7 +59,7 @@ def single_ticid():
     d['period'] = MANUAL_PERIOD
 
     idstr = f'TIC{ticid}'
-    titlestr = f'TIC{ticid}. S43+S44. P = {d["period"]:.7f}d.'
+    titlestr = f'TIC{ticid}. P = {d["period"]:.4f}d.'
 
     for cyclewindow in cyclewindows:
 
