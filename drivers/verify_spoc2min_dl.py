@@ -1,9 +1,9 @@
 """
-Once the tesscurl_sector_XX_lc.sh scripts have been executed, you need to
-verify that all available 2-minute light curves were actually downloaded
-correctly by the CURL scripts.  In cases for which it failed, you need to
-re-download them.  The verification step requires opening each of the files,
-which is a bit slow (takes 4 minutes to open 20k light curves).
+Once the tesscurl_sector_XX_lc.sh bulk download scripts have been executed, you
+need to verify that all available 2-minute light curves were actually
+downloaded correctly by the CURL scripts.  In cases for which it failed, you
+need to re-download them.  The verification step requires opening each of the
+files, which is a bit slow (takes 4 minutes to open 20k light curves).
 
 Contents:
     check_if_files_open
@@ -15,6 +15,7 @@ from os.path import join
 import numpy as np, pandas as pd
 from astrobase.imageutils import get_header_keyword_list
 from datetime import datetime
+
 from complexrotators.paths import SPOCDIR
 
 def check_if_files_open():
