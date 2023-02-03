@@ -44,7 +44,7 @@ from complexrotators.getters import (
     get_20sec_cadence_spoc_tess_lightcurve
 )
 from complexrotators.lcprocessing import (
-    cr_periodsearch
+    cpv_periodsearch
 )
 
 from cdips.lcproc import detrend as dtr
@@ -262,7 +262,7 @@ def plot_phase(
                 print(f'Made {pklpath}')
 
         # get t0, period, lsp
-        d = cr_periodsearch(
+        d = cpv_periodsearch(
             x_obs, y_flat, starid, outdir, t0=t0
         )
 

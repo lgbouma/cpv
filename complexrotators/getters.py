@@ -1,5 +1,7 @@
 """
-get_2min_cadence_spoc_tess_lightcurve
+Contents:
+| get_2min_cadence_spoc_tess_lightcurve
+| get_20sec_cadence_spoc_tess_lightcurve
 """
 import numpy as np
 import lightkurve as lk

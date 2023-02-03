@@ -23,5 +23,4 @@ TABLEDIR = os.path.join(RESULTSDIR, 'tables')
 SPOCDIR = '/ar1/TESS/SPOCLC'
 
 LOCALDIR = os.path.join(os.path.expanduser('~'), 'local', 'complexrotators')
-if not os.path.exists(LOCALDIR):
-    os.mkdir(LOCALDIR)
+if not os.path.exists(LOCALDIR): os.mkdir(LOCALDIR)
