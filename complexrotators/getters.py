@@ -2,9 +2,26 @@
 Contents:
 | get_2min_cadence_spoc_tess_lightcurve
 | get_20sec_cadence_spoc_tess_lightcurve
+| _get_lcpaths_given_ticid
 """
 import numpy as np
 import lightkurve as lk
+from os.path import join
+from glob import glob
+
+def _get_lcpaths_given_ticid(ticid):
+    # TODO: this getter will need to be updated when running at scale on wh1
+    SPOCDIR = "/Users/luke/local/SPOCLC"
+    lcpaths = glob(join(SPOCDIR, "lightcurves", f"*{ticid}*.fits"))
+
+    if len(lcpaths) == 0:
+        p = subprocess.call([
+            "scp", f"luke@wh1:/ar1/TESS/SPOCLC/sector*/*{ticid}*.fits",
+            join(SPOCDIR, "lightcurves")
+        ])
+        assert 0
+    return lcpaths
+
 
 def get_2min_cadence_spoc_tess_lightcurve(
     ticstr: str,
