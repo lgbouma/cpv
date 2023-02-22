@@ -26,6 +26,7 @@ from astropy.table import Table
 
 import matplotlib.patheffects as pe
 from matplotlib.ticker import MaxNLocator
+from matplotlib.transforms import blended_transform_factory
 
 from aesthetic.plot import savefig, format_ax, set_style
 from astrobase.lcmath import (
@@ -332,11 +333,12 @@ def plot_quicklook_cr(x_obs, y_obs, x_trend, y_trend, x_flat, y_flat, outpath,
 
 def plot_phased_light_curve(
     time, flux, t0, period, outpath,
-    ylim=None, xlim=[-1,1], binsize_minutes=2, BINMS=2, titlestr=None,
+    ylim=None, xlim=[-0.6,0.6], binsize_minutes=2, BINMS=2, titlestr=None,
     showtext=True, showtitle=False, figsize=None,
     c0='darkgray', alpha0=0.3,
     c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
-    fig=None, ax=None, savethefigure=True
+    fig=None, ax=None, savethefigure=True,
+    findpeaks_result=None
     ):
     """
     Non-obvious args:
@@ -348,9 +350,9 @@ def plot_phased_light_curve(
         alpha1 (float): alpha for -binned points.
         phasewrap: [-1,1] or [0,1] in phase.
         plotnotscatter: if True, uses ax.plot to show non-binned points
-
         savethefigure: if False, returns fig and ax
         fig, ax: if passed, overrides default
+        findpeaks_result: output from ``count_phased_local_minima``
     """
 
     # make plot
@@ -400,6 +402,19 @@ def plot_phased_light_curve(
         s=BINMS, linewidths=0,
         alpha=alpha1, zorder=1002#, linewidths=0.2, edgecolors='white'
     )
+
+    if isinstance(findpeaks_result, dict):
+
+        if not xlim == [-0.6,0.6]:
+            raise AssertionError("phasing off otherwise")
+
+        tform = blended_transform_factory(ax.transData, ax.transAxes)
+        peakloc = findpeaks_result['peaks_phaseunits']
+        peakloc[peakloc>0.5] -= 1 # there must be a smarter way
+        ax.scatter(peakloc, np.ones(len(peakloc))*0.98, transform=tform,
+                   marker='v', s=10, linewidths=0, edgecolors='none',
+                   color='k', alpha=0.5, zorder=1000)
+
     if showtext:
         if isinstance(t0, float):
             #txt = f'$t_0$ [BTJD]: {t0:.6f}\n$P$: {period:.6f} d'
@@ -411,6 +426,7 @@ def plot_phased_light_curve(
         ax.text(0.97,0.03,txt,
                 transform=ax.transAxes,
                 ha='right',va='bottom', color='k', fontsize=fontsize)
+
     if showtitle:
         txt = f'$t_0$ [BTJD]: {t0:.6f}. $P$: {period:.6f} d'
         ax.set_title(txt, fontsize='small')
