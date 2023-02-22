@@ -1,6 +1,7 @@
 """
 Contents:
     | cpv_periodsearch
+    | count_phased_local_minima
 """
 import numpy as np, pandas as pd
 from numpy import array as nparr
@@ -13,11 +14,13 @@ from astrobase import periodbase, checkplot
 
 from astrobase.lcmath import phase_magseries, phase_bin_magseries
 
+from scipy.signal import find_peaks
+
 
 nworkers = multiprocessing.cpu_count()
 
 def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
-                    periodogram_method="pdm"):
+                     periodogram_method="pdm"):
     """
     Given time and flux, run a period-search for objects expected to be complex
     rotators.
@@ -82,6 +85,8 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
     # for the fine-tuning
     delta_P = 0.2
     stepsize = 1e-5
+
+    print(f'Beginning period search for {starid}')
 
     if periodogram_method == 'ls':
 
@@ -162,3 +167,89 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
         print(f'Made {pklpath}')
 
     return d
+
+
+def count_phased_local_minima(
+    time, flux, t0, period,
+    binsize_phase_units=0.005,
+    prominence=1e-3,
+    width=6
+    ):
+    """
+    Given time, flux, epoch, and period, phase the light curve and count the
+    number of "dips" (local minima) in the phase fold.  Accomplish this as
+    follows.
+
+    First, bin to say 100 points per cycle.  Then invert the signal (multiply
+    by minus one), and use scipy.signal.find_peaks.  Require a particular width
+    in addition to the prominence for a signal to be called a "peak".  eg.,
+    "width must be at least 0.03 in phase, amplitude must be at least 0.1% in
+    flux", or similar.
+
+    See bottom example at
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html#scipy.signal.find_peaks
+
+    Args:
+        binsize_phase_units (float):
+            Size of bins in units of phase.  e.g., 0.01 corresponds to 100
+            points.
+
+        prominence (float):
+            Minimum height of peak required for it to be signficant. 1e-3 means
+            0.1% in flux.
+
+        width (float):
+            Minimum width of peak in units of samples.  E.g., 3 with
+            binsize_phase_units of 0.01 means "at least 0.03 in phase".
+
+    Returns:
+        dictionary of results includes the number of peaks, their widths, and
+        their prominences.
+    """
+
+    x,y = time, flux-np.nanmean(flux)
+    _pd = phase_magseries(x, y, period, t0, wrap=True, sort=False)
+    x_fold = _pd['phase']
+    y = _pd['mags']
+
+    orb_bd = phase_bin_magseries(
+        x_fold, y, binsize=binsize_phase_units, minbinelems=5
+    )
+    min_phase = orb_bd['binnedphases'][np.argmin(orb_bd['binnedmags'])]
+
+    # here are the points you will search.  these are already phase-ordered.
+    x, y = orb_bd['binnedphases'], orb_bd['binnedmags']
+
+    # number of points in one full cycle
+    N = int(1/binsize_phase_units)
+
+    peaks, properties = find_peaks(
+        -y, prominence=prominence, width=width
+    )
+
+    # drop duplicate peaks from the wrap.  this was just to ensure you get dip
+    # minima at phase=0.
+    sel = (peaks <= N)
+
+    peaks = peaks[sel]
+    for k, v in properties.items():
+        properties[k] = v[sel]
+    params = "left_bases,right_bases,widths,left_ips,right_ips".split(",")
+    for param in params:
+        properties[param+"_phaseunits"] = properties[param]*binsize_phase_units
+
+    r = {
+        'N_peaks': len(peaks),
+        'peaks_phaseunits': np.mod(peaks*binsize_phase_units, 1),
+        'peaks': peaks,
+        'properties': properties,
+        'time': time,
+        'flux': flux,
+        't0': t0,
+        'period': period,
+        'binsize_phase_units': binsize_phase_units,
+        'prominence': prominence,
+        'width': width
+    }
+
+    return r
