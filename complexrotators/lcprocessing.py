@@ -2,6 +2,7 @@
 Contents:
     | cpv_periodsearch
     | count_phased_local_minima
+    | prepare_cpv_light_curve
 """
 import numpy as np, pandas as pd
 from numpy import array as nparr
@@ -15,6 +16,9 @@ from astrobase import periodbase, checkplot
 from astrobase.lcmath import phase_magseries, phase_bin_magseries
 
 from scipy.signal import find_peaks
+
+from wotan import flatten
+from copy import deepcopy
 
 
 nworkers = multiprocessing.cpu_count()
@@ -253,3 +257,65 @@ def count_phased_local_minima(
     }
 
     return r
+
+
+def prepare_cpv_light_curve(lcpath, cachedir):
+    """
+    Given a SPOC 2-minute light curve, remove non-zero quality flags,
+    median-normalize, and run a 5-day median filter over the light curve.
+    Cache the output.
+    """
+
+    hl = fits.open(lcpath)
+    hdr = hl[0].header
+    d = hl[1].data
+
+    # metadata
+    sector = hdr["SECTOR"]
+    ticid = hdr["TICID"]
+
+    # light curve data
+    time = d['TIME']
+    flux = d['PDCSAP_FLUX']
+    qual = d['QUALITY']
+
+    # remove non-zero quality flags
+    sel = (qual == 0)
+
+    x_obs = time[sel]
+    y_obs = flux[sel]
+
+    # normalize around 1
+    y_obs /= np.nanmedian(y_obs)
+
+    # NOTE: you could consider removing flares using a time-windowed slider
+    # here.  however, for purposes of finding the periods, they are a small
+    # enough fraction of the duty cycle that they can probably be ignored.
+
+    # what is the cadence?
+    cadence_sec = int(np.round(np.nanmedian(np.diff(x_obs))*24*60*60))
+
+    starid = f'{ticid}_S{str(sector).zfill(4)}_{cadence_sec}sec'
+
+    #
+    # "light" detrending by default. (& cache it)
+    #
+    pklpath = os.path.join(cachedir, f"{starid}_dtr_lightcurve.pkl")
+    if os.path.exists(pklpath):
+        print(f"Found {pklpath}, loading and continuing.")
+        with open(pklpath, 'rb') as f:
+            lcd = pickle.load(f)
+        y_flat = lcd['y_flat']
+        y_trend = lcd['y_trend']
+        x_trend = lcd['x_trend']
+    else:
+        y_flat, y_trend = flatten(x_obs, y_obs, window_length=5.0,
+                                  return_trend=True, method='median')
+        x_trend = deepcopy(x_obs)
+        lcd = {'y_flat':y_flat, 'y_trend':y_trend, 'x_trend':x_trend }
+        with open(pklpath, 'wb') as f:
+            pickle.dump(lcd, f)
+            print(f'Made {pklpath}')
+
+    return (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend,
+            cadence_sec, sector, starid)
