@@ -1,11 +1,14 @@
 """
 Contents:
-    plot_TEMPLATE
 
-    plot_river
-    plot_phase
-    plot_multicolor_phase
-    plot_phased_light_curve
+    | plot_TEMPLATE
+
+    | plot_river
+    | plot_phase
+    | plot_multicolor_phase
+    | plot_phased_light_curve
+
+    | plot_dipcounter_check
 """
 import os, pickle
 from glob import glob
@@ -634,3 +637,104 @@ def plot_multicolor_phase(outdir, BINMS=2):
 
     savefig(fig, outpath, dpi=350)
     plt.close('all')
+
+
+def plot_dipcountercheck(findpeaks_result, d, eval_dict, outdir, starid):
+    # args: results from count_phased_local_minima and cpv_periodsearch,
+    # respectively
+
+    r = findpeaks_result
+    xlim = [-0.6, 0.6]
+
+    # get data
+    outpath = os.path.join(outdir, f'{starid}_dipcountercheck.png')
+    if os.path.exists(outpath):
+        print(f'found {outpath}, skipping')
+        return
+
+    # make plot
+    plt.close('all')
+    set_style('clean')
+
+    fig = plt.figure(figsize=(4,8))
+    axd = fig.subplot_mosaic(
+        """
+        A
+        B
+        C
+        """
+    )
+
+    # the data
+    ax = axd['A']
+
+    ax.scatter(
+        r['binned_phase'], r['binned_orig_flux'], c='k', zorder=1
+    )
+    ax.plot(
+        r['binned_phase'], r['binned_trend_flux'], c='darkgray', zorder=2
+    )
+    ax.set_ylabel('Flux')
+
+    txt = f'$P$: {d["period"]*24:.2f} hr' # simpler label
+    ax.text(0.97,0.03,txt,
+            transform=ax.transAxes,
+            ha='right',va='bottom', color='k', fontsize='small')
+
+    ax.set_title(starid.replace("_"," "), fontsize='small')
+
+    # the transformation, used to count dips
+    ax = axd['B']
+    ax.scatter(
+        r['binned_phase'], r['binned_search_flux'], c='k'
+    )
+    ax.set_ylabel("Residual")
+
+    # show the dips
+    for ax in [axd['A'], axd['B']]:
+        if not xlim == [-0.6,0.6]:
+            raise AssertionError("phasing off otherwise")
+        ax.set_xlim(xlim)
+        tform = blended_transform_factory(ax.transData, ax.transAxes)
+        peakloc = r['peaks_phaseunits']
+        peakloc[peakloc>0.5] -= 1 # there must be a smarter way
+        ax.scatter(peakloc, np.ones(len(peakloc))*0.98, transform=tform,
+                   marker='v', s=10, linewidths=0, edgecolors='none',
+                   color='k', alpha=0.5, zorder=1000)
+
+    # text summary
+    ax = axd['C']
+    ax.set_axis_off()
+    txt0 = (
+        f'{starid}\n'
+        f'N dips: {r["N_peaks"]}\n'
+        f'locs: {r["peaks_phaseunits"]}\n'
+        f'left bases: {r["properties"]["left_bases_phaseunits"]}\n'
+        f'right bases: {r["properties"]["right_bases_phaseunits"]}'
+    )
+    ax.text(0.03, 0.03, txt0,
+            transform=ax.transAxes, ha='left', va='bottom', color='k')
+
+    txt1 = ''
+    if eval_dict['found_correct_ndips']:
+        txt1 += 'found correct ndips'
+        color = 'green'
+    else:
+        txt1 += 'found incorrect ndips'
+        color = 'red'
+    ax.text(0.03, 0.97, txt1,
+            transform=ax.transAxes, ha='left', va='top', color=color)
+
+    txt2 = ''
+    if eval_dict['found_toofew_dips'] or eval_dict['found_toomany_dips']:
+        if eval_dict['found_toofew_dips']:
+            txt2 += 'found too few dips'
+        if eval_dict['found_toomany_dips']:
+            txt2 += 'found too many dips'
+        color = 'red'
+        ax.text(0.03, 0.8, txt2,
+                transform=ax.transAxes, ha='left', va='top', color=color)
+
+
+    # finish
+    savefig(fig, outpath, dpi=400)
