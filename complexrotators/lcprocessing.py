@@ -175,25 +175,21 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
 
 def count_phased_local_minima(
     time, flux, t0, period,
-    binsize_phase_units=0.005,
+    method="medianfilt_findpeaks",
+    binsize_phase_units=0.02,
     prominence=1e-3,
-    width=6
+    width=2,
+    window_length_phase_units=0.1
     ):
     """
     Given time, flux, epoch, and period, phase the light curve and count the
-    number of "dips" (local minima) in the phase fold.  Accomplish this as
-    follows.
-
-    First, bin to say 100 points per cycle.  Then invert the signal (multiply
-    by minus one), and use scipy.signal.find_peaks.  Require a particular width
-    in addition to the prominence for a signal to be called a "peak".  eg.,
-    "width must be at least 0.03 in phase, amplitude must be at least 0.1% in
-    flux", or similar.
-
-    See bottom example at
-    https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html#scipy.signal.find_peaks
+    number of "dips" (local minima) in the phase fold.
 
     Args:
+        method (str):
+            One of ["findpeaks", "medianfilt_findpeaks"].  These are discussed
+            further below.
+
         binsize_phase_units (float):
             Size of bins in units of phase.  e.g., 0.01 corresponds to 100
             points.
@@ -206,12 +202,25 @@ def count_phased_local_minima(
             Minimum width of peak in units of samples.  E.g., 3 with
             binsize_phase_units of 0.01 means "at least 0.03 in phase".
 
+        window_length_phase_units (float):
+            Used only if method includes a windowed-slider, in which case this
+            will be the window length in units of phase.
+
     Returns:
         dictionary of results includes the number of peaks, their widths, and
         their prominences.
+
+    NOTES:
+    Both the "findpeaks" and "medianfilt_findpeaks" methods rely on
+    scipy.signal.find_peaks (link below).  The latter incorporates an initial
+    step of median-smoothing, which is useful for removing smooth (presumably
+    spot-induced) variability.
+
+    LINKS:
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html#scipy.signal.find_peaks
     """
 
-    x,y = time, flux-np.nanmean(flux)
+    x,y = time, flux
     _pd = phase_magseries(x, y, period, t0, wrap=True, sort=False)
     x_fold = _pd['phase']
     y = _pd['mags']
@@ -221,8 +230,22 @@ def count_phased_local_minima(
     )
     min_phase = orb_bd['binnedphases'][np.argmin(orb_bd['binnedmags'])]
 
-    # here are the points you will search.  these are already phase-ordered.
-    x, y = orb_bd['binnedphases'], orb_bd['binnedmags']
+    # x and y are the points to search.  these are already phase-ordered.
+    x, _y = orb_bd['binnedphases'], orb_bd['binnedmags']
+
+    if method == 'findpeaks':
+        trend_y = None
+        y = _y * 1.
+
+    elif method == 'medianfilt_findpeaks':
+        y, trend_y = flatten(
+            x, 1+_y, method='median', return_trend=True, break_tolerance=1,
+            window_length=window_length_phase_units, edge_cutoff=1e-3
+        )
+
+    offset = np.nanmean(y)
+    y -= offset
+    trend_y -= offset
 
     # number of points in one full cycle
     N = int(1/binsize_phase_units)
@@ -253,7 +276,13 @@ def count_phased_local_minima(
         'period': period,
         'binsize_phase_units': binsize_phase_units,
         'prominence': prominence,
-        'width': width
+        'width': width,
+        'phase': _pd['phase'],
+        'phase_flux': _pd['mags'],
+        'binned_phase': x,
+        'binned_search_flux': y,
+        'binned_orig_flux': _y,
+        'binned_trend_flux': trend_y
     }
 
     return r
