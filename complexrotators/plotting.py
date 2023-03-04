@@ -669,7 +669,7 @@ def plot_dipcountercheck(findpeaks_result, d, eval_dict, outdir, starid):
     ax = axd['A']
 
     ax.scatter(
-        r['binned_phase'], r['binned_orig_flux'], c='k', zorder=1
+        r['binned_phase'], r['binned_orig_flux'], c='k', zorder=1, s=3
     )
     ax.plot(
         r['binned_phase'], r['binned_trend_flux'], c='darkgray', zorder=2
@@ -686,7 +686,7 @@ def plot_dipcountercheck(findpeaks_result, d, eval_dict, outdir, starid):
     # the transformation, used to count dips
     ax = axd['B']
     ax.scatter(
-        r['binned_phase'], r['binned_search_flux'], c='k'
+        r['binned_phase'], r['binned_search_flux'], c='k', s=3
     )
     ax.set_ylabel("Residual")
 

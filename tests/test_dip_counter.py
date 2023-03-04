@@ -1,4 +1,5 @@
 import os
+from glob import glob
 import pandas as pd, numpy as np
 from os.path import join
 from complexrotators.paths import LOCALDIR, RESULTSDIR
@@ -33,17 +34,18 @@ def test_dip_counter(ticid):
 
         cd = {
             'method': 'medianfilt_findpeaks',
-            'binsize_phase_units': 0.02,
-            'prominence': 1e-3,
+            'height': 1e-3,
+            'binsize_phase_units': 0.01,
             'width': 2,
-            'window_length_phase_units': 0.2
+            'window_length_phase_units': 0.1
         }
 
+        # otherwise find_peaks can suffer odd edge effects
         r = count_phased_local_minima(
             d['times'], d['fluxs'], d['t0'], d['period'],
             method=cd['method'],
             binsize_phase_units=cd['binsize_phase_units'],
-            prominence=cd['prominence'], width=cd['width'],
+            height=cd['height'], width=cd['width'],
             window_length_phase_units=cd['window_length_phase_units']
         )
 
@@ -87,10 +89,13 @@ def evaluate_dipcounter(starid, r, cd, save_evaldict=True):
         (r['N_peaks'] <= sdf['ndipsmax'])
     )
 
+    class_str = '' if len(sdf) == 0 else sdf['class'].values[0]
+
     eval_dict = {
         'ticid': ticid,
         'sstr': sstr,
         'cadence': cadence,
+        'class': class_str,
         'found_enough_dips': found_enough_dips,
         'found_toofew_dips': found_toofew_dips,
         'found_toomany_dips': found_toomany_dips,
@@ -108,39 +113,88 @@ def evaluate_dipcounter(starid, r, cd, save_evaldict=True):
 
     if save_evaldict:
         outdir = join(RESULTSDIR, "dipcountercheck")
-        outpath = os.path.join(outdir, f'{starid}_dipcountercheck.txt')
+        outpath = join(outdir, f'{starid}_dipcountercheck.txt')
         pu.save_status(outpath, 'eval_dict', eval_dict)
         print(f"Wrote {outpath}")
 
     return eval_dict, make_plot
 
 
+def evaluate_run_dipcountercheck(ticids):
+
+    outdir = join(RESULTSDIR, "dipcountercheck")
+    outpaths = [
+        glob(join(outdir, f'{ticid}*_dipcountercheck.txt'))
+        for ticid in ticids
+    ]
+    outpaths = [item for sublist in outpaths for item in sublist]
+
+    rows = []
+    for outpath in outpaths:
+        _row = pu.load_status(outpath)
+        rows.append(pd.DataFrame(dict(_row['eval_dict']), index=[0]))
+
+    df = pd.concat(rows)
+    df['imgpath'] = [os.path.basename(p).replace(".txt",".png") for p in outpaths]
+
+    sel = (df.ndips_min.astype(int) >= 0) & (df.ndips_max.astype(int) >= 0)
+
+    sdf = df[sel]
+
+    cols = ['ticid', 'sstr', 'class', 'found_correct_ndips',
+            'found_toomany_dips', 'found_toofew_dips', 'imgpath']
+
+    print(sdf[cols].sort_values(by=['class','ticid','sstr']))
+
+    # require all rotators to have a "correct" number of dips (which in
+    # practice means at most two)
+    assert np.all(sdf[sdf['class'] == 'rot'].found_correct_ndips == 'True')
+    print("All rotators have <= 2 dips.")
+
+    # require all cpvs to have more than the minimum number of dips
+    assert np.all(sdf[sdf['class'] == 'cpv'].found_toofew_dips == 'False')
+    print("All CPVs have N dips consistent with labels.")
+
+
 def test_dip_counter_all_stars():
 
     ticids = [
-    ##"201789285",
-    "311092148",
-    "332517282",
-    "405910546",
-    "142173958",
-    "300651846",
-    "408188366",
-    "146539195",
-    "177309964",
-    "425933644",
-    "206544316",
-    "224283342",
-    ##"245902096",
-    #"150068381",
-    #"177309964",
-    #"118769116",
-    #"245868207",
-    #"245874053",
-    #"59129133"
+        # normal rotators
+        "150068381",
+        "177309964",
+        #TODO: get more
+        # fav cpvs
+        "206544316",
+        "425933644",
+        "332517282",
+        "300651846",
+        # cpv/eb
+        "146539195",
+        #TODO: get more
+        # cpvs that i care less about
+        "201789285",
+        "311092148",
+        "405910546",
+        "142173958",
+        "408188366",
+        ##"224283342",
+        ##"245902096",
+        ##"118769116",
+        ##"245868207",
+        ##"245874053",
+        ##"59129133"
     ]
 
-    for ticid in ticids:
-        test_dip_counter(ticid)
+    run_test = 1
+    run_eval = 1
+
+    if run_test:
+        for ticid in ticids:
+            test_dip_counter(ticid)
+
+    if run_eval:
+        evaluate_run_dipcountercheck(ticids)
+
 
 if __name__ == "__main__":
     test_dip_counter_all_stars()

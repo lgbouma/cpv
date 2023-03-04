@@ -1,46 +1,46 @@
-ticid,sector,ndipsmin,ndipsmax,comment
-"201789285",3,4,6,
-"201789285",2,4,6,
-"201789285",29,5,6,
-"201789285",30,4,5,
-"311092148",31,4,5,
-"332517282",2,4,7,
-"332517282",29,4,5,half-period important durn here too- just like 206544316
-"405910546",37,3,6,
-"405910546",38,3,4,
-"142173958",10,4,5,
-"142173958",37,4,4,
-"300651846",32,3,4,half-period again important here for biggest dip--also like 206544316
-"300651846",33,3,5,
-"300651846",34,3,4,
-"300651846",35,4,6,mildly different from s32 shape
-"300651846",36,3,4,return to s32 shape
-"300651846",37,3,4,
-"300651846",38,3,3,
-"300651846",39,3,6,this star has a great dataset and shows nice evolution
-"408188366",32,3,5,
-"146539195",5,4,4,
-"146539195",32,2,2,
-"177309964",9,2,2,good test case for pure double-dip sinusoid
-"177309964",10,2,2,good test case for pure double-dip sinusoid
-"177309964",11,3,3,good test case (but only use these three sectors - its in cvz!)
-"425933644",1,3,8,lol
-"425933644",2,3,5,
-"425933644",28,5,7,high complexity conserved?
-"425933644",29,5,5,
-"206544316",1,3,3,
-"206544316",2,3,4,
-"206544316",28,3,4,half a period remains conserved though shape changes
-"206544316",29,3,5,it develops a phase 0.5 dip!
-"224283342",2,3,4,
-"224283342",29,2,4,odd primary dip shape
-"245902096",43,1,1,
-"245902096",44,1,1,
-"150068381",6,1,1,good test case for pure single dip sinusoid
-"150068381",38,1,2,good test case for weak double dip sinusoid
-"118769116",44,4,5,noisy
-"245868207",44,2,2,noisy and careful bc 43 has wrong period
-"245874053",43,2,2,noisy
-"245874053",44,2,2,noisy
-"59129133",43,3,5,noisy
-"59129133",44,2,3,noisy
+ticid,sector,ndipsmin,ndipsmax,class,comment
+"201789285",3,4,6,cpv,
+"201789285",2,4,6,cpv,
+"201789285",29,5,6,cpv,
+"201789285",30,4,5,cpv,
+"311092148",31,3,5,cpv,
+"332517282",2,4,7,cpv,
+"332517282",29,4,5,cpv,half-period important durn here too- just like 206544316
+"405910546",37,3,6,cpv,
+"405910546",38,3,5,cpv,
+"142173958",10,4,5,cpv,
+"142173958",37,4,4,cpv,
+"300651846",32,3,4,cpv,half-period again important here for biggest dip--also like 206544316
+"300651846",33,3,5,cpv,
+"300651846",34,3,4,cpv,
+"300651846",35,3,6,cpv,mildly different from s32 shape
+"300651846",36,3,4,cpv,return to s32 shape
+"300651846",37,3,4,cpv,
+"300651846",38,3,3,cpv,
+"300651846",39,3,6,cpv,this star has a great dataset and shows nice evolution
+"408188366",32,3,5,cpv,
+"146539195",5,2,4,cpv,two sharp dips and some smooth dips
+"146539195",32,2,2,eb,
+"177309964",9,0,2,rot,good test case for pure double-dip sinusoid
+"177309964",10,0,2,rot,good test case for pure double-dip sinusoid
+"177309964",11,3,3,cpv,good test case (but only use these three sectors - its in cvz!)
+"425933644",1,3,8,cpv,lol
+"425933644",2,3,5,cpv,
+"425933644",28,4,7,cpv,high complexity conserved?
+"425933644",29,4,5,cpv,
+"206544316",1,3,3,cpv,canonical and epic
+"206544316",2,3,4,cpv,
+"206544316",28,3,4,cpv,half a period remains conserved though shape changes
+"206544316",29,2,4,cpv,it develops a phase 0.5 dip!
+"224283342",2,3,4,cpv,
+"224283342",29,2,4,cpv,bizarre primary dip shape
+"245902096",43,0,1,rot,
+"245902096",44,0,1,rot,
+"150068381",6,0,1,rot,good test case for pure single dip sinusoid
+"150068381",38,0,2,rot,good test case for weak double dip sinusoid
+"118769116",44,4,5,junk,noisy
+"245868207",44,2,2,junk,noisy and careful bc 43 has wrong period
+"245874053",43,2,2,junk,noisy
+"245874053",44,2,2,junk,noisy
+"59129133",43,3,5,junk,noisy
+"59129133",44,2,3,junk,noisy

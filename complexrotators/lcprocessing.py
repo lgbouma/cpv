@@ -3,6 +3,7 @@ Contents:
     | cpv_periodsearch
     | count_phased_local_minima
     | prepare_cpv_light_curve
+    | p2p_rms
 """
 import numpy as np, pandas as pd
 from numpy import array as nparr
@@ -177,7 +178,7 @@ def count_phased_local_minima(
     time, flux, t0, period,
     method="medianfilt_findpeaks",
     binsize_phase_units=0.02,
-    prominence=1e-3,
+    height=1e-3,
     width=2,
     window_length_phase_units=0.1
     ):
@@ -194,7 +195,7 @@ def count_phased_local_minima(
             Size of bins in units of phase.  e.g., 0.01 corresponds to 100
             points.
 
-        prominence (float):
+        height (float):
             Minimum height of peak required for it to be signficant. 1e-3 means
             0.1% in flux.
 
@@ -208,7 +209,7 @@ def count_phased_local_minima(
 
     Returns:
         dictionary of results includes the number of peaks, their widths, and
-        their prominences.
+        their heights.
 
     NOTES:
     Both the "findpeaks" and "medianfilt_findpeaks" methods rely on
@@ -221,17 +222,27 @@ def count_phased_local_minima(
     """
 
     x,y = time, flux
-    _pd = phase_magseries(x, y, period, t0, wrap=True, sort=False)
+    _pd = phase_magseries(x, y, period, t0, wrap=False, sort=True)
+
+    DO_WRAP = 1
+    if DO_WRAP:
+        _pd['phase'] = np.concatenate(
+            (_pd['phase']-1.0, _pd['phase'], _pd['phase']+1.0)
+        )
+        _pd['mags'] = np.concatenate(
+            (_pd['mags'], _pd['mags'], _pd['mags'])
+        )
+
     x_fold = _pd['phase']
     y = _pd['mags']
 
     orb_bd = phase_bin_magseries(
-        x_fold, y, binsize=binsize_phase_units, minbinelems=5
+        x_fold, y, binsize=binsize_phase_units, minbinelems=3
     )
-    min_phase = orb_bd['binnedphases'][np.argmin(orb_bd['binnedmags'])]
 
     # x and y are the points to search.  these are already phase-ordered.
     x, _y = orb_bd['binnedphases'], orb_bd['binnedmags']
+    p2p = p2p_rms(_y)
 
     if method == 'findpeaks':
         trend_y = None
@@ -247,11 +258,19 @@ def count_phased_local_minima(
     y -= offset
     trend_y -= offset
 
-    # number of points in one full cycle
-    N = int(1/binsize_phase_units)
+    #import matplotlib.pyplot as plt
+    #plt.scatter(x, y)
+    #plt.savefig('temp.png')
+    #import IPython; IPython.embed()
+    #sel = y > p2p
+    #y[sel] = p2p
 
+    # number of points in one full cycle
+    N = int(1/binsize_phase_units) + 1
+
+    #print(f"p2p_rms {p2p:.1e}, height {height:.1e}")
     peaks, properties = find_peaks(
-        -y, prominence=prominence, width=width
+        -y, height=height, width=width, rel_height=0.5
     )
 
     # drop duplicate peaks from the wrap.  this was just to ensure you get dip
@@ -275,12 +294,13 @@ def count_phased_local_minima(
         't0': t0,
         'period': period,
         'binsize_phase_units': binsize_phase_units,
-        'prominence': prominence,
+        'height': height,
         'width': width,
         'phase': _pd['phase'],
         'phase_flux': _pd['mags'],
         'binned_phase': x,
         'binned_search_flux': y,
+        'p2p': p2p,
         'binned_orig_flux': _y,
         'binned_trend_flux': trend_y
     }
@@ -348,3 +368,28 @@ def prepare_cpv_light_curve(lcpath, cachedir):
 
     return (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend,
             cadence_sec, sector, starid)
+
+
+def p2p_rms(flux):
+    """
+    Calculate the 68th percentile of the distribution of the residuals from the
+    median value of δF_i = F_{i} - F_{i+1}, where i is an index over time.
+    """
+    dflux = np.diff(flux)
+    med_dflux = np.nanmedian(dflux)
+
+    up_p2p = (
+        np.nanpercentile( dflux-med_dflux, 84 )
+        -
+        np.nanpercentile( dflux-med_dflux, 50 )
+    )
+    lo_p2p = (
+        np.nanpercentile( dflux-med_dflux, 50 )
+        -
+        np.nanpercentile( dflux-med_dflux, 16 )
+    )
+
+    p2p = np.nanmean([up_p2p, lo_p2p])
+
+    return p2p
+
