@@ -14,7 +14,7 @@ import os, pickle
 from glob import glob
 from datetime import datetime
 from copy import deepcopy
-import numpy as np, matplotlib.pyplot as plt, pandas as pd, pymc3 as pm
+import numpy as np, matplotlib.pyplot as plt, pandas as pd
 from numpy import array as nparr
 from collections import OrderedDict
 

@@ -3,6 +3,7 @@ Contents:
 | get_2min_cadence_spoc_tess_lightcurve
 | get_20sec_cadence_spoc_tess_lightcurve
 | _get_lcpaths_given_ticid
+| _get_local_lcpaths_given_ticid
 """
 import numpy as np
 import lightkurve as lk
@@ -22,6 +23,20 @@ def _get_lcpaths_given_ticid(ticid):
         ])
         assert 0
     return lcpaths
+
+
+def _get_local_lcpaths_given_ticid(ticid):
+
+    from complexrotators.paths import SPOCDIR
+
+    lcpaths = glob(join(SPOCDIR, "sector-*", f"*{ticid}*.fits"))
+
+    if len(lcpaths) == 0:
+        print(f"Failed to find 2 minute light curves for {ticid}")
+
+    return lcpaths
+
+
 
 
 def get_2min_cadence_spoc_tess_lightcurve(

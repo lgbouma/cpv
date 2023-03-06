@@ -15,7 +15,9 @@ from complexrotators.paths import LOCALDIR
 from complexrotators.plotting import (
     plot_phased_light_curve, plot_dipcountercheck
 )
-from complexrotators.getters import _get_lcpaths_given_ticid
+from complexrotators.getters import (
+    _get_lcpaths_given_ticid, _get_local_lcpaths_given_ticid
+)
 from complexrotators.lcprocessing import (
     cpv_periodsearch, count_phased_local_minima, prepare_cpv_light_curve
 )
@@ -25,24 +27,24 @@ def find_CPVs():
     # the TICIDs to search
     ticids = [
     "201789285",
-    "311092148",
-    "332517282",
-    "405910546",
-    "142173958",
-    "300651846",
-    "408188366",
-    "146539195",
-    "177309964",
-    "425933644",
-    "206544316",
-    "224283342",
-    "245902096",
-    "150068381",
-    "177309964",
-    "118769116",
-    "245868207",
-    "245874053",
-    "59129133"
+    #"311092148",
+    #"332517282",
+    #"405910546",
+    #"142173958",
+    #"300651846",
+    #"408188366",
+    #"146539195",
+    #"177309964",
+    #"425933644",
+    #"206544316",
+    #"224283342",
+    #"245902096",
+    #"150068381",
+    #"177309964",
+    #"118769116",
+    #"245868207",
+    #"245874053",
+    #"59129133"
     ]
 
     for ticid in ticids:
@@ -54,7 +56,7 @@ def find_CPV(ticid):
     #
     # get the light curves for all desired sectors and cadences
     #
-    lcpaths = _get_lcpaths_given_ticid(ticid)
+    lcpaths = _get_local_lcpaths_given_ticid(ticid)
 
     cachedir = join(LOCALDIR, "cpv_finding")
     if not os.path.exists(cachedir): os.mkdir(cachedir)
@@ -65,8 +67,6 @@ def find_CPV(ticid):
     #
     for lcpath in lcpaths:
 
-        logpath = join(cachedir, f'{starid}.log')
-
         # get the relevant light curve data
         (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
          sector, starid) = prepare_cpv_light_curve(lcpath, cachedir)
@@ -76,15 +76,14 @@ def find_CPV(ticid):
             x_obs, y_flat, starid, cachedir, t0='binmin', periodogram_method='pdm'
         )
 
-        # require PDM theta statistic < 0.8
-        # and period < 2 days
-        #TODO TODO
-        import IPython; IPython.embed()
-        pdm_theta = None
+        # require peak PDM theta statistic < 0.8
+        # and peak period < 2 days
+        pdm_theta = d['lsp']['bestlspval']
         period = d['period']
         condition = (period < 2) & (pdm_theta < 0.8)
 
-        if condition:
+        logpath = join(cachedir, f'{starid}.log')
+        if not condition:
             with open(logpath, 'w') as f:
                 msg = (
                     f"{starid}: got PDMtheta={pdm_theta:.3f} and "
@@ -122,6 +121,7 @@ def find_CPV(ticid):
             with open(_pklpath, 'wb') as f:
                 pickle.dump(r, f)
                 print(f'Made {_pklpath}')
+        # NOTE TODO: do you want to cache it in a more easily csv-gettable format?
 
         #
         # if there are >=3 local minima at whatever confidence, make some plots
