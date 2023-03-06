@@ -8,6 +8,7 @@ import numpy as np
 import lightkurve as lk
 from os.path import join
 from glob import glob
+import subprocess
 
 def _get_lcpaths_given_ticid(ticid):
     # TODO: this getter will need to be updated when running at scale on wh1
