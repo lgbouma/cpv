@@ -1,8 +1,8 @@
 ticid,sector,ndipsmin,ndipsmax,class,comment
 "201789285",3,4,6,cpv,
 "201789285",2,4,6,cpv,
-"201789285",29,5,6,cpv,
-"201789285",30,4,5,cpv,
+"201789285",29,4,6,cpv,
+"201789285",30,3,5,cpv,
 "311092148",31,3,5,cpv,
 "332517282",2,4,7,cpv,
 "332517282",29,4,5,cpv,half-period important durn here too- just like 206544316
@@ -10,7 +10,7 @@ ticid,sector,ndipsmin,ndipsmax,class,comment
 "405910546",38,3,5,cpv,
 "142173958",10,4,5,cpv,
 "142173958",37,4,4,cpv,
-"300651846",32,3,4,cpv,half-period again important here for biggest dip--also like 206544316
+"300651846",32,2,4,cpv,half-period again important here for biggest dip--also like 206544316
 "300651846",33,3,5,cpv,
 "300651846",34,3,4,cpv,
 "300651846",35,3,6,cpv,mildly different from s32 shape
@@ -20,10 +20,10 @@ ticid,sector,ndipsmin,ndipsmax,class,comment
 "300651846",39,3,6,cpv,this star has a great dataset and shows nice evolution
 "408188366",32,3,5,cpv,
 "146539195",5,2,4,cpv,two sharp dips and some smooth dips
-"146539195",32,2,2,eb,
+"146539195",32,2,3,eb,
 "177309964",9,0,2,rot,good test case for pure double-dip sinusoid
 "177309964",10,0,2,rot,good test case for pure double-dip sinusoid
-"177309964",11,3,3,cpv,good test case (but only use these three sectors - its in cvz!)
+"177309964",11,2,3,cpv,good test case (but only use these three sectors - its in cvz!)
 "425933644",1,3,8,cpv,lol
 "425933644",2,3,5,cpv,
 "425933644",28,4,7,cpv,high complexity conserved?
@@ -39,8 +39,24 @@ ticid,sector,ndipsmin,ndipsmax,class,comment
 "150068381",6,0,1,rot,good test case for pure single dip sinusoid
 "150068381",38,0,2,rot,good test case for weak double dip sinusoid
 "118769116",44,4,5,junk,noisy
-"245868207",44,2,2,junk,noisy and careful bc 43 has wrong period
 "245874053",43,2,2,junk,noisy
 "245874053",44,2,2,junk,noisy
 "59129133",43,3,5,junk,noisy
 "59129133",44,2,3,junk,noisy
+"245834739",43,0,2,eb,
+"245834739",44,0,2,eb,
+"245868207",43,0,2,eb,
+"245868207",44,0,2,eb,
+"294328887",34,0,2,rot,
+"294328887",35,0,2,rot,
+"294328887",36,0,2,rot,
+"294328887",37,0,3,cpv,
+"389423271",1,0,2,rot,speedy mic
+"149248196",1,0,2,rot,ab dor
+"149248196",4,0,2,rot,ab dor
+"149248196",5,0,2,rot,ab dor
+"149248196",7,0,2,rot,ab dor
+"149248196",8,0,2,rot,ab dor
+"149248196",9,0,2,rot,ab dor
+"149248196",33,0,2,rot,ab dor
+"149248196",38,0,2,rot,ab dor
