@@ -708,6 +708,7 @@ def plot_dipcountercheck(findpeaks_result, d, eval_dict, outdir, starid):
     txt0 = (
         f'{starid}\n'
         f'N dips: {r["N_peaks"]}\n'
+        f'p2p: {r["p2p_est"]:.2e}, height: {r["height"]:.2e}\n'
         f'locs: {r["peaks_phaseunits"]}\n'
         f'left bases: {r["properties"]["left_bases_phaseunits"]}\n'
         f'right bases: {r["properties"]["right_bases_phaseunits"]}'
