@@ -674,7 +674,7 @@ def plot_dipcountercheck(findpeaks_result, d, eval_dict, outdir, starid):
     ax.plot(
         r['binned_phase'], r['binned_trend_flux'], c='darkgray', zorder=2
     )
-    ax.set_ylabel('Flux')
+    ax.set_ylabel('Normalized Flux')
 
     txt = f'$P$: {d["period"]*24:.2f} hr' # simpler label
     ax.text(0.97,0.03,txt,

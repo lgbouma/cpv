@@ -357,7 +357,7 @@ def count_phased_local_minima(
 
     unique_peak_indices = np.array(sorted(list(set(peaks % N))))
 
-    # first, remove any peaks within 1 phase unit of each other, and keep the
+    # first, remove any peaks within 1 or 2 phase units of each other, and keep the
     # second of each such pair
     # e.g., peaks = [50, 100, 150, 201]
     # yields unique_peak_indices = [0, 1, 50].
@@ -368,6 +368,7 @@ def count_phased_local_minima(
             pass
         else:
             _sel = np.roll(unique_peak_indices, -1) - unique_peak_indices != 1
+            _sel &= np.roll(unique_peak_indices, -1) - unique_peak_indices != 2
         unique_peak_indices = unique_peak_indices[_sel]
 
     sel = np.zeros(len(peaks)).astype(bool)
