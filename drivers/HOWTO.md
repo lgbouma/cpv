@@ -1,4 +1,4 @@
-For getting all the 2-minute SPOC data
+For getting all the 2-minute SPOC data and its Gaia xmatch
 ----------
 
 1. Get all the bulk download scripts locally (done on wh1).
@@ -30,5 +30,7 @@ For getting all the 2-minute SPOC data
   on the Gaia archive.
 11. Rerun `get_spoc2min_gaiainfo.py`
 12. Run `merge_spoc2min_metadata.py`
+13. Run `get_gaia_X_spoc2min_merge.py
 
+To run the CPV-finder
 ----------
