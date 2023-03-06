@@ -13,7 +13,7 @@ from complexrotators.lcprocessing import (
 
 from complexrotators import pipeline_utils as pu
 
-def test_dip_counter(ticid):
+def test_dip_counter(ticid, require_classified=True):
 
     lcpaths = _get_lcpaths_given_ticid(ticid)
     cachedir = join(LOCALDIR, "cpv_finding")
@@ -21,7 +21,23 @@ def test_dip_counter(ticid):
     if not os.path.exists(cachedir): os.mkdir(cachedir)
     if not os.path.exists(plotdir): os.mkdir(plotdir)
 
+    cdf = pd.read_csv("known_cpv_dip_counts.csv")
+
     for lcpath in lcpaths:
+
+        sector = int(os.path.basename(lcpath).split("-")[1][1:].lstrip("0"))
+
+        if require_classified:
+            sel = (
+                (cdf.ticid.astype(str) == str(ticid))
+                &
+                (cdf.sector.astype(int) == sector)
+            )
+            sdf = cdf[sel]
+
+            if len(sdf) == 0:
+                print(f'No classifixn for {os.path.basename(lcpath)}. Skip.')
+                continue
 
         # get the relevant light curve data
         (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
@@ -32,21 +48,40 @@ def test_dip_counter(ticid):
             x_obs, y_flat, starid, cachedir, t0='binmin', periodogram_method='pdm'
         )
 
+        # v0 (decent)
         cd = {
             'method': 'medianfilt_findpeaks',
             'height': 1e-3,
             'binsize_phase_units': 0.01,
             'width': 2,
-            'window_length_phase_units': 0.1
+            'window_length_phase_units': 0.1,
+            'max_splines': None,
+            'height_limit': 1e-3
+        }
+        # v4 (splines are better; so is pre-normalizing; so is a height limit
+        # that is p2p rms informed)
+        cd = {
+            'method': 'psplinefilt_findpeaks',
+            #'height': '5_MAD',
+            #'height': 1e-3,
+            'height': '2_P2P',
+            'binsize_phase_units': 0.01,
+            'width': 2,
+            'window_length_phase_units': 0.1,
+            'max_splines': 10,
+            'height_limit': 1e-3,
+            'pre_normalize': True
         }
 
-        # otherwise find_peaks can suffer odd edge effects
         r = count_phased_local_minima(
             d['times'], d['fluxs'], d['t0'], d['period'],
             method=cd['method'],
             binsize_phase_units=cd['binsize_phase_units'],
             height=cd['height'], width=cd['width'],
-            window_length_phase_units=cd['window_length_phase_units']
+            window_length_phase_units=cd['window_length_phase_units'],
+            max_splines=cd['max_splines'],
+            height_limit=cd['height_limit'],
+            pre_normalize=cd['pre_normalize']
         )
 
         eval_dict, make_plot = evaluate_dipcounter(starid, r, cd)
@@ -110,6 +145,12 @@ def evaluate_dipcounter(starid, r, cd, save_evaldict=True):
         eval_dict['ndips_min'] = -1
         eval_dict['ndips_max'] = -1
 
+    eval_dict['N_peaks'] = r['N_peaks']
+    #eval_dict['peaks_phaseunits'] = r['peaks_phaseunits']
+    #eval_dict['props_peak_heights'] = r['properties']['peak_heights']
+    eval_dict['height'] = r['height']
+    eval_dict['mad'] = r['mad']
+    eval_dict['a_95_5'] = r['a_95_5']
 
     if save_evaldict:
         outdir = join(RESULTSDIR, "dipcountercheck")
@@ -145,6 +186,11 @@ def evaluate_run_dipcountercheck(ticids):
             'found_toomany_dips', 'found_toofew_dips', 'imgpath']
 
     print(sdf[cols].sort_values(by=['class','ticid','sstr']))
+    csvpath = join(RESULTSDIR, "dipcountercheck", "run_summary.csv")
+    sdf[cols].sort_values(by=['class','ticid','sstr']).to_csv(
+        csvpath, index=False
+    )
+    print(f"Made {csvpath}")
 
     # require all rotators to have a "correct" number of dips (which in
     # practice means at most two)
@@ -159,10 +205,15 @@ def evaluate_run_dipcountercheck(ticids):
 def test_dip_counter_all_stars():
 
     ticids = [
+        # FAILING CASES
+        #"294328887"
+        ##########################################
+        # WORKING CASES
         # normal rotators
         "150068381",
         "177309964",
-        #TODO: get more
+        "149248196", # AB Dor...lotsss of data...
+        "389423271", # Speedy Mic
         # fav cpvs
         "206544316",
         "425933644",
@@ -170,17 +221,21 @@ def test_dip_counter_all_stars():
         "300651846",
         # cpv/eb
         "146539195",
-        #TODO: get more
         # cpvs that i care less about
         "201789285",
         "311092148",
         "405910546",
         "142173958",
         "408188366",
+        ## bonus ebs
+        #"245834739",
+        #"245868207",
+        ##########################################
+        # cpvs that are fine but i already have enough
+        ##"238597707",
         ##"224283342",
         ##"245902096",
         ##"118769116",
-        ##"245868207",
         ##"245874053",
         ##"59129133"
     ]
