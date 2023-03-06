@@ -48,23 +48,11 @@ def test_dip_counter(ticid, require_classified=True):
             x_obs, y_flat, starid, cachedir, t0='binmin', periodogram_method='pdm'
         )
 
-        # v0 (decent)
-        cd = {
-            'method': 'medianfilt_findpeaks',
-            'height': 1e-3,
-            'binsize_phase_units': 0.01,
-            'width': 2,
-            'window_length_phase_units': 0.1,
-            'max_splines': None,
-            'height_limit': 1e-3
-        }
         # v4 (splines are better; so is pre-normalizing; so is a height limit
         # that is p2p rms informed)
         cd = {
             'method': 'psplinefilt_findpeaks',
-            #'height': '5_MAD',
-            #'height': 1e-3,
-            'height': '2_P2P',
+            'height': '2_P2P', # could be "5_MAD", 1e-3, etc.
             'binsize_phase_units': 0.01,
             'width': 2,
             'window_length_phase_units': 0.1,
@@ -205,31 +193,30 @@ def evaluate_run_dipcountercheck(ticids):
 def test_dip_counter_all_stars():
 
     ticids = [
-        # FAILING CASES
-        #"294328887"
         ##########################################
-        # WORKING CASES
-        # normal rotators
-        "150068381",
-        "177309964",
-        "149248196", # AB Dor...lotsss of data...
-        "389423271", # Speedy Mic
-        # fav cpvs
-        "206544316",
-        "425933644",
-        "332517282",
-        "300651846",
-        # cpv/eb
-        "146539195",
-        # cpvs that i care less about
-        "201789285",
-        "311092148",
-        "405910546",
-        "142173958",
-        "408188366",
+        # # WORKING CASES
+        # # normal rotators
+        "294328887"
+        # "150068381",
+        # "177309964",
+        # "149248196", # AB Dor...lotsss of data...
+        # "389423271", # Speedy Mic
+        # # fav cpvs
+        # "206544316",
+        # "425933644",
+        # "332517282",
+        # "300651846",
+        # # cpv/eb
+        # "146539195",
+        # # cpvs that i care less about
+        # "201789285",
+        # "311092148",
+        # "405910546",
+        # "142173958",
+        # "408188366",
         ## bonus ebs
-        #"245834739",
-        #"245868207",
+        "245834739",
+        "245868207",
         ##########################################
         # cpvs that are fine but i already have enough
         ##"238597707",

@@ -8,7 +8,7 @@ Contents:
     | plot_multicolor_phase
     | plot_phased_light_curve
 
-    | plot_dipcounter_check
+    | plot_dipcountercheck
 """
 import os, pickle
 from glob import glob
@@ -642,6 +642,7 @@ def plot_multicolor_phase(outdir, BINMS=2):
 def plot_dipcountercheck(findpeaks_result, d, eval_dict, outdir, starid):
     # args: results from count_phased_local_minima and cpv_periodsearch,
     # respectively
+    # eval_dict can be None
 
     r = findpeaks_result
     xlim = [-0.6, 0.6]
@@ -716,26 +717,26 @@ def plot_dipcountercheck(findpeaks_result, d, eval_dict, outdir, starid):
     ax.text(0.03, 0.03, txt0,
             transform=ax.transAxes, ha='left', va='bottom', color='k')
 
-    txt1 = ''
-    if eval_dict['found_correct_ndips']:
-        txt1 += 'found correct ndips'
-        color = 'green'
-    else:
-        txt1 += 'found incorrect ndips'
-        color = 'red'
-    ax.text(0.03, 0.97, txt1,
-            transform=ax.transAxes, ha='left', va='top', color=color)
-
-    txt2 = ''
-    if eval_dict['found_toofew_dips'] or eval_dict['found_toomany_dips']:
-        if eval_dict['found_toofew_dips']:
-            txt2 += 'found too few dips'
-        if eval_dict['found_toomany_dips']:
-            txt2 += 'found too many dips'
-        color = 'red'
-        ax.text(0.03, 0.8, txt2,
+    if isinstance(eval_dict, dict):
+        txt1 = ''
+        if eval_dict['found_correct_ndips']:
+            txt1 += 'found correct ndips'
+            color = 'green'
+        else:
+            txt1 += 'found incorrect ndips'
+            color = 'red'
+        ax.text(0.03, 0.97, txt1,
                 transform=ax.transAxes, ha='left', va='top', color=color)
 
+        txt2 = ''
+        if eval_dict['found_toofew_dips'] or eval_dict['found_toomany_dips']:
+            if eval_dict['found_toofew_dips']:
+                txt2 += 'found too few dips'
+            if eval_dict['found_toomany_dips']:
+                txt2 += 'found too many dips'
+            color = 'red'
+            ax.text(0.03, 0.8, txt2,
+                    transform=ax.transAxes, ha='left', va='top', color=color)
 
     # finish
     savefig(fig, outpath, dpi=400)
