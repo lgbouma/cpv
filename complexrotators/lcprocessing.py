@@ -178,9 +178,12 @@ def count_phased_local_minima(
     time, flux, t0, period,
     method="medianfilt_findpeaks",
     binsize_phase_units=0.02,
-    height=1e-3,
+    height='2_P2P',
     width=2,
-    window_length_phase_units=0.1
+    window_length_phase_units=0.1,
+    max_splines=None,
+    height_limit=1e-3,
+    pre_normalize=False
     ):
     """
     Given time, flux, epoch, and period, phase the light curve and count the
@@ -188,16 +191,21 @@ def count_phased_local_minima(
 
     Args:
         method (str):
-            One of ["findpeaks", "medianfilt_findpeaks"].  These are discussed
-            further below.
+            One of ["findpeaks", "medianfilt_findpeaks",
+            "psplinefilt_findpeaks", "sinefilt_findpeaks"].  These are
+            discussed further below.
 
         binsize_phase_units (float):
             Size of bins in units of phase.  e.g., 0.01 corresponds to 100
             points.
 
-        height (float):
+        height (float or str):
             Minimum height of peak required for it to be signficant. 1e-3 means
-            0.1% in flux.
+            0.1% in flux.  "1_MAD" means 1*median absolute deviation.  This
+            needs to be a "_" separated string.  "2_P2P" means 2*the
+            point-to-point rms.
+            Actual adopted values will be max([height, height_limit]), so in
+            practice dips smaller than height_limit will never be acquired.
 
         width (float):
             Minimum width of peak in units of samples.  E.g., 3 with
@@ -206,6 +214,12 @@ def count_phased_local_minima(
         window_length_phase_units (float):
             Used only if method includes a windowed-slider, in which case this
             will be the window length in units of phase.
+
+        max_splines (None or int):
+            Needed if method == "psplinefilt_findpeaks".
+
+        height_limit (float):
+            See above.
 
     Returns:
         dictionary of results includes the number of peaks, their widths, and
@@ -232,6 +246,8 @@ def count_phased_local_minima(
         _pd['mags'] = np.concatenate(
             (_pd['mags'], _pd['mags'], _pd['mags'])
         )
+        if isinstance(max_splines, int):
+            max_splines *= 3
 
     x_fold = _pd['phase']
     y = _pd['mags']
@@ -240,42 +256,127 @@ def count_phased_local_minima(
         x_fold, y, binsize=binsize_phase_units, minbinelems=3
     )
 
-    # x and y are the points to search.  these are already phase-ordered.
+    # x and flat_y are the points to search.  these are already phase-ordered.
     x, _y = orb_bd['binnedphases'], orb_bd['binnedmags']
-    p2p = p2p_rms(_y)
+    p2p_raw = p2p_rms(_y)
+    a_95_5 = np.nanpercentile(_y, 95) - np.nanpercentile(_y, 5)
+    a_max_min = np.nanmax(_y) - np.nanmin(_y)
+
+    if pre_normalize:
+        # normalize to a 1% semi-amplitude signal.
+        a_desired = 0.02
+        mult_fac = a_max_min / a_desired
+        _y_mean = np.nanmean(_y)
+        # rescale it
+        _y = _y_mean + (_y - _y_mean)/mult_fac
+
+
+    nsplines = None
 
     if method == 'findpeaks':
         trend_y = None
-        y = _y * 1.
+        flat_y = _y * 1.
 
     elif method == 'medianfilt_findpeaks':
-        y, trend_y = flatten(
-            x, 1+_y, method='median', return_trend=True, break_tolerance=1,
+        flat_y, trend_y = flatten(
+            x, _y, method='median', return_trend=True, break_tolerance=1,
             window_length=window_length_phase_units, edge_cutoff=1e-3
         )
 
-    offset = np.nanmean(y)
-    y -= offset
-    trend_y -= offset
+    elif method == 'sinefilt_findpeaks':
+        flat_y, trend_y = flatten(
+            x, _y, method='cosine', robust=True, return_trend=True,
+            break_tolerance=1, window_length=window_length_phase_units
+        )
 
-    #import matplotlib.pyplot as plt
-    #plt.scatter(x, y)
-    #plt.savefig('temp.png')
-    #import IPython; IPython.embed()
-    #sel = y > p2p
-    #y[sel] = p2p
+    elif method == 'psplinefilt_findpeaks':
+        flat_y, trend_y, nsplines = flatten(
+            x, _y, method='pspline', max_splines=max_splines,
+            edge_cutoff=1e-3, stdev_cut=2, return_trend=True,
+            return_nsplines=True, verbose=True
+        )
+
+        # estimate p2p_rms on a heavily whitened light curve:
+        # 33*3 splines corresponds to a window per phase of φ=0.033 -> heavily
+        # whitened!
+        veryflat_y, _ = flatten(
+            x, _y, method='pspline', max_splines=33*3,
+            edge_cutoff=1e-3, stdev_cut=5, return_trend=True,
+            return_nsplines=False, verbose=True
+        )
+
+    if method == 'psplinefilt_findpeaks':
+        p2p_est = p2p_rms(veryflat_y)
+    else:
+        p2p_est = p2p_raw * 1.
+
+
+    offset = np.nanmean(flat_y)
+    flat_y -= offset
 
     # number of points in one full cycle
-    N = int(1/binsize_phase_units) + 1
+    N = int(1/binsize_phase_units)
 
-    #print(f"p2p_rms {p2p:.1e}, height {height:.1e}")
+    mad = np.nanmedian( np.abs( flat_y - np.nanmedian(flat_y)  ) )
+
+    if isinstance(height, float):
+        height = height
+    if isinstance(height, str):
+        if 'MAD' in height:
+            height = mad * float(height.split("_")[0])
+        if 'P2P' in height:
+            height = p2p_est * float(height.split("_")[0])
+
+    # say the p2p estimate is very small.  in such cases, we do not really care
+    # about the dips... 
+    height = max([ height, height_limit ])
+
+    print(f"p2p_raw {p2p_raw:.1e}, p2p_est {p2p_est:.1e}, mad {mad:.1e}, height {height:.1e}")
     peaks, properties = find_peaks(
-        -y, height=height, width=width, rel_height=0.5
+        -flat_y, height=height, width=width, rel_height=0.5
     )
 
-    # drop duplicate peaks from the wrap.  this was just to ensure you get dip
-    # minima at phase=0.
-    sel = (peaks <= N)
+    #import matplotlib.pyplot as plt
+    #plt.scatter(x, flat_y)
+    #plt.savefig('temp.png')
+    #import IPython; IPython.embed()
+    #assert 0
+
+    # construct the list of unique peaks, since there are duplicates because of
+    # the need to phase wrap.
+    #
+    # For example,
+    #
+    # unique_peak_indices = {2, 67, 76, 84}
+    # peaks = array([ 67,  84, 102, 167, 176, 184, 202, 267, 284])
+    # 
+    # will yield
+    #
+    # peak_list = [67, 84, 2, 76]
+    # sel = [T, T, T, F, T, F, F, F, F]
+
+    unique_peak_indices = np.array(sorted(list(set(peaks % N))))
+
+    # first, remove any peaks within 1 phase unit of each other, and keep the
+    # second of each such pair
+    # e.g., peaks = [50, 100, 150, 201]
+    # yields unique_peak_indices = [0, 1, 50].
+    # here, we would drop the "0" case.
+    if len(unique_peak_indices) > 1:
+        _sel = np.ones(len(unique_peak_indices)).astype(bool)
+        if not np.any(np.diff(unique_peak_indices) == 1):
+            pass
+        else:
+            _sel = np.roll(unique_peak_indices, -1) - unique_peak_indices != 1
+        unique_peak_indices = unique_peak_indices[_sel]
+
+    sel = np.zeros(len(peaks)).astype(bool)
+    peak_list = []
+    for ix, peak in enumerate(peaks):
+        if peak % N in unique_peak_indices and peak % N not in peak_list:
+            sel[ix] = True
+            peak_list.append(peak % N)
+    assert np.sum(sel) == len(unique_peak_indices)
 
     peaks = peaks[sel]
     for k, v in properties.items():
@@ -299,10 +400,15 @@ def count_phased_local_minima(
         'phase': _pd['phase'],
         'phase_flux': _pd['mags'],
         'binned_phase': x,
-        'binned_search_flux': y,
-        'p2p': p2p,
+        'binned_search_flux': flat_y,
+        'p2p_raw': p2p_raw,
+        'p2p_est': p2p_est,
+        'a_95_5': a_95_5,
+        'mad': mad,
         'binned_orig_flux': _y,
-        'binned_trend_flux': trend_y
+        'binned_trend_flux': trend_y,
+        'nsplines_total': nsplines,
+        'nsplines_singlephase': nsplines/3
     }
 
     return r
