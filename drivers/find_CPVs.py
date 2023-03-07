@@ -6,12 +6,40 @@ Contents:
     | find_CPVs: thin wrapper
     | prepare_cpv_light_curve: retrieve all relevant data from SPOC/FITS LC
 """
+#############
+## LOGGING ##
+#############
+import logging
+from gyrointerp import log_sub, log_fmt, log_date_fmt
+
+DEBUG = False
+if DEBUG:
+    level = logging.DEBUG
+else:
+    level = logging.INFO
+LOGGER = logging.getLogger(__name__)
+logging.basicConfig(
+    level=level,
+    style=log_sub,
+    format=log_fmt,
+    datefmt=log_date_fmt,
+)
+
+LOGDEBUG = LOGGER.debug
+LOGINFO = LOGGER.info
+LOGWARNING = LOGGER.warning
+LOGERROR = LOGGER.error
+LOGEXCEPTION = LOGGER.exception
+
+#############
+## IMPORTS ##
+#############
 import os, pickle, subprocess
 from os.path import join
 import numpy as np, pandas as pd
 from glob import glob
 
-from complexrotators.paths import LOCALDIR
+from complexrotators.paths import LOCALDIR, SPOCDIR
 from complexrotators.plotting import (
     plot_phased_light_curve, plot_dipcountercheck
 )
@@ -22,32 +50,69 @@ from complexrotators.lcprocessing import (
     cpv_periodsearch, count_phased_local_minima, prepare_cpv_light_curve
 )
 
+def get_ticids(sample_id):
+
+    if sample_id == 'debug':
+        ticids = [
+        "201789285",
+        #"311092148",
+        #"332517282",
+        #"405910546",
+        #"142173958",
+        #"300651846",
+        #"408188366",
+        #"146539195",
+        #"177309964",
+        #"425933644",
+        #"206544316",
+        #"224283342",
+        #"245902096",
+        #"150068381",
+        #"177309964",
+        #"118769116",
+        #"245868207",
+        #"245874053",
+        #"59129133"
+        ]
+
+    elif sample_id == '10pc_mkdwarf':
+
+        df = pd.read_csv(join(SPOCDIR, "gaia_X_spoc2min_merge.csv"))
+
+        sel = (
+            (df["M_G"] > 4)
+            &
+            (df["bp_rp"] > 1.5)
+            &
+            (df["TESSMAG"] < 16)
+            &
+            (df["parallax"] > 100)
+        )
+
+        sdf = df[sel]
+        ticids = np.unique(list(sdf["TICID"].astype(str)))
+
+        N_stars_to_search = len(ticids)
+        N_lcs_to_search = len(sdf)
+
+        LOGINFO(42*'-')
+        LOGINFO(f"{sample_id}")
+        LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
+        LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
+
+    return ticids
+
+
 def find_CPVs():
 
+    sample_id = '10pc_mkdwarf'
+
     # the TICIDs to search
-    ticids = [
-    "201789285",
-    #"311092148",
-    #"332517282",
-    #"405910546",
-    #"142173958",
-    #"300651846",
-    #"408188366",
-    #"146539195",
-    #"177309964",
-    #"425933644",
-    #"206544316",
-    #"224283342",
-    #"245902096",
-    #"150068381",
-    #"177309964",
-    #"118769116",
-    #"245868207",
-    #"245874053",
-    #"59129133"
-    ]
+    ticids = get_ticids(sample_id)
 
     for ticid in ticids:
+        LOGINFO(42*'-')
+        LOGINFO(f"Beginning {ticid}...")
         find_CPV(ticid)
 
 
@@ -76,11 +141,11 @@ def find_CPV(ticid):
             x_obs, y_flat, starid, cachedir, t0='binmin', periodogram_method='pdm'
         )
 
-        # require peak PDM theta statistic < 0.8
+        # require peak PDM theta statistic < 0.9
         # and peak period < 2 days
         pdm_theta = d['lsp']['bestlspval']
         period = d['period']
-        condition = (period < 2) & (pdm_theta < 0.8)
+        condition = (period < 2) & (pdm_theta < 0.9)
 
         logpath = join(cachedir, f'{starid}.log')
         if not condition:
@@ -89,7 +154,7 @@ def find_CPV(ticid):
                     f"{starid}: got PDMtheta={pdm_theta:.3f} and "
                     f"P={period:.3f}; exitcode2."
                 )
-                print(msg)
+                LOGINFO(msg)
                 f.writelines(msg)
             continue
 
@@ -120,7 +185,7 @@ def find_CPV(ticid):
         if not os.path.exists(_pklpath):
             with open(_pklpath, 'wb') as f:
                 pickle.dump(r, f)
-                print(f'Made {_pklpath}')
+                LOGINFO(f'Made {_pklpath}')
         # NOTE TODO: do you want to cache it in a more easily csv-gettable format?
 
         #
@@ -130,7 +195,7 @@ def find_CPV(ticid):
         if r['N_peaks'] < 3:
             with open(logpath, 'w') as f:
                 msg = f"{starid}: got N={r['N_peaks']} peaks; exitcode3."
-                print(msg)
+                LOGINFO(msg)
                 f.writelines(msg)
             continue
 
@@ -147,7 +212,7 @@ def find_CPV(ticid):
                 titlestr=titlestr, binsize_minutes=10, findpeaks_result=r
             )
         else:
-            print(f"Found {outpath}")
+            LOGINFO(f"Found {outpath}")
 
 if __name__ == "__main__":
     find_CPVs()
