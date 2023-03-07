@@ -85,7 +85,7 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
     if len(times) > 1e5:
         sep = 50
 
-    startp, endp = 0.05, 5
+    startp, endp = 0.05, 10
 
     # for the fine-tuning
     delta_P = 0.2
@@ -114,12 +114,19 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
             startp=startp, endp=endp, autofreq=True, sigclip=5.0
         )
 
-        fine_lsp = periodbase.stellingwerf_pdm(
-            times[::sep], fluxs[::sep], fluxs[::sep]*1e-4, magsarefluxes=True,
-            startp=lsp['bestperiod']-delta_P*lsp['bestperiod'],
-            endp=lsp['bestperiod']+delta_P*lsp['bestperiod'],
-            autofreq=False, sigclip=5.0, stepsize=stepsize
-        )
+        if lsp['bestperiod'] < 2:
+            fine_lsp = periodbase.stellingwerf_pdm(
+                times[::sep], fluxs[::sep], fluxs[::sep]*1e-4, magsarefluxes=True,
+                startp=lsp['bestperiod']-delta_P*lsp['bestperiod'],
+                endp=lsp['bestperiod']+delta_P*lsp['bestperiod'],
+                autofreq=False, sigclip=5.0, stepsize=stepsize
+            )
+        else:
+            print(
+                f"Found P={lsp['bestperiod']:.3f} d; skipping fine period "
+                f"search."
+            )
+            fine_lsp = deepcopy(lsp)
 
     print(42*'.')
     print(f"Standard autofreq period: {lsp['bestperiod']:.7f} d")
