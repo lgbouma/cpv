@@ -4,13 +4,12 @@ This is a simple pipeline for identifying CPVs.
 Contents:
     | find_CPV: given ticid, determine if it's a CPV
     | find_CPVs: thin wrapper
-    | prepare_cpv_light_curve: retrieve all relevant data from SPOC/FITS LC
 """
 #############
 ## LOGGING ##
 #############
 import logging
-from gyrointerp import log_sub, log_fmt, log_date_fmt
+from complexrotators import log_sub, log_fmt, log_date_fmt
 
 DEBUG = False
 if DEBUG:
@@ -49,6 +48,7 @@ from complexrotators.getters import (
 from complexrotators.lcprocessing import (
     cpv_periodsearch, count_phased_local_minima, prepare_cpv_light_curve
 )
+from complexrotators import pipeline_utils as pu
 
 def get_ticids(sample_id):
 
@@ -115,6 +115,8 @@ def find_CPVs():
         LOGINFO(f"Beginning {ticid}...")
         find_CPV(ticid)
 
+    LOGINFO("Finished 🎉🎉🎉")
+
 
 def find_CPV(ticid):
 
@@ -132,6 +134,23 @@ def find_CPV(ticid):
     #
     for lcpath in lcpaths:
 
+        # instantiate the log
+        lcpbase = os.path.basename(lcpath).replace(".fits", "")
+        logpath = join(cachedir, f'{lcpbase}_runstatus.log')
+        if not os.path.exists(logpath):
+            lcpd = {
+                'lcpath': lcpath,
+                'ticid': ticid
+            }
+            pu.save_status(logpath, 'lcpath', lcpd)
+            LOGINFO(f"Made {logpath}")
+
+        st = pu.load_status(logpath)
+        if 'exitcode' in st:
+            exitcode = st['exitcode']['exitcode']
+            LOGINFO("{lcpbase}: found exitcode {exitcode}. skip.")
+            continue
+
         # get the relevant light curve data
         (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
          sector, starid) = prepare_cpv_light_curve(lcpath, cachedir)
@@ -145,18 +164,28 @@ def find_CPV(ticid):
         # and peak period < 2 days
         pdm_theta = d['lsp']['bestlspval']
         period = d['period']
-        condition = (period < 2) & (pdm_theta < 0.9)
+        periodogram_condition = (period < 2) & (pdm_theta < 0.9)
 
-        logpath = join(cachedir, f'{starid}.log')
-        if not condition:
-            with open(logpath, 'w') as f:
-                msg = (
-                    f"{starid}: got PDMtheta={pdm_theta:.3f} and "
-                    f"P={period:.3f}; exitcode2."
-                )
-                LOGINFO(msg)
-                f.writelines(msg)
+        psr = {
+            'starid': starid,
+            'sector': sector,
+            'cadence_sec': cadence_sec,
+            'period': period, # fine_lsp period
+            'pdm_theta': pdm_theta,
+            'periodogram_condition': periodogram_condition,
+            't0': d['t0'],
+            'nbestperiods': d['lsp']['nbestperiods'],
+            'nbestlspvals': d['lsp']['nbestlspvals']
+        }
+        pu.save_status(logpath, 'cpv_periodsearch_results', psr)
+        LOGINFO(f"Updated {logpath} with cpv_periodsearch_results")
+
+        if not periodogram_condition:
+            LOGINFO(f"{starid}: Θ={pdm_theta:.3f}, P={period:.3f}; exit.")
+            exitcode = {'exitcode': 2}
+            pu.save_status(logpath, 'exitcode', exitcode)
             continue
+
 
         # if we have a sufficient periodic signal, then count phased local
         # minima, after normalizing and smoothing.
@@ -170,6 +199,7 @@ def find_CPV(ticid):
             'height_limit': 1e-3,
             'pre_normalize': True
         }
+        pu.save_status(logpath, 'count_phased_local_minima_options', cd)
         r = count_phased_local_minima(
             d['times'], d['fluxs'], d['t0'], d['period'],
             method=cd['method'],
@@ -181,22 +211,36 @@ def find_CPV(ticid):
             pre_normalize=cd['pre_normalize']
         )
 
+        # save the non-array output to the log file
+        save_keys = ['N_peaks', 'peaks_phaseunits', 'peaks', 'properties',
+                     't0', 'period', 'binsize_phase_units', 'height', 'width',
+                     'p2p_raw', 'p2p_est', 'a_95_5', 'mad', 'mult_fac',
+                     '_y_mean', 'nsplines_total', 'nsplines_singlephase']
+        outd = {k:v for k,v in r.items() if k in save_keys}
+        for k,v in outd.items():
+            if isinstance(v, np.ndarray):
+                outd[k] = list(v)
+            if isinstance(v, dict):
+                for _k, _v in v.items():
+                    if isinstance(v, np.ndarray):
+                        outd[k][_k] = list(_v)
+        pu.save_status(logpath, 'count_phased_local_minima_results', outd)
+
+        # save the array output as well, to a pickle file
         _pklpath = os.path.join(cachedir, f"{starid}_findpeaks_result.pkl")
         if not os.path.exists(_pklpath):
             with open(_pklpath, 'wb') as f:
                 pickle.dump(r, f)
                 LOGINFO(f'Made {_pklpath}')
-        # NOTE TODO: do you want to cache it in a more easily csv-gettable format?
 
         #
         # if there are >=3 local minima at whatever confidence, make some plots
         #
 
         if r['N_peaks'] < 3:
-            with open(logpath, 'w') as f:
-                msg = f"{starid}: got N={r['N_peaks']} peaks; exitcode3."
-                LOGINFO(msg)
-                f.writelines(msg)
+            LOGINFO(f"{starid}: N_peaks={r['N_peaks']}; exit.")
+            exitcode = {'exitcode': 3}
+            pu.save_status(logpath, 'exitcode', exitcode)
             continue
 
         # make the phased plot
@@ -213,6 +257,12 @@ def find_CPV(ticid):
             )
         else:
             LOGINFO(f"Found {outpath}")
+
+        LOGINFO(f"{starid}: N_peaks={r['N_peaks']}; finished.")
+        exitcode = {'exitcode': 1}
+        pu.save_status(logpath, 'exitcode', exitcode)
+
+
 
 if __name__ == "__main__":
     find_CPVs()

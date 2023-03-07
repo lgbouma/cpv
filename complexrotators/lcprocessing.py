@@ -2,9 +2,37 @@
 Contents:
     | cpv_periodsearch
     | count_phased_local_minima
-    | prepare_cpv_light_curve
+    | prepare_cpv_light_curve: retrieve all relevant data from SPOC/FITS LC
     | p2p_rms
 """
+#############
+## LOGGING ##
+#############
+import logging
+from complexrotators import log_sub, log_fmt, log_date_fmt
+
+DEBUG = False
+if DEBUG:
+    level = logging.DEBUG
+else:
+    level = logging.INFO
+LOGGER = logging.getLogger(__name__)
+logging.basicConfig(
+    level=level,
+    style=log_sub,
+    format=log_fmt,
+    datefmt=log_date_fmt,
+)
+
+LOGDEBUG = LOGGER.debug
+LOGINFO = LOGGER.info
+LOGWARNING = LOGGER.warning
+LOGERROR = LOGGER.error
+LOGEXCEPTION = LOGGER.exception
+
+#############
+## IMPORTS ##
+#############
 import numpy as np, pandas as pd
 from numpy import array as nparr
 
@@ -71,7 +99,7 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
 
     pklpath = os.path.join(outdir, f"{starid}_cpv_periodsearch.pkl")
     if os.path.exists(pklpath):
-        print(f"Found {pklpath}, loading and continuing.")
+        LOGINFO(f"Found {pklpath}, loading and continuing.")
         with open(pklpath, 'rb') as f:
             d = pickle.load(f)
         return d
@@ -91,13 +119,13 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
     delta_P = 0.2
     stepsize = 1e-5
 
-    print(f'Beginning period search for {starid}')
+    LOGINFO(f'Beginning period search for {starid}')
 
     if periodogram_method == 'ls':
 
         lsp = periodbase.pgen_lsp(
             times[::sep], fluxs[::sep], fluxs[::sep]*1e-4, magsarefluxes=True,
-            startp=startp, endp=endp, autofreq=True, sigclip=5.0
+            startp=startp, endp=endp, autofreq=True, sigclip=5.0, nbestpeaks=10
         )
 
         fine_lsp = periodbase.pgen_lsp(
@@ -111,7 +139,7 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
 
         lsp = periodbase.stellingwerf_pdm(
             times[::sep], fluxs[::sep], fluxs[::sep]*1e-4, magsarefluxes=True,
-            startp=startp, endp=endp, autofreq=True, sigclip=5.0
+            startp=startp, endp=endp, autofreq=True, sigclip=5.0, nbestpeaks=10
         )
 
         if lsp['bestperiod'] < 2:
@@ -122,17 +150,17 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
                 autofreq=False, sigclip=5.0, stepsize=stepsize
             )
         else:
-            print(
+            LOGINFO(
                 f"Found P={lsp['bestperiod']:.3f} d; skipping fine period "
                 f"search."
             )
             fine_lsp = deepcopy(lsp)
 
-    print(42*'.')
-    print(f"Standard autofreq period: {lsp['bestperiod']:.7f} d")
-    print(f"Fine period: {fine_lsp['bestperiod']:.7f} d")
-    print(f"Fine - standard: {fine_lsp['bestperiod']-lsp['bestperiod']:.7f} d")
-    print(42*'.')
+    LOGINFO(42*'.')
+    LOGINFO(f"Standard autofreq period: {lsp['bestperiod']:.7f} d")
+    LOGINFO(f"Fine period: {fine_lsp['bestperiod']:.7f} d")
+    LOGINFO(f"Fine - standard: {fine_lsp['bestperiod']-lsp['bestperiod']:.7f} d")
+    LOGINFO(42*'.')
 
     outfile = os.path.join(
         outdir, f'{starid}_{periodogram_method}_subset_checkplot.png'
@@ -176,7 +204,7 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
 
     with open(pklpath, 'wb') as f:
         pickle.dump(d, f)
-        print(f'Made {pklpath}')
+        LOGINFO(f'Made {pklpath}')
 
     return d
 
@@ -268,37 +296,41 @@ def count_phased_local_minima(
     p2p_raw = p2p_rms(_y)
     a_95_5 = np.nanpercentile(_y, 95) - np.nanpercentile(_y, 5)
     a_max_min = np.nanmax(_y) - np.nanmin(_y)
+    _y_mean = np.nanmean(_y)
 
     if pre_normalize:
         # normalize to a 1% semi-amplitude signal.
         a_desired = 0.02
         mult_fac = a_max_min / a_desired
-        _y_mean = np.nanmean(_y)
         # rescale it
-        _y = _y_mean + (_y - _y_mean)/mult_fac
+        _y_preflat = _y_mean + (_y - _y_mean)/mult_fac
+    else:
+        _y_preflat = _y
+        mult_fac = 1
 
 
     nsplines = None
 
     if method == 'findpeaks':
         trend_y = None
-        flat_y = _y * 1.
+        flat_y = _y_preflat * 1.
 
     elif method == 'medianfilt_findpeaks':
         flat_y, trend_y = flatten(
-            x, _y, method='median', return_trend=True, break_tolerance=1,
-            window_length=window_length_phase_units, edge_cutoff=1e-3
+            x, _y_preflat, method='median', return_trend=True,
+            break_tolerance=1, window_length=window_length_phase_units,
+            edge_cutoff=1e-3
         )
 
     elif method == 'sinefilt_findpeaks':
         flat_y, trend_y = flatten(
-            x, _y, method='cosine', robust=True, return_trend=True,
+            x, _y_preflat, method='cosine', robust=True, return_trend=True,
             break_tolerance=1, window_length=window_length_phase_units
         )
 
     elif method == 'psplinefilt_findpeaks':
         flat_y, trend_y, nsplines = flatten(
-            x, _y, method='pspline', max_splines=max_splines,
+            x, _y_preflat, method='pspline', max_splines=max_splines,
             edge_cutoff=1e-3, stdev_cut=2, return_trend=True,
             return_nsplines=True, verbose=True
         )
@@ -307,7 +339,7 @@ def count_phased_local_minima(
         # 33*3 splines corresponds to a window per phase of φ=0.033 -> heavily
         # whitened!
         veryflat_y, _ = flatten(
-            x, _y, method='pspline', max_splines=33*3,
+            x, _y_preflat, method='pspline', max_splines=33*3,
             edge_cutoff=1e-3, stdev_cut=5, return_trend=True,
             return_nsplines=False, verbose=True
         )
@@ -338,7 +370,7 @@ def count_phased_local_minima(
     # about the dips... 
     height = max([ height, height_limit ])
 
-    print(f"p2p_raw {p2p_raw:.1e}, p2p_est {p2p_est:.1e}, mad {mad:.1e}, height {height:.1e}")
+    LOGINFO(f"p2p_raw {p2p_raw:.1e}, p2p_est {p2p_est:.1e}, mad {mad:.1e}, height {height:.1e}")
     peaks, properties = find_peaks(
         -flat_y, height=height, width=width, rel_height=0.5
     )
@@ -414,6 +446,9 @@ def count_phased_local_minima(
         'a_95_5': a_95_5,
         'mad': mad,
         'binned_orig_flux': _y,
+        'binned_preflat_flux': _y_preflat,
+        'mult_fac': mult_fac, # _y_preflat = _y_mean + (_y - _y_mean)/mult_fac
+        '_y_mean': _y_mean,
         'binned_trend_flux': trend_y,
         'nsplines_total': nsplines,
         'nsplines_singlephase': nsplines/3
@@ -465,7 +500,7 @@ def prepare_cpv_light_curve(lcpath, cachedir):
     #
     pklpath = os.path.join(cachedir, f"{starid}_dtr_lightcurve.pkl")
     if os.path.exists(pklpath):
-        print(f"Found {pklpath}, loading and continuing.")
+        LOGINFO(f"Found {pklpath}, loading and continuing.")
         with open(pklpath, 'rb') as f:
             lcd = pickle.load(f)
         y_flat = lcd['y_flat']
@@ -478,7 +513,7 @@ def prepare_cpv_light_curve(lcpath, cachedir):
         lcd = {'y_flat':y_flat, 'y_trend':y_trend, 'x_trend':x_trend }
         with open(pklpath, 'wb') as f:
             pickle.dump(lcd, f)
-            print(f'Made {pklpath}')
+            LOGINFO(f'Made {pklpath}')
 
     return (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend,
             cadence_sec, sector, starid)

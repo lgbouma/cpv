@@ -20,7 +20,8 @@ TABLEDIR = os.path.join(RESULTSDIR, 'tables')
 # where the CURL_SCRIPTS are the bulk download scripts
 # (tesscurl_sector_{XX}_lc.sh) from
 # https://archive.stsci.edu/tess/bulk_downloads/bulk_downloads_ffi-tp-lc-dv.html
-SPOCDIR = '/ar1/TESS/SPOCLC'
+SPOCDIR = '/nfs/phtess2/ar0/TESS/SPOCLC'
+#SPOCDIR = '/ar1/TESS/SPOCLC'
 
 LOCALDIR = os.path.join(os.path.expanduser('~'), 'local', 'complexrotators')
 if not os.path.exists(LOCALDIR): os.mkdir(LOCALDIR)
