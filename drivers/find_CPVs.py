@@ -101,12 +101,39 @@ def get_ticids(sample_id):
         LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
         LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
 
+    elif sample_id == '20pc_mkdwarf':
+
+        df = pd.read_csv(join(SPOCDIR, "gaia_X_spoc2min_merge.csv"))
+
+        sel = (
+            (df["M_G"] > 4)
+            &
+            (df["bp_rp"] > 1.5)
+            &
+            (df["TESSMAG"] < 16)
+            &
+            (df["parallax"] > 50)
+        )
+
+        sdf = df[sel]
+        ticids = np.unique(list(sdf["TICID"].astype(str)))
+
+        N_stars_to_search = len(ticids)
+        N_lcs_to_search = len(sdf)
+
+        LOGINFO(42*'-')
+        LOGINFO(f"{sample_id}")
+        LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
+        LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
+
+
+
     return ticids
 
 
-def find_CPVs():
+def main():
 
-    sample_id = '10pc_mkdwarf'
+    sample_id = '20pc_mkdwarf'
 
     # the TICIDs to search
     ticids = get_ticids(sample_id)
