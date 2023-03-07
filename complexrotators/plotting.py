@@ -10,6 +10,44 @@ Contents:
 
     | plot_dipcountercheck
 """
+
+#######################################
+# ASTROBASE IMPORTS CAN BREAK LOGGING #
+#######################################
+from astrobase.lcmath import (
+    phase_magseries, phase_bin_magseries, sigclip_magseries,
+    find_lc_timegroups, phase_magseries_with_errs, time_bin_magseries
+)
+
+#############
+## LOGGING ##
+#############
+import logging
+from complexrotators import log_sub, log_fmt, log_date_fmt
+
+DEBUG = False
+if DEBUG:
+    level = logging.DEBUG
+else:
+    level = logging.INFO
+LOGGER = logging.getLogger(__name__)
+logging.basicConfig(
+    level=level,
+    style=log_sub,
+    format=log_fmt,
+    datefmt=log_date_fmt,
+    force=True
+)
+
+LOGDEBUG = LOGGER.debug
+LOGINFO = LOGGER.info
+LOGWARNING = LOGGER.warning
+LOGERROR = LOGGER.error
+LOGEXCEPTION = LOGGER.exception
+
+#############
+## IMPORTS ##
+#############
 import os, pickle
 from glob import glob
 from datetime import datetime
@@ -32,24 +70,8 @@ from matplotlib.ticker import MaxNLocator
 from matplotlib.transforms import blended_transform_factory
 
 from aesthetic.plot import savefig, format_ax, set_style
-from astrobase.lcmath import (
-    phase_magseries, phase_bin_magseries, sigclip_magseries,
-    find_lc_timegroups, phase_magseries_with_errs, time_bin_magseries
-)
 
 from complexrotators.paths import DATADIR, PHOTDIR
-from complexrotators.helpers import (
-    get_complexrot_data,
-    get_complexrot_twentysec_data
-)
-
-from complexrotators.getters import (
-    get_2min_cadence_spoc_tess_lightcurve,
-    get_20sec_cadence_spoc_tess_lightcurve
-)
-from complexrotators.lcprocessing import (
-    cpv_periodsearch
-)
 
 from cdips.lcproc import detrend as dtr
 
@@ -192,6 +214,11 @@ def plot_phase(
         - Any int or float will be passed as the manual phase.
     """
 
+    from complexrotators.getters import (
+        get_2min_cadence_spoc_tess_lightcurve,
+        get_20sec_cadence_spoc_tess_lightcurve
+    )
+
     #
     # get the light curves for all desired cadences
     #
@@ -264,6 +291,8 @@ def plot_phase(
             with open(pklpath, 'wb') as f:
                 pickle.dump(lcd, f)
                 print(f'Made {pklpath}')
+
+        from complexrotators.lcprocessing import cpv_periodsearch
 
         # get t0, period, lsp
         d = cpv_periodsearch(

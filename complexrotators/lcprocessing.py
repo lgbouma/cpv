@@ -5,6 +5,14 @@ Contents:
     | prepare_cpv_light_curve: retrieve all relevant data from SPOC/FITS LC
     | p2p_rms
 """
+
+#######################################
+# ASTROBASE IMPORTS CAN BREAK LOGGING #
+#######################################
+from astrobase.periodbase import pgen_lsp, stellingwerf_pdm
+from astrobase.checkplot import checkplot_png
+from astrobase.lcmath import phase_magseries, phase_bin_magseries
+
 #############
 ## LOGGING ##
 #############
@@ -22,6 +30,7 @@ logging.basicConfig(
     style=log_sub,
     format=log_fmt,
     datefmt=log_date_fmt,
+    force=True
 )
 
 LOGDEBUG = LOGGER.debug
@@ -40,15 +49,11 @@ import os, multiprocessing, pickle
 from complexrotators.paths import RESULTSDIR, DATADIR
 
 from astropy.io import fits
-from astrobase import periodbase, checkplot
-
-from astrobase.lcmath import phase_magseries, phase_bin_magseries
 
 from scipy.signal import find_peaks
 
 from wotan import flatten
 from copy import deepcopy
-
 
 nworkers = multiprocessing.cpu_count()
 
@@ -123,12 +128,12 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
 
     if periodogram_method == 'ls':
 
-        lsp = periodbase.pgen_lsp(
+        lsp = pgen_lsp(
             times[::sep], fluxs[::sep], fluxs[::sep]*1e-4, magsarefluxes=True,
             startp=startp, endp=endp, autofreq=True, sigclip=5.0, nbestpeaks=10
         )
 
-        fine_lsp = periodbase.pgen_lsp(
+        fine_lsp = pgen_lsp(
             times[::sep], fluxs[::sep], fluxs[::sep]*1e-4, magsarefluxes=True,
             startp=lsp['bestperiod']-delta_P*lsp['bestperiod'],
             endp=lsp['bestperiod']+delta_P*lsp['bestperiod'],
@@ -137,13 +142,13 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
 
     elif periodogram_method == 'pdm':
 
-        lsp = periodbase.stellingwerf_pdm(
+        lsp = stellingwerf_pdm(
             times[::sep], fluxs[::sep], fluxs[::sep]*1e-4, magsarefluxes=True,
             startp=startp, endp=endp, autofreq=True, sigclip=5.0, nbestpeaks=10
         )
 
         if lsp['bestperiod'] < 2:
-            fine_lsp = periodbase.stellingwerf_pdm(
+            fine_lsp = stellingwerf_pdm(
                 times[::sep], fluxs[::sep], fluxs[::sep]*1e-4, magsarefluxes=True,
                 startp=lsp['bestperiod']-delta_P*lsp['bestperiod'],
                 endp=lsp['bestperiod']+delta_P*lsp['bestperiod'],
@@ -165,11 +170,10 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
     outfile = os.path.join(
         outdir, f'{starid}_{periodogram_method}_subset_checkplot.png'
     )
-    checkplot.checkplot_png(lsp, times, fluxs, fluxs*1e-4,
-                            magsarefluxes=True, phasewrap=True,
-                            phasesort=True, phasebin=0.002, minbinelems=7,
-                            plotxlim=(-0.6,0.6), plotdpi=200,
-                            outfile=outfile, verbose=True)
+    checkplot_png(lsp, times, fluxs, fluxs*1e-4, magsarefluxes=True,
+                  phasewrap=True, phasesort=True, phasebin=0.002,
+                  minbinelems=7, plotxlim=(-0.6,0.6), plotdpi=200,
+                  outfile=outfile, verbose=True)
 
     if t0 is None:
         # default phase

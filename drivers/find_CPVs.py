@@ -22,6 +22,7 @@ logging.basicConfig(
     style=log_sub,
     format=log_fmt,
     datefmt=log_date_fmt,
+    force=True
 )
 
 LOGDEBUG = LOGGER.debug
@@ -33,21 +34,21 @@ LOGEXCEPTION = LOGGER.exception
 #############
 ## IMPORTS ##
 #############
-import os, pickle, subprocess
+import os, pickle
 from os.path import join
 import numpy as np, pandas as pd
-from glob import glob
 
 from complexrotators.paths import LOCALDIR, SPOCDIR
-from complexrotators.plotting import (
-    plot_phased_light_curve, plot_dipcountercheck
-)
 from complexrotators.getters import (
     _get_lcpaths_given_ticid, _get_local_lcpaths_given_ticid
 )
 from complexrotators.lcprocessing import (
     cpv_periodsearch, count_phased_local_minima, prepare_cpv_light_curve
 )
+from complexrotators.plotting import (
+    plot_phased_light_curve, plot_dipcountercheck
+)
+
 from complexrotators import pipeline_utils as pu
 
 def get_ticids(sample_id):
@@ -265,4 +266,4 @@ def find_CPV(ticid):
 
 
 if __name__ == "__main__":
-    find_CPVs()
+    main()
