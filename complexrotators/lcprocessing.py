@@ -170,10 +170,11 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
     outfile = os.path.join(
         outdir, f'{starid}_{periodogram_method}_subset_checkplot.png'
     )
-    checkplot_png(lsp, times, fluxs, fluxs*1e-4, magsarefluxes=True,
-                  phasewrap=True, phasesort=True, phasebin=0.002,
-                  minbinelems=7, plotxlim=(-0.6,0.6), plotdpi=200,
-                  outfile=outfile, verbose=True)
+    if not os.path.exists(outfile):
+        checkplot_png(lsp, times, fluxs, fluxs*1e-4, magsarefluxes=True,
+                      phasewrap=True, phasesort=True, phasebin=0.002,
+                      minbinelems=7, plotxlim=(-0.6,0.6), plotdpi=75,
+                      outfile=outfile, verbose=True)
 
     if t0 is None:
         # default phase

@@ -36,6 +36,7 @@ LOGEXCEPTION = LOGGER.exception
 #############
 import os, pickle
 from os.path import join
+from glob import glob
 import numpy as np, pandas as pd
 
 from complexrotators.paths import LOCALDIR, SPOCDIR
@@ -126,8 +127,6 @@ def get_ticids(sample_id):
         LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
         LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
 
-
-
     return ticids
 
 
@@ -148,13 +147,24 @@ def main():
 
 def find_CPV(ticid):
 
+    cachedir = join(LOCALDIR, "cpv_finding")
+    if not os.path.exists(cachedir): os.mkdir(cachedir)
+
+    cand_logpaths = glob(join(cachedir, f"tess*00{ticid}-*runstatus.log"))
+    foundexitcode = 0
+    if len(cand_logpaths) > 0:
+        for cand_logpath in cand_logpaths:
+            st = pu.load_status(cand_logpath)
+            if 'exitcode' in st:
+                foundexitcode += 1
+    if (foundexitcode == len(cand_logpaths)) and foundexitcode >= 1:
+        LOGINFO(f"TIC{ticid}: found {foundexitcode} finished logs. skip.")
+        return 1
+
     #
     # get the light curves for all desired sectors and cadences
     #
     lcpaths = _get_local_lcpaths_given_ticid(ticid)
-
-    cachedir = join(LOCALDIR, "cpv_finding")
-    if not os.path.exists(cachedir): os.mkdir(cachedir)
 
     #
     # for each light curve (sector / cadence specific), detrend, ((remove
@@ -176,7 +186,7 @@ def find_CPV(ticid):
         st = pu.load_status(logpath)
         if 'exitcode' in st:
             exitcode = st['exitcode']['exitcode']
-            LOGINFO("{lcpbase}: found exitcode {exitcode}. skip.")
+            LOGINFO(f"{lcpbase}: found exitcode {exitcode}. skip.")
             continue
 
         # get the relevant light curve data
