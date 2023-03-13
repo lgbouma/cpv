@@ -23,7 +23,7 @@ def test_dip_counter(ticid, require_classified=True):
 
     cdf = pd.read_csv("known_cpv_dip_counts.csv")
 
-    for lcpath in lcpaths:
+    for lcpath in np.sort(lcpaths):
 
         sector = int(os.path.basename(lcpath).split("-")[1][1:].lstrip("0"))
 
@@ -76,6 +76,20 @@ def test_dip_counter(ticid, require_classified=True):
 
         if make_plot:
             plot_dipcountercheck(r, d, eval_dict, plotdir, starid)
+
+        plot_phase = True
+        if plot_phase:
+            t0 = d['t0']
+            #if str(ticid) == "402980664":
+            #    if sector in [18, 19]:
+            #        t0 = 1791.1372827806442 + 0.21*0.7732752056726647
+            outpath = join(plotdir, f"{starid}_phase.png")
+            plot_phased_light_curve(
+                d['times'], d['fluxs'], t0, d['period'], outpath,
+                titlestr=starid.replace("_", " "), binsize_minutes=10,
+                xlim=[-0.6,0.6]
+            )
+
 
 
 def evaluate_dipcounter(starid, r, cd, save_evaldict=True):
@@ -194,9 +208,10 @@ def test_dip_counter_all_stars():
 
     ticids = [
         ##########################################
+        "402980664"
         # # WORKING CASES
         # # normal rotators
-        "294328887"
+        # "294328887"
         # "150068381",
         # "177309964",
         # "149248196", # AB Dor...lotsss of data...
@@ -215,8 +230,8 @@ def test_dip_counter_all_stars():
         # "142173958",
         # "408188366",
         ## bonus ebs
-        "245834739",
-        "245868207",
+        # "245834739",
+        # "245868207",
         ##########################################
         # cpvs that are fine but i already have enough
         ##"238597707",
