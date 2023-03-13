@@ -198,9 +198,9 @@ def plot_phase(
     ticid=None,
     lc_cadences='2min_20sec',
     manual_period=None,
+    t0='binmin',
     ylim=None,
     binsize_minutes=10,
-    t0='binmin',
     xlim=[-0.6,0.6]
 ):
     """
@@ -320,7 +320,7 @@ def plot_phase(
             period = manual_period
 
         plot_phased_light_curve(
-            d['times'], d['fluxs'], d['t0'], period, outpath,
+            d['times'], d['fluxs'], t0, period, outpath,
             titlestr=titlestr, ylim=ylim, binsize_minutes=binsize_minutes,
             xlim=xlim
         )
@@ -389,7 +389,7 @@ def plot_phased_light_curve(
 
     # make plot
     plt.close('all')
-    set_style()
+    set_style("clean")
 
     if fig is None and ax is None:
         if figsize is None:
