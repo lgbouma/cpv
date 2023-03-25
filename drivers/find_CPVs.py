@@ -11,7 +11,7 @@ Contents:
 import logging
 from complexrotators import log_sub, log_fmt, log_date_fmt
 
-LOCAL_DEBUG = 1 #FIXME
+LOCAL_DEBUG = 0
 DEBUG = False
 if DEBUG:
     level = logging.DEBUG
@@ -128,7 +128,119 @@ def get_ticids(sample_id):
         LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
         LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
 
+    elif sample_id == '30pc_mkdwarf':
+
+        df = pd.read_csv(join(SPOCDIR, "gaia_X_spoc2min_merge.csv"))
+
+        sel = (
+            (df["M_G"] > 4)
+            &
+            (df["bp_rp"] > 1.5)
+            &
+            (df["TESSMAG"] < 16)
+            &
+            (df["parallax"] > (100/3))
+        )
+
+        sdf = df[sel]
+        ticids = np.unique(list(sdf["TICID"].astype(str)))
+
+        N_stars_to_search = len(ticids)
+        N_lcs_to_search = len(sdf)
+
+        LOGINFO(42*'-')
+        LOGINFO(f"{sample_id}")
+        LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
+        LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
+
+    elif sample_id == '30to50pc_mkdwarf':
+
+        df = pd.read_csv(join(SPOCDIR, "gaia_X_spoc2min_merge.csv"))
+
+        sel = (
+            (df["M_G"] > 4)
+            &
+            (df["bp_rp"] > 1.5)
+            &
+            (df["TESSMAG"] < 16)
+            &
+            (df["parallax"] > 20)
+            &
+            (df["parallax"] <= (100/3))
+        )
+
+        sdf = df[sel]
+        ticids = np.unique(list(sdf["TICID"].astype(str)))
+
+        N_stars_to_search = len(ticids)
+        N_lcs_to_search = len(sdf)
+
+        LOGINFO(42*'-')
+        LOGINFO(f"{sample_id}")
+        LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
+        LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
+
+
+    elif sample_id == '50to60pc_mkdwarf':
+
+        df = pd.read_csv(join(SPOCDIR, "gaia_X_spoc2min_merge.csv"))
+
+        sel = (
+            (df["M_G"] > 4)
+            &
+            (df["bp_rp"] > 1.5)
+            &
+            (df["TESSMAG"] < 16)
+            &
+            (df["parallax"] <= 20)
+            &
+            (df["parallax"] > 1e3*(1/60))
+        )
+
+        sdf = df[sel]
+        ticids = np.unique(list(sdf["TICID"].astype(str)))
+
+        N_stars_to_search = len(ticids)
+        N_lcs_to_search = len(sdf)
+
+        LOGINFO(42*'-')
+        LOGINFO(f"{sample_id}")
+        LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
+        LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
+
+
+    elif sample_id == '60to70pc_mkdwarf':
+
+        df = pd.read_csv(join(SPOCDIR, "gaia_X_spoc2min_merge.csv"))
+
+        sel = (
+            (df["M_G"] > 4)
+            &
+            (df["bp_rp"] > 1.5)
+            &
+            (df["TESSMAG"] < 16)
+            &
+            (df["parallax"] <= 1e3*(1/60))
+            &
+            (df["parallax"] > 1e3*(1/70))
+        )
+
+        sdf = df[sel]
+        ticids = np.unique(list(sdf["TICID"].astype(str)))
+
+        N_stars_to_search = len(ticids)
+        N_lcs_to_search = len(sdf)
+
+        LOGINFO(42*'-')
+        LOGINFO(f"{sample_id}")
+        LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
+        LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
+
+
     return ticids
+
+
+
 
 
 def find_CPV(ticid):
@@ -143,7 +255,10 @@ def find_CPV(ticid):
             st = pu.load_status(cand_logpath)
             if 'exitcode' in st:
                 foundexitcode += 1
-    if (foundexitcode == len(cand_logpaths)) and foundexitcode >= 1:
+    MINIMUM_EXITCODE = 2
+    #1 if any kind of exit means do not rerun
+    #2 if only a periodogram or not enoigh dip exit means dont rerun
+    if (foundexitcode == len(cand_logpaths)) and foundexitcode >= MINIMUM_EXITCODE:
         LOGINFO(f"TIC{ticid}: found {foundexitcode} finished logs. skip.")
         return 1
 
@@ -298,20 +413,14 @@ def find_CPV(ticid):
         exitcode = {'exitcode': 1}
         pu.save_status(logpath, 'exitcode', exitcode)
 
-        import IPython; IPython.embed()
-        assert 0
-
-
 
 def main():
 
-    #FIXME
-    # sample_id = '20pc_mkdwarf'
+    sample_id = 'debug'
 
-    # # the TICIDs to search
-    # ticids = get_ticids(sample_id)
-    #FIXME
-    ticids = ['402980664']
+    # the TICIDs to search
+    ticids = get_ticids(sample_id)
+    #ticids = ['402980664']
 
     for ticid in ticids:
         LOGINFO(42*'-')
