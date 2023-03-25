@@ -20,6 +20,7 @@ from astrobase.lcmath import (
     phase_magseries, phase_bin_magseries, sigclip_magseries,
     find_lc_timegroups, phase_magseries_with_errs, time_bin_magseries
 )
+from astrobase.services.identifiers import tic_to_gaiadr2
 
 #############
 ## LOGGING ##
@@ -77,7 +78,11 @@ from aesthetic.plot import savefig, format_ax, set_style
 from complexrotators.paths import DATADIR, PHOTDIR
 from complexrotators.lcprocessing import cpv_periodsearch
 
+from astroquery.mast import Catalogs
 from cdips.lcproc import detrend as dtr
+from cdips.utils.gaiaqueries import (
+    given_dr2_sourceids_get_edr3_xmatch, given_source_ids_get_gaia_data
+)
 
 def plot_TEMPLATE(outdir):
 
@@ -501,7 +506,7 @@ def plot_phased_light_curve(
     c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
     fig=None, ax=None, savethefigure=True,
     findpeaks_result=None, ylabel=None, showxticklabels=True,
-    yoffset=0, dy=5
+    yoffset=0, dy=5, normfunc=True
     ):
     """
     Non-obvious args:
@@ -533,7 +538,11 @@ def plot_phased_light_curve(
         # if e.g., just an axis is passed, then plot on it
         pass
 
-    x,y = time, flux-np.nanmean(flux)
+    x = time
+    if normfunc:
+        y = flux-np.nanmean(flux)
+    else:
+        y = flux
 
     # time units
     # x_fold = (x - t0 + 0.5 * period) % period - 0.5 * period
@@ -554,17 +563,22 @@ def plot_phased_light_curve(
     #
     # begin the plot!
     #
+    if normfunc:
+        norm = lambda x: 1e2*x + yoffset
+    else:
+        norm = lambda x: x
+
     if not plotnotscatter:
-        ax.scatter(x_fold, 1e2*(y)+yoffset, color=c0, label="data", marker='.',
+        ax.scatter(x_fold, norm(y), color=c0, label="data", marker='.',
                    s=1, rasterized=True, alpha=alpha0, linewidths=0)
     else:
-        ax.plot(x_fold, 1e2*(y)+yoffset, color=c0, label="data",
+        ax.plot(x_fold, norm(y), color=c0, label="data",
                 lw=0.5, rasterized=True, alpha=alpha0)
 
     bs_days = (binsize_minutes / (60*24))
     orb_bd = phase_bin_magseries(x_fold, y, binsize=bs_days, minbinelems=3)
     ax.scatter(
-        orb_bd['binnedphases'], 1e2*(orb_bd['binnedmags'])+yoffset, color=c1,
+        orb_bd['binnedphases'], norm(orb_bd['binnedmags']), color=c1,
         s=BINMS, linewidths=0,
         alpha=alpha1, zorder=1002#, linewidths=0.2, edgecolors='white'
     )
@@ -590,7 +604,7 @@ def plot_phased_light_curve(
                          linewidth=0)
             sel = (orb_bd['binnedphases'] > 0.4) & (orb_bd['binnedphases'] < 0.5)
             ax.text(0.97,
-                    np.nanmin(1e2*(orb_bd['binnedmags'][sel])+yoffset-dy/5), txt,
+                    np.nanmin(norm(orb_bd['binnedmags'][sel])-dy/5), txt,
                     transform=tform, ha='right',va='top', color='k',
                     fontsize=fontsize, bbox=props)
 
@@ -634,6 +648,9 @@ def plot_phased_light_curve(
     if not showxticklabels:
         ax.set_xticklabels([])
 
+    if isinstance(ylabel, str):
+        ax.set_ylabel(ylabel)
+
     if fig is not None:
         fig.tight_layout()
 
@@ -649,7 +666,7 @@ def plot_phased_light_curve(
 
 def get_ylimguess(y):
     ylow = np.nanpercentile(y, 0.1)
-    yhigh = np.nanpercentile(y, 99.9)
+    yhigh = np.nanpercentile(y, 99.5)
     ydiff = (yhigh-ylow)
     ymin = ylow - 0.35*ydiff
     ymax = yhigh + 0.35*ydiff
@@ -935,25 +952,30 @@ def plot_cpvvetter(
     findpeaks_result=None,
     binsize_minutes=10
     ):
+    # TODO: add BANYAN-SIGMA panel!
 
     # get data
     d = periodsearch_result
     r = findpeaks_result
     hdul = fits.open(lcpath)
+    hdr = hdul[0].header
     data = hdul[1].data
     hdul.close()
     qual = data["QUALITY"]
     sel = (qual == 0)
-    import IPython; IPython.embed()
-    #FIXME FIXME FIXME TODO TODO TODO PULL THE DATA NEEDED TO MAKE REMAINING
-    #PLOTS
-    #xc, yc = 
+
+    xc = data['MOM_CENTR2'][sel] # column
+    yc = data['MOM_CENTR1'][sel] # row
+    bgv = data['SAP_BKG'][sel]
+
+    assert len(xc) == len(d['times'])
 
     # make plot
     plt.close('all')
     set_style("clean")
 
-    fig = plt.figure(figsize=(8,4.5))
+    #fig = plt.figure(figsize=(8,4.5))
+    fig = plt.figure(figsize=(8,6))
     axd = fig.subplot_mosaic(
         """
         AAAABBCC
@@ -961,19 +983,29 @@ def plot_cpvvetter(
         AAAADDDD
         EEFFKKLL
         GGHHKKLL
-        IIJJKKLL
+        IIJJ..LL
         """
     )
 
+    axd['E'].get_shared_x_axes().join(axd['E'], axd['G'])
+    axd['E'].get_shared_x_axes().join(axd['E'], axd['I'])
+    axd['G'].get_shared_x_axes().join(axd['G'], axd['I'])
+
+    axd['F'].get_shared_x_axes().join(axd['F'], axd['H'])
+    axd['F'].get_shared_x_axes().join(axd['F'], axd['J'])
+    axd['H'].get_shared_x_axes().join(axd['H'], axd['J'])
+
+
     # pdcsap flux vs time (qual==0, after 5-day median smooth)
     ax = axd['D']
-    bd = time_bin_magseries(d['times'], d['fluxs'], binsize=600, minbinelems=1)
-    ax.scatter(d['times'], d['fluxs'], c='lightgray', s=1, zorder=1)
-    ax.scatter(bd['binnedtimes'], bd['binnedmags'], c='k', s=1, zorder=2)
-    txt = 'PDCSAP, 5d median filter'
-    bbox = dict(facecolor='white', alpha=0.9, pad=0, edgecolor='white')
-    ax.text(0.03, 0.97, txt, ha='left', va='top', bbox=bbox, zorder=3,
-            transform=ax.transAxes)
+    bd = time_bin_magseries(d['times'], d['fluxs'], binsize=1200, minbinelems=1)
+    #ax.scatter(d['times'], d['fluxs'], c='lightgray', s=1, zorder=1)
+    ax.scatter(bd['binnedtimes'], bd['binnedmags'], c='k', s=0.2, zorder=2,
+               rasterized=True)
+    #txt = 'PDCSAP, 5d median filter'
+    #bbox = dict(facecolor='white', alpha=0.9, pad=0, edgecolor='white')
+    #ax.text(0.03, 0.97, txt, ha='left', va='top', bbox=bbox, zorder=3,
+    #        transform=ax.transAxes)
     ax.update({'xlabel': 'Time [BTJD]', 'ylabel': 'Flux'})
 
     # pdm periodogram
@@ -992,72 +1024,341 @@ def plot_cpvvetter(
 
     # phased LC
     ax = axd['A']
+    ylim = get_ylimguess(1e2*(bd['binnedmags']-np.nanmean(bd['binnedmags'])))
     plot_phased_light_curve(
-        d['times'], d['fluxs'], d['t0'], d['period'], None, ylim=None,
+        d['times'], d['fluxs'], d['t0'], d['period'], None, ylim=ylim,
         xlim=[-0.6,0.6], binsize_minutes=2, BINMS=2, titlestr=None,
         showtext=True, showtitle=False, figsize=None, c0='darkgray',
         alpha0=0.3, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
         fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
-        showxticklabels=False
+        showxticklabels=True
     )
+    ax.set_ylabel("Flux [%]")
+    ax.set_xlabel("Phase, φ")
 
     # phased LC at 2x period
-    ax = axd['F']
+    ax = axd['G']
     plot_phased_light_curve(
-        d['times'], d['fluxs'], d['t0'], 2*d['period'], None, ylim=None,
+        d['times'], d['fluxs'], d['t0'], 2*d['period'], None, ylim=ylim,
         xlim=[-0.6,0.6], binsize_minutes=2, BINMS=2, titlestr=None,
-        showtext=True, showtitle=False, figsize=None, c0='darkgray',
+        showtext=False, showtitle=False, figsize=None, c0='darkgray',
         alpha0=0.3, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
         fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
-        showxticklabels=False, ylabel='Flux'
+        showxticklabels=True, ylabel=r'2$\times P$'
     )
-    ax.set_xlabel("")
+    ax.set_xticklabels(['-0.5', '', '0', '', '0.5'])
+    ax.set_xlabel("φ")
 
     # phased LC at 0.5x period
-    ax = axd['H']
+    ax = axd['I']
     plot_phased_light_curve(
-        d['times'], d['fluxs'], d['t0'], 0.5*d['period'], None, ylim=None,
+        d['times'], d['fluxs'], d['t0'], 0.5*d['period'], None, ylim=ylim,
         xlim=[-0.6,0.6], binsize_minutes=2, BINMS=2, titlestr=None,
-        showtext=True, showtitle=False, figsize=None, c0='darkgray',
+        showtext=False, showtitle=False, figsize=None, c0='darkgray',
         alpha0=0.3, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
         fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
-        showxticklabels=False, ylabel='Flux'
+        showxticklabels=True, ylabel=r'0.5$\times P$'
     )
-    ax.set_xlabel("")
+    ax.set_xlabel("φ")
 
     # # phased norm LC, w/ smooth model
-    # ax = axd['E']
+    ax = axd['E']
+    norm = lambda x: 1e2 * (x - np.nanmean(x))
+    ax.scatter(
+        r['binned_phase'], norm(r['binned_orig_flux']), c='k', zorder=1, s=1.5
+    )
+    ax.plot(
+        r['binned_phase'], norm(r['binned_trend_flux']), c='darkgray', zorder=2
+    )
+    tform = blended_transform_factory(ax.transData, ax.transAxes)
+    peakloc = findpeaks_result['peaks_phaseunits']
+    peakloc[peakloc>0.5] -= 1 # there must be a smarter way
+    ax.scatter(peakloc, np.ones(len(peakloc))*0.98, transform=tform,
+               marker='v', s=10, linewidths=0, edgecolors='none',
+               color='k', alpha=0.5, zorder=1000)
+    ax.set_xlim([-0.6,0.6])
+    ax.set_xticks([-0.5, -0.25, 0, 0.25, 0.5])
+    ax.set_xticklabels(['-0.5', '', '0', '', '0.5'])
+    ax.set_xlabel("φ")
+    ax.set_ylabel('dips')
+
 
     # # resids of above, w/ ticks for auto dip find
     # ax = axd['G']
 
     # # phased flux in BGD aperture
-    ax = axd['I']
+    ax = axd['F']
+    nbgv = bgv/np.nanmedian(bgv)
+    sel_bgv = np.isfinite(nbgv) & (nbgv < np.nanpercentile(nbgv, 98))
+    ylim = get_ylimguess(nbgv[sel_bgv])
+    ylim = [0.9,1.1]
     plot_phased_light_curve(
-        d['times'], d['fluxs'], d['t0'], d['period'], None, ylim=None,
-        xlim=[-0.6,0.6], binsize_minutes=2, BINMS=2, titlestr=None,
-        showtext=True, showtitle=False, figsize=None, c0='darkgray',
+        d['times'][sel_bgv], nbgv[sel_bgv], d['t0'], d['period'], None,
+        ylim=ylim,
+        xlim=[-0.6,0.6], binsize_minutes=10, BINMS=2, titlestr=None,
+        showtext=False, showtitle=False, figsize=None, c0='darkgray',
         alpha0=0.3, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
         fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
-        showxticklabels=False
+        showxticklabels=True, ylabel='Bkg', normfunc=False
+    )
+    ax.set_xticklabels(['-0.5', '', '0', '', '0.5'])
+    ax.set_xlabel("φ")
+
+    #
+    # # phased ctd x/y
+    #
+    ax = axd['H']
+    plot_phased_light_curve(
+        d['times'], xc, d['t0'], d['period'], None, ylim=None,
+        xlim=[-0.6,0.6], binsize_minutes=10, BINMS=2, titlestr=None,
+        showtext=False, showtitle=False, figsize=None, c0='C0',
+        alpha0=0.2, c1='C0', alpha1=1, phasewrap=True, plotnotscatter=False,
+        fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
+        showxticklabels=True, ylabel='c$_\mathrm{col}$'
+    )
+    ax.set_xticklabels(['-0.5', '', '0', '', '0.5'])
+    ax.set_xlabel("φ")
+    ax = axd['J']
+    plot_phased_light_curve(
+        d['times'], yc, d['t0'], d['period'], None, ylim=None,
+        xlim=[-0.6,0.6], binsize_minutes=10, BINMS=2, titlestr=None,
+        showtext=False, showtitle=False, figsize=None, c0='C1',
+        alpha0=0.2, c1='C1', alpha1=1, phasewrap=True, plotnotscatter=False,
+        fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
+        showxticklabels=True, ylabel='c$_\mathrm{row}$'
+    )
+    ax.set_xticklabels(['-0.5', '', '0', '', '0.5'])
+    ax.set_xlabel("φ")
+
+    # join subplots
+
+    #
+    # # star info (Gaia, TIC8, dip search)
+    #
+    ax = axd['L']
+    ax.set_axis_off()
+
+    # tic8 info
+    ticid = str(hdr['TICID'])
+    sector = str(hdr['SECTOR'])
+    cam = str(hdr['CAMERA'])
+    ccd = str(hdr['CCD'])
+    Tmag = f"{hdr['TESSMAG']:.1f}"
+    teff_tic8 = f"{int(hdr['TEFF']):d}"
+    ra = f"{hdr['RA_OBJ']:.2f}"
+    dec = f"{hdr['DEC_OBJ']:.2f}"
+    pmra = f"{hdr['PMRA']:.1f}"
+    pmdec = f"{hdr['PMDEC']:.1f}"
+    ra_obj, dec_obj = hdr['RA_OBJ'], hdr['DEC_OBJ']
+    c_obj = SkyCoord(ra_obj, dec_obj, unit=(u.deg), frame='icrs')
+
+    # gaia info
+    dr2_source_id = tic_to_gaiadr2(ticid)
+
+    runid = f"dr2_{dr2_source_id}"
+
+    dr2_source_ids = np.array([np.int64(dr2_source_id)])
+    gdf = given_source_ids_get_gaia_data(
+        dr2_source_ids, runid, n_max=5, overwrite=False,
+        enforce_all_sourceids_viable=True, savstr='', which_columns='*',
+        table_name='gaia_source', gaia_datarelease='gaiadr2', getdr2ruwe=False
+    )
+    gdf_ruwe = given_source_ids_get_gaia_data(
+        dr2_source_ids, runid+"_ruwe", n_max=5, overwrite=False,
+        enforce_all_sourceids_viable=True, savstr='', which_columns='*',
+        table_name='gaia_source', gaia_datarelease='gaiadr2', getdr2ruwe=True
     )
 
-    # # phased ctd x/y
-    # ax = axd['J']
+    Gmag = f"{gdf['phot_g_mean_mag'].iloc[0]:.1f}"
+    Rpmag = f"{gdf['phot_rp_mean_mag'].iloc[0]:.1f}"
+    Bpmag = f"{gdf['phot_bp_mean_mag'].iloc[0]:.1f}"
+    bp_rp = f"{gdf['bp_rp'].iloc[0]:.2f}"
+    ruwe =  f"{gdf_ruwe['ruwe'].iloc[0]:.2f}"
+    plx = f"{gdf['parallax'].iloc[0]:.2f}"
+    plx_err = f"{gdf['parallax_error'].iloc[0]:.2f}"
+    dist_pc = 1/(float(plx)*1e-3)
+    dist = f"{dist_pc:.1f}"
 
-    # # star info (Gaia, TIC8, dip search)
-    # ax = axd['L']
+    # nbhr info
+    ticids, tmags = get_2px_neighbors(c_obj, hdr['TESSMAG'])
+    N_nbhrs = len(ticids)-1
+    nbhrstr = ''
+    if N_nbhrs >= 1:
+        for ticid, tmag in zip(ticids[1:], tmags[1:]):
+            nbhrstr += f"TIC {ticid}: ΔT={tmag-hdr['TESSMAG']:.1f}\n"
 
-    # # gaia CAMD
-    # ax = axd['K']
+    txt = (
+        f"TIC {ticid}\n"
+        f"GDR2 {dr2_source_id}\n"
+        f"SEC{sector}, CAM{cam}, CCD{ccd}\n"
+        "—\n"
+        f"α={ra}, δ={dec} (deg)\n"
+        r"$\mu_\alpha$="+pmra+r", $\mu_\delta$="+pmdec+f" (mas/yr)\n"
+        f"T={Tmag}\n"
+        f"TIC8 Teff={teff_tic8} K\n"
+        f"G={Gmag}, RP={Rpmag}, BP={Bpmag}\n"
+        f"BP-RP={bp_rp}\n"
+        f"RUWE={ruwe}\n"
+        f"plx={plx}"+"$\pm$"+f"{plx_err} mas\n"
+        f"d={dist} pc\n"
+        "—\n"
+        'N$_{\mathrm{dip}}$='+f'{r["N_peaks"]}\n'
+        f'P2P={1e2*r["p2p_est"]:.1f}%\n'
+        r'δ$_{\mathrm{thresh}}$'+f'={1e2*r["height"]:.1f}%\n'
+        f'φ={r["peaks_phaseunits"]}\n'
+        "—\n"
+        'N$_{\mathrm{nbhr}}$: '+f'{N_nbhrs}\n'
+        f'{nbhrstr}\n'
+    )
 
-    # # DSS query
-    # ax = axd['C']
+    txt_x = -0.1
+    txt_y = 0.5
+    ax.text(txt_x, txt_y, txt, ha='left', va='center', fontsize='small', zorder=2,
+            transform=ax.transAxes)
 
+    #
+    # gaia CAMD
+    #
+    ss = axd['K'].get_subplotspec()
+    axd['K'].remove()
+    import mpl_scatter_density # adds projection='scatter_density'
+    axd['K'] = fig.add_subplot(ss, projection='scatter_density')
+    ax = axd['K']
+
+    get_xval_no_corr = (
+        lambda _df: np.array(_df['phot_bp_mean_mag'] - _df['phot_rp_mean_mag'])
+    )
+    get_yval_no_corr = (
+        lambda _df: np.array(
+            _df['phot_g_mean_mag'] + 5*np.log10(_df['parallax']/1e3) + 5
+        )
+    )
+
+    underplot_gcns(ax, get_xval_no_corr, get_yval_no_corr)
+
+    ax.scatter(get_xval_no_corr(gdf), get_yval_no_corr(gdf), zorder=9000,
+               c='lime', s=30, marker='X', edgecolors='k', linewidths=0.5)
+    ax.set_xlim([0.9, 3.6])
+    ax.set_ylim([11.5, 5])
+    ax.set_xlabel('BP-RP')
+    ax.set_ylabel(r'M$_{\rm G}$')
+
+
+    #
+    # DSS query
+    #
+    ra = hdr['RA_OBJ']
+    dec = hdr['DEC_OBJ']
+
+    dss_overlay(fig, axd, ra, dec)
 
     # set naming options
     s = ''
 
-    fig.tight_layout()
+    # height / weight
+    fig.tight_layout(h_pad=0)
 
     savefig(fig, outpath)
+
+
+def dss_overlay(fig, axd, ra, dec):
+
+    from astrobase.plotbase import skyview_stamp
+    from astropy.wcs import WCS
+
+    sizepix = 220
+    try:
+        dss, dss_hdr = skyview_stamp(ra, dec, survey='DSS2 Red',
+                                     scaling='Linear', convolvewith=None,
+                                     sizepix=sizepix, flip=False,
+                                     cachedir='~/.astrobase/stamp-cache',
+                                     verbose=True, savewcsheader=True)
+    except (OSError, IndexError, TypeError) as e:
+        LOGERROR('downloaded FITS appears to be corrupt, retrying...')
+        try:
+            dss, dss_hdr = skyview_stamp(ra, dec, survey='DSS2 Red',
+                                         scaling='Linear', convolvewith=None,
+                                         sizepix=sizepix, flip=False,
+                                         cachedir='~/.astrobase/stamp-cache',
+                                         verbose=True, savewcsheader=True,
+                                         forcefetch=True)
+
+        except Exception as e:
+            LOGERROR('failed to get DSS stamp ra {} dec {}, error was {}'.
+                     format(ra, dec, repr(e)))
+            return None, None
+
+    ss = axd['C'].get_subplotspec()
+    axd['C'].remove()
+    axd['C'] = fig.add_subplot(ss, projection=WCS(dss_hdr))
+    ax = axd['C']
+
+    cset = ax.imshow(dss, origin='lower', cmap=plt.cm.gray_r, zorder=-2)
+
+    ax.set_xlabel(' ')
+    ax.set_ylabel(' ')
+
+    ax.grid(ls='--', alpha=0.5)
+
+    # DSS is ~1 arcsecond per pixel. overplot 1px and 2px apertures
+    for ix, radius_px in enumerate([21, 21*2]):
+        circle = plt.Circle(
+            (sizepix/2, sizepix/2), radius_px, color='C{}'.format(ix),
+            fill=False, zorder=5+ix, lw=0.5, alpha=0.5
+        )
+        ax.add_artist(circle)
+
+    props = dict(boxstyle='square', facecolor='lightgray', alpha=0.3, pad=0.15,
+                 linewidth=0)
+    ax.text(0.97, 0.03, 'r={1,2}px', transform=ax.transAxes,
+            ha='right',va='bottom', color='k', bbox=props, fontsize='x-small')
+
+
+
+def get_2px_neighbors(c_obj, tessmag):
+
+    radius = 42*u.arcsecond
+
+    nbhr_stars = Catalogs.query_region(
+        "{} {}".format(float(c_obj.ra.value), float(c_obj.dec.value)),
+        catalog="TIC",
+        radius=radius
+    )
+
+    ticids = nbhr_stars[nbhr_stars['Tmag'] < tessmag+2.5]['ID']
+    tmags = nbhr_stars[nbhr_stars['Tmag'] < tessmag+2.5]['Tmag']
+
+    return ticids, tmags
+
+
+
+def underplot_gcns(ax, get_xval_no_corr, get_yval_no_corr):
+
+    from rudolf.helpers import get_gaia_catalog_of_nearby_stars
+    df_bkgd = get_gaia_catalog_of_nearby_stars()
+
+    from matplotlib.colors import LinearSegmentedColormap
+    # "Viridis-like" colormap with white background
+    white_viridis = LinearSegmentedColormap.from_list('white_viridis', [
+        (0, '#ffffff'),
+        (1e-20, '#440053'),
+        (0.2, '#404388'),
+        (0.4, '#2a788e'),
+        (0.6, '#21a784'),
+        (0.8, '#78d151'),
+        (1, '#fde624'),
+    ], N=256)
+
+    _x = get_xval_no_corr(df_bkgd)
+    _y = get_yval_no_corr(df_bkgd)
+    s = np.isfinite(_x) & np.isfinite(_y)
+
+    # add log stretch...
+    from astropy.visualization import LogStretch
+    from astropy.visualization.mpl_normalize import ImageNormalize
+    vmin, vmax = 10, 1000
+
+    norm = ImageNormalize(vmin=vmin, vmax=vmax, stretch=LogStretch())
+
+    cmap = "Greys"
+    density = ax.scatter_density(_x[s], _y[s], cmap=cmap, norm=norm)
