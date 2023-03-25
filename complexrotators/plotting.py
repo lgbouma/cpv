@@ -1236,13 +1236,21 @@ def plot_cpvvetter(
 
     underplot_gcns(ax, get_xval_no_corr, get_yval_no_corr)
 
-    ax.scatter(get_xval_no_corr(gdf), get_yval_no_corr(gdf), zorder=9000,
+    bp_rp = get_xval_no_corr(gdf)
+    M_G = get_yval_no_corr(gdf)
+    ax.scatter(bp_rp, M_G, zorder=9000,
                c='lime', s=30, marker='X', edgecolors='k', linewidths=0.5)
-    ax.set_xlim([0.9, 3.6])
-    ax.set_ylim([11.5, 5])
+
+    xmin, xmax = 0.9, 3.6
+    if bp_rp > xmax:
+        xmax = bp_rp + 0.2
+    ymax, ymin = 11.5, 5
+    if M_G > ymax:
+        ymax = M_G + 0.5
+    ax.set_xlim([xmin, xmax])
+    ax.set_ylim([ymax, ymin])
     ax.set_xlabel('BP-RP')
     ax.set_ylabel(r'M$_{\rm G}$')
-
 
     #
     # DSS query

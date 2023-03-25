@@ -416,16 +416,27 @@ def find_CPV(ticid):
 
 def main():
 
-    sample_id = 'debug'
+    # sample_id = 'debug'
+    # ticids = get_ticids(sample_id)
+    # #ticids = ['402980664']
+    # for ticid in ticids:
+    #     LOGINFO(42*'-')
+    #     LOGINFO(f"Beginning {ticid}...")
+    #     find_CPV(ticid)
 
-    # the TICIDs to search
-    ticids = get_ticids(sample_id)
-    #ticids = ['402980664']
+    sample_ids = [
+        '30pc_mkdwarf',
+        '30to50pc_mkdwarf',
+        '50to60pc_mkdwarf',
+        '60to70pc_mkdwarf'
+    ]
 
-    for ticid in ticids:
-        LOGINFO(42*'-')
-        LOGINFO(f"Beginning {ticid}...")
-        find_CPV(ticid)
+    for sample_id in sample_ids:
+        ticids = get_ticids(sample_id)
+        for ticid in ticids:
+            LOGINFO(42*'-')
+            LOGINFO(f"Beginning {ticid}...")
+            find_CPV(ticid)
 
     LOGINFO("Finished 🎉🎉🎉")
 
