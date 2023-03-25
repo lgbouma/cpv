@@ -344,6 +344,118 @@ def plot_phase(
         )
 
 
+def plot_phase_timegroups(
+    outdir,
+    ticid=None,
+    lc_cadences='2min_20sec',
+    manual_period=None,
+    t0='binmin',
+    ylim=None,
+    binsize_minutes=10,
+    xlim=[-0.6,0.6],
+    yoffset=5
+    ):
+    """
+    As in plot_phase
+    """
+
+    lclist = _get_cpv_lclist(lc_cadences, ticid)
+
+    if len(lclist) == 0:
+        print(f'WRN! Did not find light curves for {ticid}. Escaping.')
+        return 0
+
+    # for each light curve (sector / cadence specific), detrend if needed, get
+    # the best period.
+    _times, _fluxs, _t0s, _periods, _titlestrs = [],[],[],[], []
+
+    for lc in lclist:
+
+        (time, flux, qual, x_obs, y_obs, y_flat,
+         y_trend, x_trend, cadence_sec, sector,
+         starid) = prepare_given_lightkurve_lc(lc, ticid, outdir)
+
+        # get t0, period, lsp
+        d = cpv_periodsearch(x_obs, y_flat, starid, outdir, t0=t0)
+
+        _t0 = d['t0']
+        period = d['period']
+        if isinstance(manual_period, float):
+            period = manual_period
+        titlestr = starid.replace('_',' ')
+
+        _times.append(d['times'])
+        _fluxs.append(d['fluxs'])
+        _t0s.append(_t0)
+        _periods.append(period)
+        _titlestrs.append(titlestr)
+
+    # merge lightcurve data, and split before making the plot.
+    times = np.hstack(_times)
+    fluxs = np.hstack(_fluxs)
+    t0s = np.hstack(_t0s)
+    periods = np.hstack(_periods)
+    titlestrs = np.hstack(_titlestrs)
+
+    from astrobase.lcmath import find_lc_timegroups
+    ngroups, groups = find_lc_timegroups(times, mingap=3/24)
+
+    # Make plots
+    plt.close('all')
+    set_style("science")
+    fig, ax = plt.subplots(figsize=(3,7))
+
+    plot_period = np.nanmean(_periods) + 0.002/24
+    plot_t0 = t0s[0] + 0.25*plot_period
+    plot_period_std = np.nanstd(_periods)
+
+    ix = 0
+    for n, g in enumerate(groups):
+
+        cadence_day = 2/(60*24)
+        N_cycles_in_group = len(times[g]) * cadence_day / plot_period
+
+        gtime = times[g]
+        gflux = fluxs[g]
+
+        # t = t0 + P*e
+        e_start = int(np.floor((gtime[0] - plot_t0)/plot_period))
+        e_end = int(np.floor((gtime[-1] - plot_t0)/plot_period))
+        txt = f"{e_start} - {e_end}"
+
+        if N_cycles_in_group < 2:
+            continue
+
+        plot_phased_light_curve(
+            gtime, gflux, plot_t0, plot_period, None,
+            fig=fig, ax=ax,
+            titlestr=None, binsize_minutes=binsize_minutes,
+            xlim=xlim, yoffset=ix, showtext=txt, savethefigure=False,
+            dy=yoffset
+        )
+
+        ix -= yoffset
+
+    ax.set_title(
+        f"{ticid.replace('_', ' ')} "
+        f"P={plot_period*24:.3f}$\pm${plot_period_std*24:.3f}hr"
+    )
+
+    fig.text(-0.01,0.5, r"Relative flux [%]", va='center',
+             rotation=90)
+
+    if isinstance(ylim, list):
+        ax.set_ylim(ylim)
+
+    ax.set_xlabel('Phase')
+
+    format_ax(ax)
+    fig.tight_layout()
+
+    outpath = join(outdir, f"{ticid}_P{plot_period*24:.3f}_phase_timegroups.png")
+    savefig(fig, outpath, dpi=350)
+
+
 def plot_quicklook_cr(x_obs, y_obs, x_trend, y_trend, x_flat, y_flat, outpath,
                       titlestr):
 
@@ -388,7 +500,8 @@ def plot_phased_light_curve(
     c0='darkgray', alpha0=0.3,
     c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
     fig=None, ax=None, savethefigure=True,
-    findpeaks_result=None
+    findpeaks_result=None, ylabel=None, showxticklabels=True,
+    yoffset=0, dy=5
     ):
     """
     Non-obvious args:
@@ -442,16 +555,16 @@ def plot_phased_light_curve(
     # begin the plot!
     #
     if not plotnotscatter:
-        ax.scatter(x_fold, 1e2*(y), color=c0, label="data", marker='.',
+        ax.scatter(x_fold, 1e2*(y)+yoffset, color=c0, label="data", marker='.',
                    s=1, rasterized=True, alpha=alpha0, linewidths=0)
     else:
-        ax.plot(x_fold, 1e2*(y), color=c0, label="data",
+        ax.plot(x_fold, 1e2*(y)+yoffset, color=c0, label="data",
                 lw=0.5, rasterized=True, alpha=alpha0)
 
     bs_days = (binsize_minutes / (60*24))
     orb_bd = phase_bin_magseries(x_fold, y, binsize=bs_days, minbinelems=3)
     ax.scatter(
-        orb_bd['binnedphases'], 1e2*(orb_bd['binnedmags']), color=c1,
+        orb_bd['binnedphases'], 1e2*(orb_bd['binnedmags'])+yoffset, color=c1,
         s=BINMS, linewidths=0,
         alpha=alpha1, zorder=1002#, linewidths=0.2, edgecolors='white'
     )
@@ -464,21 +577,34 @@ def plot_phased_light_curve(
         tform = blended_transform_factory(ax.transData, ax.transAxes)
         peakloc = findpeaks_result['peaks_phaseunits']
         peakloc[peakloc>0.5] -= 1 # there must be a smarter way
-        ax.scatter(peakloc, np.ones(len(peakloc))*0.98, transform=tform,
+        ax.scatter(peakloc, np.ones(len(peakloc))*0.98+yoffset, transform=tform,
                    marker='v', s=10, linewidths=0, edgecolors='none',
                    color='k', alpha=0.5, zorder=1000)
 
     if showtext:
-        if isinstance(t0, float):
-            #txt = f'$t_0$ [BTJD]: {t0:.6f}\n$P$: {period:.6f} d'
-            txt = f'$P$: {period*24:.2f} hr' # simpler label
-            fontsize='small'
-        elif isinstance(t0, int):
-            txt = f'$t_0$ [BTJD]: {t0:.1f}\n$P$: {period:.6f} d'
-            fontsize='xx-small'
-        ax.text(0.97,0.03,txt,
-                transform=ax.transAxes,
-                ha='right',va='bottom', color='k', fontsize=fontsize)
+        if isinstance(showtext, str):
+            txt = showtext
+            fontsize = 'xx-small'
+            tform = blended_transform_factory(ax.transAxes, ax.transData)
+            props = dict(boxstyle='square', facecolor='white', alpha=0.7, pad=0.15,
+                         linewidth=0)
+            sel = (orb_bd['binnedphases'] > 0.4) & (orb_bd['binnedphases'] < 0.5)
+            ax.text(0.97,
+                    np.nanmin(1e2*(orb_bd['binnedmags'][sel])+yoffset-dy/5), txt,
+                    transform=tform, ha='right',va='top', color='k',
+                    fontsize=fontsize, bbox=props)
+
+        else:
+            if isinstance(t0, float):
+                #txt = f'$t_0$ [BTJD]: {t0:.6f}\n$P$: {period:.6f} d'
+                txt = f'$P$: {period*24:.2f} hr' # simpler label
+                fontsize='small'
+            elif isinstance(t0, int):
+                txt = f'$t_0$ [BTJD]: {t0:.1f}\n$P$: {period:.6f} d'
+                fontsize='xx-small'
+            ax.text(0.97,0.03,txt,
+                    transform=ax.transAxes,
+                    ha='right',va='bottom', color='k', fontsize=fontsize)
 
     if showtitle:
         txt = f'$t_0$ [BTJD]: {t0:.6f}. $P$: {period:.6f} d'
@@ -487,8 +613,9 @@ def plot_phased_light_curve(
     if isinstance(titlestr,str):
         ax.set_title(titlestr.replace("_"," "), fontsize='small')
 
-    ax.set_ylabel(r"Relative flux [$\times 10^{-2}$]")
-    ax.set_xlabel("Phase")
+    if savethefigure:
+        ax.set_ylabel(r"Flux [$\times 10^{-2}$]")
+        ax.set_xlabel("Phase")
 
     ax.set_xlim(xlim)
     if xlim == [-0.6,0.6]:
@@ -498,18 +625,26 @@ def plot_phased_light_curve(
     if isinstance(ylim, (list, tuple)):
         ax.set_ylim(ylim)
     else:
-        ylim = get_ylimguess(1e2*orb_bd['binnedmags'])
-        ax.set_ylim(ylim)
+        if savethefigure:
+            ylim = get_ylimguess(1e2*orb_bd['binnedmags'])
+            ax.set_ylim(ylim)
+        else:
+            pass
 
-    format_ax(ax)
+    if not showxticklabels:
+        ax.set_xticklabels([])
 
-    fig.tight_layout()
+    if fig is not None:
+        fig.tight_layout()
 
     if savethefigure:
         savefig(fig, outpath, dpi=350)
         plt.close('all')
     else:
-        return fig, ax
+        if fig is not None:
+            return fig, ax
+        else:
+            pass
 
 
 def get_ylimguess(y):
