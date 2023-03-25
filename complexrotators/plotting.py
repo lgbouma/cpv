@@ -5,10 +5,12 @@ Contents:
 
     | plot_river
     | plot_phase
+    | plot_phase_timegroups
     | plot_multicolor_phase
     | plot_phased_light_curve
 
     | plot_dipcountercheck
+    | plot_cpvvetter
 """
 
 #######################################
@@ -49,6 +51,7 @@ LOGEXCEPTION = LOGGER.exception
 ## IMPORTS ##
 #############
 import os, pickle
+from os.path import join
 from glob import glob
 from datetime import datetime
 from copy import deepcopy
@@ -72,6 +75,7 @@ from matplotlib.transforms import blended_transform_factory
 from aesthetic.plot import savefig, format_ax, set_style
 
 from complexrotators.paths import DATADIR, PHOTDIR
+from complexrotators.lcprocessing import cpv_periodsearch
 
 from cdips.lcproc import detrend as dtr
 
@@ -100,7 +104,7 @@ def plot_TEMPLATE(outdir):
     s = ''
 
     bn = inspect.stack()[0][3].split("_")[1]
-    outpath = os.path.join(outdir, f'{bn}{s}.png')
+    outpath = join(outdir, f'{bn}{s}.png')
     savefig(fig, outpath, dpi=400)
 
 
@@ -186,33 +190,14 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
                 "_"+repr(cyclewindow).
                 replace(', ','_').replace('(','').replace(')','')
             )
-        outpath = os.path.join(outdir, f'{idstr}_river_{cmap}{estr}.png')
+        outpath = join(outdir, f'{idstr}_river_{cmap}{estr}.png')
     else:
         raise NotImplementedError
 
     savefig(fig, outpath, writepdf=0)
 
 
-def plot_phase(
-    outdir,
-    ticid=None,
-    lc_cadences='2min_20sec',
-    manual_period=None,
-    t0='binmin',
-    ylim=None,
-    binsize_minutes=10,
-    xlim=[-0.6,0.6]
-):
-    """
-    lc_cadences:
-        string like "2min_20sec", "30min_2min_20sec", etc, for the types of
-        light curves to pull for the given TIC ID.
-
-    t0:
-        - None defaults to 1618.
-        - "binmin" defaults to phase-folding, and taking the arg-minimum
-        - Any int or float will be passed as the manual phase.
-    """
+def _get_cpv_lclist(lc_cadences, ticid):
 
     from complexrotators.getters import (
         get_2min_cadence_spoc_tess_lightcurve,
@@ -236,6 +221,89 @@ def plot_phase(
     print('Done getting light curves!')
     lclist = lclist_20sec + lclist_2min
 
+    return lclist
+
+
+def prepare_given_lightkurve_lc(lc, ticid, outdir):
+
+    # metadata
+    sector = lc.meta['SECTOR']
+
+    # light curve data
+    time = lc.time.value
+    flux = lc.pdcsap_flux.value
+    qual = lc.quality.value
+
+    # remove non-zero quality flags
+    sel = (qual == 0)
+
+    x_obs = time[sel]
+    y_obs = flux[sel]
+
+    # normalize around 1
+    y_obs /= np.nanmedian(y_obs)
+
+    # what is the cadence?
+    cadence_sec = int(np.round(np.nanmedian(np.diff(x_obs))*24*60*60))
+
+    starid = f'{ticid}_S{str(sector).zfill(4)}_{cadence_sec}sec'
+
+    #
+    # "light" detrending by default. (& cache it)
+    #
+    pklpath = join(outdir, f"{starid}_dtr_lightcurve.pkl")
+    if os.path.exists(pklpath):
+        print(f"Found {pklpath}, loading and continuing.")
+        with open(pklpath, 'rb') as f:
+            lcd = pickle.load(f)
+        y_flat = lcd['y_flat']
+        y_trend = lcd['y_trend']
+        x_trend = lcd['x_trend']
+    else:
+        y_flat, y_trend = dtr.detrend_flux(
+            x_obs, y_obs, method='biweight', cval=2, window_length=4.0,
+            break_tolerance=0.5
+        )
+        x_trend = deepcopy(x_obs)
+        lcd = {
+            'y_flat':y_flat,
+            'y_trend':y_trend,
+            'x_trend':x_trend
+        }
+        with open(pklpath, 'wb') as f:
+            pickle.dump(lcd, f)
+            print(f'Made {pklpath}')
+
+
+    return (
+        time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend,
+        cadence_sec, sector, starid
+    )
+
+
+def plot_phase(
+    outdir,
+    ticid=None,
+    lc_cadences='2min_20sec',
+    manual_period=None,
+    t0='binmin',
+    ylim=None,
+    binsize_minutes=10,
+    xlim=[-0.6,0.6]
+    ):
+    """
+    lc_cadences:
+        string like "2min_20sec", "30min_2min_20sec", etc, for the types of
+        light curves to pull for the given TIC ID.
+
+    t0:
+        - None defaults to 1618.
+        - "binmin" defaults to phase-folding, and taking the arg-minimum
+        - Any int or float will be passed as the manual phase.
+    """
+
+    lclist = _get_cpv_lclist(lc_cadences, ticid)
+
     if len(lclist) == 0:
         print(f'WRN! Did not find light curves for {ticid}. Escaping.')
         return 0
@@ -244,67 +312,16 @@ def plot_phase(
     # the best period, and then phase-fold.
     for lc in lclist:
 
-        # metadata
-        sector = lc.meta['SECTOR']
-
-        # light curve data
-        time = lc.time.value
-        flux = lc.pdcsap_flux.value
-        qual = lc.quality.value
-
-        # remove non-zero quality flags
-        sel = (qual == 0)
-
-        x_obs = time[sel]
-        y_obs = flux[sel]
-
-        # normalize around 1
-        y_obs /= np.nanmedian(y_obs)
-
-        # what is the cadence?
-        cadence_sec = int(np.round(np.nanmedian(np.diff(x_obs))*24*60*60))
-
-        starid = f'{ticid}_S{str(sector).zfill(4)}_{cadence_sec}sec'
-
-        #
-        # "light" detrending by default. (& cache it)
-        #
-        pklpath = os.path.join(outdir, f"{starid}_dtr_lightcurve.pkl")
-        if os.path.exists(pklpath):
-            print(f"Found {pklpath}, loading and continuing.")
-            with open(pklpath, 'rb') as f:
-                lcd = pickle.load(f)
-            y_flat = lcd['y_flat']
-            y_trend = lcd['y_trend']
-            x_trend = lcd['x_trend']
-        else:
-            y_flat, y_trend = dtr.detrend_flux(
-                x_obs, y_obs, method='biweight', cval=2, window_length=4.0,
-                break_tolerance=0.5
-            )
-            x_trend = deepcopy(x_obs)
-            lcd = {
-                'y_flat':y_flat,
-                'y_trend':y_trend,
-                'x_trend':x_trend
-            }
-            with open(pklpath, 'wb') as f:
-                pickle.dump(lcd, f)
-                print(f'Made {pklpath}')
-
-        from complexrotators.lcprocessing import cpv_periodsearch
+        (time, flux, qual, x_obs, y_obs, y_flat,
+         y_trend, x_trend, cadence_sec, sector,
+         starid) = prepare_given_lightkurve_lc(lc, ticid, outdir)
 
         # get t0, period, lsp
-        d = cpv_periodsearch(
-            x_obs, y_flat, starid, outdir, t0=t0
-        )
+        d = cpv_periodsearch(x_obs, y_flat, starid, outdir, t0=t0)
 
         # make the quicklook plot
-        outpath = os.path.join(
-            outdir, f'{starid}_quicklook.png'
-        )
+        outpath = join(outdir, f'{starid}_quicklook.png')
         titlestr = starid.replace('_',' ')
-
         if not os.path.exists(outpath):
             plot_quicklook_cr(
                 x_obs, y_obs, x_trend, y_trend, d['times'], d['fluxs'], outpath,
@@ -312,9 +329,10 @@ def plot_phase(
             )
 
         # make the phased plot
-        outpath = os.path.join(
+        outpath = join(
             outdir, f'{ticid}_S{str(sector).zfill(4)}_{cadence_sec}sec_phase.png'
         )
+        t0 = d['t0']
         period = d['period']
         if isinstance(manual_period, float):
             period = manual_period
@@ -350,7 +368,7 @@ def plot_quicklook_cr(x_obs, y_obs, x_trend, y_trend, x_flat, y_flat, outpath,
         ax.scatter(x_flat, 1e2*(y_flat - 1), c="k", s=0.5, rasterized=True,
                    linewidths=0, zorder=42)
 
-    fig.text(-0.01,0.5, r"Relative flux [$\times 10^{-2}$]", va='center',
+    fig.text(-0.01,0.5, r"Relative flux [%]", va='center',
              rotation=90)
 
     ax.set_xlabel('Time [TJD]')
@@ -384,12 +402,14 @@ def plot_phased_light_curve(
         plotnotscatter: if True, uses ax.plot to show non-binned points
         savethefigure: if False, returns fig and ax
         fig, ax: if passed, overrides default
+        showtext: bool or stirng.  If string, the string is shown.
         findpeaks_result: output from ``count_phased_local_minima``
     """
 
     # make plot
-    plt.close('all')
-    set_style("clean")
+    if savethefigure:
+        plt.close('all')
+        set_style("clean")
 
     if fig is None and ax is None:
         if figsize is None:
@@ -397,6 +417,7 @@ def plot_phased_light_curve(
         else:
             fig, ax = plt.subplots(figsize=figsize)
     else:
+        # if e.g., just an axis is passed, then plot on it
         pass
 
     x,y = time, flux-np.nanmean(flux)
@@ -515,7 +536,7 @@ def _get_all_tic262400835_data():
 
     # get MUSCAT1 data
     m1_files = glob(
-        os.path.join(PHOTDIR, 'TIC262400835_*muscat_*.csv')
+        join(PHOTDIR, 'TIC262400835_*muscat_*.csv')
     )
     for m1_file in m1_files:
         color = os.path.basename(m1_file).split("_")[3]
@@ -529,7 +550,7 @@ def _get_all_tic262400835_data():
 
     # get MUSCAT2 data
     m2_files = glob(
-        os.path.join(PHOTDIR, 'tic262400835_*achromatic*.fits')
+        join(PHOTDIR, 'tic262400835_*achromatic*.fits')
     )
     for m2_file in m2_files:
         timestamp = os.path.basename(m2_file).split("_")[1]
@@ -565,7 +586,7 @@ def plot_multicolor_phase(outdir, BINMS=2):
     # ... but first, just look at the data.
 
     # initialize
-    outpath = os.path.join(outdir, 'TIC262400835_multicolor_phase_stacked.png')
+    outpath = join(outdir, 'TIC262400835_multicolor_phase_stacked.png')
     time, flux = datasets['tess20sec'][0], datasets['tess20sec'][1]
     fig, ax = plot_phased_light_curve(time, flux, t0, period, None,
                                       savethefigure=False, figsize=(4,8),
@@ -618,7 +639,7 @@ def plot_multicolor_phase(outdir, BINMS=2):
     plt.close('all')
 
     # now do it in bonafide color
-    outpath = os.path.join(outdir, 'TIC262400835_multicolor_phase.png')
+    outpath = join(outdir, 'TIC262400835_multicolor_phase.png')
 
     time, flux = datasets['tess20sec'][0], datasets['tess20sec'][1]
     fig, ax = plot_phased_light_curve(time, flux, t0, period, None,
@@ -677,7 +698,7 @@ def plot_dipcountercheck(findpeaks_result, d, eval_dict, outdir, starid):
     xlim = [-0.6, 0.6]
 
     # get data
-    outpath = os.path.join(outdir, f'{starid}_dipcountercheck.png')
+    outpath = join(outdir, f'{starid}_dipcountercheck.png')
     if os.path.exists(outpath):
         print(f'found {outpath}, skipping')
         return
