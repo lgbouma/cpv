@@ -11,6 +11,7 @@ Contents:
 import logging
 from complexrotators import log_sub, log_fmt, log_date_fmt
 
+LOCAL_DEBUG = 1 #FIXME
 DEBUG = False
 if DEBUG:
     level = logging.DEBUG
@@ -47,7 +48,7 @@ from complexrotators.lcprocessing import (
     cpv_periodsearch, count_phased_local_minima, prepare_cpv_light_curve
 )
 from complexrotators.plotting import (
-    plot_phased_light_curve, plot_dipcountercheck
+    plot_phased_light_curve, plot_dipcountercheck, plot_cpvvetter
 )
 
 from complexrotators import pipeline_utils as pu
@@ -130,21 +131,6 @@ def get_ticids(sample_id):
     return ticids
 
 
-def main():
-
-    sample_id = '20pc_mkdwarf'
-
-    # the TICIDs to search
-    ticids = get_ticids(sample_id)
-
-    for ticid in ticids:
-        LOGINFO(42*'-')
-        LOGINFO(f"Beginning {ticid}...")
-        find_CPV(ticid)
-
-    LOGINFO("Finished 🎉🎉🎉")
-
-
 def find_CPV(ticid):
 
     cachedir = join(LOCALDIR, "cpv_finding")
@@ -164,7 +150,10 @@ def find_CPV(ticid):
     #
     # get the light curves for all desired sectors and cadences
     #
-    lcpaths = _get_local_lcpaths_given_ticid(ticid)
+    if LOCAL_DEBUG:
+        lcpaths = _get_lcpaths_given_ticid(ticid)
+    else:
+        lcpaths = _get_local_lcpaths_given_ticid(ticid)
 
     #
     # for each light curve (sector / cadence specific), detrend, ((remove
@@ -296,10 +285,40 @@ def find_CPV(ticid):
         else:
             LOGINFO(f"Found {outpath}")
 
+        outpath = join(cachedir, f'{starid}_cpvvetter.pdf')
+        if not os.path.exists(outpath):
+            plot_cpvvetter(
+                outpath, lcpath, starid, periodsearch_result=d,
+                findpeaks_result=r
+            )
+        else:
+            LOGINFO(f"Found {outpath}")
+
         LOGINFO(f"{starid}: N_peaks={r['N_peaks']}; finished.")
         exitcode = {'exitcode': 1}
         pu.save_status(logpath, 'exitcode', exitcode)
 
+        import IPython; IPython.embed()
+        assert 0
+
+
+
+def main():
+
+    #FIXME
+    # sample_id = '20pc_mkdwarf'
+
+    # # the TICIDs to search
+    # ticids = get_ticids(sample_id)
+    #FIXME
+    ticids = ['402980664']
+
+    for ticid in ticids:
+        LOGINFO(42*'-')
+        LOGINFO(f"Beginning {ticid}...")
+        find_CPV(ticid)
+
+    LOGINFO("Finished 🎉🎉🎉")
 
 
 if __name__ == "__main__":

@@ -925,3 +925,139 @@ def plot_dipcountercheck(findpeaks_result, d, eval_dict, outdir, starid):
 
     # finish
     savefig(fig, outpath, dpi=400)
+
+
+def plot_cpvvetter(
+    outpath,
+    lcpath,
+    starid,
+    periodsearch_result=None,
+    findpeaks_result=None,
+    binsize_minutes=10
+    ):
+
+    # get data
+    d = periodsearch_result
+    r = findpeaks_result
+    hdul = fits.open(lcpath)
+    data = hdul[1].data
+    hdul.close()
+    qual = data["QUALITY"]
+    sel = (qual == 0)
+    import IPython; IPython.embed()
+    #FIXME FIXME FIXME TODO TODO TODO PULL THE DATA NEEDED TO MAKE REMAINING
+    #PLOTS
+    #xc, yc = 
+
+    # make plot
+    plt.close('all')
+    set_style("clean")
+
+    fig = plt.figure(figsize=(8,4.5))
+    axd = fig.subplot_mosaic(
+        """
+        AAAABBCC
+        AAAABBCC
+        AAAADDDD
+        EEFFKKLL
+        GGHHKKLL
+        IIJJKKLL
+        """
+    )
+
+    # pdcsap flux vs time (qual==0, after 5-day median smooth)
+    ax = axd['D']
+    bd = time_bin_magseries(d['times'], d['fluxs'], binsize=600, minbinelems=1)
+    ax.scatter(d['times'], d['fluxs'], c='lightgray', s=1, zorder=1)
+    ax.scatter(bd['binnedtimes'], bd['binnedmags'], c='k', s=1, zorder=2)
+    txt = 'PDCSAP, 5d median filter'
+    bbox = dict(facecolor='white', alpha=0.9, pad=0, edgecolor='white')
+    ax.text(0.03, 0.97, txt, ha='left', va='top', bbox=bbox, zorder=3,
+            transform=ax.transAxes)
+    ax.update({'xlabel': 'Time [BTJD]', 'ylabel': 'Flux'})
+
+    # pdm periodogram
+    ax = axd['B']
+    ax.plot(d['lsp']['periods'], d['lsp']['lspvals'], c='k', lw=1)
+    ax.scatter(d['lsp']['nbestperiods'][:5], d['lsp']['nbestlspvals'][:5],
+               marker='v', s=5, linewidths=0, edgecolors='none',
+               color='k', alpha=0.5, zorder=1000)
+    ymin, ymax = ax.get_ylim()
+    ax.vlines(d['period'], ymin, ymax, colors='darkgray', alpha=1,
+              linestyles='-', zorder=-2, linewidths=1)
+    ax.vlines([0.5*d['period'], 2*d['period']], ymin, ymax, colors='darkgray',
+              alpha=0.5, linestyles=':', zorder=-2, linewidths=1)
+    ax.set_ylim([ymin, ymax])
+    ax.update({'xlabel': 'Period [d]', 'ylabel': 'PDM Θ', 'xscale': 'log'})
+
+    # phased LC
+    ax = axd['A']
+    plot_phased_light_curve(
+        d['times'], d['fluxs'], d['t0'], d['period'], None, ylim=None,
+        xlim=[-0.6,0.6], binsize_minutes=2, BINMS=2, titlestr=None,
+        showtext=True, showtitle=False, figsize=None, c0='darkgray',
+        alpha0=0.3, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
+        fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
+        showxticklabels=False
+    )
+
+    # phased LC at 2x period
+    ax = axd['F']
+    plot_phased_light_curve(
+        d['times'], d['fluxs'], d['t0'], 2*d['period'], None, ylim=None,
+        xlim=[-0.6,0.6], binsize_minutes=2, BINMS=2, titlestr=None,
+        showtext=True, showtitle=False, figsize=None, c0='darkgray',
+        alpha0=0.3, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
+        fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
+        showxticklabels=False, ylabel='Flux'
+    )
+    ax.set_xlabel("")
+
+    # phased LC at 0.5x period
+    ax = axd['H']
+    plot_phased_light_curve(
+        d['times'], d['fluxs'], d['t0'], 0.5*d['period'], None, ylim=None,
+        xlim=[-0.6,0.6], binsize_minutes=2, BINMS=2, titlestr=None,
+        showtext=True, showtitle=False, figsize=None, c0='darkgray',
+        alpha0=0.3, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
+        fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
+        showxticklabels=False, ylabel='Flux'
+    )
+    ax.set_xlabel("")
+
+    # # phased norm LC, w/ smooth model
+    # ax = axd['E']
+
+    # # resids of above, w/ ticks for auto dip find
+    # ax = axd['G']
+
+    # # phased flux in BGD aperture
+    ax = axd['I']
+    plot_phased_light_curve(
+        d['times'], d['fluxs'], d['t0'], d['period'], None, ylim=None,
+        xlim=[-0.6,0.6], binsize_minutes=2, BINMS=2, titlestr=None,
+        showtext=True, showtitle=False, figsize=None, c0='darkgray',
+        alpha0=0.3, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
+        fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
+        showxticklabels=False
+    )
+
+    # # phased ctd x/y
+    # ax = axd['J']
+
+    # # star info (Gaia, TIC8, dip search)
+    # ax = axd['L']
+
+    # # gaia CAMD
+    # ax = axd['K']
+
+    # # DSS query
+    # ax = axd['C']
+
+
+    # set naming options
+    s = ''
+
+    fig.tight_layout()
+
+    savefig(fig, outpath)
