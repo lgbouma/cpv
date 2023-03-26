@@ -58,7 +58,7 @@ def get_ticids(sample_id):
     if sample_id == 'debug':
         ticids = [
         "201789285",
-        #"311092148",
+        "311092148",
         #"332517282",
         #"405910546",
         #"142173958",
@@ -243,23 +243,29 @@ def get_ticids(sample_id):
 
 
 
-def find_CPV(ticid):
+def find_CPV(ticid, sample_id):
 
     cachedir = join(LOCALDIR, "cpv_finding")
     if not os.path.exists(cachedir): os.mkdir(cachedir)
 
+    cachedir = join(cachedir, sample_id)
+    if not os.path.exists(cachedir): os.mkdir(cachedir)
+
     cand_logpaths = glob(join(cachedir, f"tess*00{ticid}-*runstatus.log"))
-    foundexitcode = 0
+    foundexitcodes = []
     if len(cand_logpaths) > 0:
         for cand_logpath in cand_logpaths:
             st = pu.load_status(cand_logpath)
             if 'exitcode' in st:
-                foundexitcode += 1
+                exitcode = st['exitcode']['exitcode']
+                foundexitcodes.append(int(exitcode))
+    minexitcode = np.nanmin(foundexitcodes)
+
     MINIMUM_EXITCODE = 2
     #1 if any kind of exit means do not rerun
     #2 if only a periodogram or not enoigh dip exit means dont rerun
-    if (foundexitcode == len(cand_logpaths)) and foundexitcode >= MINIMUM_EXITCODE:
-        LOGINFO(f"TIC{ticid}: found {foundexitcode} finished logs. skip.")
+    if minexitcode >= MINIMUM_EXITCODE:
+        LOGINFO(f"TIC{ticid}: found log for {ticid} with exitcode {minexitcode}. skip.")
         return 1
 
     #
@@ -290,8 +296,9 @@ def find_CPV(ticid):
         st = pu.load_status(logpath)
         if 'exitcode' in st:
             exitcode = st['exitcode']['exitcode']
-            LOGINFO(f"{lcpbase}: found exitcode {exitcode}. skip.")
-            continue
+            if minexitcode >= MINIMUM_EXITCODE:
+                LOGINFO(f"{lcpbase}: found exitcode {exitcode}. skip.")
+                continue
 
         # get the relevant light curve data
         (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
@@ -425,10 +432,11 @@ def main():
     #     find_CPV(ticid)
 
     sample_ids = [
+        #'debug'
         '30pc_mkdwarf',
-        '30to50pc_mkdwarf',
-        '50to60pc_mkdwarf',
-        '60to70pc_mkdwarf'
+        #'30to50pc_mkdwarf',
+        #'50to60pc_mkdwarf',
+        #'60to70pc_mkdwarf'
     ]
 
     for sample_id in sample_ids:
@@ -436,7 +444,7 @@ def main():
         for ticid in ticids:
             LOGINFO(42*'-')
             LOGINFO(f"Beginning {ticid}...")
-            find_CPV(ticid)
+            find_CPV(ticid, sample_id)
 
     LOGINFO("Finished 🎉🎉🎉")
 

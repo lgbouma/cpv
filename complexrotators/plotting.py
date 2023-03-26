@@ -1059,6 +1059,7 @@ def plot_cpvvetter(
         fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
         showxticklabels=True, ylabel=r'0.5$\times P$'
     )
+    ax.set_xticklabels(['-0.5', '', '0', '', '0.5'])
     ax.set_xlabel("φ")
 
     # # phased norm LC, w/ smooth model
@@ -1144,7 +1145,10 @@ def plot_cpvvetter(
     cam = str(hdr['CAMERA'])
     ccd = str(hdr['CCD'])
     Tmag = f"{hdr['TESSMAG']:.1f}"
-    teff_tic8 = f"{int(hdr['TEFF']):d}"
+    if hdr['TEFF'] is not None:
+        teff_tic8 = f"{int(hdr['TEFF']):d} K"
+    else:
+        teff_tic8 = f"NaN"
     ra = f"{hdr['RA_OBJ']:.2f}"
     dec = f"{hdr['DEC_OBJ']:.2f}"
     pmra = f"{hdr['PMRA']:.1f}"
@@ -1195,7 +1199,7 @@ def plot_cpvvetter(
         f"α={ra}, δ={dec} (deg)\n"
         r"$\mu_\alpha$="+pmra+r", $\mu_\delta$="+pmdec+f" (mas/yr)\n"
         f"T={Tmag}\n"
-        f"TIC8 Teff={teff_tic8} K\n"
+        f"TIC8 Teff={teff_tic8}\n"
         f"G={Gmag}, RP={Rpmag}, BP={Bpmag}\n"
         f"BP-RP={bp_rp}\n"
         f"RUWE={ruwe}\n"
