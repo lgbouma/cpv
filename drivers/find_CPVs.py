@@ -58,7 +58,7 @@ def get_ticids(sample_id):
     if sample_id == 'debug':
         ticids = [
         "201789285",
-        "311092148",
+        #"311092148",
         #"332517282",
         #"405910546",
         #"142173958",
@@ -77,56 +77,6 @@ def get_ticids(sample_id):
         #"245874053",
         #"59129133"
         ]
-
-    elif sample_id == '10pc_mkdwarf':
-
-        df = pd.read_csv(join(SPOCDIR, "gaia_X_spoc2min_merge.csv"))
-
-        sel = (
-            (df["M_G"] > 4)
-            &
-            (df["bp_rp"] > 1.5)
-            &
-            (df["TESSMAG"] < 16)
-            &
-            (df["parallax"] > 100)
-        )
-
-        sdf = df[sel]
-        ticids = np.unique(list(sdf["TICID"].astype(str)))
-
-        N_stars_to_search = len(ticids)
-        N_lcs_to_search = len(sdf)
-
-        LOGINFO(42*'-')
-        LOGINFO(f"{sample_id}")
-        LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
-        LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
-
-    elif sample_id == '20pc_mkdwarf':
-
-        df = pd.read_csv(join(SPOCDIR, "gaia_X_spoc2min_merge.csv"))
-
-        sel = (
-            (df["M_G"] > 4)
-            &
-            (df["bp_rp"] > 1.5)
-            &
-            (df["TESSMAG"] < 16)
-            &
-            (df["parallax"] > 50)
-        )
-
-        sdf = df[sel]
-        ticids = np.unique(list(sdf["TICID"].astype(str)))
-
-        N_stars_to_search = len(ticids)
-        N_lcs_to_search = len(sdf)
-
-        LOGINFO(42*'-')
-        LOGINFO(f"{sample_id}")
-        LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
-        LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
 
     elif sample_id == '30pc_mkdwarf':
 
@@ -153,7 +103,15 @@ def get_ticids(sample_id):
         LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
         LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
 
-    elif sample_id == '30to50pc_mkdwarf':
+    # e.g.,
+    #30to50pc_mkdwarf
+    #50to60pc_mkdwarf
+    #60to70pc_mkdwarf
+    #70to85pc_mkdwarf
+    elif 'pc_mkdwarf' in sample_id and 'to' in sample_id:
+
+        lower = int(sample_id.split("to")[0])
+        upper = int(sample_id.split("to")[1].split("pc")[0])
 
         df = pd.read_csv(join(SPOCDIR, "gaia_X_spoc2min_merge.csv"))
 
@@ -164,9 +122,9 @@ def get_ticids(sample_id):
             &
             (df["TESSMAG"] < 16)
             &
-            (df["parallax"] > 20)
+            (df["parallax"] <= 1e3*(1/lower))
             &
-            (df["parallax"] <= (100/3))
+            (df["parallax"] > 1e3*(1/upper))
         )
 
         sdf = df[sel]
@@ -179,97 +137,8 @@ def get_ticids(sample_id):
         LOGINFO(f"{sample_id}")
         LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
         LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
-
-
-    elif sample_id == '50to60pc_mkdwarf':
-
-        df = pd.read_csv(join(SPOCDIR, "gaia_X_spoc2min_merge.csv"))
-
-        sel = (
-            (df["M_G"] > 4)
-            &
-            (df["bp_rp"] > 1.5)
-            &
-            (df["TESSMAG"] < 16)
-            &
-            (df["parallax"] <= 20)
-            &
-            (df["parallax"] > 1e3*(1/60))
-        )
-
-        sdf = df[sel]
-        ticids = np.unique(list(sdf["TICID"].astype(str)))
-
-        N_stars_to_search = len(ticids)
-        N_lcs_to_search = len(sdf)
-
-        LOGINFO(42*'-')
-        LOGINFO(f"{sample_id}")
-        LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
-        LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
-
-
-    elif sample_id == '60to70pc_mkdwarf':
-
-        df = pd.read_csv(join(SPOCDIR, "gaia_X_spoc2min_merge.csv"))
-
-        sel = (
-            (df["M_G"] > 4)
-            &
-            (df["bp_rp"] > 1.5)
-            &
-            (df["TESSMAG"] < 16)
-            &
-            (df["parallax"] <= 1e3*(1/60))
-            &
-            (df["parallax"] > 1e3*(1/70))
-        )
-
-        sdf = df[sel]
-        ticids = np.unique(list(sdf["TICID"].astype(str)))
-
-        N_stars_to_search = len(ticids)
-        N_lcs_to_search = len(sdf)
-
-        LOGINFO(42*'-')
-        LOGINFO(f"{sample_id}")
-        LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
-        LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
-
-    elif sample_id == '70to85pc_mkdwarf':
-
-        df = pd.read_csv(join(SPOCDIR, "gaia_X_spoc2min_merge.csv"))
-
-        sel = (
-            (df["M_G"] > 4)
-            &
-            (df["bp_rp"] > 1.5)
-            &
-            (df["TESSMAG"] < 16)
-            &
-            (df["parallax"] <= 1e3*(1/70))
-            &
-            (df["parallax"] > 1e3*(1/85))
-        )
-
-        sdf = df[sel]
-        ticids = np.unique(list(sdf["TICID"].astype(str)))
-
-        N_stars_to_search = len(ticids)
-        N_lcs_to_search = len(sdf)
-
-        LOGINFO(42*'-')
-        LOGINFO(f"{sample_id}")
-        LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
-        LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
-
-
-
-
 
     return ticids
-
-
 
 
 
@@ -469,7 +338,8 @@ def main():
         #'30to50pc_mkdwarf',
         #'50to60pc_mkdwarf',
         #'60to70pc_mkdwarf'
-        '70to85pc_mkdwarf'
+        #'70to85pc_mkdwarf',
+        '85to95pc_mkdwarf'
     ]
 
     for sample_id in sample_ids:
