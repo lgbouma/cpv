@@ -236,6 +236,36 @@ def get_ticids(sample_id):
         LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
         LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
 
+    elif sample_id == '70to85pc_mkdwarf':
+
+        df = pd.read_csv(join(SPOCDIR, "gaia_X_spoc2min_merge.csv"))
+
+        sel = (
+            (df["M_G"] > 4)
+            &
+            (df["bp_rp"] > 1.5)
+            &
+            (df["TESSMAG"] < 16)
+            &
+            (df["parallax"] <= 1e3*(1/70))
+            &
+            (df["parallax"] > 1e3*(1/85))
+        )
+
+        sdf = df[sel]
+        ticids = np.unique(list(sdf["TICID"].astype(str)))
+
+        N_stars_to_search = len(ticids)
+        N_lcs_to_search = len(sdf)
+
+        LOGINFO(42*'-')
+        LOGINFO(f"{sample_id}")
+        LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
+        LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
+
+
+
+
 
     return ticids
 
@@ -437,8 +467,9 @@ def main():
         #'debug'
         #'30pc_mkdwarf',
         #'30to50pc_mkdwarf',
-        '50to60pc_mkdwarf',
+        #'50to60pc_mkdwarf',
         #'60to70pc_mkdwarf'
+        '70to85pc_mkdwarf'
     ]
 
     for sample_id in sample_ids:
