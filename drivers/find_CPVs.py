@@ -251,6 +251,7 @@ def find_CPV(ticid, sample_id):
     cachedir = join(cachedir, sample_id)
     if not os.path.exists(cachedir): os.mkdir(cachedir)
 
+    minexitcode = -1
     cand_logpaths = glob(join(cachedir, f"tess*00{ticid}-*runstatus.log"))
     foundexitcodes = []
     if len(cand_logpaths) > 0:
@@ -259,7 +260,8 @@ def find_CPV(ticid, sample_id):
             if 'exitcode' in st:
                 exitcode = st['exitcode']['exitcode']
                 foundexitcodes.append(int(exitcode))
-    minexitcode = np.nanmin(foundexitcodes)
+        if len(foundexitcodes) > 0:
+            minexitcode = np.nanmin(foundexitcodes)
 
     MINIMUM_EXITCODE = 2
     #1 if any kind of exit means do not rerun
@@ -423,19 +425,19 @@ def find_CPV(ticid, sample_id):
 
 def main():
 
-    # sample_id = 'debug'
-    # ticids = get_ticids(sample_id)
-    # #ticids = ['402980664']
-    # for ticid in ticids:
-    #     LOGINFO(42*'-')
-    #     LOGINFO(f"Beginning {ticid}...")
-    #     find_CPV(ticid)
+    #sample_id = 'debug'
+    #ticids = get_ticids(sample_id)
+    #ticids = ['39970966']
+    #for ticid in ticids:
+    #    LOGINFO(42*'-')
+    #    LOGINFO(f"Beginning {ticid}...")
+    #    find_CPV(ticid, sample_id)
 
     sample_ids = [
         #'debug'
-        '30pc_mkdwarf',
+        #'30pc_mkdwarf',
         #'30to50pc_mkdwarf',
-        #'50to60pc_mkdwarf',
+        '50to60pc_mkdwarf',
         #'60to70pc_mkdwarf'
     ]
 

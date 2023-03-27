@@ -1109,25 +1109,27 @@ def plot_cpvvetter(
     # # phased ctd x/y
     #
     ax = axd['H']
-    plot_phased_light_curve(
-        d['times'], xc, d['t0'], d['period'], None, ylim=None,
-        xlim=[-0.6,0.6], binsize_minutes=10, BINMS=2, titlestr=None,
-        showtext=False, showtitle=False, figsize=None, c0='C0',
-        alpha0=0.2, c1='C0', alpha1=1, phasewrap=True, plotnotscatter=False,
-        fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
-        showxticklabels=True, ylabel='c$_\mathrm{col}$'
-    )
+    if np.any(np.isfinite(xc)):
+        plot_phased_light_curve(
+            d['times'], xc, d['t0'], d['period'], None, ylim=None,
+            xlim=[-0.6,0.6], binsize_minutes=10, BINMS=2, titlestr=None,
+            showtext=False, showtitle=False, figsize=None, c0='C0',
+            alpha0=0.2, c1='C0', alpha1=1, phasewrap=True, plotnotscatter=False,
+            fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
+            showxticklabels=True, ylabel='c$_\mathrm{col}$'
+        )
     ax.set_xticklabels(['-0.5', '', '0', '', '0.5'])
     ax.set_xlabel("φ")
     ax = axd['J']
-    plot_phased_light_curve(
-        d['times'], yc, d['t0'], d['period'], None, ylim=None,
-        xlim=[-0.6,0.6], binsize_minutes=10, BINMS=2, titlestr=None,
-        showtext=False, showtitle=False, figsize=None, c0='C1',
-        alpha0=0.2, c1='C1', alpha1=1, phasewrap=True, plotnotscatter=False,
-        fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
-        showxticklabels=True, ylabel='c$_\mathrm{row}$'
-    )
+    if np.any(np.isfinite(yc)):
+        plot_phased_light_curve(
+            d['times'], yc, d['t0'], d['period'], None, ylim=None,
+            xlim=[-0.6,0.6], binsize_minutes=10, BINMS=2, titlestr=None,
+            showtext=False, showtitle=False, figsize=None, c0='C1',
+            alpha0=0.2, c1='C1', alpha1=1, phasewrap=True, plotnotscatter=False,
+            fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
+            showxticklabels=True, ylabel='c$_\mathrm{row}$'
+        )
     ax.set_xticklabels(['-0.5', '', '0', '', '0.5'])
     ax.set_xlabel("φ")
 
@@ -1151,8 +1153,14 @@ def plot_cpvvetter(
         teff_tic8 = f"NaN"
     ra = f"{hdr['RA_OBJ']:.2f}"
     dec = f"{hdr['DEC_OBJ']:.2f}"
-    pmra = f"{hdr['PMRA']:.1f}"
-    pmdec = f"{hdr['PMDEC']:.1f}"
+    if hdr['PMRA'] is not None:
+        pmra = f"{hdr['PMRA']:.1f}"
+    else:
+        pmra = 'NaN'
+    if hdr['PMDEC'] is not None:
+        pmdec = f"{hdr['PMDEC']:.1f}"
+    else:
+        pmdec = 'NaN'
     ra_obj, dec_obj = hdr['RA_OBJ'], hdr['DEC_OBJ']
     c_obj = SkyCoord(ra_obj, dec_obj, unit=(u.deg), frame='icrs')
 
@@ -1188,7 +1196,7 @@ def plot_cpvvetter(
     N_nbhrs = len(ticids)-1
     nbhrstr = ''
     if N_nbhrs >= 1:
-        for ticid, tmag in zip(ticids[1:], tmags[1:]):
+        for ticid, tmag in zip(ticids[1:11], tmags[1:11]):
             nbhrstr += f"TIC {ticid}: ΔT={tmag-hdr['TESSMAG']:.1f}\n"
 
     txt = (
