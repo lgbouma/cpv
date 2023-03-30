@@ -16,6 +16,7 @@ import pandas as pd, numpy as np, matplotlib.pyplot as plt
 import os, pickle
 from glob import glob
 from functools import partial
+from os.path import join
 
 import astropy.units as u
 from astropy.time import Time
@@ -33,6 +34,7 @@ from cdips.utils.gaiaqueries import (
 )
 
 from complexrotators.paths import RESULTSDIR, TARGETSDIR, TABLEDIR
+from complexrotators import pipeline_utils as pu
 
 def get_gaia_rows(ticid):
     """
@@ -42,51 +44,36 @@ def get_gaia_rows(ticid):
       * color
     """
 
-    source_id = tic_to_gaiadr2(ticid)
+    dr2_source_id = tic_to_gaiadr2(ticid)
 
-    groupname = f'gaia_dr2_{source_id}'
-    source_ids = np.array([np.int64(source_id)])
+    runid = f"dr2_{dr2_source_id}"
 
-    try:
-        gaia_r = given_source_ids_get_gaia_data(
-            source_ids, groupname, n_max=10000, overwrite=False,
-            enforce_all_sourceids_viable=True, savstr='', whichcolumns='*',
-            gaia_datarelease='gaiaedr3', getdr2ruwe=False
-        )
+    dr2_source_ids = np.array([np.int64(dr2_source_id)])
+    gaia_r = given_source_ids_get_gaia_data(
+        dr2_source_ids, runid, n_max=5, overwrite=False,
+        enforce_all_sourceids_viable=True, savstr='', which_columns='*',
+        table_name='gaia_source', gaia_datarelease='gaiadr2', getdr2ruwe=False
+    )
+    gdf_ruwe = given_source_ids_get_gaia_data(
+        dr2_source_ids, runid+"_ruwe", n_max=5, overwrite=False,
+        enforce_all_sourceids_viable=True, savstr='', which_columns='*',
+        table_name='gaia_source', gaia_datarelease='gaiadr2', getdr2ruwe=True
+    )
 
-        SELCOLS = (
-            'source_id,ra,dec,parallax,parallax_error,pmra,pmdec,'+
-            'phot_g_mean_mag,phot_rp_mean_mag,phot_bp_mean_mag,bp_rp,'+
-            'dr2_radial_velocity,ruwe'
-        ).split(',')
-
-        gaia_datarelease = 'gaiaedr3'
-    except AssertionError:
-        gaia_r = given_source_ids_get_gaia_data(
-            source_ids, groupname, n_max=10000, overwrite=False,
-            enforce_all_sourceids_viable=True, savstr='', whichcolumns='*',
-            gaia_datarelease='gaiadr2', getdr2ruwe=False
-        )
-
-        SELCOLS = (
-            'source_id,ra,dec,parallax,parallax_error,pmra,pmdec,'+
-            'phot_g_mean_mag,phot_rp_mean_mag,phot_bp_mean_mag,bp_rp,'+
-            'radial_velocity'
-        ).split(',')
-
-        gaia_datarelease = 'gaiadr2'
+    SELCOLS = (
+        'source_id,ra,dec,parallax,parallax_error,pmra,pmdec,'+
+        'phot_g_mean_mag,phot_rp_mean_mag,phot_bp_mean_mag,bp_rp,'+
+        'radial_velocity'
+    ).split(',')
 
     outdf = gaia_r[SELCOLS]
 
-    if gaia_datarelease == 'gaiadr2':
-        outdf = outdf.rename({'radial_velocity':'dr2_radial_velocity'},
-                             axis='columns')
-        outdf['ruwe'] = np.nan
+    outdf['ruwe'] = float(gdf_ruwe['ruwe'])
 
     d_pc, upper_unc, lower_unc  = parallax_to_distance_highsn(
         float(outdf['parallax']),
         e_parallax_mas=float(outdf['parallax_error']),
-        gaia_datarelease='gaia_edr3'
+        gaia_datarelease='gaia_dr2'
     )
 
     outdf['dist_pc'] = d_pc
@@ -98,7 +85,7 @@ def get_gaia_rows(ticid):
 
 def given_ticid_get_period(ticid):
 
-    manualperiodfile = os.path.join(TARGETSDIR, 'ticids_manual_periods.csv')
+    manualperiodfile = join(TARGETSDIR, 'ticids_manual_periods.csv')
     mpdf = pd.read_csv(manualperiodfile)
 
     # first, check for manually inserted periods
@@ -112,18 +99,35 @@ def given_ticid_get_period(ticid):
     # to pull the lightcurve and do that analysis from the light curves
     # themselves.
 
-    cachedir = os.path.join(RESULTSDIR, '*_phase', f'TIC_{ticid}')
-    # all cadences, over all sectors
-    pklpaths = glob(os.path.join(cachedir, f'*{ticid}*cr_periodsearch.pkl'))
-    assert len(pklpaths) > 0
+    check_pkl_cache = 0
 
-    pdicts = []
-    for pklpath in pklpaths:
-        with open(pklpath, 'rb') as f:
-            pdict = pickle.load(f)
-        pdicts.append(pdict)
+    if check_pkl_cache:
+        cachedir = join(RESULTSDIR, '*_phase', f'TIC_{ticid}')
+        # all cadences, over all sectors
+        pklpaths = glob(join(cachedir, f'*{ticid}*cr_periodsearch.pkl'))
+        assert len(pklpaths) > 0
 
-    periods = [pdict['period'] for pdict in pdicts]
+        pdicts = []
+        for pklpath in pklpaths:
+            with open(pklpath, 'rb') as f:
+                pdict = pickle.load(f)
+            pdicts.append(pdict)
+
+        periods = [pdict['period'] for pdict in pdicts]
+
+    check_log_cache = 1
+
+    if check_log_cache:
+        cachedir = join(RESULTSDIR, "cpvvetter", "lt_70pc_good_cpv_info")
+        logpaths = glob(join(cachedir, f'*{ticid}*.log'))
+        assert len(logpaths) > 0
+
+        periods = []
+        for logpath in logpaths:
+            st = pu.load_status(logpath)
+            if 'cpv_periodsearch_results' in st:
+                this_period = float(st['cpv_periodsearch_results']['period'])
+                periods.append(this_period)
 
     period = np.nanmedian(periods)
     period_stdev = np.nanstd(periods)
@@ -138,46 +142,43 @@ def given_ticid_get_variability_params(ticid, period_guess=None):
     # pull the lightcurve and do that analysis from the light curves
     # themselves.
 
-    cachedir = os.path.join(RESULTSDIR, '*_phase', f'TIC_{ticid}')
-    # all cadences, over all sectors
-    pklpaths = glob(os.path.join(cachedir, f'*{ticid}*dtr_lightcurve.pkl'))
-    assert len(pklpaths) > 0
+    check_pkl_cache = 0
 
-    lcdicts = []
-    for pklpath in pklpaths:
-        with open(pklpath, 'rb') as f:
-            lcdict = pickle.load(f)
-        lcdicts.append(lcdict)
+    if check_pkl_cache:
 
-    get_5_95 = lambda x: np.nanpercentile(x, 95) - np.nanpercentile(x, 5)
-    get_10_90 = lambda x: np.nanpercentile(x, 90) - np.nanpercentile(x, 10)
+        cachedir = join(RESULTSDIR, '*_phase', f'TIC_{ticid}')
+        # all cadences, over all sectors
+        pklpaths = glob(join(cachedir, f'*{ticid}*dtr_lightcurve.pkl'))
+        assert len(pklpaths) > 0
 
-    a_5_95 = np.nanmedian([get_5_95(lcdict['y_flat']) for lcdict in lcdicts])
-    a_10_90 = np.nanmedian([get_10_90(lcdict['y_flat']) for lcdict in lcdicts])
+        lcdicts = []
+        for pklpath in pklpaths:
+            with open(pklpath, 'rb') as f:
+                lcdict = pickle.load(f)
+            lcdicts.append(lcdict)
 
-    fit_param_list = []
+        get_5_95 = lambda x: np.nanpercentile(x, 95) - np.nanpercentile(x, 5)
+        get_10_90 = lambda x: np.nanpercentile(x, 90) - np.nanpercentile(x, 10)
 
-    #TODO might want to implement like a double fit gaussian or something
-    #for lcdict in lcdicts:
-    #    time = lcdict['x_trend']
-    #    flux = lcdict['y_flat']
+        a_5_95 = np.nanmedian([get_5_95(lcdict['y_flat']) for lcdict in lcdicts])
+        a_10_90 = np.nanmedian([get_10_90(lcdict['y_flat']) for lcdict in lcdicts])
 
-    #    initial_params = {'period': period_guess,
-    #                      'epoch': 1618,
-    #                      'pdepth': 0.05,
-    #                      'pduration': 0.05,
-    #                      'psdepthratio': 2,
-    #                      'secondaryphase': 0.5}
+    check_log_cache = 1
 
-    #    fit_params, fit_cov = curve_fit(
-    #        invgauss_eclipses_curvefit_func, time, flux-np.nanmedian(flux)
-    #    )
-    #    fit_param_list.append(fit_params)
+    if check_log_cache:
+        cachedir = join(RESULTSDIR, "cpvvetter", "lt_70pc_good_cpv_info")
+        logpaths = glob(join(cachedir, f'*{ticid}*.log'))
+        assert len(logpaths) > 0
 
-    #import IPython; IPython.embed()
-    #assert 0
+        a95_5s = []
+        for logpath in logpaths:
+            st = pu.load_status(logpath)
+            if 'count_phased_local_minima_results' in st:
+                this_a = float(st['count_phased_local_minima_results']['a_95_5'])
+                a95_5s.append(this_a)
+        a_5_95 = np.nanmedian(a95_5s)
 
-    return a_5_95, a_10_90
+    return a_5_95
 
 
 def get_tess_stats(ticid):
@@ -193,7 +194,7 @@ def get_tess_stats(ticid):
     period, period_stdev = given_ticid_get_period(ticid)
 
     # get the variability amplitude diagnostics
-    a_5_95, a_10_90 = given_ticid_get_variability_params(
+    a_5_95 = given_ticid_get_variability_params(
         ticid, period_guess=period
     )
 
@@ -201,7 +202,6 @@ def get_tess_stats(ticid):
         'period':period,
         'period_stdev':period_stdev,
         'a_5_95':a_5_95,
-        'a_10_90':a_10_90
     }, index=[0])
 
     return outdf
