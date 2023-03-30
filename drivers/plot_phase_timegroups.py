@@ -24,8 +24,9 @@ def main():
             lc_cadences='2min',
             binsize_minutes=10,
             t0='binmin',
-            ylim=[-110,5],
-            yoffset=5.5
+            ylim=[-100,5],
+            yoffset=5.5,
+            showtitle=0
         )
 
 if __name__ == "__main__":
