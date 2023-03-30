@@ -358,7 +358,8 @@ def plot_phase_timegroups(
     ylim=None,
     binsize_minutes=10,
     xlim=[-0.6,0.6],
-    yoffset=5
+    yoffset=5,
+    showtitle=1
     ):
     """
     As in plot_phase
@@ -441,24 +442,25 @@ def plot_phase_timegroups(
 
         ix -= yoffset
 
-    ax.set_title(
-        f"{ticid.replace('_', ' ')} "
-        f"P={plot_period*24:.3f}$\pm${plot_period_std*24:.3f}hr"
-    )
+    if showtitle:
+        ax.set_title(
+            f"{ticid.replace('_', ' ')} "
+            f"P={plot_period*24:.3f}$\pm${plot_period_std*24:.3f}hr"
+        )
 
-    fig.text(-0.01,0.5, r"Relative flux [%]", va='center',
+    fig.text(-0.01,0.5, r"Flux [%]", va='center',
              rotation=90)
 
     if isinstance(ylim, list):
         ax.set_ylim(ylim)
 
-    ax.set_xlabel('Phase')
+    ax.set_xlabel('Phase, φ')
 
     format_ax(ax)
     fig.tight_layout()
 
     outpath = join(outdir, f"{ticid}_P{plot_period*24:.3f}_phase_timegroups.png")
-    savefig(fig, outpath, dpi=350)
+    savefig(fig, outpath, dpi=450)
 
 
 def plot_quicklook_cr(x_obs, y_obs, x_trend, y_trend, x_flat, y_flat, outpath,
