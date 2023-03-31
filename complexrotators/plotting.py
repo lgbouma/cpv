@@ -11,6 +11,8 @@ Contents:
 
     | plot_dipcountercheck
     | plot_cpvvetter
+
+    | plot_spectrum_windows
 """
 
 #######################################
@@ -1384,3 +1386,155 @@ def underplot_gcns(ax, get_xval_no_corr, get_yval_no_corr):
 
     cmap = "Greys"
     density = ax.scatter_density(_x[s], _y[s], cmap=cmap, norm=norm)
+
+
+def get_flx_wav_given_2d_and_target(flx_2d, wav_2d, target_wav):
+    _preorder = np.argmin(np.abs(wav_2d - target_wav), axis=1)
+    viable_orders = np.argwhere(
+        (_preorder != wav_2d.shape[1]-1) & (_preorder != 0)
+    )
+    order = int(
+        viable_orders[np.argmin(
+            np.abs(_preorder[viable_orders] - wav_2d.shape[1]/2)
+        )]
+    )
+
+    flx, wav = flx_2d[order, :], wav_2d[order, :]
+    return flx, wav
+
+
+def plot_spectrum_windows(outdir):
+
+    starid = 'TIC146539195'
+
+    # note: could add in K 7699..
+    lines = ['Ca K', 'Ca H & Hε', 'He', 'Hα', 'Li', 'K']
+
+    deltawav = 7.5
+    xlims = [
+        [3933.66-deltawav, 3933.66+deltawav], # ca k
+        [3968.47-deltawav, 3968.47+deltawav], # ca h
+        [5875.618-deltawav, 5875.618+deltawav], # He
+        #[5895.92-1.5*deltawav, 5895.92+deltawav], # Na D1
+        [6562.8-deltawav, 6562.8+deltawav], # halpha
+        [6707.8-deltawav, 6707.8+deltawav], # li6708
+        [7699.-deltawav, 7699+deltawav], # li6708
+    ]
+    ylims = [
+        None,
+        None,
+        [0.8, 1.95],
+        None,
+        None,
+        None,
+    ]
+    xticks = [
+        None,
+        [3965, 3975],
+        None,
+        None,
+        [6705, 6715],
+        [7695, 7705],
+    ]
+    globs = [
+        '*bj*',#order07*', # ca k
+        '*bj*',#order07*', # ca h
+        '*rj*',#order10*', # he
+        #'*rj*',#order11*', # Na D1
+        '*ij*',#order00*', # H alpha
+        '*ij*',#order01*', # Li6708
+        '*ij*',#orderXX*', # K
+    ]
+
+    #
+    # make plot
+    #
+    plt.close('all')
+    set_style('clean')
+
+    fig, axs = plt.subplots(ncols=len(lines), figsize=(6,1.5))
+
+    from scipy.ndimage import gaussian_filter1d
+    from cdips_followup.spectools import read_hires
+
+    for ix, line, xlim, ylim, xtick, _glob in zip(
+        range(len(lines)), lines, xlims, ylims, xticks, globs
+    ):
+
+        fitspaths = glob(join(DATADIR, 'spectra', starid, _glob))
+        assert len(fitspaths) == 1
+        spectrum_path = fitspaths[0]
+
+        flx_2d, wav_2d = read_hires(
+            spectrum_path, is_registered=0, return_err=0
+        )
+        instrument = 'HIRES'
+
+        ax = axs[ix]
+
+        norm = lambda x: x/np.nanmedian(x)
+        fn = lambda x: gaussian_filter1d(x, sigma=2)
+
+        flx, wav = get_flx_wav_given_2d_and_target(
+            flx_2d, wav_2d, xlim[1]-deltawav
+        )
+
+        sel = ((xlim[0]-20) < wav) & (wav < xlim[1]+20)
+        ax.plot(
+            wav[sel], fn(norm(flx[sel])), c='k', zorder=3, lw=0.2
+        )
+
+        ax.set_title(line)
+        ax.set_xlim(xlim)
+        if ylim is not None:
+            ax.set_ylim(ylim)
+        if xtick is not None:
+            ax.set_xticks(xtick)
+            ax.set_xticklabels([str(x) for x in xtick])
+
+        #props = dict(boxstyle='square', facecolor='white', alpha=0.8, pad=0.15,
+        #             linewidth=0)
+        #txt = 'Li-I'
+        #yval = 0.1 if 'KOI-7913' in starname else 0.7
+        #delta = 0.05 if starname not in ['Kepler-1627', 'KOI-7368'] else 0
+        #ax0.text(0.5+delta, yval, txt, transform=ax0.transAxes,
+        #         ha='right',va='bottom', color='k',
+        #         fontsize='x-small', bbox=props)
+        #txt = 'Hα'
+        #yval = 0.1 if 'KOI-7913' not in starname else 0.7
+        #ax1.text(0.9, yval, txt, transform=ax1.transAxes,
+        #         ha='right',va='bottom', color='k',
+        #         fontsize='x-small', bbox=props)
+
+        from matplotlib.ticker import (
+            MultipleLocator, FormatStrFormatter, AutoMinorLocator
+        )
+        #if starname in ['Kepler-1627', 'KOI-7368']:
+        #    ax0.yaxis.set_major_locator(MultipleLocator(0.2))
+        #else:
+        #    ax0.yaxis.set_major_locator(MultipleLocator(0.1))
+        if line == 'K':
+            from matplotlib.ticker import FormatStrFormatter
+            ax.yaxis.set_major_locator(MultipleLocator(0.5))
+            #ax.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+        #if starname != 'KOI-7913_B':
+        #    ax1.yaxis.set_major_locator(MultipleLocator(0.2))
+        #else:
+        #    ax1.yaxis.set_major_locator(MultipleLocator(0.3))
+        #ax1.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+        #ax.xaxis.set_minor_locator(MultipleLocator(10))
+
+        #ax0.tick_params(axis='both', which='major', labelsize='x-small')
+        #ax1.tick_params(axis='both', which='major', labelsize='x-small')
+
+    axs[0].set_ylabel("Relative flux")
+    fig.text(0.5,-0.01, r'Wavelength [$\AA$]', va='center', ha='center',
+             rotation=0)
+
+    fig.tight_layout(w_pad=0.2, h_pad=0.5)
+
+    # set naming options
+    s = ''
+
+    outpath = os.path.join(outdir, f'{starid}_spectrum_windows{s}.png')
+    savefig(fig, outpath, dpi=400)
