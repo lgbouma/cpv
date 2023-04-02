@@ -1408,42 +1408,43 @@ def plot_spectrum_windows(outdir):
     starid = 'TIC146539195'
 
     # note: could add in K 7699..
-    lines = ['Ca K', 'Ca H & Hε', 'He', 'Hα', 'Li', 'K']
+    #lines = ['Ca K', 'Ca H & Hε', 'He', 'Hα', 'Li', 'K']
+    lines = ['Ca K', 'Ca H & Hε', 'Hα', 'Li']
 
     deltawav = 7.5
     xlims = [
         [3933.66-deltawav, 3933.66+deltawav], # ca k
         [3968.47-deltawav, 3968.47+deltawav], # ca h
-        [5875.618-deltawav, 5875.618+deltawav], # He
+        #[5875.618-deltawav, 5875.618+deltawav], # He
         #[5895.92-1.5*deltawav, 5895.92+deltawav], # Na D1
         [6562.8-deltawav, 6562.8+deltawav], # halpha
         [6707.8-deltawav, 6707.8+deltawav], # li6708
-        [7699.-deltawav, 7699+deltawav], # li6708
+        #[7699.-deltawav, 7699+deltawav], # K
     ]
     ylims = [
+        [-1, 35],
+        [-1, 35],
+        #[0.8, 1.95],
         None,
         None,
-        [0.8, 1.95],
-        None,
-        None,
-        None,
+        #None,
     ]
     xticks = [
-        None,
+        [3930, 3940],
         [3965, 3975],
-        None,
-        None,
+        [6560, 6570],
+        #None,
         [6705, 6715],
-        [7695, 7705],
+        #[7695, 7705],
     ]
     globs = [
         '*bj*',#order07*', # ca k
         '*bj*',#order07*', # ca h
-        '*rj*',#order10*', # he
+        #'*rj*',#order10*', # he
         #'*rj*',#order11*', # Na D1
         '*ij*',#order00*', # H alpha
         '*ij*',#order01*', # Li6708
-        '*ij*',#orderXX*', # K
+        #'*ij*',#orderXX*', # K
     ]
 
     #
@@ -1452,7 +1453,9 @@ def plot_spectrum_windows(outdir):
     plt.close('all')
     set_style('clean')
 
-    fig, axs = plt.subplots(ncols=len(lines), figsize=(6,1.5))
+    fig, axs = plt.subplots(ncols=len(lines), figsize=(3.3,1.15))
+    #fig, axs = plt.subplots(ncols=2, nrows=2, figsize=(2.5,2.5))
+    axs = axs.flatten()
 
     from scipy.ndimage import gaussian_filter1d
     from cdips_followup.spectools import read_hires
@@ -1514,9 +1517,10 @@ def plot_spectrum_windows(outdir):
         #else:
         #    ax0.yaxis.set_major_locator(MultipleLocator(0.1))
         if line == 'K':
-            from matplotlib.ticker import FormatStrFormatter
             ax.yaxis.set_major_locator(MultipleLocator(0.5))
-            #ax.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+        if line == 'Li':
+            ax.yaxis.set_major_locator(MultipleLocator(0.3))
+
         #if starname != 'KOI-7913_B':
         #    ax1.yaxis.set_major_locator(MultipleLocator(0.2))
         #else:
@@ -1527,11 +1531,14 @@ def plot_spectrum_windows(outdir):
         #ax0.tick_params(axis='both', which='major', labelsize='x-small')
         #ax1.tick_params(axis='both', which='major', labelsize='x-small')
 
-    axs[0].set_ylabel("Relative flux")
+    #axs[0].set_ylabel("Relative flux")
+    fig.text(-0.01,0.5, r'Relative flux', va='center', ha='center',
+             rotation=90)
     fig.text(0.5,-0.01, r'Wavelength [$\AA$]', va='center', ha='center',
              rotation=0)
 
-    fig.tight_layout(w_pad=0.2, h_pad=0.5)
+    #fig.tight_layout(w_pad=0.2, h_pad=0.5)
+    fig.tight_layout(w_pad=0.2)
 
     # set naming options
     s = ''

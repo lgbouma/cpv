@@ -118,7 +118,7 @@ def given_ticid_get_period(ticid):
     check_log_cache = 1
 
     if check_log_cache:
-        cachedir = join(RESULTSDIR, "cpvvetter", "lt_70pc_good_cpv_info")
+        cachedir = join(RESULTSDIR, "cpvvetter", "lt_95pc_good_cpv_info")
         logpaths = glob(join(cachedir, f'*{ticid}*.log'))
         assert len(logpaths) > 0
 
@@ -166,9 +166,9 @@ def given_ticid_get_variability_params(ticid, period_guess=None):
     check_log_cache = 1
 
     if check_log_cache:
-        cachedir = join(RESULTSDIR, "cpvvetter", "lt_70pc_good_cpv_info")
+        cachedir = join(RESULTSDIR, "cpvvetter", "lt_95pc_good_cpv_info")
         logpaths = glob(join(cachedir, f'*{ticid}*.log'))
-        assert len(logpaths) > 0
+        assert len(logpaths) > 0, 'check cachedir...'
 
         a95_5s = []
         for logpath in logpaths:

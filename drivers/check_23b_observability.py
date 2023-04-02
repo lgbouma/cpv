@@ -1,5 +1,8 @@
 """
 Get observing diagnostics (brightness, period, dip depth).
+
+NOTE: to use this, you need to update the "cachedir" with logfiles under
+observability.py
 """
 import os
 import pandas as pd, numpy as np, matplotlib.pyplot as plt
@@ -16,6 +19,7 @@ listname = "20220115_RahulJayararaman_CR_list.csv"
 listname = "LAH_TESS_GI_Sector_43_thru_45_CRs.csv"
 listname = 'LGB_complex_rotators_ddt_merge_tic8.csv'
 listname = '20230327_good_CPV_ticids_d_lt_70pc.csv'
+listname = '20230401_good_CPV_ticids_d_lt_95pc.csv' # complete to 80pc, about 66% in the 80-95pc shell
 
 site = "Palomar" # or "keck"
 semester = '23b'
