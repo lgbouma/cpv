@@ -22,6 +22,7 @@ listname = '20230327_good_CPV_ticids_d_lt_70pc.csv'
 listname = '20230401_good_CPV_ticids_d_lt_95pc.csv' # complete to 80pc, about 66% in the 80-95pc shell
 
 site = "Palomar" # or "keck"
+site = "keck"
 semester = '23b'
 # end options
 
@@ -29,7 +30,7 @@ listid = listname.replace('.csv', '')
 targetlist = os.path.join(TARGETSDIR, listname)
 df = pd.read_csv(targetlist)
 
-outdir = os.path.join(TABLEDIR, f'{semester}_observability_{listid}')
+outdir = os.path.join(TABLEDIR, f'{semester}_observability_{site}_{listid}')
 if not os.path.exists(outdir):
     os.mkdir(outdir)
 
@@ -107,6 +108,7 @@ print(f'Made {outpath}')
 #
 
 sdf = df[df[f"is_{semester}_{site}_visible"]]
+nsdf = df[~df[f"is_{semester}_{site}_visible"]]
 
 xytuples = [
     ('ra','dec', 'linear', 'linear'),
@@ -138,12 +140,14 @@ for xy in xytuples:
     fig.savefig(outpath, bbox_inches='tight', dpi=400)
     print(f'Made {outpath}')
 
-selcols=['ticid','bp_rp','ruwe','dist_pc','period','a_5_95','phot_g_mean_mag','Vmag','Tmag','Jmag','is_23b_tess_visible','sector']
+selcols=['ticid','ra','dec','bp_rp','ruwe','dist_pc','period','a_5_95','phot_g_mean_mag','Vmag','Tmag','Jmag','is_23b_tess_visible','sector']
 
 outpath = os.path.join(outdir, f'{semester}_{site}_observable_distance_sorted_{listid}.csv')
-
 outdf = sdf[selcols].sort_values(by='dist_pc').round(2)
 outdf.to_csv(outpath, index=False, sep="|")
 print(f'Made {outpath}')
 
-import IPython; IPython.embed()
+outpath = os.path.join(outdir, f'{semester}_NOT_{site}_observable_distance_sorted_{listid}.csv')
+outdf = nsdf[selcols].sort_values(by='dist_pc').round(2)
+outdf.to_csv(outpath, index=False, sep="|")
+print(f'Made {outpath}')
