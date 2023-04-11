@@ -20,8 +20,12 @@ listname = "LAH_TESS_GI_Sector_43_thru_45_CRs.csv"
 listname = 'LGB_complex_rotators_ddt_merge_tic8.csv'
 listname = '20230327_good_CPV_ticids_d_lt_70pc.csv'
 listname = '20230401_good_CPV_ticids_d_lt_95pc.csv' # complete to 80pc, about 66% in the 80-95pc shell
+listname = '20230410_goodandmaybe_CPV_ticids_d_lt_115pc.csv' # staging for cycle6...
+listname = '20230411_goodandmaybe_CPV_ticids_d_lt_150pc.csv' # cycle6, <150pc 2min complete
 
-site = "Palomar" # or "keck"
+dirname = 'lt_150pc_goodandmaybe_CPV_info'
+
+#site = "Palomar" # or "keck"
 site = "keck"
 semester = '23b'
 # end options
@@ -42,7 +46,7 @@ for ticid in df.ticid.astype(str):
         print(42*'-')
         print(f'Beginning TIC {ticid}')
         r_gaia = get_gaia_rows(ticid)
-        r_tess = get_tess_stats(ticid)
+        r_tess = get_tess_stats(ticid, dirname=dirname)
         r_tic8 = get_tic_star_information(ticid)
         r_tesspoint = check_tesspoint(
             float(r_tic8['ra']), float(r_tic8['dec']), ticid
@@ -113,6 +117,7 @@ nsdf = df[~df[f"is_{semester}_{site}_visible"]]
 xytuples = [
     ('ra','dec', 'linear', 'linear'),
     ('dist_pc', 'Vmag', 'linear', 'linear'),
+    ('dist_pc', 'phot_g_mean_mag', 'linear', 'linear'),
     ('bp_rp', 'phot_g_mean_mag', 'linear', 'linear'),
     ('bp_rp', 'period', 'linear', 'linear'),
     ('bp_rp', 'period', 'linear', 'log'),

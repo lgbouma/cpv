@@ -83,7 +83,7 @@ def get_gaia_rows(ticid):
     return outdf
 
 
-def given_ticid_get_period(ticid):
+def given_ticid_get_period(ticid, dirname=None):
 
     manualperiodfile = join(TARGETSDIR, 'ticids_manual_periods.csv')
     mpdf = pd.read_csv(manualperiodfile)
@@ -118,7 +118,9 @@ def given_ticid_get_period(ticid):
     check_log_cache = 1
 
     if check_log_cache:
-        cachedir = join(RESULTSDIR, "cpvvetter", "lt_95pc_good_cpv_info")
+        if dirname is None:
+            raise NotImplementedError
+        cachedir = join(RESULTSDIR, "cpvvetter", dirname)
         logpaths = glob(join(cachedir, f'*{ticid}*.log'))
         assert len(logpaths) > 0
 
@@ -135,7 +137,7 @@ def given_ticid_get_period(ticid):
     return period, period_stdev
 
 
-def given_ticid_get_variability_params(ticid, period_guess=None):
+def given_ticid_get_variability_params(ticid, period_guess=None, dirname=None):
 
     # check the plot_22b_phase cache.  NOTE: by default, this is where the
     # content is found.  otherwise, this getter would need to be reformatted to
@@ -166,7 +168,9 @@ def given_ticid_get_variability_params(ticid, period_guess=None):
     check_log_cache = 1
 
     if check_log_cache:
-        cachedir = join(RESULTSDIR, "cpvvetter", "lt_95pc_good_cpv_info")
+        if dirname is None:
+            raise NotImplementedError
+        cachedir = join(RESULTSDIR, "cpvvetter", dirname)
         logpaths = glob(join(cachedir, f'*{ticid}*.log'))
         assert len(logpaths) > 0, 'check cachedir...'
 
@@ -181,7 +185,7 @@ def given_ticid_get_variability_params(ticid, period_guess=None):
     return a_5_95
 
 
-def get_tess_stats(ticid):
+def get_tess_stats(ticid, dirname=None):
     """
     most important for observability -- tess:
       * period
@@ -191,11 +195,11 @@ def get_tess_stats(ticid):
     """
 
     # get the period
-    period, period_stdev = given_ticid_get_period(ticid)
+    period, period_stdev = given_ticid_get_period(ticid, dirname=dirname)
 
     # get the variability amplitude diagnostics
     a_5_95 = given_ticid_get_variability_params(
-        ticid, period_guess=period
+        ticid, period_guess=period, dirname=dirname
     )
 
     outdf = pd.DataFrame({
