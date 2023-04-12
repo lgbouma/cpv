@@ -296,7 +296,8 @@ def plot_phase(
     t0='binmin',
     ylim=None,
     binsize_minutes=10,
-    xlim=[-0.6,0.6]
+    xlim=[-0.6,0.6],
+    t0_offset=None
     ):
     """
     lc_cadences:
@@ -344,6 +345,12 @@ def plot_phase(
         if isinstance(manual_period, float):
             period = manual_period
 
+        if isinstance(t0_offset, (int,float)):
+            t0 += t0_offset
+
+        print(42*'-')
+        print(t0, period)
+
         plot_phased_light_curve(
             d['times'], d['fluxs'], t0, period, outpath,
             titlestr=titlestr, ylim=ylim, binsize_minutes=binsize_minutes,
@@ -387,6 +394,8 @@ def plot_phase_timegroups(
         d = cpv_periodsearch(x_obs, y_flat, starid, outdir, t0=t0)
 
         _t0 = d['t0']
+        if isinstance(t0, float):
+            _t0 = t0
         period = d['period']
         if isinstance(manual_period, float):
             period = manual_period
@@ -413,8 +422,8 @@ def plot_phase_timegroups(
     set_style("science")
     fig, ax = plt.subplots(figsize=(3,7))
 
-    plot_period = np.nanmean(_periods) + 0.002/24
-    plot_t0 = t0s[0] + 0.25*plot_period
+    plot_period = np.nanmean(_periods)
+    plot_t0 = t0s[0]
     plot_period_std = np.nanstd(_periods)
 
     ix = 0
@@ -632,7 +641,7 @@ def plot_phased_light_curve(
         ax.set_title(titlestr.replace("_"," "), fontsize='small')
 
     if savethefigure:
-        ax.set_ylabel(r"Flux [$\times 10^{-2}$]")
+        ax.set_ylabel(r"Flux [%]")
         ax.set_xlabel("Phase")
 
     ax.set_xlim(xlim)

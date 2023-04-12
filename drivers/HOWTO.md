@@ -34,3 +34,9 @@ For getting all the 2-minute SPOC data and its Gaia xmatch
 
 To run the CPV-finder
 ----------
+
+1. Go to find_CPVs.py.  Define your sample shell, e.g., "85to95pc_mkdwarf", and
+  run it.
+
+To search for transiting planets
+----------
