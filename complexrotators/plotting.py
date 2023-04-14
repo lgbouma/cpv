@@ -13,6 +13,8 @@ Contents:
     | plot_cpvvetter
 
     | plot_spectrum_windows
+
+    | plot_quasiperiodic_removal_diagnostic
 """
 
 #######################################
@@ -74,6 +76,9 @@ from astropy.table import Table
 import matplotlib.patheffects as pe
 from matplotlib.ticker import MaxNLocator
 from matplotlib.transforms import blended_transform_factory
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+
+from scipy.ndimage import gaussian_filter1d
 
 from aesthetic.plot import savefig, format_ax, set_style
 
@@ -1466,7 +1471,6 @@ def plot_spectrum_windows(outdir):
     #fig, axs = plt.subplots(ncols=2, nrows=2, figsize=(2.5,2.5))
     axs = axs.flatten()
 
-    from scipy.ndimage import gaussian_filter1d
     from cdips_followup.spectools import read_hires
 
     for ix, line, xlim, ylim, xtick, _glob in zip(
@@ -1554,3 +1558,125 @@ def plot_spectrum_windows(outdir):
 
     outpath = os.path.join(outdir, f'{starid}_spectrum_windows{s}.png')
     savefig(fig, outpath, dpi=400)
+
+
+def plot_quasiperiodic_removal_diagnostic(d, pngpath):
+
+    gfn = lambda x: gaussian_filter1d(x, sigma=1)
+
+    # d = {
+    #    'best_interp_key': best_interp_key,
+    #    'fn': fn,
+    #    'time': time, # input time
+    #    'flux': flux, # input flux
+    #    'x_sw': x_sw, # sorted & wrapped phase
+    #    'y_sw': y_sw, # sorted & wrapped flux
+    #    'x_nsnw': x_nsnw, # not sorted & not wrapped phase
+    #    'y_nsnw': y_nsnw, # not sorted & not wrapped flux
+    #    'y_model_sw': y_model_sw, # sorted & wrapped model flux
+    #    'y_model_nsnw': y_model_nsnw, # not sorted & not wrapped model flux
+    #    'y_resid_sw': y_resid_sw, # y_sw - y_model_sw
+    #    'y_resid_nsnw': y_resid_nsnw, # y_nsnw - y_model_nsnw
+    #    'x_resid_sw_b': x_resid_sw_b,
+    #    'y_resid_sw_b': y_resid_sw_b,
+    #    'x_resid_nsnw_b': x_resid_nsnw_b,
+    #    'y_resid_nsnw_b': y_resid_nsnw_b,
+    #    'x_w_model': x_w_model,
+    #    'y_w_model': y_w_model,
+    #    'x_nw_model': x_nw_model,
+    #    'y_nw_model': y_nw_model,
+    #}
+
+    # NOTE: populate the namespace using all keys in the passed dictionary.
+    from types import SimpleNamespace
+    ns = SimpleNamespace(**d)
+
+    plt.close('all')
+    set_style('clean')
+
+    fig = plt.figure(figsize=(5,3), layout='constrained')
+    axd = fig.subplot_mosaic(
+        """
+        AABBEE
+        AABBEE
+        CCCCCC
+        DDDDDD
+        """
+    )
+
+    n = lambda x: 1e2 * (x - np.nanmean(x))
+
+    ax = axd['A']
+    ax.scatter(ns.x_sw, n(ns.y_sw), zorder=1, s=0.2, c='lightgray', linewidths=0)
+    ax.scatter(ns.x_sw_b, n(ns.y_sw_b), zorder=3, s=1, c='k', linewidths=0)
+    ax.plot(ns.x_w_model, n(ns.y_w_model), lw=0.5, zorder=2, c='C0')
+    ylim = get_ylimguess(n(ns.y_sw_b))
+    ax.set_ylim(ylim)
+    ax.update({'xlabel': 'φ', 'ylabel': 'Flux [%]', 'xlim':[-0.6,0.6]})
+
+    ax = axd['B']
+    ax.scatter(ns.x_sw, n(ns.y_resid_sw), zorder=1, s=0.2, c='lightgray',
+               linewidths=0)
+    ax.scatter(ns.x_resid_sw_b, n(ns.y_resid_sw_b), zorder=3, s=1, c='k',
+               linewidths=0)
+    ax.plot(ns.x_w_model, n(ns.y_w_model-ns.y_w_model), lw=0.5, zorder=2, c='C0')
+    factor = 10
+    ylim = factor*np.array(get_ylimguess(n(ns.y_resid_sw_b)))
+    ax.set_ylim(ylim)
+    ax.update({'xlabel': 'φ', 'ylabel': 'Resid [%]', 'xlim':[-0.6,0.6]})
+
+    ax = axd['E']
+    cmap = mpl.colormaps['Spectral']
+    norm = mpl.colors.Normalize(vmin=ns.cyclenum_sw.min(), vmax=ns.cyclenum_sw.max())
+    binsize_minutes = 20
+    bs_days = (binsize_minutes / (60*24))
+    min_cycle, max_cycle = np.nanmin(ns.cyclenum_sw), np.nanmax(ns.cyclenum_sw)
+    for ix, cycle in enumerate(
+        np.arange(min_cycle, max_cycle)
+    ):
+        sel = (ns.cyclenum_sw == cycle)
+        _bd = phase_bin_magseries(ns.x_sw[sel], ns.y_resid_sw[sel],
+                                  binsize=bs_days, minbinelems=2)
+        color = cmap(norm(cycle))
+
+        if _bd is not None:
+            ax.plot(_bd['binnedphases'], gfn(n(_bd['binnedmags'])), zorder=ix,
+                    lw=0.3, c=color, alpha=1, rasterized=True)
+
+    ax.plot(ns.x_w_model, n(ns.y_w_model-ns.y_w_model), lw=0.5, zorder=2, c='C0')
+    ylim_resid = factor*np.array(get_ylimguess(n(ns.y_resid_sw_b)))
+    ax.set_ylim(ylim_resid)
+    ax.update({'xlabel': 'φ', 'ylabel': 'Resid [%]', 'xlim':[-0.6, 0.6]})
+
+    ax = axd['C']
+    ax.scatter(ns.time, n(ns.flux), s=0.2, marker='o', c='k', linewidths=0)
+    ylim = get_ylimguess(n(ns.flux))
+    ax.set_ylim(ylim)
+    ax.update({'xlabel': '', 'ylabel': 'Flux [%]'})
+    ax.set_xticklabels([])
+
+    ax = axd['D']
+    ax.scatter(ns.time, n(ns.y_resid_nsnw), s=0.2, marker='o', c='k', linewidths=0)
+    ax.set_ylim(ylim_resid)
+    ax.update({'xlabel': 'TJD', 'ylabel': 'Resid [%]'})
+
+    fig.tight_layout(h_pad=0)
+
+    # colorbar insanity
+    ax = axd['E']
+    _p = ax.scatter(_bd['binnedphases'], n(_bd['binnedmags'])+99, zorder=3,
+                    s=1, c=cycle*np.ones(len(_bd['binnedmags'])),
+                    linewidths=0, cmap=cmap, alpha=1,
+                    vmin=min_cycle, vmax=max_cycle, rasterized=True)
+    axins1 = inset_axes(ax, width="25%", height="3%", loc='upper right',
+                        borderpad=1.2)
+    cb = fig.colorbar(_p, cax=axins1, orientation="horizontal",
+                      extend="neither")
+    cb.set_ticks([min_cycle, max_cycle])
+    cb.set_ticklabels([int(min_cycle), int(max_cycle)])
+    cb.ax.tick_params(labelsize='x-small')
+    cb.ax.tick_params(size=0, which='both') # remove the ticks
+    cb.ax.yaxis.set_ticks_position('left')
+    cb.ax.yaxis.set_label_position('left')
+
+    savefig(fig, pngpath, dpi=400, writepdf=0)
