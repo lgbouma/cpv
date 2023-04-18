@@ -22,17 +22,21 @@ def main():
         cp.plot_phase_timegroups(
             outdir,
             ticid=f'TIC_{ticid}',
-            #lc_cadences='2min',
-            lc_cadences='QLP',
+            lc_cadences='2min',
             binsize_minutes=10,
+            binsize_minutes=30,
             t0='binmin',
             # for 4029
             #ylim=[-100,5],
             #yoffset=5.5,
             #manual_period=None
-            # for 3006
-            ylim=[-190,5],
-            yoffset=6.5,
+            # for 3006 2min
+            #ylim=[-190,5],
+            #yoffset=6.5,
+            # for 3006 QLP
+            #lc_cadences='QLP',
+            #ylim=[-450,5],
+            #figsize_y=12,
             manual_period=8.254/24,
             showtitle=0
         )

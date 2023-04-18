@@ -383,7 +383,8 @@ def plot_phase_timegroups(
     binsize_minutes=10,
     xlim=[-0.6,0.6],
     yoffset=5,
-    showtitle=1
+    showtitle=1,
+    figsize_y=7
     ):
     """
     As in plot_phase
@@ -391,7 +392,7 @@ def plot_phase_timegroups(
 
     lclist = _get_cpv_lclist(lc_cadences, ticid)
 
-    # NOTE: example manual download of a particular subset
+    ## NOTE: example manual download of a particular subset
     #import lightkurve as lk
     #r = lk.search_lightcurve("TIC 300651846")
     #lcc = r[r.author == 'QLP'].download_all()
@@ -441,7 +442,7 @@ def plot_phase_timegroups(
     # Make plots
     plt.close('all')
     set_style("science")
-    fig, ax = plt.subplots(figsize=(3,7))
+    fig, ax = plt.subplots(figsize=(3,figsize_y))
 
     plot_period = np.nanmean(_periods)
     plot_t0 = t0s[0]
@@ -450,7 +451,8 @@ def plot_phase_timegroups(
     ix = 0
     for n, g in enumerate(groups):
 
-        cadence_day = 2/(60*24)
+        cadence_sec = np.nanmedian(np.diff(times[g]))*24*60*60
+        cadence_day = cadence_sec/(60*60*24)
         N_cycles_in_group = len(times[g]) * cadence_day / plot_period
 
         gtime = times[g]
@@ -463,6 +465,9 @@ def plot_phase_timegroups(
 
         if N_cycles_in_group <= 3:
             continue
+        if len(gtime) < 100:
+            continue
+        #print(txt, N_cycles_in_group, len(gtime))
 
         plot_phased_light_curve(
             gtime, gflux, plot_t0, plot_period, None,
@@ -492,6 +497,7 @@ def plot_phase_timegroups(
     fig.tight_layout()
 
     outpath = join(outdir, f"{ticid}_P{plot_period*24:.3f}_{lc_cadences}_phase_timegroups.png")
+    #fig.savefig(outpath, dpi=300)
     savefig(fig, outpath, dpi=450)
 
 
@@ -610,7 +616,7 @@ def plot_phased_light_curve(
                 lw=0.5, rasterized=True, alpha=alpha0)
 
     bs_days = (binsize_minutes / (60*24))
-    orb_bd = phase_bin_magseries(x_fold, y, binsize=bs_days, minbinelems=3)
+    orb_bd = phase_bin_magseries(x_fold, y, binsize=bs_days, minbinelems=1)
     ax.scatter(
         orb_bd['binnedphases'], norm(orb_bd['binnedmags']), color=c1,
         s=BINMS, linewidths=0,
@@ -637,10 +643,16 @@ def plot_phased_light_curve(
             props = dict(boxstyle='square', facecolor='white', alpha=0.7, pad=0.15,
                          linewidth=0)
             sel = (orb_bd['binnedphases'] > 0.4) & (orb_bd['binnedphases'] < 0.5)
-            ax.text(0.97,
-                    np.nanmin(norm(orb_bd['binnedmags'][sel])-dy/5), txt,
-                    transform=tform, ha='right',va='top', color='k',
-                    fontsize=fontsize, bbox=props)
+            if len(orb_bd['binnedmags'][sel]) > 0:
+                ax.text(0.97,
+                        np.nanmin(norm(orb_bd['binnedmags'][sel])-dy/5), txt,
+                        transform=tform, ha='right',va='top', color='k',
+                        fontsize=fontsize, bbox=props)
+            else:
+                ax.text(0.97,
+                        np.nanmin(norm(orb_bd['binnedmags'])-dy/5), txt,
+                        transform=ax.transAxes, ha='right',va='top', color='k',
+                        fontsize=fontsize, bbox=props)
 
         else:
             if isinstance(t0, float):
