@@ -15,6 +15,8 @@ Contents:
     | plot_spectrum_windows
 
     | plot_quasiperiodic_removal_diagnostic
+
+    | plot_lc_mosaic
 """
 
 #######################################
@@ -238,12 +240,20 @@ def _get_cpv_lclist(lc_cadences, ticid):
 
 def prepare_given_lightkurve_lc(lc, ticid, outdir):
 
+    # author
+    author = lc.author
+
     # metadata
     sector = lc.meta['SECTOR']
 
     # light curve data
     time = lc.time.value
-    flux = lc.pdcsap_flux.value
+    if "SPOC" in lc.author:
+        flux = lc.pdcsap_flux.value
+    elif lc.author == "QLP":
+        flux = lc.flux.value
+    else:
+        raise NotImplementedError
     qual = lc.quality.value
 
     # remove non-zero quality flags
@@ -258,7 +268,7 @@ def prepare_given_lightkurve_lc(lc, ticid, outdir):
     # what is the cadence?
     cadence_sec = int(np.round(np.nanmedian(np.diff(x_obs))*24*60*60))
 
-    starid = f'{ticid}_S{str(sector).zfill(4)}_{cadence_sec}sec'
+    starid = f'{ticid}_S{str(sector).zfill(4)}_{author}_{cadence_sec}sec'
 
     #
     # "light" detrending by default. (& cache it)
@@ -381,6 +391,12 @@ def plot_phase_timegroups(
 
     lclist = _get_cpv_lclist(lc_cadences, ticid)
 
+    # NOTE: example manual download of a particular subset
+    #import lightkurve as lk
+    #r = lk.search_lightcurve("TIC 300651846")
+    #lcc = r[r.author == 'QLP'].download_all()
+    #lclist = [_l for _l in lcc]
+
     if len(lclist) == 0:
         print(f'WRN! Did not find light curves for {ticid}. Escaping.')
         return 0
@@ -445,7 +461,7 @@ def plot_phase_timegroups(
         e_end = int(np.floor((gtime[-1] - plot_t0)/plot_period))
         txt = f"{e_start} - {e_end}"
 
-        if N_cycles_in_group < 2:
+        if N_cycles_in_group <= 3:
             continue
 
         plot_phased_light_curve(
@@ -475,7 +491,7 @@ def plot_phase_timegroups(
     format_ax(ax)
     fig.tight_layout()
 
-    outpath = join(outdir, f"{ticid}_P{plot_period*24:.3f}_phase_timegroups.png")
+    outpath = join(outdir, f"{ticid}_P{plot_period*24:.3f}_{lc_cadences}_phase_timegroups.png")
     savefig(fig, outpath, dpi=450)
 
 
@@ -1680,3 +1696,12 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     cb.ax.yaxis.set_label_position('left')
 
     savefig(fig, pngpath, dpi=400, writepdf=0)
+
+
+def plot_lc_mosaic(outdir):
+    pass
+
+    outpath = os.path.join(outdir, f'lc_mosaic_20230417.png')
+    savefig(fig, outpath, dpi=400)
+
+

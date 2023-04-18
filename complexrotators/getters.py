@@ -38,7 +38,6 @@ def _get_local_lcpaths_given_ticid(ticid):
 
 
 
-
 def get_2min_cadence_spoc_tess_lightcurve(
     ticstr: str,
     ) -> list:
