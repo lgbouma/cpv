@@ -1699,9 +1699,32 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
 
 
 def plot_lc_mosaic(outdir):
-    pass
 
-    outpath = os.path.join(outdir, f'lc_mosaic_20230417.png')
+    # get ticids and sector
+    csvpath = join(DEATADIR, 'targetlists',
+                   '20230411_good_CPV_ticids_d_lt_150pc_sectorpref.csv')
+    df = pd.read_csv(csvpath)
+    sel = ~df.comment.str.contains("OMIT")
+    df = df[sel]
+
+    # get light curve data
+    #TODO staging...
+
+
+
+    # make plot
+    plt.close('all')
+    set_style('clean')
+
+    factor = 0.5
+    fig, axs = plt.figure(nrows=5, ncols=5, figsize=(factor*6,factor*9), sharex=True)
+    axs = axs.flatten()
+
+    # set naming options
+    s = ''
+
+    outpath = join(outdir, f'lc_mosaic_{s}.png')
     savefig(fig, outpath, dpi=400)
+
 
 
