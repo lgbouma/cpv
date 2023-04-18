@@ -1709,7 +1709,7 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     savefig(fig, pngpath, dpi=400, writepdf=0)
 
 
-def plot_lc_mosaic(outdir, subset_id=None):
+def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
     """
     this plotter only works on phtess3 or analogous
     """
@@ -1719,7 +1719,7 @@ def plot_lc_mosaic(outdir, subset_id=None):
         csvpath = join(DATADIR, 'targetlists',
                        '20230411_good_CPV_ticids_d_lt_150pc_sectorpref.csv')
 
-    df = pd.read_csv(csvpath)
+    df = pd.read_csv(csvpath, comment='#')
     sel = ~(df.comment.str.contains("OMIT") == True)
     df = df[sel]
 
@@ -1748,7 +1748,7 @@ def plot_lc_mosaic(outdir, subset_id=None):
     set_style('clean')
 
     factor = 1
-    fig, axs = plt.subplots(nrows=5, ncols=5, figsize=(factor*6,factor*9),
+    fig, axs = plt.subplots(nrows=5, ncols=5, figsize=(factor*6,factor*8.5),
                             sharex=True, constrained_layout=True)
     axs = axs.flatten()
 
@@ -1811,16 +1811,32 @@ def plot_lc_mosaic(outdir, subset_id=None):
         bd = time_bin_magseries(d['times'], d['fluxs'], binsize=1200, minbinelems=1)
         ylim = get_ylimguess(1e2*(bd['binnedmags']-np.nanmean(bd['binnedmags'])))
 
-        titlestr = f'{ticid}, s{sector}, {d["period"]*24:.1f}h'
+        if showtitles:
+            titlestr = f'{ticid}, s{sector}, {d["period"]*24:.1f}h'
+        else:
+            titlestr = None
+
         binsize_phase = 1/300
         plot_phased_light_curve(
             d['times'], d['fluxs'], d['t0'], d['period'], None, ylim=ylim,
             xlim=[-0.6,0.6], binsize_phase=binsize_phase, BINMS=1.5, titlestr=titlestr,
-            showtext=False, showtitle=False, figsize=None, c0='darkgray',
+            showtext=None, showtitle=False, figsize=None, c0='darkgray',
             alpha0=0.3, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
             fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
             showxticklabels=False
         )
+
+        if not showtitles:
+            txt = f'{d["period"]*24:.1f}h'
+            tform = ax.transAxes
+            props = dict(boxstyle='square', facecolor='white', alpha=0.7, pad=0.15,
+                         linewidth=0)
+            ax.text(0.97,
+                    0.05,
+                    txt,
+                    transform=tform, ha='right', va='bottom', color='k',
+                    fontsize='large', bbox=props)
+
         ax.set_xticks([-0.5,0,0.5])
 
         ylow, yhigh = int(np.ceil(ylim[0]))+1, int(np.floor(ylim[1]))-1
@@ -1853,8 +1869,8 @@ def plot_lc_mosaic(outdir, subset_id=None):
             ax.set_ylim([-5,4])
         if str(ticid) == '353730181':
             ax.set_ylim([-7.5,7.5])
-        if str(ticid) == '402980664':
-            ax.set_ylim([-2.8, 2.5])
+        #if str(ticid) == '402980664':
+        #    ax.set_ylim([-2.8, 2.5])
         if str(ticid) == '335598085':
             ax.set_ylim([-4.2, 4.2])
         if str(ticid) == '302160226':
@@ -1875,14 +1891,14 @@ def plot_lc_mosaic(outdir, subset_id=None):
     for ax in axs[-4:]:
         ax.set_xticklabels(['-0.5','0','0.5'])
 
-    fig.text(-0.01,0.5, r"Flux [%]", va='center', rotation=90, weight='bold',
-             fontsize='large')
-    fig.text(0.5,-0.01, r"Phase, φ", weight='bold', fontsize='large')
+    fig.text(-0.02,0.5, r"Flux [%]", va='center', rotation=90, weight='bold',
+             fontsize='xx-large')
+    fig.text(0.5,-0.02, r"Phase, φ", weight='bold', fontsize='xx-large')
 
     # set naming options
     s = f'{subset_id}'
-
-    #fig.tight_layout()
+    if showtitles:
+        s += '_showtitles'
 
     outpath = join(outdir, f'lc_mosaic_{s}.png')
     savefig(fig, outpath, dpi=400)
