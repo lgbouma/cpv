@@ -84,7 +84,7 @@ from scipy.ndimage import gaussian_filter1d
 
 from aesthetic.plot import savefig, format_ax, set_style
 
-from complexrotators.paths import DATADIR, PHOTDIR
+from complexrotators.paths import DATADIR, PHOTDIR, SPOCDIR, LOCALDIR
 from complexrotators.lcprocessing import cpv_periodsearch
 
 from astroquery.mast import Catalogs
@@ -540,7 +540,7 @@ def plot_quicklook_cr(x_obs, y_obs, x_trend, y_trend, x_flat, y_flat, outpath,
 
 def plot_phased_light_curve(
     time, flux, t0, period, outpath,
-    ylim=None, xlim=[-0.6,0.6], binsize_minutes=2, BINMS=2, titlestr=None,
+    ylim=None, xlim=[-0.6,0.6], binsize_phase=0.005, BINMS=2, titlestr=None,
     showtext=True, showtitle=False, figsize=None,
     c0='darkgray', alpha0=0.3,
     c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
@@ -615,8 +615,7 @@ def plot_phased_light_curve(
         ax.plot(x_fold, norm(y), color=c0, label="data",
                 lw=0.5, rasterized=True, alpha=alpha0)
 
-    bs_days = (binsize_minutes / (60*24))
-    orb_bd = phase_bin_magseries(x_fold, y, binsize=bs_days, minbinelems=1)
+    orb_bd = phase_bin_magseries(x_fold, y, binsize=binsize_phase, minbinelems=1)
     ax.scatter(
         orb_bd['binnedphases'], norm(orb_bd['binnedmags']), color=c1,
         s=BINMS, linewidths=0,
@@ -657,7 +656,7 @@ def plot_phased_light_curve(
         else:
             if isinstance(t0, float):
                 #txt = f'$t_0$ [BTJD]: {t0:.6f}\n$P$: {period:.6f} d'
-                txt = f'$P$: {period*24:.2f} hr' # simpler label
+                txt = f'{period*24:.1f} hr' # simpler label
                 fontsize='small'
             elif isinstance(t0, int):
                 txt = f'$t_0$ [BTJD]: {t0:.1f}\n$P$: {period:.6f} d'
@@ -1710,30 +1709,180 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     savefig(fig, pngpath, dpi=400, writepdf=0)
 
 
-def plot_lc_mosaic(outdir):
+def plot_lc_mosaic(outdir, subset_id=None):
+    """
+    this plotter only works on phtess3 or analogous
+    """
 
     # get ticids and sector
-    csvpath = join(DEATADIR, 'targetlists',
-                   '20230411_good_CPV_ticids_d_lt_150pc_sectorpref.csv')
+    if 'dlt150_good' in subset_id:
+        csvpath = join(DATADIR, 'targetlists',
+                       '20230411_good_CPV_ticids_d_lt_150pc_sectorpref.csv')
+
     df = pd.read_csv(csvpath)
-    sel = ~df.comment.str.contains("OMIT")
+    sel = ~(df.comment.str.contains("OMIT") == True)
     df = df[sel]
 
-    # get light curve data
-    #TODO staging...
+    if subset_id == 'dlt150_good_0':
+        df = df[:25]
+    elif subset_id == 'dlt150_good_1':
+        df = df[25:]
+    else:
+        raise NotImplementedError
 
+    # prepare to get lc data
+    LOCAL_DEBUG = 0
+    from complexrotators.getters import (
+        _get_lcpaths_given_ticid, _get_local_lcpaths_given_ticid
+    )
+    from complexrotators.lcprocessing import (
+        cpv_periodsearch, count_phased_local_minima, prepare_cpv_light_curve
+    )
+    from cdips.utils import bash_grep
 
+    csvpath = join(SPOCDIR, "gaia_X_spoc2min_merge.csv")
+    #gdf = pd.read_csv(csvpath)
 
-    # make plot
+    # instantiate plot
     plt.close('all')
     set_style('clean')
 
-    factor = 0.5
-    fig, axs = plt.figure(nrows=5, ncols=5, figsize=(factor*6,factor*9), sharex=True)
+    factor = 1
+    fig, axs = plt.subplots(nrows=5, ncols=5, figsize=(factor*6,factor*9),
+                            sharex=True, constrained_layout=True)
     axs = axs.flatten()
 
+    for ticid, sector, ax in zip(df.ticid, df.sector, axs):
+
+        lcdir = f'/nfs/phtess2/ar0/TESS/SPOCLC/sector-{sector}'
+        lcpaths = glob(join(lcdir, f"*{ticid}*_lc.fits"))
+        if not len(lcpaths) == 1:
+            print('bad lcpaths')
+            print(ticid, sector)
+            print(lcpaths)
+            import IPython; IPython.embed()
+            assert 0
+        lcpath = lcpaths[0]
+
+        # need to re-find the cachedir;  this is faster than loading the large
+        # csv file
+        res = bash_grep(ticid, csvpath)
+        plxs = np.array([l.split(',')[4] for l in res[::2]]).astype(float)
+        dist_pc = np.nanmean(1/(plxs * 1e-3))
+
+        if dist_pc <= 30:
+            cachesubdir = '30pc_mkdwarf'
+        elif 30 < dist_pc <= 50:
+            cachesubdir = '30to50pc_mkdwarf'
+        elif 50 < dist_pc <= 60:
+            cachesubdir = '50to60pc_mkdwarf'
+        elif 60 < dist_pc <= 70:
+            cachesubdir = '60to70pc_mkdwarf'
+        elif 70 < dist_pc <= 85:
+            cachesubdir = '70to85pc_mkdwarf'
+        elif 85 < dist_pc <= 95:
+            cachesubdir = '85to95pc_mkdwarf'
+        elif 95 < dist_pc <= 105:
+            cachesubdir = '95to105pc_mkdwarf'
+        elif 105 < dist_pc <= 115:
+            cachesubdir = '105to115pc_mkdwarf'
+        elif dist_pc >= 115:
+            cachesubdir = '115to150pc_mkdwarf'
+        else:
+            print(ticid, sector)
+            print(lcpaths)
+            print(dist_pc)
+            raise NotImplementedError
+        cdbase = join(LOCALDIR, "cpv_finding")
+        cachedir = join(cdbase, cachesubdir)
+
+        # get the relevant light curve data
+        (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
+         sector, starid) = prepare_cpv_light_curve(lcpath, cachedir)
+
+        # get period, t0, and periodogram (PDM or LombScargle)
+        d = cpv_periodsearch(
+            x_obs, y_flat, starid, cachedir, t0='binmin', periodogram_method='pdm'
+        )
+
+        if str(ticid) in ['177309964', '335598085']:
+            d['period'] *= 0.5
+
+        bd = time_bin_magseries(d['times'], d['fluxs'], binsize=1200, minbinelems=1)
+        ylim = get_ylimguess(1e2*(bd['binnedmags']-np.nanmean(bd['binnedmags'])))
+
+        titlestr = f'{ticid}, s{sector}, {d["period"]*24:.1f}h'
+        binsize_phase = 1/300
+        plot_phased_light_curve(
+            d['times'], d['fluxs'], d['t0'], d['period'], None, ylim=ylim,
+            xlim=[-0.6,0.6], binsize_phase=binsize_phase, BINMS=1.5, titlestr=titlestr,
+            showtext=False, showtitle=False, figsize=None, c0='darkgray',
+            alpha0=0.3, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
+            fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
+            showxticklabels=False
+        )
+        ax.set_xticks([-0.5,0,0.5])
+
+        ylow, yhigh = int(np.ceil(ylim[0]))+1, int(np.floor(ylim[1]))-1
+        if np.diff([np.abs(ylow), yhigh]) <= 2:
+            ylowabs = np.abs(ylow)
+            yhighabs = np.abs(yhigh)
+            ylow = -np.min([ylowabs, yhighabs])
+            yhigh = np.min([ylowabs, yhighabs])
+
+        ax.set_yticks([ylow, 0, yhigh])
+        ax.set_yticklabels([ylow, 0, yhigh])
+
+        id_yticks = {
+            "405754448": [-1,0,1],
+            "300651846": [-3,0,3],
+            "167664935": [-9,0,9],
+            "353730181": [-6,0,6],
+            '335598085': [-3,0,3],
+            '302160226': [-6,0,6],
+            '234295610': [-4,0,4],
+            '440725886': [-9,0,9],
+            '5714469': [-9,0,9],
+            '442571495': [-3,0,3],
+        }
+        if str(ticid) in list(id_yticks.keys()):
+            yticks = id_yticks[str(ticid)]
+            ax.set_yticks(yticks)
+            ax.set_yticklabels(yticks)
+        if str(ticid) == '300651846':
+            ax.set_ylim([-5,4])
+        if str(ticid) == '353730181':
+            ax.set_ylim([-7.5,7.5])
+        if str(ticid) == '402980664':
+            ax.set_ylim([-2.8, 2.5])
+        if str(ticid) == '335598085':
+            ax.set_ylim([-4.2, 4.2])
+        if str(ticid) == '302160226':
+            ax.set_ylim([-9,9])
+        if str(ticid) == '167664935':
+            ax.set_ylim([-13.5,13.5])
+        if str(ticid) == '234295610':
+            ax.set_ylim([-5.2,5.2])
+        if str(ticid) == '440725886':
+            ax.set_ylim([-12.5,12.5])
+        if str(ticid) == '5714469':
+            ax.set_ylim([-11,11])
+        if str(ticid) == '442571495':
+            ax.set_ylim([-5.5,5.5])
+
+        ax.tick_params(axis='both', which='major', labelsize='small')
+
+    for ax in axs[-4:]:
+        ax.set_xticklabels(['-0.5','0','0.5'])
+
+    fig.text(-0.01,0.5, r"Flux [%]", va='center', rotation=90, weight='bold',
+             fontsize='large')
+    fig.text(0.5,-0.01, r"Phase, φ", weight='bold', fontsize='large')
+
     # set naming options
-    s = ''
+    s = f'{subset_id}'
+
+    #fig.tight_layout()
 
     outpath = join(outdir, f'lc_mosaic_{s}.png')
     savefig(fig, outpath, dpi=400)
