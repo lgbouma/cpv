@@ -339,7 +339,11 @@ def main():
         #'50to60pc_mkdwarf',
         #'60to70pc_mkdwarf'
         #'70to85pc_mkdwarf',
-        '85to95pc_mkdwarf'
+        #'85to95pc_mkdwarf',
+        #'95to105pc_mkdwarf',
+        #'105to115pc_mkdwarf'
+        #'115to135pc_mkdwarf'
+        '115to150pc_mkdwarf'
     ]
 
     for sample_id in sample_ids:
