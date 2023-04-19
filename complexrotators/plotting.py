@@ -1745,10 +1745,10 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
 
     # instantiate plot
     plt.close('all')
-    set_style('clean')
+    set_style('science')
 
-    factor = 1
-    fig, axs = plt.subplots(nrows=5, ncols=5, figsize=(factor*6,factor*8.5),
+    factor = 0.8
+    fig, axs = plt.subplots(nrows=5, ncols=5, figsize=(factor*6,factor*7),
                             sharex=True, constrained_layout=True)
     axs = axs.flatten()
 
@@ -1812,7 +1812,7 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
         ylim = get_ylimguess(1e2*(bd['binnedmags']-np.nanmean(bd['binnedmags'])))
 
         if showtitles:
-            titlestr = f'{ticid}, s{sector}, {d["period"]*24:.1f}h'
+            titlestr = f'{ticid}'
         else:
             titlestr = None
 
@@ -1835,7 +1835,7 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
                     0.05,
                     txt,
                     transform=tform, ha='right', va='bottom', color='k',
-                    fontsize='large', bbox=props)
+                    fontsize='small', bbox=props)
 
         ax.set_xticks([-0.5,0,0.5])
 
@@ -1860,6 +1860,8 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
             '440725886': [-9,0,9],
             '5714469': [-9,0,9],
             '442571495': [-3,0,3],
+            '402980664': [-4,0,2],
+            '141146667': [-7,0,7]
         }
         if str(ticid) in list(id_yticks.keys()):
             yticks = id_yticks[str(ticid)]
@@ -1876,32 +1878,37 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
         if str(ticid) == '302160226':
             ax.set_ylim([-9,9])
         if str(ticid) == '167664935':
-            ax.set_ylim([-13.5,13.5])
+            ax.set_ylim([-17,17])
         if str(ticid) == '234295610':
-            ax.set_ylim([-5.2,5.2])
+            ax.set_ylim([-5.5,4.5])
         if str(ticid) == '440725886':
             ax.set_ylim([-12.5,12.5])
         if str(ticid) == '5714469':
             ax.set_ylim([-11,11])
         if str(ticid) == '442571495':
             ax.set_ylim([-5.5,5.5])
+        if str(ticid) == '141146667':
+            ax.set_ylim([-11, 11])
 
         ax.tick_params(axis='both', which='major', labelsize='small')
 
     for ax in axs[-4:]:
         ax.set_xticklabels(['-0.5','0','0.5'])
 
+    if subset_id == 'dlt150_good_1':
+        axs[-1].set_axis_off()
+
     fig.text(-0.02,0.5, r"Flux [%]", va='center', rotation=90, weight='bold',
-             fontsize='xx-large')
-    fig.text(0.5,-0.02, r"Phase, φ", weight='bold', fontsize='xx-large')
+             fontsize='x-large')
+    fig.text(0.5,-0.015, r"Phase, φ", weight='bold', fontsize='x-large')
 
     # set naming options
     s = f'{subset_id}'
     if showtitles:
         s += '_showtitles'
 
+    if subset_id == 'dlt150_good_0':
+        fig.tight_layout(h_pad=0.1, w_pad=0.)
+
     outpath = join(outdir, f'lc_mosaic_{s}.png')
     savefig(fig, outpath, dpi=400)
-
-
-
