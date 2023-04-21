@@ -310,7 +310,7 @@ def plot_phase(
     manual_period=None,
     t0='binmin',
     ylim=None,
-    binsize_minutes=10,
+    binsize_phase=0.005,
     xlim=[-0.6,0.6],
     t0_offset=None
     ):
@@ -366,10 +366,11 @@ def plot_phase(
         print(42*'-')
         print(t0, period)
 
+        plt.close("all")
         plot_phased_light_curve(
             d['times'], d['fluxs'], t0, period, outpath,
-            titlestr=titlestr, ylim=ylim, binsize_minutes=binsize_minutes,
-            xlim=xlim
+            titlestr=titlestr, ylim=ylim, binsize_phase=binsize_phase,
+            xlim=xlim, savethefigure=1
         )
 
 
@@ -380,7 +381,7 @@ def plot_phase_timegroups(
     manual_period=None,
     t0='binmin',
     ylim=None,
-    binsize_minutes=10,
+    binsize_phase=0.005,
     xlim=[-0.6,0.6],
     yoffset=5,
     showtitle=1,
@@ -472,7 +473,7 @@ def plot_phase_timegroups(
         plot_phased_light_curve(
             gtime, gflux, plot_t0, plot_period, None,
             fig=fig, ax=ax,
-            titlestr=None, binsize_minutes=binsize_minutes,
+            titlestr=None, binsize_phase=binsize_phase,
             xlim=xlim, yoffset=ix, showtext=txt, savethefigure=False,
             dy=yoffset
         )
@@ -550,7 +551,7 @@ def plot_phased_light_curve(
     ):
     """
     Non-obvious args:
-        binsize_minutes (float): binsize in units of minutes.
+        binsize_phase (float): binsize in units of phase.
         BINMS (float): markersize for binned points.
         c0 (str): color of non-binned points.
         alpha0 (float): alpha for non-binned points.
@@ -700,6 +701,7 @@ def plot_phased_light_curve(
         fig.tight_layout()
 
     if savethefigure:
+        ax.spines[['right', 'top']].set_visible(False)
         savefig(fig, outpath, dpi=350)
         plt.close('all')
     else:
@@ -995,7 +997,7 @@ def plot_cpvvetter(
     starid,
     periodsearch_result=None,
     findpeaks_result=None,
-    binsize_minutes=10
+    binsize_phase=0.005
     ):
     # TODO: add BANYAN-SIGMA panel!
 
@@ -1072,7 +1074,7 @@ def plot_cpvvetter(
     ylim = get_ylimguess(1e2*(bd['binnedmags']-np.nanmean(bd['binnedmags'])))
     plot_phased_light_curve(
         d['times'], d['fluxs'], d['t0'], d['period'], None, ylim=ylim,
-        xlim=[-0.6,0.6], binsize_minutes=2, BINMS=2, titlestr=None,
+        xlim=[-0.6,0.6], binsize_phase=0.005, BINMS=2, titlestr=None,
         showtext=True, showtitle=False, figsize=None, c0='darkgray',
         alpha0=0.3, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
         fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
@@ -1085,7 +1087,7 @@ def plot_cpvvetter(
     ax = axd['G']
     plot_phased_light_curve(
         d['times'], d['fluxs'], d['t0'], 2*d['period'], None, ylim=ylim,
-        xlim=[-0.6,0.6], binsize_minutes=2, BINMS=2, titlestr=None,
+        xlim=[-0.6,0.6], binsize_phase=0.005, BINMS=2, titlestr=None,
         showtext=False, showtitle=False, figsize=None, c0='darkgray',
         alpha0=0.3, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
         fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
@@ -1098,7 +1100,7 @@ def plot_cpvvetter(
     ax = axd['I']
     plot_phased_light_curve(
         d['times'], d['fluxs'], d['t0'], 0.5*d['period'], None, ylim=ylim,
-        xlim=[-0.6,0.6], binsize_minutes=2, BINMS=2, titlestr=None,
+        xlim=[-0.6,0.6], binsize_phase=0.005, BINMS=2, titlestr=None,
         showtext=False, showtitle=False, figsize=None, c0='darkgray',
         alpha0=0.3, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
         fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
@@ -1141,7 +1143,7 @@ def plot_cpvvetter(
     plot_phased_light_curve(
         d['times'][sel_bgv], nbgv[sel_bgv], d['t0'], d['period'], None,
         ylim=ylim,
-        xlim=[-0.6,0.6], binsize_minutes=10, BINMS=2, titlestr=None,
+        xlim=[-0.6,0.6], binsize_phase=0.01, BINMS=2, titlestr=None,
         showtext=False, showtitle=False, figsize=None, c0='darkgray',
         alpha0=0.3, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
         fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
@@ -1157,7 +1159,7 @@ def plot_cpvvetter(
     if np.any(np.isfinite(xc)):
         plot_phased_light_curve(
             d['times'], xc, d['t0'], d['period'], None, ylim=None,
-            xlim=[-0.6,0.6], binsize_minutes=10, BINMS=2, titlestr=None,
+            xlim=[-0.6,0.6], binsize_phase=0.01, BINMS=2, titlestr=None,
             showtext=False, showtitle=False, figsize=None, c0='C0',
             alpha0=0.2, c1='C0', alpha1=1, phasewrap=True, plotnotscatter=False,
             fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
@@ -1169,7 +1171,7 @@ def plot_cpvvetter(
     if np.any(np.isfinite(yc)):
         plot_phased_light_curve(
             d['times'], yc, d['t0'], d['period'], None, ylim=None,
-            xlim=[-0.6,0.6], binsize_minutes=10, BINMS=2, titlestr=None,
+            xlim=[-0.6,0.6], binsize_phase=0.01, BINMS=2, titlestr=None,
             showtext=False, showtitle=False, figsize=None, c0='C1',
             alpha0=0.2, c1='C1', alpha1=1, phasewrap=True, plotnotscatter=False,
             fig=None, ax=ax, savethefigure=False, findpeaks_result=None,

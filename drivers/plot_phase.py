@@ -13,7 +13,8 @@ def main():
         #"146539195"
         #"402980664" # ID-0
         #"300651846" # northern CVZ
-        "405910546" # long period
+        #"405910546" # long period
+        "125843782" # tomjacobs
     ]
 
     for ticid in ticids:
@@ -26,7 +27,7 @@ def main():
             ticid=f'TIC_{ticid}',
             lc_cadences='2min',
             ylim=None,
-            binsize_minutes=5,
+            binsize_phase=0.005,
             #manual_period=(8.255/24)
         )
 
