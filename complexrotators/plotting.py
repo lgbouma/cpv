@@ -1715,11 +1715,13 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
     """
     this plotter only works on phtess3 or analogous
     """
-
     # get ticids and sector
-    if 'dlt150_good' in subset_id:
+    if subset_id in ['dlt150_good_0', 'dlt150_good_1']:
         csvpath = join(DATADIR, 'targetlists',
                        '20230411_good_CPV_ticids_d_lt_150pc_sectorpref.csv')
+    elif subset_id in ['dlt150_good_changers']:
+        csvpath = join(DATADIR, 'targetlists',
+                       '20230411_good_CPV_ticids_d_lt_150pc_sectorpref_CHANGERS.csv')
 
     df = pd.read_csv(csvpath, comment='#')
     sel = ~(df.comment.str.contains("OMIT") == True)
@@ -1729,6 +1731,8 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
         df = df[:25]
     elif subset_id == 'dlt150_good_1':
         df = df[25:]
+    elif subset_id == 'dlt150_good_changers':
+        assert len(df) == 20
     else:
         raise NotImplementedError
 
@@ -1750,8 +1754,12 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
     set_style('science')
 
     factor = 0.8
-    fig, axs = plt.subplots(nrows=5, ncols=5, figsize=(factor*6,factor*7),
-                            sharex=True, constrained_layout=True)
+    if subset_id in ['dlt150_good_0', 'dlt150_good_1']:
+        fig, axs = plt.subplots(nrows=5, ncols=5, figsize=(factor*6,factor*7),
+                                sharex=True, constrained_layout=True)
+    elif subset_id in ['dlt150_good_changers']:
+        fig, axs = plt.subplots(nrows=4, ncols=5, figsize=(factor*6,0.82*factor*7),
+                                sharex=True, constrained_layout=True)
     axs = axs.flatten()
 
     for ticid, sector, ax in zip(df.ticid, df.sector, axs):
@@ -1807,8 +1815,13 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
             x_obs, y_flat, starid, cachedir, t0='binmin', periodogram_method='pdm'
         )
 
-        if str(ticid) in ['177309964', '335598085']:
-            d['period'] *= 0.5
+        if str(ticid) in ['177309964', '335598085', '234295610']:
+            if str(ticid) == '335598085':
+                d['period'] *= 0.5
+            if str(ticid) == '177309964' and int(sector) == 11:
+                d['period'] *= 0.5
+            if str(ticid) == '234295610' and int(sector) == 28:
+                d['period'] *= 0.5
 
         bd = time_bin_magseries(d['times'], d['fluxs'], binsize=1200, minbinelems=1)
         ylim = get_ylimguess(1e2*(bd['binnedmags']-np.nanmean(bd['binnedmags'])))
@@ -1847,6 +1860,10 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
             yhighabs = np.abs(yhigh)
             ylow = -np.min([ylowabs, yhighabs])
             yhigh = np.min([ylowabs, yhighabs])
+            if ylow == yhigh == 0:
+                # 368129164 led to this
+                ylow = -1
+                yhigh = 1
 
         ax.set_yticks([ylow, 0, yhigh])
         ax.set_yticklabels([ylow, 0, yhigh])
@@ -1892,6 +1909,34 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
         if str(ticid) == '141146667':
             ax.set_ylim([-11, 11])
 
+        if subset_id == 'dlt150_good_changers':
+            if str(ticid) == '404144841':
+                ax.set_ylim([-8,7.5])
+                ylow, yhigh = -6, 6
+            if str(ticid) == '201789285':
+                ax.set_ylim([-9.2,9.2])
+                ylow, yhigh = -7, 7
+            if str(ticid) == '206544316':
+                ax.set_ylim([-8,7])
+                ylow, yhigh = -6, 6
+            if str(ticid) == '234295610':
+                ax.set_ylim([-5.2,4.2])
+                ylow, yhigh = -4, 4
+            if str(ticid) == '224283342':
+                ax.set_ylim([-5.5,4])
+                ylow, yhigh = -3, 3
+            if str(ticid) == '177309964':
+                ax.set_ylim([-8,8])
+                ylow, yhigh = -6, 6
+            if str(ticid) == '2234692':
+                ax.set_ylim([-7,7])
+                ylow, yhigh = -5, 5
+            if str(ticid) == '146539195':
+                ax.set_ylim([-6.5,5])
+                ylow, yhigh = -4, 4
+            ax.set_yticks([ylow, 0, yhigh])
+            ax.set_yticklabels([ylow, 0, yhigh])
+
         ax.tick_params(axis='both', which='major', labelsize='small')
 
     for ax in axs[-4:]:
@@ -1900,17 +1945,16 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
     if subset_id == 'dlt150_good_1':
         axs[-1].set_axis_off()
 
-    fig.text(-0.02,0.5, r"Flux [%]", va='center', rotation=90, weight='bold',
-             fontsize='x-large')
-    fig.text(0.5,-0.015, r"Phase, φ", weight='bold', fontsize='x-large')
+    fig.text(-0.02,0.5, r"Flux [%]", va='center', rotation=90,
+             fontsize='large')
+    fig.text(0.5,-0.01, r"Phase, φ", fontsize='large')
 
     # set naming options
     s = f'{subset_id}'
     if showtitles:
         s += '_showtitles'
 
-    if subset_id == 'dlt150_good_0':
-        fig.tight_layout(h_pad=0.1, w_pad=0.)
+    fig.tight_layout(h_pad=0.2, w_pad=0.)
 
     outpath = join(outdir, f'lc_mosaic_{s}.png')
     savefig(fig, outpath, dpi=400)
