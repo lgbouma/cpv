@@ -1716,7 +1716,7 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
     this plotter only works on phtess3 or analogous
     """
     # get ticids and sector
-    if subset_id in ['dlt150_good_0', 'dlt150_good_1']:
+    if subset_id in ['dlt150_good_0', 'dlt150_good_1', 'dlt150_good_all']:
         csvpath = join(DATADIR, 'targetlists',
                        '20230411_good_CPV_ticids_d_lt_150pc_sectorpref.csv')
     elif subset_id in ['dlt150_good_changers']:
@@ -1733,6 +1733,8 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
         df = df[25:]
     elif subset_id == 'dlt150_good_changers':
         assert len(df) == 20
+    elif subset_id == 'dlt150_good_all':
+        pass
     else:
         raise NotImplementedError
 
@@ -1759,6 +1761,9 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
                                 sharex=True, constrained_layout=True)
     elif subset_id in ['dlt150_good_changers']:
         fig, axs = plt.subplots(nrows=4, ncols=5, figsize=(factor*6,0.82*factor*7),
+                                sharex=True, constrained_layout=True)
+    elif subset_id in ['dlt150_good_all']:
+        fig, axs = plt.subplots(nrows=7, ncols=7, figsize=(factor*6,factor*7),
                                 sharex=True, constrained_layout=True)
     axs = axs.flatten()
 
@@ -1846,11 +1851,16 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
             tform = ax.transAxes
             props = dict(boxstyle='square', facecolor='white', alpha=0.7, pad=0.15,
                          linewidth=0)
+            if subset_id in ['dlt150_good_0', 'dlt150_good_1', 'dlt150_good_changers']:
+                fontsize = 'small'
+            else:
+                fontsize = 'x-small'
+
             ax.text(0.97,
                     0.05,
                     txt,
                     transform=tform, ha='right', va='bottom', color='k',
-                    fontsize='small', bbox=props)
+                    fontsize=fontsize, bbox=props)
 
         ax.set_xticks([-0.5,0,0.5])
 
@@ -1864,6 +1874,9 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
                 # 368129164 led to this
                 ylow = -1
                 yhigh = 1
+            if yhigh >= 10:
+                ylow = -9
+                yhigh = 9
 
         ax.set_yticks([ylow, 0, yhigh])
         ax.set_yticklabels([ylow, 0, yhigh])
@@ -1937,7 +1950,11 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
             ax.set_yticks([ylow, 0, yhigh])
             ax.set_yticklabels([ylow, 0, yhigh])
 
-        ax.tick_params(axis='both', which='major', labelsize='small')
+        if subset_id in ['dlt150_good_0', 'dlt150_good_1', 'dlt150_good_changers']:
+            labelsize = 'small'
+        else:
+            labelsize = 'x-small'
+        ax.tick_params(axis='both', which='major', labelsize=labelsize)
 
     for ax in axs[-4:]:
         ax.set_xticklabels(['-0.5','0','0.5'])
