@@ -6,7 +6,6 @@ PLOTDIR = os.path.join(RESULTSDIR, 'lc_mosaic')
 if not os.path.exists(PLOTDIR):
     os.mkdir(PLOTDIR)
 
-
 rp.plot_lc_mosaic(PLOTDIR, subset_id='dlt150_good_all')
 rp.plot_lc_mosaic(PLOTDIR, subset_id='dlt150_good_all', showtitles=1)
 rp.plot_lc_mosaic(PLOTDIR, subset_id='dlt150_good_changers')

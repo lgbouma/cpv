@@ -547,7 +547,7 @@ def plot_phased_light_curve(
     c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
     fig=None, ax=None, savethefigure=True,
     findpeaks_result=None, ylabel=None, showxticklabels=True,
-    yoffset=0, dy=5, normfunc=True
+    yoffset=0, dy=5, normfunc=True, xtxtoffset=0
     ):
     """
     Non-obvious args:
@@ -644,12 +644,12 @@ def plot_phased_light_curve(
                          linewidth=0)
             sel = (orb_bd['binnedphases'] > 0.4) & (orb_bd['binnedphases'] < 0.5)
             if len(orb_bd['binnedmags'][sel]) > 0:
-                ax.text(0.97,
+                ax.text(0.97+xtxtoffset,
                         np.nanmin(norm(orb_bd['binnedmags'][sel])-dy/5), txt,
                         transform=tform, ha='right',va='top', color='k',
                         fontsize=fontsize, bbox=props)
             else:
-                ax.text(0.97,
+                ax.text(0.97+xtxtoffset,
                         np.nanmin(norm(orb_bd['binnedmags'])-dy/5), txt,
                         transform=ax.transAxes, ha='right',va='top', color='k',
                         fontsize=fontsize, bbox=props)
@@ -1974,4 +1974,102 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
     fig.tight_layout(h_pad=0.2, w_pad=0.)
 
     outpath = join(outdir, f'lc_mosaic_{s}.png')
+    savefig(fig, outpath, dpi=400)
+
+
+def plot_cadence_comparison(outdir, ticid: str = None, sector: int = None):
+
+    assert isinstance(ticid, str)
+    assert isinstance(sector, int)
+
+    # get data
+    lc_cadences = '2min'
+    lclist = _get_cpv_lclist(lc_cadences, "TIC "+ticid)
+
+    if len(lclist) == 0:
+        print(f'WRN! Did not find light curves for {ticid}. Escaping.')
+        return 0
+
+    # for each light curve (sector / cadence specific), detrend if needed, get
+    # the best period, and then phase-fold.
+    d = None
+
+    for lc in lclist:
+
+        if lc.sector != sector:
+            continue
+
+        (time, flux, qual, x_obs, y_obs, y_flat,
+         y_trend, x_trend, cadence_sec, sector,
+         starid) = prepare_given_lightkurve_lc(lc, ticid, outdir)
+
+        # get t0, period, lsp
+        d = cpv_periodsearch(x_obs, y_flat, starid, outdir, t0='binmin')
+
+    if d is None:
+        print(f'WRN! Missed LC for {ticid}, SECTOR {sector}. Escaping.')
+        return 0
+
+    bd_1800 = time_bin_magseries(
+        x_obs, y_obs,
+        binsize=1800, minbinelems=1
+    )
+    bd_600 = time_bin_magseries(
+        x_obs, y_obs,
+        binsize=600, minbinelems=1
+    )
+    #bd_1800 = phase_bin_magseries(
+    #    bd_1800['binnedtimes'], bd_1800['binnedmags'],
+    #    binsize=0.005, minbinelems=1
+    #)
+    #bd_600 = phase_bin_magseries(
+    #    bd_600['binnedtimes'], bd_600['binnedmags'],
+    #    binsize=0.005, minbinelems=1
+    #)
+    #bd_120 = phase_bin_magseries(
+    #    d['times'], d['fluxs'],
+    #    binsize=0.005, minbinelems=1
+    #)
+
+    # make plot
+    plt.close('all')
+    set_style("clean")
+
+    fig, ax = plt.subplots(figsize=(2,2))
+
+    plot_t0 = d['t0']
+    plot_period = d['period']
+
+    plot_phased_light_curve(
+        bd_1800['binnedtimes'], bd_1800['binnedmags'], plot_t0, plot_period, None,
+        fig=fig, ax=ax,
+        binsize_phase=0.01, xlim=[-0.6,0.6], yoffset=20, showtext='1800 sec',
+        savethefigure=False, dy=-5, xtxtoffset=-0.24
+    )
+    plot_phased_light_curve(
+        bd_600['binnedtimes'], bd_600['binnedmags'], plot_t0, plot_period, None,
+        fig=fig, ax=ax,
+        binsize_phase=0.01, xlim=[-0.6,0.6], yoffset=10, showtext='600 sec',
+        savethefigure=False, dy=-5, xtxtoffset=-0.24
+    )
+    plot_phased_light_curve(
+        x_obs, y_obs, plot_t0, plot_period, None,
+        fig=fig, ax=ax,
+        binsize_phase=0.01, xlim=[-0.6,0.6], yoffset=0, showtext='120 sec',
+        savethefigure=False, dy=-5, xtxtoffset=-0.24
+    )
+    ax.set_xlabel('Phase, φ')
+    ax.set_ylabel('Flux [%]')
+    ax.set_ylim([-9,28])
+
+    ax.set_yticks([-5, 5, 15, 25])
+    ax.set_yticklabels([-5, 5, 15, 25])
+
+    ax.set_xticks([-0.5, 0, 0.5])
+    ax.set_xticklabels([-0.5, 0, 0.5])
+
+    # set naming options
+    s = f'{ticid}_S{sector}'
+
+    outpath = join(outdir, f'cadence_comparison_{s}.png')
     savefig(fig, outpath, dpi=400)
