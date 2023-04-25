@@ -227,6 +227,12 @@ def remove_quasiperiodic_signal(
     resid_bd_nsnw = phase_bin_magseries(x_nsnw, y_resid_nsnw, binsize=bs_days, minbinelems=3)
     resid_bd_sw = phase_bin_magseries(x_sw, y_resid_sw, binsize=bs_days, minbinelems=3)
 
+    # estimate noise in the residual
+    tb_nsnw = time_bin_magseries(time, y_resid_nsnw, binsize=3600)
+    def mad(x):
+        return np.nanmedian( np.abs(x - np.nanmean(x)) )
+    mad_resid_1hr = mad(tb_nsnw['binnedmags'])
+
     x_resid_sw_b = resid_bd_sw['binnedphases']
     y_resid_sw_b = resid_bd_sw['binnedmags']
 
@@ -241,6 +247,7 @@ def remove_quasiperiodic_signal(
 
     out_dict = {
         'best_interp_key': best_interp_key,
+        'mad_resid_1hr': mad_resid_1hr
         'fn': fn,
         'time': time, # input time
         'flux': flux, # input flux
