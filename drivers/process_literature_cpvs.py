@@ -1,6 +1,9 @@
 """
-Get all known CPVs.  Specifically, get their TICIDs.  Then write to a file.
+Get all known CPVs from Stauffer+2017, Stauffer+2018, Stauffer+2021, and
+Zhan+2019/Gunther+2022.  Specifically, get their TICIDs.  Then write to a file.
 (with original_identifier, alternative_identifier, and ticid columns)
+
+Note: this approach omits PTFO 8-8695.  :-(
 """
 import numpy as np, pandas as pd
 import os
@@ -176,7 +179,7 @@ def main():
 
     # calculate distances
     s_s17_df_gkt['distance_pc'] = 1/ ( s_s17_df_gkt.parallax * 1e-3)
-    s18_df_gk['distance_pc'] = 1/ ( s18_df_gkt.parallax * 1e-3)
+    s18_df_gkt['distance_pc'] = 1/ ( s18_df_gkt.parallax * 1e-3)
     s21_df['distance_pc'] = 1/ ( s21_df.plx * 1e-3)
     g22_df['distance_pc'] = g22_df['distance_pc']
 
@@ -185,8 +188,6 @@ def main():
     s18_df_gkt = append_tessmag_given_df_with_ticid(s18_df_gkt)
     s21_df = append_tessmag_given_df_with_ticid(s21_df)
     g22_df = append_tessmag_given_df_with_ticid(g22_df)
-
-    selcols = 'ticid,distance_pc,TESSMAG'.split(',')
 
     outdir = join(DATADIR, 'interim')
     outpath = join(outdir, "Stauffer2017_k2_class1class2_supplemented.csv")
