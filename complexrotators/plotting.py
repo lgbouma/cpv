@@ -1732,7 +1732,7 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
     elif subset_id == 'dlt150_good_1':
         df = df[25:]
     elif subset_id == 'dlt150_good_changers':
-        assert len(df) == 20
+        assert len(df) == 12
     elif subset_id == 'dlt150_good_all':
         pass
     else:
@@ -1760,13 +1760,14 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
         fig, axs = plt.subplots(nrows=5, ncols=5, figsize=(factor*6,factor*7),
                                 sharex=True, constrained_layout=True)
     elif subset_id in ['dlt150_good_changers']:
-        fig, axs = plt.subplots(nrows=4, ncols=5, figsize=(factor*6,0.82*factor*7),
+        fig, axs = plt.subplots(nrows=2, ncols=6, figsize=(factor*6,(2.5/7)*factor*7),
                                 sharex=True, constrained_layout=True)
     elif subset_id in ['dlt150_good_all']:
         fig, axs = plt.subplots(nrows=7, ncols=7, figsize=(factor*6,factor*7),
                                 sharex=True, constrained_layout=True)
     axs = axs.flatten()
 
+    ix = 0
     for ticid, sector, ax in zip(df.ticid, df.sector, axs):
 
         lcdir = f'/nfs/phtess2/ar0/TESS/SPOCLC/sector-{sector}'
@@ -1851,16 +1852,22 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
             tform = ax.transAxes
             props = dict(boxstyle='square', facecolor='white', alpha=0.7, pad=0.15,
                          linewidth=0)
-            if subset_id in ['dlt150_good_0', 'dlt150_good_1', 'dlt150_good_changers']:
+            if subset_id in ['dlt150_good_0', 'dlt150_good_1']:
                 fontsize = 'small'
             else:
                 fontsize = 'x-small'
 
-            ax.text(0.97,
-                    0.05,
-                    txt,
-                    transform=tform, ha='right', va='bottom', color='k',
-                    fontsize=fontsize, bbox=props)
+            if subset_id == 'dlt150_good_changers':
+                if ix >= 6:
+                    ax.text(
+                        0.97, 0.05, txt, transform=tform, ha='right',
+                        va='bottom', color='k', fontsize=fontsize, bbox=props
+                    )
+            else:
+                ax.text(
+                    0.97, 0.05, txt, transform=tform, ha='right',
+                    va='bottom', color='k', fontsize=fontsize, bbox=props
+                )
 
         ax.set_xticks([-0.5,0,0.5])
 
@@ -1939,7 +1946,7 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
                 ax.set_ylim([-5.5,4])
                 ylow, yhigh = -3, 3
             if str(ticid) == '177309964':
-                ax.set_ylim([-8,8])
+                ax.set_ylim([-10,10])
                 ylow, yhigh = -6, 6
             if str(ticid) == '2234692':
                 ax.set_ylim([-7,7])
@@ -1950,11 +1957,13 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
             ax.set_yticks([ylow, 0, yhigh])
             ax.set_yticklabels([ylow, 0, yhigh])
 
-        if subset_id in ['dlt150_good_0', 'dlt150_good_1', 'dlt150_good_changers']:
+        if subset_id in ['dlt150_good_0', 'dlt150_good_1']:
             labelsize = 'small'
         else:
             labelsize = 'x-small'
         ax.tick_params(axis='both', which='major', labelsize=labelsize)
+
+        ix += 1
 
     for ax in axs[-4:]:
         ax.set_xticklabels(['-0.5','0','0.5'])
@@ -1962,9 +1971,13 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
     if subset_id == 'dlt150_good_1':
         axs[-1].set_axis_off()
 
-    fig.text(-0.02,0.5, r"Flux [%]", va='center', rotation=90,
-             fontsize='large')
-    fig.text(0.5,-0.01, r"Phase, φ", fontsize='large')
+    if subset_id in ['dlt150_good_0', 'dlt150_good_1']:
+        fs = 'large'
+    else:
+        fs = 'medium'
+
+    fig.text(-0.02,0.5, r"Flux [%]", va='center', rotation=90, fontsize=fs)
+    fig.text(0.5,-0.01, r"Phase, φ", fontsize=fs)
 
     # set naming options
     s = f'{subset_id}'
