@@ -247,7 +247,7 @@ def remove_quasiperiodic_signal(
 
     out_dict = {
         'best_interp_key': best_interp_key,
-        'mad_resid_1hr': mad_resid_1hr
+        'mad_resid_1hr': mad_resid_1hr,
         'fn': fn,
         'time': time, # input time
         'flux': flux, # input flux

@@ -1623,13 +1623,21 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     plt.close('all')
     set_style('clean')
 
-    fig = plt.figure(figsize=(5,3), layout='constrained')
+    fig = plt.figure(figsize=(6,2.4), layout='constrained')
     axd = fig.subplot_mosaic(
+        #"""
+        #AABBEE
+        #AABBEE
+        #CCCCCC
+        #DDDDDD
+        #"""
         """
-        AABBEE
-        AABBEE
-        CCCCCC
-        DDDDDD
+        AACCCCCC
+        AACCCCCC
+        BBCCCCCC
+        BBDDDDDD
+        EEDDDDDD
+        EEDDDDDD
         """
     )
 
@@ -1641,7 +1649,9 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     ax.plot(ns.x_w_model, n(ns.y_w_model), lw=0.5, zorder=2, c='C0')
     ylim = get_ylimguess(n(ns.y_sw_b))
     ax.set_ylim(ylim)
-    ax.update({'xlabel': 'φ', 'ylabel': 'Flux [%]', 'xlim':[-0.6,0.6]})
+    ax.update({#'xlabel': 'φ',
+               'ylabel': 'Flux [%]', 'xlim':[-0.6,0.6]})
+    ax.set_xticklabels([])
 
     ax = axd['B']
     ax.scatter(ns.x_sw, n(ns.y_resid_sw), zorder=1, s=0.2, c='lightgray',
@@ -1649,10 +1659,12 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     ax.scatter(ns.x_resid_sw_b, n(ns.y_resid_sw_b), zorder=3, s=1, c='k',
                linewidths=0)
     ax.plot(ns.x_w_model, n(ns.y_w_model-ns.y_w_model), lw=0.5, zorder=2, c='C0')
-    factor = 10
+    factor = 15
     ylim = factor*np.array(get_ylimguess(n(ns.y_resid_sw_b)))
     ax.set_ylim(ylim)
-    ax.update({'xlabel': 'φ', 'ylabel': 'Resid [%]', 'xlim':[-0.6,0.6]})
+    ax.update({#'xlabel': 'φ',
+               'ylabel': 'Resid [%]', 'xlim':[-0.6,0.6]})
+    ax.set_xticklabels([])
 
     ax = axd['E']
     cmap = mpl.colormaps['Spectral']
@@ -1687,7 +1699,7 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     ax = axd['D']
     ax.scatter(ns.time, n(ns.y_resid_nsnw), s=0.2, marker='o', c='k', linewidths=0)
     ax.set_ylim(ylim_resid)
-    ax.update({'xlabel': 'TJD', 'ylabel': 'Resid [%]'})
+    ax.update({'xlabel': 'TJD [days]', 'ylabel': 'Resid [%]'})
 
     fig.tight_layout(h_pad=0)
 
@@ -1697,8 +1709,22 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
                     s=1, c=cycle*np.ones(len(_bd['binnedmags'])),
                     linewidths=0, cmap=cmap, alpha=1,
                     vmin=min_cycle, vmax=max_cycle, rasterized=True)
-    axins1 = inset_axes(ax, width="25%", height="3%", loc='upper right',
-                        borderpad=1.2)
+
+    #axins1 = inset_axes(ax, width="25%", height="3%", loc='upper right',
+    #                    borderpad=1.2)
+
+    #x0,y0,dx,dy = 0.7, 1.0, 0.3, 0.05
+    #axins1 = inset_axes(ax, width="100%", height="100%",
+    #                    bbox_to_anchor=(x0,y0,dx,dy),
+    #                    loc='lower left',
+    #                    bbox_transform=ax.transAxes)
+    x0,y0,dx,dy = 0.03, 0.2, 0.3, 0.05
+    axins1 = inset_axes(ax, width="100%", height="100%",
+                        bbox_to_anchor=(x0,y0,dx,dy),
+                        loc='lower left',
+                        bbox_transform=ax.transAxes)
+
+
     cb = fig.colorbar(_p, cax=axins1, orientation="horizontal",
                       extend="neither")
     cb.set_ticks([min_cycle, max_cycle])
