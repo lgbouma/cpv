@@ -1789,7 +1789,7 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
         fig, axs = plt.subplots(nrows=2, ncols=6, figsize=(factor*6,(2.5/7)*factor*7),
                                 sharex=True, constrained_layout=True)
     elif subset_id in ['dlt150_good_all']:
-        fig, axs = plt.subplots(nrows=7, ncols=7, figsize=(factor*6,factor*7),
+        fig, axs = plt.subplots(nrows=5, ncols=8, figsize=(factor*6,(4.5/7)*factor*7),
                                 sharex=True, constrained_layout=True)
     axs = axs.flatten()
 
@@ -1880,6 +1880,8 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
                          linewidth=0)
             if subset_id in ['dlt150_good_0', 'dlt150_good_1']:
                 fontsize = 'small'
+            elif subset_id == 'dlt150_good_all':
+                fontsize = 'xx-small'
             else:
                 fontsize = 'x-small'
 
@@ -1985,6 +1987,8 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
 
         if subset_id in ['dlt150_good_0', 'dlt150_good_1']:
             labelsize = 'small'
+        elif subset_id == 'dlt150_good_all':
+            labelsize = 'xx-small'
         else:
             labelsize = 'x-small'
         ax.tick_params(axis='both', which='major', labelsize=labelsize)
