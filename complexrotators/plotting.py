@@ -17,6 +17,7 @@ Contents:
     | plot_quasiperiodic_removal_diagnostic
 
     | plot_lc_mosaic
+    | plot_phase_timegroups_mosaic
 """
 
 #######################################
@@ -79,6 +80,11 @@ import matplotlib.patheffects as pe
 from matplotlib.ticker import MaxNLocator
 from matplotlib.transforms import blended_transform_factory
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+
+from matplotlib.ticker import (
+    MultipleLocator, FormatStrFormatter, AutoMinorLocator
+)
+
 
 from scipy.ndimage import gaussian_filter1d
 
@@ -414,7 +420,11 @@ def plot_phase_timegroups(
          starid) = prepare_given_lightkurve_lc(lc, ticid, outdir)
 
         # get t0, period, lsp
-        d = cpv_periodsearch(x_obs, y_flat, starid, outdir, t0=t0)
+        if not isinstance(t0, float) and isinstance(manual_period, float):
+            d = cpv_periodsearch(x_obs, y_flat, starid, outdir, t0=t0)
+        else:
+            d = {'times': x_obs, 'fluxs': y_flat,
+                 't0': t0, 'period': manual_period}
 
         _t0 = d['t0']
         if isinstance(t0, float):
@@ -502,6 +512,178 @@ def plot_phase_timegroups(
     savefig(fig, outpath, dpi=450)
 
 
+def plot_phase_timegroups_mosaic(
+    outdir,
+    ticid=None,
+    lc_cadences='2min',
+    manual_period=None,
+    t0='binmin',
+    ylim=None,
+    binsize_phase=0.005,
+    xlim=[-0.6,0.6],
+    yoffset=5,
+    showtitle=1,
+    figsize_y=7
+    ):
+    """
+    As in plot_phase
+    """
+
+    assert ticid == "TIC_402980664", 'currently only tic4029 b/c of mosaic logic'
+
+    lclist = _get_cpv_lclist(lc_cadences, ticid)
+
+    if len(lclist) == 0:
+        print(f'WRN! Did not find light curves for {ticid}. Escaping.')
+        return 0
+
+    # for each light curve (sector / cadence specific), detrend if needed, get
+    # the best period.
+    _times, _fluxs, _t0s, _periods, _titlestrs = [],[],[],[], []
+
+    for lc in lclist:
+
+        (time, flux, qual, x_obs, y_obs, y_flat,
+         y_trend, x_trend, cadence_sec, sector,
+         starid) = prepare_given_lightkurve_lc(lc, ticid, outdir)
+
+        # get t0, period, lsp
+        if not isinstance(t0, float) and isinstance(manual_period, float):
+            d = cpv_periodsearch(x_obs, y_flat, starid, outdir, t0=t0)
+        else:
+            d = {'times': x_obs, 'fluxs': y_flat,
+                 't0': t0, 'period': manual_period}
+
+        _t0 = d['t0']
+        if isinstance(t0, float):
+            _t0 = t0
+        period = d['period']
+        if isinstance(manual_period, float):
+            period = manual_period
+        titlestr = starid.replace('_',' ')
+
+        _times.append(d['times'])
+        _fluxs.append(d['fluxs'])
+        _t0s.append(_t0)
+        _periods.append(period)
+        _titlestrs.append(titlestr)
+
+    # merge lightcurve data, and split before making the plot.
+    times = np.hstack(_times)
+    fluxs = np.hstack(_fluxs)
+    t0s = np.hstack(_t0s)
+    periods = np.hstack(_periods)
+    titlestrs = np.hstack(_titlestrs)
+
+    from astrobase.lcmath import find_lc_timegroups
+    ngroups, groups = find_lc_timegroups(times, mingap=3/24)
+
+    # Make plots
+    plt.close('all')
+    set_style("science")
+    factor=0.8
+    factor=1.1
+    fig, axs = plt.subplots(
+        sharex=True, nrows=3, ncols=6,
+        figsize=(factor*5.2, factor*(3.5/7)*7),
+        constrained_layout=True
+    )
+    axs = axs.flatten()
+
+    plot_period = np.nanmean(_periods)
+    plot_t0 = t0s[0]
+    plot_period_std = np.nanstd(_periods)
+
+    ix = 0
+    for n, g in enumerate(groups):
+
+        ax = axs[ix]
+
+        cadence_sec = np.nanmedian(np.diff(times[g]))*24*60*60
+        cadence_day = cadence_sec/(60*60*24)
+        N_cycles_in_group = len(times[g]) * cadence_day / plot_period
+
+        gtime = times[g]
+        gflux = fluxs[g]
+
+        # t = t0 + P*e
+        e_start = int(np.floor((gtime[0] - plot_t0)/plot_period))
+        e_end = int(np.floor((gtime[-1] - plot_t0)/plot_period))
+        txt = f"{e_start}"+"$\,$-$\,$"+f"{e_end}"
+
+        if N_cycles_in_group <= 3:
+            continue
+        if len(gtime) < 100:
+            continue
+        #print(txt, N_cycles_in_group, len(gtime))
+
+        plot_phased_light_curve(
+            gtime, gflux, plot_t0, plot_period, None,
+            fig=fig, ax=ax,
+            binsize_phase=binsize_phase,
+            xlim=xlim,
+            #showtext=txt,
+            titlestr=txt,
+            titlepad=0.1,
+            showtext=False,
+            savethefigure=False,
+        )
+        if isinstance(ylim, (list, tuple)):
+            ax.set_ylim(ylim)
+
+        if ix not in [0, 6, 12]:
+            ax.set_yticklabels([])
+
+        #ax.hlines(2.5, -0.6666/2, 0.6666/2, colors='darkgray', alpha=1,
+        #          linestyles='-', zorder=-2, linewidths=1)
+
+        yticks = [-3,0,2]
+        ax.set_yticks(yticks)
+
+        #ax.yaxis.set_minor_locator(MultipleLocator(1))
+        ax.minorticks_off()
+
+        if ix in [0,6,12]:
+            ax.set_yticklabels(yticks, fontsize='small')
+
+        ix += 1
+
+    for ix in range(12,17):
+        axs[ix].set_xticks([-0.5, 0, 0.5])
+        axs[ix].set_xticklabels(['-0.5', '0', '0.5'], fontsize='small')
+    for ix in range(0,17):
+        axs[ix].set_xticks([-0.5, 0, 0.5])
+
+    if showtitle:
+        fig.text(
+            0.5, 1,
+            f"LP 12-502 "
+            f"(P={plot_period*24:.1f}h)",
+            ha='center',
+            va='center',
+        )
+
+    fig.text(-0.01,0.5, r"Flux [%]", va='center', rotation=90, fontsize='large')
+    fig.text(0.5,-0.01, r"Phase, φ", fontsize='large')
+
+    format_ax(ax)
+    fig.tight_layout()
+
+    outpath = join(outdir,
+                   f"{ticid}_P{plot_period*24:.4f}_{lc_cadences}_phase_timegroups_mosaic.png")
+    #fig.savefig(outpath, dpi=300)
+
+    fig.tight_layout(h_pad=0.2, w_pad=0.)
+
+    fig.savefig(outpath, bbox_inches='tight', dpi=450)
+    print(f"saved {outpath}")
+    fig.savefig(outpath.replace('.png','.pdf'), bbox_inches='tight', dpi=450)
+    print(f"saved {outpath.replace('.png','.pdf')}")
+
+
+
+
+
 def plot_quicklook_cr(x_obs, y_obs, x_trend, y_trend, x_flat, y_flat, outpath,
                       titlestr):
 
@@ -547,7 +729,7 @@ def plot_phased_light_curve(
     c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
     fig=None, ax=None, savethefigure=True,
     findpeaks_result=None, ylabel=None, showxticklabels=True,
-    yoffset=0, dy=5, normfunc=True, xtxtoffset=0
+    yoffset=0, dy=5, normfunc=True, xtxtoffset=0, titlepad=None
     ):
     """
     Non-obvious args:
@@ -668,10 +850,10 @@ def plot_phased_light_curve(
 
     if showtitle:
         txt = f'$t_0$ [BTJD]: {t0:.6f}. $P$: {period:.6f} d'
-        ax.set_title(txt, fontsize='small')
+        ax.set_title(txt, fontsize='small', pad=titlepad)
 
     if isinstance(titlestr,str):
-        ax.set_title(titlestr.replace("_"," "), fontsize='small')
+        ax.set_title(titlestr.replace("_"," "), fontsize='small', pad=titlepad)
 
     if savethefigure:
         ax.set_ylabel(r"Flux [%]")
@@ -1551,9 +1733,6 @@ def plot_spectrum_windows(outdir):
         #         ha='right',va='bottom', color='k',
         #         fontsize='x-small', bbox=props)
 
-        from matplotlib.ticker import (
-            MultipleLocator, FormatStrFormatter, AutoMinorLocator
-        )
         #if starname in ['Kepler-1627', 'KOI-7368']:
         #    ax0.yaxis.set_major_locator(MultipleLocator(0.2))
         #else:
@@ -1699,7 +1878,7 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     ax = axd['D']
     ax.scatter(ns.time, n(ns.y_resid_nsnw), s=0.2, marker='o', c='k', linewidths=0)
     ax.set_ylim(ylim_resid)
-    ax.update({'xlabel': 'TJD [days]', 'ylabel': 'Resid [%]'})
+    ax.update({'xlabel': 'TESS Julian Date [days]', 'ylabel': 'Resid [%]'})
 
     fig.tight_layout(h_pad=0)
 
@@ -1935,6 +2114,7 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
             '5714469': [-9,0,9],
             '442571495': [-3,0,3],
             '402980664': [-4,0,2],
+            'TIC_402980664': [-4,0],
             '141146667': [-7,0,7]
         }
         if str(ticid) in list(id_yticks.keys()):

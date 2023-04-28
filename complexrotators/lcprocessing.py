@@ -58,7 +58,7 @@ from copy import deepcopy
 nworkers = multiprocessing.cpu_count()
 
 def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
-                     periodogram_method="pdm"):
+                     periodogram_method="pdm", runperiodsearch=1):
     """
     Given time and flux, run a period-search for objects expected to be complex
     rotators.
@@ -126,7 +126,7 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
 
     LOGINFO(f'Beginning period search for {starid}')
 
-    if periodogram_method == 'ls':
+    if periodogram_method == 'ls' and runperiodsearch:
 
         lsp = pgen_lsp(
             times[::sep], fluxs[::sep], fluxs[::sep]*1e-4, magsarefluxes=True,
@@ -140,7 +140,7 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
             autofreq=False, sigclip=5.0, stepsize=stepsize
         )
 
-    elif periodogram_method == 'pdm':
+    elif periodogram_method == 'pdm' and runperiodsearch:
 
         lsp = stellingwerf_pdm(
             times[::sep], fluxs[::sep], fluxs[::sep]*1e-4, magsarefluxes=True,

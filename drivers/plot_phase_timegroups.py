@@ -23,12 +23,13 @@ def main():
             outdir,
             ticid=f'TIC_{ticid}',
             lc_cadences='2min',
-            binsize_minutes=10,
-            t0='binmin',
+            binsize_phase=0.005,
+            #t0='binmin',
             # for 4029
+            t0=1791.2972827806442,
             ylim=[-100,5],
             yoffset=5.5,
-            manual_period=None
+            manual_period=18.559/24,
             # for 3006 2min
             #ylim=[-190,5],
             #yoffset=6.5,
