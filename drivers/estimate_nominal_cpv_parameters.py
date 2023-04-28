@@ -31,6 +31,8 @@ T_pole = Teff * (g_pole/g_eq)**beta
 
 v_eq = 2*np.pi*Rstar / P
 
+T0 = P * Rstar / (R_cr * np.pi)
+
 print(f"Oblateness (a-b)/a ~= {γ.cgs}")
 print(f"R_cr = {(R_cr/Rstar).cgs} Rstar")
 print(f"R_cr = {(R_cr).to(u.AU)} AU")
@@ -42,3 +44,5 @@ print(f"g_eq/g_pole = {(g_eq/g_pole).cgs}")
 print(T_pole.to(u.K))
 
 print(f'v_eq = {v_eq.to(u.km/u.s)}')
+
+print(f'T0 = {T0.to(u.hr)}')
