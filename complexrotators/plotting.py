@@ -1748,6 +1748,10 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
     elif subset_id in ['dlt150_good_changers']:
         csvpath = join(DATADIR, 'targetlists',
                        '20230411_good_CPV_ticids_d_lt_150pc_sectorpref_CHANGERS.csv')
+    elif subset_id in ['fav3']:
+        csvpath = join(DATADIR, 'targetlists', 'fav3.csv')
+    else:
+        raise NotImplementedError
 
     df = pd.read_csv(csvpath, comment='#')
     sel = ~(df.comment.str.contains("OMIT") == True)
@@ -1759,7 +1763,7 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
         df = df[25:]
     elif subset_id == 'dlt150_good_changers':
         assert len(df) == 12
-    elif subset_id == 'dlt150_good_all':
+    elif subset_id in ['dlt150_good_all', 'fav3']:
         pass
     else:
         raise NotImplementedError
@@ -1791,6 +1795,9 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
     elif subset_id in ['dlt150_good_all']:
         fig, axs = plt.subplots(nrows=5, ncols=8, figsize=(factor*6,(4.5/7)*factor*7),
                                 sharex=True, constrained_layout=True)
+    elif subset_id in ['fav3']:
+        fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(1.2*3.5, 1.2*1.25),
+                                constrained_layout=True)
     axs = axs.flatten()
 
     ix = 0
@@ -1878,7 +1885,7 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
             tform = ax.transAxes
             props = dict(boxstyle='square', facecolor='white', alpha=0.7, pad=0.15,
                          linewidth=0)
-            if subset_id in ['dlt150_good_0', 'dlt150_good_1']:
+            if subset_id in ['dlt150_good_0', 'dlt150_good_1', 'fav3']:
                 fontsize = 'small'
             elif subset_id == 'dlt150_good_all':
                 fontsize = 'xx-small'
@@ -1985,7 +1992,7 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
             ax.set_yticks([ylow, 0, yhigh])
             ax.set_yticklabels([ylow, 0, yhigh])
 
-        if subset_id in ['dlt150_good_0', 'dlt150_good_1']:
+        if subset_id in ['dlt150_good_0', 'dlt150_good_1', 'fav3']:
             labelsize = 'small'
         elif subset_id == 'dlt150_good_all':
             labelsize = 'xx-small'
@@ -2006,8 +2013,12 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
     else:
         fs = 'medium'
 
-    fig.text(-0.02,0.5, r"Flux [%]", va='center', rotation=90, fontsize=fs)
-    fig.text(0.5,-0.01, r"Phase, φ", fontsize=fs)
+    if subset_id != 'fav3':
+        fig.text(0.5,-0.01, r"Phase, φ", fontsize=fs)
+        fig.text(-0.02,0.5, r"Flux [%]", va='center', rotation=90, fontsize=fs)
+    else:
+        axs[0].set_ylabel(r"Flux [%]", fontsize=fs)
+        axs[1].set_xlabel(r"Phase, φ", fontsize=fs)
 
     # set naming options
     s = f'{subset_id}'
