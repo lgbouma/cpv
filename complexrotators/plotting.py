@@ -2050,11 +2050,19 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
             titlestr = None
 
         binsize_phase = 1/300
+
+        if subset_id in ['dlt150_good_all']:
+            BINMS=1.0
+            alpha0=0.15
+        else:
+            BINMS=1.5
+            alpha0=0.3
+
         plot_phased_light_curve(
             d['times'], d['fluxs'], d['t0'], d['period'], None, ylim=ylim,
-            xlim=[-0.6,0.6], binsize_phase=binsize_phase, BINMS=1.5, titlestr=titlestr,
+            xlim=[-0.6,0.6], binsize_phase=binsize_phase, BINMS=BINMS, titlestr=titlestr,
             showtext=None, showtitle=False, figsize=None, c0='darkgray',
-            alpha0=0.3, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
+            alpha0=alpha0, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
             fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
             showxticklabels=False
         )
@@ -2178,7 +2186,15 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
             labelsize = 'xx-small'
         else:
             labelsize = 'x-small'
-        ax.tick_params(axis='both', which='major', labelsize=labelsize)
+
+        if subset_id == 'dlt150_good_all':
+            ax.minorticks_off()
+
+        if subset_id == 'dlt150_good_all':
+            ax.tick_params(axis='both', which='major', labelsize=labelsize,
+                           pad=1.5)
+        else:
+            ax.tick_params(axis='both', which='major', labelsize=labelsize)
 
         ix += 1
 
