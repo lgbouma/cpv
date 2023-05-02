@@ -493,7 +493,7 @@ def plot_phase_timegroups(
     if showtitle:
         ax.set_title(
             f"{ticid.replace('_', ' ')} "
-            f"P={plot_period*24:.3f}$\pm${plot_period_std*24:.3f}hr"
+            f"P={plot_period*24:.4f}$\pm${plot_period_std*24:.3f}hr"
         )
 
     fig.text(-0.01,0.5, r"Flux [%]", va='center',
@@ -507,7 +507,7 @@ def plot_phase_timegroups(
     format_ax(ax)
     fig.tight_layout()
 
-    outpath = join(outdir, f"{ticid}_P{plot_period*24:.3f}_{lc_cadences}_phase_timegroups.png")
+    outpath = join(outdir, f"{ticid}_P{plot_period*24:.4f}_{lc_cadences}_phase_timegroups.png")
     #fig.savefig(outpath, dpi=300)
     savefig(fig, outpath, dpi=450)
 
