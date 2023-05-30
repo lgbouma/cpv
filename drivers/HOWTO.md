@@ -38,5 +38,11 @@ To run the CPV-finder
 1. Go to find_CPVs.py.  Define your sample shell, e.g., "85to95pc_mkdwarf", and
   run it.
 
+To assess what TESS data exists for a set of TIC IDs
+----------
+
+1. Run assess_tess_holdings.py
+
 To search for transiting planets
 ----------
+(todo)
