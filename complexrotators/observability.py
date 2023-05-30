@@ -211,7 +211,7 @@ def get_tess_stats(ticid, dirname=None):
     return outdf
 
 
-def check_tesspoint(ra, dec, ticid):
+def check_tesspoint(ra, dec, ticid, get_seccamccd_tuple=0):
 
     from tess_stars2px import tess_stars2px_function_entry
 
@@ -232,7 +232,11 @@ def check_tesspoint(ra, dec, ticid):
         'rowpix': pxjoiner(rowpix)
     }, index=[0])
 
-    return outdf
+    if not get_seccamccd_tuple:
+        return outdf
+
+    else:
+        return sector, cam, ccd, colpix, rowpix
 
 
 def check_astroplan_months_observable(
