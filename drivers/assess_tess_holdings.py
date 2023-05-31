@@ -190,7 +190,17 @@ def assess_tess_holdings(sample_id):
 
     outcsv = join(outdir, f"before_after_stars_S55_max_2mindataonly_20230530_{sample_id}.csv")
     mdf_before_after.to_csv(outcsv, index=False)
+    print(f"Wrote {outcsv}")
 
+    # get the subset that are known "good CPVs"
+    csvpath = join(TARGETSDIR, f"20230411_good_CPV_ticids_d_lt_150pc.csv")
+    gdf = pd.read_csv(csvpath)
+
+    is_good_CPV = mdf_before_after.ticid.isin(gdf.ticid)
+    has_2min_today = mdf_before_after.N_120sec > 0
+
+    outcsv = join(outdir, f"before_after_stars_S55_max_2mindataonly_goodCPVonly_20230530_{sample_id}.csv")
+    mdf_before_after[is_good_CPV & has_2min_today].to_csv(outcsv, index=False)
     print(f"Wrote {outcsv}")
 
 
