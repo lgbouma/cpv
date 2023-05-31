@@ -729,7 +729,8 @@ def plot_phased_light_curve(
     c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
     fig=None, ax=None, savethefigure=True,
     findpeaks_result=None, ylabel=None, showxticklabels=True,
-    yoffset=0, dy=5, normfunc=True, xtxtoffset=0, titlepad=None
+    yoffset=0, dy=5, normfunc=True, xtxtoffset=0, titlepad=None,
+    titlefontsize='small'
     ):
     """
     Non-obvious args:
@@ -853,7 +854,7 @@ def plot_phased_light_curve(
         ax.set_title(txt, fontsize='small', pad=titlepad)
 
     if isinstance(titlestr,str):
-        ax.set_title(titlestr.replace("_"," "), fontsize='small', pad=titlepad)
+        ax.set_title(titlestr.replace("_"," "), fontsize=titlefontsize, pad=titlepad)
 
     if savethefigure:
         ax.set_ylabel(r"Flux [%]")
@@ -1916,7 +1917,8 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     savefig(fig, pngpath, dpi=400, writepdf=0)
 
 
-def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
+def plot_lc_mosaic(outdir, subset_id=None, showtitles=0,
+                   titlefontsize='xx-small'):
     """
     this plotter only works on phtess3 or analogous
     """
@@ -1926,13 +1928,20 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
                        '20230411_good_CPV_ticids_d_lt_150pc_sectorpref.csv')
     elif subset_id in ['dlt150_good_changers']:
         csvpath = join(DATADIR, 'targetlists',
-                       '20230411_good_CPV_ticids_d_lt_150pc_sectorpref_CHANGERS.csv')
+                       '20230411_good_CPV_ticids_d_lt_150pc_sectorpref_SIXCHANGERS.csv')
+    elif subset_id in ['dlt150_good_allchangers_2count',
+                       'dlt150_good_allchangers_3count']:
+        csvpath = join(DATADIR, 'targetlists',
+                       'before_after_stars_S55_max_2mindataonly_goodCPVonly'
+                       '_20230530_20230411_goodandmaybe_CPV_ticids_d_lt_150pc.csv')
     elif subset_id in ['fav3']:
         csvpath = join(DATADIR, 'targetlists', 'fav3.csv')
     else:
         raise NotImplementedError
 
     df = pd.read_csv(csvpath, comment='#')
+    if 'comment' not in df:
+        df['comment'] = ''
     sel = ~(df.comment.str.contains("OMIT") == True)
     df = df[sel]
 
@@ -1944,6 +1953,18 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
         assert len(df) == 12
     elif subset_id in ['dlt150_good_all', 'fav3']:
         pass
+    elif subset_id in ['dlt150_good_allchangers_2count',
+                       'dlt150_good_allchangers_3count']:
+        from collections import Counter
+        r = Counter(df.ticid)
+        count_df = pd.DataFrame({'ticid':r.keys(), 'count':r.values()})
+        df = df.merge(count_df, how='left', on='ticid')
+        if '2count' in subset_id:
+            #44 panels
+            df = df[df['count'] == 2]
+        if '3count' in subset_id:
+            #27 panels
+            df = df[df['count'] == 3]
     else:
         raise NotImplementedError
 
@@ -1977,6 +1998,12 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
     elif subset_id in ['fav3']:
         fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(1.2*3.5, 1.2*1.25),
                                 constrained_layout=True)
+    elif subset_id == 'dlt150_good_allchangers_2count':
+        fig, axs = plt.subplots(nrows=7, ncols=6, figsize=(7,6),
+                                sharex=True, constrained_layout=True)
+    elif subset_id == 'dlt150_good_allchangers_3count':
+        fig, axs = plt.subplots(nrows=5, ncols=6, figsize=(5,6),
+                                sharex=True, constrained_layout=True)
     axs = axs.flatten()
 
     ix = 0
@@ -2045,7 +2072,7 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
         ylim = get_ylimguess(1e2*(bd['binnedmags']-np.nanmean(bd['binnedmags'])))
 
         if showtitles:
-            titlestr = f'{ticid}'
+            titlestr = f'{ticid}, s{sector}, {d["period"]*24:.1f}h'
         else:
             titlestr = None
 
@@ -2064,7 +2091,7 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0):
             showtext=None, showtitle=False, figsize=None, c0='darkgray',
             alpha0=alpha0, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
             fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
-            showxticklabels=False
+            showxticklabels=False, titlefontsize=titlefontsize
         )
 
         if not showtitles:
