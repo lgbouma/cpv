@@ -26,7 +26,8 @@ listname = '20230411_goodandmaybe_CPV_ticids_d_lt_150pc.csv' # cycle6, <150pc 2m
 dirname = 'lt_150pc_goodandmaybe_CPV_info'
 
 #site = "Palomar" # or "keck"
-site = "keck"
+#site = "keck"
+site = "Las Campanas Observatory"
 semester = '23b'
 # end options
 

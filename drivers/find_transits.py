@@ -291,6 +291,7 @@ def main():
 
     sample_id = 'debug'
     ticids = ["402980664"]
+    ticids = ["224283342"]
 
     for ticid in ticids:
         LOGINFO(42*'-')
