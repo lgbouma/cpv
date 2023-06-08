@@ -1,12 +1,18 @@
 import os, socket
 from complexrotators import __path__
+from os.path import join
 
-DATADIR = os.path.join(os.path.dirname(__path__[0]), 'data')
-PHOTDIR = os.path.join(DATADIR, 'photometry', 'ground')
-CSVDIR = os.path.join(DATADIR, 'photometry', 'cdips_followup_csvs')
-TARGETSDIR = os.path.join(DATADIR, 'targetlists')
-RESULTSDIR = os.path.join(os.path.dirname(__path__[0]), 'results')
-TABLEDIR = os.path.join(RESULTSDIR, 'tables')
+DATADIR = join(os.path.dirname(__path__[0]), 'data')
+PHOTDIR = join(DATADIR, 'photometry', 'ground')
+CSVDIR = join(DATADIR, 'photometry', 'cdips_followup_csvs')
+TARGETSDIR = join(DATADIR, 'targetlists')
+RESULTSDIR = join(os.path.dirname(__path__[0]), 'results')
+TABLEDIR = join(RESULTSDIR, 'tables')
+
+# 120-second data is downloaded here
+LKCACHEDIR = join(
+    os.path.expanduser('~'), '.lightkurve-cache', 'mastDownload', 'TESS'
+)
 
 # system-dependent.
 # this directory contain the following sub-directories:
@@ -23,5 +29,5 @@ TABLEDIR = os.path.join(RESULTSDIR, 'tables')
 SPOCDIR = '/nfs/phtess2/ar0/TESS/SPOCLC'
 #SPOCDIR = '/ar1/TESS/SPOCLC'
 
-LOCALDIR = os.path.join(os.path.expanduser('~'), 'local', 'complexrotators')
+LOCALDIR = join(os.path.expanduser('~'), 'local', 'complexrotators')
 if not os.path.exists(LOCALDIR): os.mkdir(LOCALDIR)
