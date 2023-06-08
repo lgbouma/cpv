@@ -4,12 +4,14 @@ Contents:
 | get_20sec_cadence_spoc_tess_lightcurve
 | _get_lcpaths_given_ticid
 | _get_local_lcpaths_given_ticid
+| _get_lcpaths_fromlightkurve_given_ticid
 """
 import numpy as np
 import lightkurve as lk
 from os.path import join
 from glob import glob
 import subprocess
+from complexrotators.paths import LKCACHEDIR
 
 def _get_lcpaths_given_ticid(ticid):
     # TODO: this getter will need to be updated when running at scale on wh1
@@ -25,6 +27,31 @@ def _get_lcpaths_given_ticid(ticid):
     return lcpaths
 
 
+def _get_lcpaths_fromlightkurve_given_ticid(ticid, require_lc=1):
+    # ticid like "289840928"
+
+    assert isinstance(ticid, str)
+    if ticid.startswith("TIC"):
+        ticid_str = ticid
+    else:
+        ticid_str = f"TIC {ticid}"
+
+    lcset = lk.search_lightcurve(ticid_str)
+
+    sel = (lcset.author=='SPOC') & (lcset.exptime.value == 120)
+    lcc = lcset[sel].download_all()
+
+    lcpaths = glob(
+        join(LKCACHEDIR, f'tess*{ticid}*-s', f'tess*{ticid}*-s_lc.fits')
+    )
+
+    if require_lc:
+        msg = f'{ticid}: did not get LC'
+        assert len(lcpaths) > 0, msg
+
+    return lcpaths
+
+
 def _get_local_lcpaths_given_ticid(ticid):
 
     from complexrotators.paths import SPOCDIR
@@ -35,7 +62,6 @@ def _get_local_lcpaths_given_ticid(ticid):
         print(f"Failed to find 2 minute light curves for {ticid}")
 
     return lcpaths
-
 
 
 def get_2min_cadence_spoc_tess_lightcurve(
