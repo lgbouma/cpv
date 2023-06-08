@@ -185,7 +185,7 @@ def find_CPV(ticid, sample_id, forcepdf=0):
 
     MINIMUM_EXITCODE = 2
     if forcepdf:
-        MINIMUM_EXITCODE = 99
+        MINIMUM_EXITCODE = 1
     #1 if any kind of exit means do not rerun
     #2 if only a periodogram or not enoigh dip exit means dont rerun
     if minexitcode >= MINIMUM_EXITCODE:
