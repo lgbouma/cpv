@@ -11,7 +11,7 @@ Contents:
 import logging
 from complexrotators import log_sub, log_fmt, log_date_fmt
 
-LOCAL_DEBUG = 0
+LOCAL_DEBUG = 1
 DEBUG = False
 if DEBUG:
     level = logging.DEBUG
@@ -40,9 +40,10 @@ from os.path import join
 from glob import glob
 import numpy as np, pandas as pd
 
-from complexrotators.paths import LOCALDIR, SPOCDIR
+from complexrotators.paths import LOCALDIR, SPOCDIR, TARGETSDIR
 from complexrotators.getters import (
-    _get_lcpaths_given_ticid, _get_local_lcpaths_given_ticid
+    _get_lcpaths_given_ticid, _get_local_lcpaths_given_ticid,
+    _get_lcpaths_fromlightkurve_given_ticid
 )
 from complexrotators.lcprocessing import (
     cpv_periodsearch, count_phased_local_minima, prepare_cpv_light_curve
@@ -98,11 +99,6 @@ def get_ticids(sample_id):
         N_stars_to_search = len(ticids)
         N_lcs_to_search = len(sdf)
 
-        LOGINFO(42*'-')
-        LOGINFO(f"{sample_id}")
-        LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
-        LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
-
     # e.g.,
     #30to50pc_mkdwarf
     #50to60pc_mkdwarf
@@ -133,16 +129,41 @@ def get_ticids(sample_id):
         N_stars_to_search = len(ticids)
         N_lcs_to_search = len(sdf)
 
-        LOGINFO(42*'-')
-        LOGINFO(f"{sample_id}")
-        LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
-        LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
+    elif sample_id == 'rahul_20230501':
+        df = pd.read_csv(
+            join(TARGETSDIR, '20230501_RAHUL_FULL_LIST_NO_DUPLICATES.csv')
+        )
+        ticids = np.unique(df.ticid.astype(str))
+
+        N_stars_to_search = len(ticids)
+        N_lcs_to_search = -1
+
+    else:
+        raise NotImplementedError
+
+    LOGINFO(42*'-')
+    LOGINFO(f"{sample_id}")
+    LOGINFO(f"N_stars_to_search = {N_stars_to_search}...")
+    LOGINFO(f"N_lcs_to_search = {N_lcs_to_search}...")
 
     return ticids
 
 
 
-def find_CPV(ticid, sample_id):
+def find_CPV(ticid, sample_id, forcepdf=0):
+    """
+    ticid: e.g. "289840928"
+    sample_id: e.g., "30to50pc_mkdwarf" (used for cacheing)
+    forcepdf: if true, will require the pdf plot to be made, even if the usual
+        exit code criteria were not met.
+
+    exit code definitions:
+        exitcode 2: means periodogram_condition was not met
+            periodogram_condition = (period < 2) & (pdm_theta < 0.9)
+
+        exitcode 3: means not enough peaks were found --
+            r['N_peaks'] < 3:
+    """
 
     cachedir = join(LOCALDIR, "cpv_finding")
     if not os.path.exists(cachedir): os.mkdir(cachedir)
@@ -163,6 +184,8 @@ def find_CPV(ticid, sample_id):
             minexitcode = np.nanmin(foundexitcodes)
 
     MINIMUM_EXITCODE = 2
+    if forcepdf:
+        MINIMUM_EXITCODE = 99
     #1 if any kind of exit means do not rerun
     #2 if only a periodogram or not enoigh dip exit means dont rerun
     if minexitcode >= MINIMUM_EXITCODE:
@@ -173,7 +196,7 @@ def find_CPV(ticid, sample_id):
     # get the light curves for all desired sectors and cadences
     #
     if LOCAL_DEBUG:
-        lcpaths = _get_lcpaths_given_ticid(ticid)
+        lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid)
     else:
         lcpaths = _get_local_lcpaths_given_ticid(ticid)
 
@@ -199,7 +222,8 @@ def find_CPV(ticid, sample_id):
             exitcode = st['exitcode']['exitcode']
             if minexitcode >= MINIMUM_EXITCODE:
                 LOGINFO(f"{lcpbase}: found exitcode {exitcode}. skip.")
-                continue
+                if not forcepdf:
+                    continue
 
         # get the relevant light curve data
         (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
@@ -234,7 +258,8 @@ def find_CPV(ticid, sample_id):
             LOGINFO(f"{starid}: Θ={pdm_theta:.3f}, P={period:.3f}; exit.")
             exitcode = {'exitcode': 2}
             pu.save_status(logpath, 'exitcode', exitcode)
-            continue
+            if not forcepdf:
+                continue
 
 
         # if we have a sufficient periodic signal, then count phased local
@@ -291,7 +316,8 @@ def find_CPV(ticid, sample_id):
             LOGINFO(f"{starid}: N_peaks={r['N_peaks']}; exit.")
             exitcode = {'exitcode': 3}
             pu.save_status(logpath, 'exitcode', exitcode)
-            continue
+            if not forcepdf:
+                continue
 
         # make the phased plot
         eval_dict = None
@@ -303,7 +329,7 @@ def find_CPV(ticid, sample_id):
         if not os.path.exists(outpath):
             plot_phased_light_curve(
                 d['times'], d['fluxs'], d['t0'], d['period'], outpath,
-                titlestr=titlestr, binsize_minutes=10, findpeaks_result=r
+                titlestr=titlestr, binsize_phase=0.005, findpeaks_result=r
             )
         else:
             LOGINFO(f"Found {outpath}")
@@ -343,15 +369,18 @@ def main():
         #'95to105pc_mkdwarf',
         #'105to115pc_mkdwarf'
         #'115to135pc_mkdwarf'
-        '115to150pc_mkdwarf'
+        #'115to150pc_mkdwarf',
+        'rahul_20230501'
     ]
+
+    forcepdf = False # true only for specific (N<~100 !) samples
 
     for sample_id in sample_ids:
         ticids = get_ticids(sample_id)
         for ticid in ticids:
             LOGINFO(42*'-')
             LOGINFO(f"Beginning {ticid}...")
-            find_CPV(ticid, sample_id)
+            find_CPV(ticid, sample_id, forcepdf=forcepdf)
 
     LOGINFO("Finished 🎉🎉🎉")
 
