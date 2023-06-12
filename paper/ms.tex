@@ -1,0 +1,574 @@
+% upon AAS submission
+%\documentclass[12pt,twocolumn,tighten,linenumbers]{aastex63}
+%\documentclass[12pt,twocolumn,tighten,linenumbers,trackchanges]{aastex63}
+% drafting / arxiv
+\documentclass[11pt,twocolumn,tighten]{aastex63}
+\turnoffedit
+
+\usepackage{apjfonts}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{amsmath,amstext,amssymb}
+\usepackage[caption=false]{subfig} % for subfloat
+\usepackage{xcolor, fontawesome}
+\usepackage{color}
+
+\newcommand{\rprs}{{$R_p/R_{\star}$}}
+\newcommand{\vsini}{{$V \sin i$}}
+\newcommand{\teff}{T$_{\textrm{eff}}$}
+\newcommand{\kms}{{km\,s$^{-1}$}}
+\newcommand{\gcc}{{g\,cm$^{-3}$}}
+\newcommand{\rstar}{{$R_\star$}}
+\newcommand{\rhostar}{{$\rho_\star$}}
+\newcommand{\mearth}{{M$_\oplus$}}
+\newcommand{\rearth}{{R$_\oplus$}}
+\newcommand{\rsun}{{R$_\odot$}}
+\newcommand{\msun}{{M$_\odot$}}
+
+\newcommand{\minus}{\scalebox{0.5}[1.0]{$-$}}
+
+\newcommand{\eg}{e.g.,} 
+
+\newcommand{\mstype}{letter}
+
+%%%%%%%%%%%%%%%%
+% INSTITUTIONS %
+%%%%%%%%%%%%%%%%
+\newcommand{\caltech}{Department of Astronomy, MC 249-17, California Institute of Technology, Pasadena, CA 91125, USA}
+\newcommand{\mitkavli}{MIT Kavli Institute and Department of Physics, 77 Massachusetts Avenue, Cambridge, MA 02139}
+\newcommand{\berkeley}{Astronomy Department, University of California, Berkeley, CA 94720, USA}
+
+%
+% ms specific numbers
+%
+
+%%%%%%%%%
+% STARS %
+%%%%%%%%%
+\newcommand{\nstarssearched}{{XXYYY}}
+
+%%%%%%%%
+% CPVS %
+%%%%%%%%
+\newcommand{\ncpvsfound}{{48}}
+\newcommand{\nmaybes}{{19}}
+
+
+\begin{document}
+
+\title{Bright and Nearby Complex Periodic Variables from Four Years of TESS}
+
+\correspondingauthor{TBD}
+\email{TBD}
+
+\received{---}
+\revised{---}
+\accepted{---}
+\shorttitle{Cycle 1-4 CPVs} 
+
+\shortauthors{TBD}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\author{Authors to include (ORDER TBD)}
+
+% primary authors
+\author[0000-0002-0514-5538]{Luke~G.~Bouma}
+\altaffiliation{51 Pegasi b Fellow}
+\affiliation{\caltech}
+
+\author[0000-0002-7778-3117]{Rahul~Jayararaman}
+\affiliation{\mitkavli}
+
+% [to be confirmed after these]
+\author{Saul~Rappaport}
+\affiliation{\mitkavli}
+
+\author{Lynne~A.~Hillenbrand}
+\affiliation{\caltech}
+
+\author[0000-0003-2058-6662]{George~R.~Ricker}
+\affiliation{\mitkavli}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{abstract}
+  Complex periodic variables (CPVs) are pre-main-sequence M-dwarfs
+  with periodic optical modulation that includes both sharp and broad
+  troughs.
+  The troughs are usually superposed on smooth, spot-like modulation.
+  Based on a lack of observed infrared excesses, these objects do not
+  have primordial gas-rich disks, or even particularly massive debris disks.
+  Nonetheless, the most plausible explanations for their optical
+  variability invoke long-lived material that orbits at the corotation
+  radii, for instance transiting dust clumps or stellar prominences.
+  Here, we report new CPVs discovered in the 120-second cadence TESS data
+  collected between July~2018 and Sep~2022 (Sectors 1-55).
+  Our search used two methods, the first based on counting dips in
+  phase-folded light curves, and the second based on counting peaks in
+  the Fourier domain.
+  From our analysis of \nstarssearched\ M-dwarfs with $T$$<$16 and
+  $d$$<$150\,pc, we find \ncpvsfound\ gold-standard CPVs.
+  Most of these discoveries are new, and they include the brightest
+  ($T$$\approx$10) and closest ($d$$\approx$20\,pc) examples of this
+  class of variable star known.
+  A few objects are ``outliers among outliers''; for
+  instance LP 12-502 shows up to eight local minima per cycle, exhibited
+  sudden shape ``switches'' over less than one cycle, yet maintained
+  a near-constant cycle duration over more than one thousand cycles.
+  The general cause of the optical variability for these objects remains
+  enigmatic.  However our sample is a step toward the spectroscopic and
+  demographic studies that may ultimately resolve the mystery of what
+  physically explains these objects.
+  Connections to the broader context of star, disk, and
+  exoplanet evolution are emphasized.
+\end{abstract}
+
+\keywords{Weak-line T Tauri stars (1795), Periodic variable stars
+(1213), Circumstellar matter (241), Star clusters (1567), Stellar
+magnetic fields (1610), Stellar rotation (1629)}
+
+\section{Introduction}
+\label{sec:intro}
+
+All pre-main-sequence stars vary in optical brightness, and the origin
+of such variability is, in most cases, understood.  Well-explored
+sources of optical variability include inhomogeneities on stellar
+surfaces such as starspots and faculae
+\citep[e.g.][]{2021isma.book.....B}, occultations by gas-rich
+circumstellar disks \citep[e.g.][]{2017MNRAS.470..202B}, and, in
+geometrically favorable circumstances, eclipses by stars and planets.
+
+Data from K2 and TESS have yielded a new class of variable star whose
+root cause is not yet qualitatively understood: complex periodic
+variables (CPVs).  These objects are identified phenomenologically
+using their optical light curves, which show periodic sharp and
+sometimes broad troughs, often superposed on smooth spot-like
+modulation.  Some of the objects show up to eight local minima (dips)
+per cycle; sharp peaks are also common.  Most of these variable stars
+turn out to be pre-main-sequence M-dwarfs without near-infrared
+excesses, with ages of $\approx$5-150 million years (Myr), and
+rotation periods of at most two days; they are observed to be
+$\approx$1\% of M-dwarfs younger than 100 Myr
+\citep{2017AJ....153..152S,2018AJ....155...63S,2019ApJ...876..127Z,2022AJ....163..144G}.
+The dips can be chromatic, with a reddening law plausibly consistent
+with dust
+\citep{2020AJ....160...86B,2022AJ....163..144G,2023MNRAS.518.2921K}.
+And finally, while the dip shapes can ``jump'' between different
+depths and durations over less than one cycle, they more often evolve
+gradually, over tens to hundreds of cycles
+\citep[e.g.][]{2017AJ....153..152S,2020AJ....160...86B,2023ApJ...945..114P}.
+
+The issue of what exactly causes the variability that defines the CPVs
+has yet to be resolved.  There are a few competing explanations.  All
+young M-dwarfs are spotted, which produces flux variations over
+characteristic timescales of the rotation period, $P_{\rm rot}$, and
+its half-harmonic, $0.5\,P_{\rm rot}$.  The observed dips occur over
+durations as short as $0.05\,P_{\rm rot}$; a ``starspot-only''
+scenario is therefore highly unlikely for any of the objects with
+sufficiently sharp dips
+\citep{2017AJ....153..152S,2021MNRAS.500.1366K}.   The more likely
+scenarios instead invoke sharp geometries with material extrinsic to
+the stellar surface \citep[see
+Refs.~][]{2017AJ....153..152S,2022AJ....163..144G}.  In the ``clump''
+scenario, opaque dust clumps orbiting near the Keplerian corotation
+radius eclipse the star
+\citep{2017AJ....153..152S,2023MNRAS.518.4734S}.  In the
+``prominence'' scenario, long-lived condensations of plasma are
+trapped along the star’s magnetic field lines, also near corotation
+\citep{2022MNRAS.514.5465W}.  And in a ``screen'' scenario, the inner
+wall of a quiescent circumstellar disk blocks a portion of the stellar
+surface to produce sudden dips whenever spots come into view
+\citep{2019ApJ...876..127Z}.  In our view, the arguments seem best
+established for the dust clump and prominence hypotheses
+\citep{2023MNRAS.518.4734S,2022MNRAS.514.5465W}.  However, unambiguous
+evidence has yet to be presented to demonstrate which, if any, of
+these scenarios is correct.
+
+It has not yet been possible to rule between the candidate mechanisms
+CPVs have historically been both hard to discover and hard
+to characterize.   Discoverability has been linked to rarity: 
+CPVs comprise about 1\% of the youngest 1\% of M-dwarfs
+\citep{2018AJ....155..196R}.  Out of the millions of stars monitored
+by K2 and TESS, about 50 CPVs have been reported to date
+\citep{2017AJ....153..152S,2018AJ....155...63S,2019ApJ...876..127Z,2022AJ....163..144G,2023ApJ...945..114P}.
+The known CPVs are correspondingly faint; the initial K2 discoveries
+\citep{2017AJ....153..152S} were M2-M6 dwarfs at distances
+$\gtrsim$100\,pc, yielding optical brightnesses of $V$$\approx$15.5 to
+$V$$>$20.  This renders time-series optical spectroscopy at high
+resolution technically impossible, despite its potential utility in
+ruling between the models.
+
+One way to help rule between the mechanisms is to therefore find
+bright and nearby CPVs, since these objects will be the most amenable
+to detailed photometric and spectroscopic analyses.  To do this, in
+this work, we use 120-second cadence data acquired by the Transiting
+Exoplanet Survey Satellite between July~2018 and Sep~2022 (Sectors
+1-55; Cycles 1-4).  We present our search methods in
+Section~\ref{sec:methods}; and the properties of the resulting CPV
+catalog in Section~\ref{sec:results}.  Open questions are discussed in
+Section~\ref{sec:discussion}, and we conclude in
+Section~\ref{sec:conclusion}.
+
+
+
+
+\section{Methods}
+\label{sec:methods}
+
+%We will first describe our stars of interest
+%(Section~\ref{subsec:selectionfn}), and then describe our methods for
+%identifying which of those stars appear as CPVs
+%(Section~\ref{subsec:discoverymethods}).
+
+\subsection{Stellar selection function}
+\label{subsec:selectionfn}
+
+We chose to analyze only the ``short'' 120-second cadence data
+acquired by TESS between July~2018 and Sep~2022 (Sectors 1-55).
+Specifically, we used the 120-second cadence light curve products
+produced by the mission's Science Processing and Operations Center at
+NASA Ames \citep{2016SPIE.9913E..3EJ}.  While the TESS data products
+also include full frame images with cadences of 200, 600, and 1800
+seconds, we limited our scope in this work for the sake of simplicity
+in data handling.  In exchange, we lose out in both completeness and
+homogeneity of the selection function.  While TESS cumulatively
+observed $\approx$90\% of the sky for at least one lunar month between
+July~2018 and Sep~2022, the 120-second cadence data were acquired for
+only a pre-selected set of stars over Sectors 1-26, and then a
+guest-investigator driven set of stars over Sectors 27-55
+\citep{2021PASP..133i5002F}.
+
+To assess the completeness of the resulting 120-second cadence data that we
+analyze, we cross-matched TIC8 \citep{2018AJ....156..102S} against the
+Gaia DR2 point-source catalog \citep{2018A&A...616A...1G}.   We opted
+for Gaia DR2 rather than DR3 because the base catalog for TIC8 was
+Gaia DR2, which facilitated a one-to-one crossmatch using the Gaia source
+identifiers.  This exercise showed that for $T$$<$16 M-dwarfs, the TESS
+2-minute data are roughly 50\% complete at $\approx$50\,pc.  At
+$<$20\,pc, $\gtrsim$80\% of the $T$$<$16 M-dwarfs have at least one
+sector of short-cadence data; at $>$100\,pc, $\lesssim$10\% of such
+M-dwarfs have at least one sector of short-cadence data.  Armed
+with this understanding, we then used
+our cross-match between Gaia DR2 and TIC8 to select our stars of
+interest, which we defined as stars with 120-second cadence TESS light
+curves that satisfied
+\begin{align}
+  T &< 16\\
+  G_{\rm BP} - G_{\rm RP} &> 1.5 \\
+  M_{\rm G} &> 4 \\
+  d &< 150\,{\rm pc},
+\end{align}
+for $M_{\rm G} = G + 5\log(\varpi_{\rm as}) + 5$ the Gaia $G$-band
+absolute magnitude, $\varpi_{\rm as}$ the parallax in units of
+arcseconds, and a geometric distance $d$ defined by inverting the parallax
+and ignoring any small zero-point corrections.
+This selection function includes dwarf stars later than spectral types
+of $\approx$K6V.  Hereafter, we will refer to this set of stars as the
+target sample, and it includes \nstarssearched\ stars with (roughly)
+M-dwarf spectral type, down to $T$$<$16 and out to $d$$<$150\,pc.
+
+\begin{figure*}[!t]
+	\begin{center}
+		\subfloat{
+			\includegraphics[width=0.8\textwidth]{lc_mosaic_fav3.pdf}
+		}
+		
+		\subfloat{
+			\includegraphics[width=0.8\textwidth]{models.pdf}
+		}
+		%\subfloat{
+		%	\includegraphics[width=0.8\textwidth]{flux_vs_time_xmin0000_xmax0010.pdf}
+		%}
+	\end{center}
+	\caption{
+		{\bf Complex periodic variables (CPVs)}:
+		{\it Top:} Phase-folded TESS light curves of three CPVs.  Each is
+		stacked over one month.  Gray are raw 2-minute data; black bins to
+		300 points per cycle.  Periods in hours are in the bottom right of
+		each panel.  In order left-to-right, the objects are LP 12-502
+		(TIC 402980664; Sector~19), TIC 94088626 (Sector 10), and TIC
+		425933644 (Sector~28).
+		{\it Bottom:} Plausible cartoon models for the phenomenon.
+		%{\it Bottom:} Flux {\it vs.}~time showing 10 cycles for each
+		%object.  Raw 2-minute data are the gray background; the black line
+		%is drawn between points binned to 1/100$^{\rm th}$ of a cycle.
+	}
+	\label{fig:f1}
+%	\vspace{-0.5cm}
+\end{figure*}
+
+
+\subsection{CPV discovery}
+\label{subsec:discoverymethods}
+
+Previous methods that have yielded CPV discoveries include visually
+examining stars known to be in young clusters
+\citep{2017AJ....153..152S}, and automatically flagging rapid rotators
+with a large number of strong Fourier harmonics
+\citep{2019ApJ...876..127Z}.  The latter approach is followed by
+visual vetting, since most rapid rotators with many Fourier harmonics
+are false positives such as eclipsing binaries or multiple stars
+blended into a single photometric aperture.  In this work, we adopted
+the Fourier approach,
+and also implemented a new search approach based on counting the
+number of sharp local minima in phase-folded light curves.  We then
+applied these two search techniques independently.   
+
+
+\subsubsection{Fourier analysis}
+\label{subsec:fourier}
+For the Fourier analysis, we followed
+\citet{2019ApJ...876..127Z}.
+{\bf todo for Rahul or Saul: explain the approach, in a few
+paragraphs.  Was the SAP\_FLUX or PDCSAP used? etc. }
+
+
+\subsubsection{Counting dips}
+\label{subsec:counting}
+
+The dip counting technique aims to count sharp local minima in
+phase-folded light curves.  CPVs will preferably have at least three
+such minima in order to be distinct from false positives such as
+synchronized and spotted binaries (``RS CVn'' stars). 
+
+For our dip-counting pipeline, we began with the PDC\_SAP flux for
+each sector, removed non-zero quality flags, and normalized the light
+curve to one by dividing out its median value.  We then flattened the
+light curve using a 5-day sliding median filter, as implemented in
+\texttt{wotan} \citep{2019AJ....158..143H}.  On the resulting
+cleaned and flattened light curve, we ran a periodogram search, opting
+for the \citet{1978ApJ...224..953S} phase dispersion minimization
+(PDM)
+algorithm implemented in \texttt{astrobase}
+\citep{2021zndo...1011188B} due to its shape agnosticism.  If a period
+below 2 days was identified, we reran the periodogram at a
+finer grid to improve the accuracy of the period determination.
+
+Once a star's period $P$ was identified, we binned the phased light curve
+to 100 points per cycle.  To separate ``sharp'' local minima from
+smooth spot-induced variability, we then iteratively fit penalized
+splines to the wrapped phase-folded light curve, excluding points more
+than two standard deviations away from the local continuum
+\citep{2019AJ....158..143H}.  The maximum number of equidistant spline
+knots per cycle is the parameter in this framework that controlled the
+meaning of ``sharp'' --- we allowed at most 10 such knots per cycle,
+though for most stars fewer knots were preferred based on an
+$\ell^2$-norm penalty. 
+
+We then identified local minima in the resulting residual light curve
+using the SciPy \texttt{find\_peaks} utility (CITE), which is based on
+comparing adjacent
+values in an array.  For a peak to be flagged as significant, we
+required it to have a width of at least $0.02\,P$, and a height of at
+least twice the point-to-point RMS.  This latter quantity is defined as
+the 68$^{\rm th}$ percentile of the distribution of the residuals from
+the median value of $\delta f_i \equiv f_i - f_{i+1}$, where $f$ is
+the flux and $i$ is an index over time.
+
+To correctly identify local minima near the edges of the phased light
+curve, which usually would cover phases $\phi \in [ 0,1 ]$, we in fact
+performed the entire procedure over a phase-folded light curve
+spanning $\phi \in [-1,2 ]$, by duplicating and concatenating
+the ordinary phase-folded light curve.
+The free parameters we adopted throughout this analysis procedure, for
+instance the maximum number of spline knots per cycle, and how large
+and wide of a local minimum to consider a ``true dip'', were chosen
+during a testing period based on their ability to correctly re-identify 
+a large fraction ($>$90\%) of known CPVs, while also being able to
+consistently reject common false positives such as rapidly rotating
+spot-induced variability and typical eclipsing binaries.
+
+Overall, for a star to clear this process and to proceed to manual
+examination, we required that it have a peak PDM period below two
+days, and that it exhibited at least three sharp local minima (as
+algorithmically reported) in at least one observed TESS sector.
+
+
+\subsection{Manual vetting}
+
+We visually assessed whether the objects found using the Fourier
+(Section~\ref{subsec:fourier}) and dip-counting
+(Section~\ref{subsec:counting}) techniques were consistent with 
+expectations for CPVs by assembling 
+the data shown in Appendix~\ref{app:vetting}.
+The false-positive rates from our dip-counting approach, as-implemented,
+%TODO: left off here
+
+
+While
+the highest S/N cases were generally found by both the Fourier and dip-counting
+techniques, we
+generally found that 
+
+
+
+
+\section{Results}
+\label{sec:results}
+
+
+
+\begin{figure*}[!tp]
+	\begin{center}
+    \centering
+    \includegraphics[width=\textwidth]{lc_mosaic_dlt150_good_all.pdf}
+		\caption{
+			{\bf CPVs from a search of the TESS 2-minute data at
+      $d$$<$150\,pc, acquired between July~2018 and Sep~2022.}
+      Phased TESS light curves over 1 month are shown for 40 CPVs;
+      they include the brightest and closest examples of CPVs known
+      ($V$=14; $J$=9.5; $d$=25\,pc).  Gray are raw 2-minute data;
+      black bins to 300 points per cycle.  Periods in hours are listed
+      in the lower right corners of each panel.
+      The TIC identification numbers and sectors are listed in
+      Table~\ref{tab:thetable}.
+		}
+		\label{fig:revolution}
+%		\vspace{-0.8cm}
+	\end{center}
+\end{figure*}
+
+\begin{figure*}[!t]
+	\begin{center}
+			\centering
+			\includegraphics[width=0.9\textwidth]{lc_mosaic_dlt150_good_changers.pdf}
+		\vspace{-0.2cm}
+		\caption{
+		{\bf Evolution of CPVs}: ``Before and
+      after'' for six CPVs from Figure~\ref{fig:revolution}.  Panels
+      in the top two rows are separated by two years
+      ($\approx$$10^3$ cycles); each panel shows one month.
+      Periods are listed in hours. 
+      {\bf todo: make these for everything.}
+%			\vspace{-0.8cm}
+		}
+		\label{fig:evoln}
+	\end{center}
+\end{figure*}
+
+\begin{figure*}[!t]
+	\begin{center}
+    \centering
+    \includegraphics[width=0.9\textwidth]{TIC_402980664_P18.5604_2min_phase_timegroups_mosaic.pdf}
+		\vspace{-0.45cm}
+		\caption{
+			{\it Bottom:}
+      Evolution of LP 12-502 ($P$=18.6\,h) at fixed period over three
+      years; small text denotes cycle number.  The TESS pointing law
+      dictates time gaps; larger gaps tend to yield larger shape
+      changes.
+      The dips usually evolve over tens to hundreds of cycles.
+      However cycles 1233-1264 show a dip that ``switched'' from a depth
+      and duration of 3\% and 3\,hr to 0.3\% and 1\,hr over less than
+      one cycle.
+			\vspace{-0.8cm}
+		}
+		\label{fig:lp}
+	\end{center}
+\end{figure*}
+
+
+
+
+
+
+\section{Discussion}
+\label{sec:discussion}
+
+%A number of auxiliary
+%questions follow.  After correcting for line-of-sight inclination, are
+%most young M-dwarfs CPVs?  What observational signatures distinguish
+%the proposed models (Figure~\ref{fig:f1}, bottom row)?  What
+%organizational regularities characterize the CPV as a class of
+%variable star?  What sets the extremes of the CPV population, such as
+%the longest rotation periods, hottest stellar temperatures, and oldest
+%stellar ages?  And finally, what connections, if any, do CPVs have to
+%topics such as stellar evolution, M-dwarf magnetic fields, debris
+%disks, and close-in exoplanets?
+
+
+{\it Why would the prominence scenario tend toward corotation?}
+This is analogous to quiescent
+prominences on the Sun \citep{1967SoPh....2...39K}.
+
+\section{Conclusions}
+\label{sec:conclusion}
+
+\acknowledgments
+This work was supported by the 
+Heising-Simons 51~Pegasi~b Fellowship (LGB)
+
+{\bf author contribution statement goes here}
+L.G.B.~and R.~J. conceived the project and executed the
+dip-based and Fourier-based searches, respectively.
+They both drafted the initial manuscript.
+S.~R. vetted the results from the Fourier search.
+rotation- and lithium-based age analyses, and drafted the manuscript.
+L.A.H.~contributed to project execution.
+All authors assisted in manuscript revision.
+
+\clearpage
+\bibliographystyle{yahapj}                            
+\bibliography{bibliography} 
+
+\appendix
+\section{Validation plots}
+\label{app:vetting}
+
+Figure~\ref{fig:vet} shows the type of plot used to visually assess
+whether a source was likely to be a CPV, eclipsing binary, or simply a
+rapidly rotating star.
+
+\begin{figure*}[!t]
+	\begin{center}
+    \centering
+    \includegraphics[width=\textwidth]{402980664_S0019_120sec_cpvvetter.pdf}
+		\vspace{-0.45cm}
+		\caption{
+      Validation plots used to label CPVs (the complete figure
+      set of \ncpvsfound\ images is available online).
+      Panels are as follows.
+      {\it a)}: Phase-folded light curve; gray points are raw 2-minute
+      data and black points are binned to 200 points per cycle.
+      {\it b)}: Phase-dispersion minimization (PDM) periodogram.
+      {\it c)}: DSS finder chart, with 1- and 2-TESS pixel radius
+      circles displayed for scale.
+      {\it d)}: Cleaned light curve, binned to 20-minute cadence.
+      {\it e)}: Phase-folded light curve, binned to 100 points per
+      cycle.  The gray line denotes the automated spline-fit to the
+      wrapped phase-folded light curve, and small gray triangles
+      denote automatically identified local minima; 
+      one of the four sharp dips for this star was not identified!
+      {\it f)}: Phase-folded light curve at twice the peak period.
+      {\it g)}: Phase-folded light curve at half the peak period.
+      {\it h)}: Phase-folded time-series within the ``background''
+      aperture defined in the SPOC light curves.
+      {\it i)}: Phase-folded flux-weighted centroid in the column
+      direction.
+      {\it j)}: Phase-folded flux-weighted centroid in the row
+      direction.
+      {\it k)}: Gaia DR2 color--absolute magnitude diagram.     
+      {\it l)}: Information from Gaia DR2, TIC8, and the automated
+      dip-counting search pipeline.  ``Neighbors'', abbreviated
+      ``nbhr'', are listed within apparent distances of 2 TESS pixels
+      if $\Delta T$$<$2.5.
+      }
+		\label{fig:vet}
+	\end{center}
+\end{figure*}
+
+
+
+
+
+\clearpage
+\listofchanges
+
+
+\end{document}

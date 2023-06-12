@@ -14,3 +14,7 @@ drivers/oneoffs*
 SANDBOX*
 proposal*
 *ipynb_checkpoints*
+paper/ms.pdf
+paper/*pdf
+paper/*png
+paper/outline.txt
