@@ -373,7 +373,7 @@ def main():
         'rahul_20230501'
     ]
 
-    forcepdf = False # true only for specific (N<~100 !) samples
+    forcepdf = True # FIXME true only for specific (N<~100 !) samples
 
     for sample_id in sample_ids:
         ticids = get_ticids(sample_id)
