@@ -435,6 +435,13 @@ def count_phased_local_minima(
     for param in params:
         properties[param+"_phaseunits"] = properties[param]*binsize_phase_units
 
+    if not pre_normalize:
+        binned_trend_flux = trend_y
+    else:
+        binned_trend_flux = (
+            mult_fac * (trend_y - _y_mean) + _y_mean
+        )
+
     r = {
         'N_peaks': len(peaks),
         'peaks_phaseunits': np.mod(peaks*binsize_phase_units, 1),
@@ -456,10 +463,13 @@ def count_phased_local_minima(
         'a_95_5': a_95_5,
         'mad': mad,
         'binned_orig_flux': _y,
+        # if pre_normalize is True, then _y_preflat is what is used to actually
+        # fit the penalized spline and detrend.
+        # _y_preflat = _y_mean + (_y - _y_mean)/mult_fac
         'binned_preflat_flux': _y_preflat,
-        'mult_fac': mult_fac, # _y_preflat = _y_mean + (_y - _y_mean)/mult_fac
+        'mult_fac': mult_fac,
         '_y_mean': _y_mean,
-        'binned_trend_flux': trend_y,
+        'binned_trend_flux': binned_trend_flux,
         'nsplines_total': nsplines,
         'nsplines_singlephase': nsplines/3
     }
