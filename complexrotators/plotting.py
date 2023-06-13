@@ -1240,6 +1240,7 @@ def plot_cpvvetter(
 
     # pdm periodogram
     ax = axd['B']
+
     ax.plot(d['lsp']['periods'], d['lsp']['lspvals'], c='k', lw=1)
     ax.scatter(d['lsp']['nbestperiods'][:5], d['lsp']['nbestlspvals'][:5],
                marker='v', s=5, linewidths=0, edgecolors='none',
@@ -1247,8 +1248,18 @@ def plot_cpvvetter(
     ymin, ymax = ax.get_ylim()
     ax.vlines(d['period'], ymin, ymax, colors='darkgray', alpha=1,
               linestyles='-', zorder=-2, linewidths=1)
-    ax.vlines([0.5*d['period'], 2*d['period']], ymin, ymax, colors='darkgray',
-              alpha=0.5, linestyles=':', zorder=-2, linewidths=1)
+    P_harmonics = []
+    for ix in range(1,11):
+        P_harmonics.append(ix*d['period'])
+        P_harmonics.append(d['period']/ix)
+
+    sel = (
+        (P_harmonics > np.nanmin(d['lsp']['periods']))
+        &
+        (P_harmonics < np.nanmax(d['lsp']['periods']))
+    )
+    ax.vlines(nparr(P_harmonics)[sel], ymin, ymax, colors='darkgray',
+              alpha=0.5, linestyles=':', zorder=-2, linewidths=0.5)
     ax.set_ylim([ymin, ymax])
     ax.update({'xlabel': 'Period [d]', 'ylabel': 'PDM Θ', 'xscale': 'log'})
 
@@ -1423,10 +1434,14 @@ def plot_cpvvetter(
 
     # nbhr info
     ticids, tmags = get_2px_neighbors(c_obj, hdr['TESSMAG'])
+    brightest_inds_first = np.argsort(tmags)
+    ticids = ticids[brightest_inds_first]
+    tmags = tmags[brightest_inds_first]
     N_nbhrs = len(ticids)-1
     nbhrstr = ''
+    MAX_N = 7
     if N_nbhrs >= 1:
-        for ticid, tmag in zip(ticids[1:11], tmags[1:11]):
+        for ticid, tmag in zip(ticids[1:MAX_N], tmags[1:MAX_N]):
             nbhrstr += f"TIC {ticid}: ΔT={tmag-hdr['TESSMAG']:.1f}\n"
 
     txt = (

@@ -58,7 +58,8 @@ def get_ticids(sample_id):
 
     if sample_id == 'debug':
         ticids = [
-        "201789285",
+        #"201789285",
+        "402980664"
         #"311092148",
         #"332517282",
         #"405910546",
@@ -78,6 +79,9 @@ def get_ticids(sample_id):
         #"245874053",
         #"59129133"
         ]
+
+        N_stars_to_search = len(ticids)
+        N_lcs_to_search = -1
 
     elif sample_id == '30pc_mkdwarf':
 
@@ -152,8 +156,12 @@ def get_ticids(sample_id):
 
 def find_CPV(ticid, sample_id, forcepdf=0):
     """
+    Args:
+
     ticid: e.g. "289840928"
+
     sample_id: e.g., "30to50pc_mkdwarf" (used for cacheing)
+
     forcepdf: if true, will require the pdf plot to be made, even if the usual
         exit code criteria were not met.
 
@@ -199,6 +207,10 @@ def find_CPV(ticid, sample_id, forcepdf=0):
         lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid)
     else:
         lcpaths = _get_local_lcpaths_given_ticid(ticid)
+
+    if sample_id == 'debug':
+        LOGWARNING("Found debug: taking only a single sector.")
+        lcpaths = [np.sort(lcpaths)[0]]
 
     #
     # for each light curve (sector / cadence specific), detrend, ((remove
@@ -350,16 +362,8 @@ def find_CPV(ticid, sample_id, forcepdf=0):
 
 def main():
 
-    #sample_id = 'debug'
-    #ticids = get_ticids(sample_id)
-    #ticids = ['39970966']
-    #for ticid in ticids:
-    #    LOGINFO(42*'-')
-    #    LOGINFO(f"Beginning {ticid}...")
-    #    find_CPV(ticid, sample_id)
-
     sample_ids = [
-        #'debug'
+        'debug'
         #'30pc_mkdwarf',
         #'30to50pc_mkdwarf',
         #'50to60pc_mkdwarf',
@@ -370,7 +374,7 @@ def main():
         #'105to115pc_mkdwarf'
         #'115to135pc_mkdwarf'
         #'115to150pc_mkdwarf',
-        'rahul_20230501'
+        #'rahul_20230501'
     ]
 
     forcepdf = True # FIXME true only for specific (N<~100 !) samples
