@@ -1,4 +1,5 @@
-For getting all the 2-minute SPOC data and its Gaia xmatch
+----------
+A) For getting all the 2-minute SPOC data and its Gaia xmatch
 ----------
 
 1. Get all the bulk download scripts locally (done on wh1).
@@ -32,17 +33,31 @@ For getting all the 2-minute SPOC data and its Gaia xmatch
 12. Run `merge_spoc2min_metadata.py`
 13. Run `get_gaia_X_spoc2min_merge.py
 
-To run the CPV-finder
+----------
+B) To run the dip-based CPV-finder
 ----------
 
 1. Go to find_CPVs.py.  Define your sample shell, e.g., "85to95pc_mkdwarf", and
   run it.
 
-To assess what TESS data exists for a set of TIC IDs
+----------
+C) To assess what TESS data exists for a set of TIC IDs
 ----------
 
 1. Run assess_tess_holdings.py
 
+----------
+D) To produce the table for the manuscript analysis
+----------
+1. Run (A) then (B)
+2. Manual label dip-based pipeline results w/ TagSpaces, at /results/cpvvetter/
+3. Get list of TIC ID's from Rahul, move to /data/targetlists/
+4. Manual label Rahul's CPV candidates, also at /results/cpvvetter/
+5. Merge labels using `merge_lgb_rahul_classification_lists.py`
+6. Run `make_cpv_table.py`
+
+
+----------
 To search for transiting planets
 ----------
 (todo)
