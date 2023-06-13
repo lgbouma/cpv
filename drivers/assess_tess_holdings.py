@@ -12,19 +12,15 @@ purposes (eg. "at least two years" or similar).
 extra notes at
 ~/Dropbox/proj/cpv/doc/20230530_tess_holdings_archival_data_assessment.txt
 """
-import os, pickle
+import os
 from os.path import join
 from glob import glob
 import numpy as np, pandas as pd, matplotlib.pyplot as plt
 
-import lightkurve as lk
-from astroquery.mast import Catalogs
-from tess_stars2px import tess_stars2px_function_entry
-
 from complexrotators.paths import TARGETSDIR, TABLEDIR
-from complexrotators.observability import check_tesspoint
+from complexrotators.observability import assess_tess_holdings
 
-def assess_tess_holdings(sample_id):
+def wrap_assess_tess_holdings(sample_id):
 
     csvpath = join(TARGETSDIR, f"{sample_id}.csv")
 
@@ -34,78 +30,11 @@ def assess_tess_holdings(sample_id):
     if not os.path.exists(outdir): os.mkdir(outdir)
 
     for t in df['ticid']:
-
-        outcsv = join(outdir, f"TIC{t}.csv")
-
-        if os.path.exists(outcsv):
-            print(f'Found {outcsv}, continue')
-            continue
-
-        ticstr = f"TIC {t}"
-
-        tic_data = Catalogs.query_object(ticstr, catalog="TIC")
-
-        ident, ra, dec, dst_arcsec = tic_data[0][ ["ID", "ra", "dec", "dstArcSec"] ]
-
-        if dst_arcsec > 1:
-            print(f'WRN! {ticstr} is {dst_arcsec}arcsec from request.')
-
-
-        sectors, cams, ccds, colpixs, rowpixs = check_tesspoint(
-            ra, dec, t, get_seccamccd_tuple=1
-        )
-
-        lcset = lk.search_lightcurve(ticstr)
-        lcset_df = lcset.table.to_pandas()
-
-        N_20secs, N_120secs, N_200secs, N_600secs, N_1800secs, N_FFIs = (
-            [], [], [], [], [], []
-        )
-
-        for sector, cam, ccd, colpix, rowpix in zip(
-            sectors, cams, ccds, colpixs, rowpixs
-        ):
-
-            in_sector = pd.Series(lcset.mission).str.contains(
-                str(sector).zfill(2)
-            )
-
-            N_20secs.append(np.isclose(lcset_df[in_sector].exptime, 20).sum())
-            N_120secs.append(np.isclose(lcset_df[in_sector].exptime, 120).sum())
-
-            N_200sec = np.isclose(lcset_df[in_sector].exptime, 200).sum()
-            N_200secs.append(N_200sec)
-
-            N_600sec = np.isclose(lcset_df[in_sector].exptime, 600).sum()
-            N_600secs.append(N_600sec)
-
-            N_1800sec = np.isclose(lcset_df[in_sector].exptime, 1800).sum()
-            N_1800secs.append(N_1800sec)
-
-            N_FFIs.append(N_200sec + N_600sec + N_1800sec)
-
-        outdf = pd.DataFrame({
-            'ticid': t,
-            'sector': sectors,
-            'cam': cams,
-            'ccd': ccds,
-            'colpix': colpixs,
-            'rowpix': rowpixs,
-            'N_20sec': N_20secs,
-            'N_120sec': N_120secs,
-            'N_200sec': N_200secs,
-            'N_600sec': N_600secs,
-            'N_1800sec': N_1800secs,
-            'N_FFI': N_FFIs
-        })
-
-        outdf.to_csv(outcsv, index=False)
-        print(f"Wrote {outcsv}")
+        _ = assess_tess_holdings(t, outdir)
 
     csvpath = join(TARGETSDIR, f"{sample_id}.csv")
     df = pd.read_csv(csvpath)
 
-    from glob import glob
     csvpaths = glob(join(outdir, 'TIC*csv'))
 
     rdf = pd.concat((pd.read_csv(f) for f in csvpaths))
@@ -206,4 +135,4 @@ def assess_tess_holdings(sample_id):
 
 if __name__ == "__main__":
     sample_id = '20230411_goodandmaybe_CPV_ticids_d_lt_150pc'
-    assess_tess_holdings(sample_id)
+    wrap_assess_tess_holdings(sample_id)

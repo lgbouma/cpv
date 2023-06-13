@@ -1,16 +1,22 @@
 """
-Given tic ids, get some basic features of the stars.  (Nominally, the features
-that we would care about in order to decide on ground-based follow-up
-priorities)
+Given TIC IDs, get some basic features of the stars.  These include
+features that we would care about in order to decide on ground-based
+follow-up priorities.
 
-get_gaia_rows
-get_tess_stats
-    given_ticid_get_variability_params
-    given_ticid_get_period
-check_tesspoint
-check_astroplan_months_observable
-get_bestmonth_hoursobservable
-merge_to_observability_table
+In order of perceived reusability:
+
+| get_gaia_rows
+
+| assess_tess_holdings
+| check_tesspoint
+
+| get_tess_stats
+    | given_ticid_get_variability_params
+    | given_ticid_get_period
+
+| check_astroplan_months_observable
+| get_bestmonth_hoursobservable
+| merge_to_observability_table
 """
 import pandas as pd, numpy as np, matplotlib.pyplot as plt
 import os, pickle
@@ -38,10 +44,9 @@ from complexrotators import pipeline_utils as pu
 
 def get_gaia_rows(ticid):
     """
-    most important for observability -- gaia:
-      * brightness
-      * distance
-      * color
+    Given the TIC ID, get basic Gaia DR2 information, including the
+    dr2_source_id, positions, proper motions, parallaxes, photometry,
+    and distance.  Return as a dataframe.
     """
 
     dr2_source_id = tic_to_gaiadr2(ticid)
@@ -79,6 +84,114 @@ def get_gaia_rows(ticid):
     outdf['dist_pc'] = d_pc
     outdf['dist_pc_upper_unc'] = upper_unc
     outdf['dist_pc_lower_unc'] = lower_unc
+
+    outdf = outdf.rename({"source_id": "dr2_source_id"},
+                         axis="columns")
+
+    return outdf
+
+
+def assess_tess_holdings(ticid, outdir=None):
+    """
+    Given a TIC ID, figure out what 20sec / 120sec / 200sec / 600sec /
+    1800sec TESS data are available.
+
+    Args:
+        ticid (str or int): e.g. 123456789
+
+        outdir: used for cacheing.  If nothing is passed, will not cache.
+
+    Returns:
+        N-row dataframe, for N the number of sectors for which
+        tess-point finds the star to be on-silicon.  Columns are:
+
+        'ticid', 'sector', 'cam', 'ccd', 'colpix', 'rowpix',
+        'N_20sec', 'N_120sec', 'N_200sec', 'N_600sec', 'N_1800sec',
+        'N_FFI',
+
+        where e.g. "N_1800sec" is the number of 1800-second data
+        products that lightkurve.search_lightcurve(...) found to be
+        available on MAST.
+    """
+
+    from astroquery.mast import Catalogs
+    from tess_stars2px import tess_stars2px_function_entry
+    import lightkurve as lk
+
+    assert not str(ticid).startswith("TIC")
+
+    t = ticid
+
+    if outdir is None:
+        print("assess_tess_holdings got no outdir; will not cache.")
+        outcsv = None
+    else:
+        outcsv = join(outdir, f"TIC{t}.csv")
+        if os.path.exists(outcsv):
+            print(f'Found {outcsv}, continue')
+        return pd.read_csv(outcsv)
+
+    ticstr = f"TIC {t}"
+
+    tic_data = Catalogs.query_object(ticstr, catalog="TIC")
+
+    ident, ra, dec, dst_arcsec = tic_data[0][ ["ID", "ra", "dec", "dstArcSec"] ]
+
+    if dst_arcsec > 1:
+        print(f'WRN! {ticstr} is {dst_arcsec}arcsec from request.')
+
+
+    sectors, cams, ccds, colpixs, rowpixs = check_tesspoint(
+        ra, dec, t, get_seccamccd_tuple=1
+    )
+
+    lcset = lk.search_lightcurve(ticstr)
+    lcset_df = lcset.table.to_pandas()
+
+    N_20secs, N_120secs, N_200secs, N_600secs, N_1800secs, N_FFIs = (
+        [], [], [], [], [], []
+    )
+
+    for sector, cam, ccd, colpix, rowpix in zip(
+        sectors, cams, ccds, colpixs, rowpixs
+    ):
+
+        in_sector = pd.Series(lcset.mission).str.contains(
+            str(sector).zfill(2)
+        )
+
+        N_20secs.append(np.isclose(lcset_df[in_sector].exptime, 20).sum())
+        N_120secs.append(np.isclose(lcset_df[in_sector].exptime, 120).sum())
+
+        N_200sec = np.isclose(lcset_df[in_sector].exptime, 200).sum()
+        N_200secs.append(N_200sec)
+
+        N_600sec = np.isclose(lcset_df[in_sector].exptime, 600).sum()
+        N_600secs.append(N_600sec)
+
+        N_1800sec = np.isclose(lcset_df[in_sector].exptime, 1800).sum()
+        N_1800secs.append(N_1800sec)
+
+        N_FFIs.append(N_200sec + N_600sec + N_1800sec)
+
+    outdf = pd.DataFrame({
+        'ticid': t,
+        'sector': sectors,
+        'cam': cams,
+        'ccd': ccds,
+        'colpix': colpixs,
+        'rowpix': rowpixs,
+        'N_20sec': N_20secs,
+        'N_120sec': N_120secs,
+        'N_200sec': N_200secs,
+        'N_600sec': N_600secs,
+        'N_1800sec': N_1800secs,
+        'N_FFI': N_FFIs
+    })
+
+    if outcsv is not None:
+        outdf.to_csv(outcsv, index=False)
+        print(f"Wrote {outcsv}")
 
     return outdf
 
@@ -212,6 +325,10 @@ def get_tess_stats(ticid, dirname=None):
 
 
 def check_tesspoint(ra, dec, ticid, get_seccamccd_tuple=0):
+    """
+    Thin-wrapper to Chris Burke's tess-point; just reformats the
+    output.
+    """
 
     from tess_stars2px import tess_stars2px_function_entry
 
