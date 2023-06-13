@@ -4,6 +4,7 @@ from os.path import join
 
 DATADIR = join(os.path.dirname(__path__[0]), 'data')
 PHOTDIR = join(DATADIR, 'photometry', 'ground')
+LITDIR = join(DATADIR, 'literature')
 CSVDIR = join(DATADIR, 'photometry', 'cdips_followup_csvs')
 TARGETSDIR = join(DATADIR, 'targetlists')
 RESULTSDIR = join(os.path.dirname(__path__[0]), 'results')
