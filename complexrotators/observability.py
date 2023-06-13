@@ -42,7 +42,7 @@ from cdips.utils.gaiaqueries import (
 from complexrotators.paths import RESULTSDIR, TARGETSDIR, TABLEDIR
 from complexrotators import pipeline_utils as pu
 
-def get_gaia_rows(ticid):
+def get_gaia_rows(ticid, allcols=0):
     """
     Given the TIC ID, get basic Gaia DR2 information, including the
     dr2_source_id, positions, proper motions, parallaxes, photometry,
@@ -70,6 +70,8 @@ def get_gaia_rows(ticid):
         'phot_g_mean_mag,phot_rp_mean_mag,phot_bp_mean_mag,bp_rp,'+
         'radial_velocity'
     ).split(',')
+    if allcols:
+        SELCOLS = gaia_r.columns
 
     outdf = gaia_r[SELCOLS]
 
@@ -126,10 +128,10 @@ def assess_tess_holdings(ticid, outdir=None):
         print("assess_tess_holdings got no outdir; will not cache.")
         outcsv = None
     else:
-        outcsv = join(outdir, f"TIC{t}.csv")
+        outcsv = join(outdir, f"TIC{t}_tessholdings.csv")
         if os.path.exists(outcsv):
             print(f'Found {outcsv}, continue')
-        return pd.read_csv(outcsv)
+            return pd.read_csv(outcsv)
 
     ticstr = f"TIC {t}"
 
