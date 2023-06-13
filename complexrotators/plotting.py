@@ -1442,8 +1442,8 @@ def plot_cpvvetter(
     nbhrstr = ''
     MAX_N = 7
     if N_nbhrs >= 1:
-        for ticid, tmag in zip(ticids[1:MAX_N], tmags[1:MAX_N]):
-            nbhrstr += f"TIC {ticid}: ΔT={tmag-hdr['TESSMAG']:.1f}\n"
+        for _ticid, tmag in zip(ticids[1:MAX_N], tmags[1:MAX_N]):
+            nbhrstr += f"TIC {_ticid}: ΔT={tmag-hdr['TESSMAG']:.1f}\n"
 
     txt = (
         f"TIC {ticid}\n"
