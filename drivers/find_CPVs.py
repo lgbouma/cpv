@@ -40,7 +40,9 @@ from os.path import join
 from glob import glob
 import numpy as np, pandas as pd
 
-from complexrotators.paths import LOCALDIR, SPOCDIR, TARGETSDIR
+from complexrotators.paths import (
+    LOCALDIR, SPOCDIR, TARGETSDIR, TABLEDIR
+)
 from complexrotators.getters import (
     _get_lcpaths_given_ticid, _get_local_lcpaths_given_ticid,
     _get_lcpaths_fromlightkurve_given_ticid
@@ -58,26 +60,10 @@ def get_ticids(sample_id):
 
     if sample_id == 'debug':
         ticids = [
+        #"268963753"
+        #"67745212"
         #"201789285",
         "402980664"
-        #"311092148",
-        #"332517282",
-        #"405910546",
-        #"142173958",
-        #"300651846",
-        #"408188366",
-        #"146539195",
-        #"177309964",
-        #"425933644",
-        #"206544316",
-        #"224283342",
-        #"245902096",
-        #"150068381",
-        #"177309964",
-        #"118769116",
-        #"245868207",
-        #"245874053",
-        #"59129133"
         ]
 
         N_stars_to_search = len(ticids)
@@ -103,11 +89,7 @@ def get_ticids(sample_id):
         N_stars_to_search = len(ticids)
         N_lcs_to_search = len(sdf)
 
-    # e.g.,
-    #30to50pc_mkdwarf
-    #50to60pc_mkdwarf
-    #60to70pc_mkdwarf
-    #70to85pc_mkdwarf
+    # e.g., 30to50pc_mkdwarf, 50to60pc_mkdwarf, etc.
     elif 'pc_mkdwarf' in sample_id and 'to' in sample_id:
 
         lower = int(sample_id.split("to")[0])
@@ -136,6 +118,18 @@ def get_ticids(sample_id):
     elif sample_id == 'rahul_20230501':
         df = pd.read_csv(
             join(TARGETSDIR, '20230501_RAHUL_FULL_LIST_NO_DUPLICATES.csv')
+        )
+        ticids = np.unique(df.ticid.astype(str))
+
+        N_stars_to_search = len(ticids)
+        N_lcs_to_search = -1
+
+    elif sample_id == '2023catalog_LGB_RJ_concat':
+        df = pd.read_csv(
+            join(
+                TABLEDIR, '2023_catalog_table',
+                '20230613_LGB_RJ_uticid_quality_label.csv'
+            ), sep="|"
         )
         ticids = np.unique(df.ticid.astype(str))
 
@@ -363,7 +357,8 @@ def find_CPV(ticid, sample_id, forcepdf=0):
 def main():
 
     sample_ids = [
-        'debug'
+        #'debug'
+        '2023catalog_LGB_RJ_concat'
         #'30pc_mkdwarf',
         #'30to50pc_mkdwarf',
         #'50to60pc_mkdwarf',
