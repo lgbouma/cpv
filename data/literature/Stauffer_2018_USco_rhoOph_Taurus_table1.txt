@@ -1,0 +1,32 @@
+Table 1 
+Low Mass Pre-main Sequence Stars with Unusual Periodic Light Curves
+
+
+EPIC ID	R.A.	Decl.	K_s	$V-{K}_{s}$ ^a	($V-{K}_{s}$)_o	$[W1]-[W3]$	SpT^b	Halpha EqW	Li EqW	P1^c	P2^c	
+	(deg)	(deg)	(mag)	(mag)	(mag)	(mag)		(Aring)	(Aring)	(days)	(days)	
+Upper Sco Scallop shells												
+												
+203354381	246.616	-26.421	9.845	5.88	5.24	0.200	cdots	cdots	cdots	0.5993	cdots	
+203636498	245.271	-25.462	10.943	6.34	6.06	0.310	M5.5	-9.3	0.61	0.7794	cdots	
+204060981	242.734	-23.825	9.473	5.88	5.11	0.279	M4.5	-6.7	0.65	0.3996*	0.3802*	
+205267399	244.674	-18.544	10.082	5.52	5.17	0.272	M5	-9.0	no	0.3311	0.3344*	
+												
+rho Oph Scallop shells												
+												
+203821589	247.000	-24.805	9.269	8.15	5.66	0.470	M4.75	-7.5	yes	0.9105	0.6677*	
+203897692	246.484	-24.504	9.764	>10	6.03	cdots	M5	-12	cdots	0.5011	0.6043*	
+204185983	246.470	-23.326	7.870	6.75	4.06	0.244	M1.5	-2.5	0.68	1.0529	cdots	
+												
+Taurus Scallop shells												
+												
+246676629	74.868	+14.273	10.062	5.46	5.26	0.292	M3.5	-5.9	0.4	0.6253*	0.6332	
+246682490	74.770	+14.349	9.467	5.17	4.77	0.190	M3.5	-6.1	0.2	3.6324	0.4377*	
+247343526	70.223	+20.930	11.621	6.42	6.42	0.412	M5	-11.0	cdots	0.3568	cdots	
+												
+Possible Scallop shell in Upper Sco												
+												
+204099739	242.163	-23.668	9.146	5.33	4.78	0.246	M3.5	-5.0	0.56	0.7158	0.7428*	
+Notes.
+^a Observed $V-{K}_{s}$ color where both bands have published measurements in the literature. Otherwise, $V-{K}_{s}$ is estimated using a conversion based on the Gaia DR1 G magnitudes and 2MASS K_s values.
+^b Spectral types and Halpha equivalent widths for EPIC 203821589 and 203897692 are from Wilking et al. (2005), and for EPIC 247343526 are from Slesnick et al. (2006). All other spectroscopic information are from our own spectra, as reported in the Appendix.
+^c An asterisk is attached to the period (P1 or P2) to designate which star in a binary has the unusual light curve discussed in this paper. All of the binary companions have normal, spotted-star light curve morphologies, except EPIC 204060981, where both stars in the binary system have scallop-shell light curves. EPIC 246682490 actually appears to be a triple; the third period is 0.4214 day.

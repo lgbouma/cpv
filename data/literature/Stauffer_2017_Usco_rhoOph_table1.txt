@@ -1,0 +1,38 @@
+Table 1 
+List of Upper Sco Stars with Unusual Periodic Light Curves
+
+
+EPIC ID	Name^a	R.A.	Decl.	K_s	$V-{K}_{s}$ ^b	$[W1]-$[W3]	${\lambda }_{\max }$ ^c	SpT^d	Halpha EqW	Li EqW	P1^e	P2^e	Class^f	
+		(deg)	(deg)	(mag)	(mag)	(mag)	(mum)		(Aring)	(Aring)	(days)	(days)		
+204918279	RIK-21	239.1046	-20.2711	9.86	6.90d	0.38	12	M5.0	-10.2	0.61	0.4594	0.4665*	1	
+204066898	UScoCTIO 80A	239.6509	-23.8005	10.19	5.59	0.27	12	M3	-9.9	cdots	0.3956*	0.5386	1	
+203462615	RIK-42	239.9086	-26.0565	10.25	6.13	0.47	12	M5.5	-16.2	0.81	0.5201*	0.4421	1	
+204897050	UScoCTIO 56	240.4208	-20.3689	10.86	7.16d	0.42	12	M5	cdots	cdots	0.2639	cdots	1	
+202724025	RIK-90	242.2373	-28.5993	9.63	5.78	0.33	12	M4.5	-10.2	0.21	0.2595*	0.2795	1	
+204117263	LHJ-65	242.7589	-23.5973	10.95	6.42	0.35	12	M5	-11.6	cdots	0.6423	cdots	1	
+204367193	LHJ-77	242.9766	-22.6137	13.30	8.33	cdots	4.6	M6.3	-10.3	cdots	0.4835	cdots	1	
+203534383	cdots	243.5125	-25.8148	11.71	7.73	0.73	12	M4:	-9.5	cdots	0.2784*	0.3234	1	
+205110559	cdots	243.8322	-19.3520	10.46	7.74	0.61	12	cdots	cdots	cdots	0.4031	cdots	1	
+203050730	RIK-246	247.7741	-27.4295	10.53	5.87	0.53	12	M4.5	-9.1	0.38	0.4865*	0.7740	1	
+203185083	RIK-253	248.6464	-26.9675	10.48	6.62	0.18	12	M4.5	-27.1	0.54	0.4400	cdots	1	
+														
+204364515	cdots	240.3398	-22.6240	10.05	6.84	0.34	24	M4	-8.4	0.55	3.0863	1.456*	2	
+203849738	RIK-100	242.4703	-24.6982	10.93	6.69d	0.37	12	M5.5	-15.1	0.40	0.6190	cdots	2	
+203692610	cdots	242.6318	-25.2671	11.60	5.92	0.28	12	M4	-3.0	0.54	1.821	cdots	2	
+205374937	cdots	242.8255	-17.9580	9.33	6.35	0.34	24	M4	-4.8	0.55	0.6345*	0.5436	2	
+202873945	cdots	245.4164	-28.0518	11.24	8.21	0.75	12	cdots	cdots	cdots	0.6258	cdots	2	
+204296148	cdots	246.2158	-22.8952	10.99	8.06k	0.10	12	cdots	cdots	cdots	0.5314*	0.4717	2	
+203962559	AOC 64	246.7103	-24.2312	10.80	8.83d	cdots	8	M4	-6.0	cdots	1.5402	cdots	2	
+203927435	WMR 2-23	247.1794	-24.3812	10.14	9.11d	0.13	12	M4.5	-6.8	0.76	0.4820*	0.4162	2	
+														
+205024957	cdots	242.5459	-19.7678	11.38	6.53	0.46	24^+	M5	-4.4	0.56	1.6656	cdots	3	
+205046529	cdots	242.6099	-19.6642	10.40	6.52k	0.35	24	M4	-4.4	0.54	2.5619	1.8358*	3	
+204143627	LHJ-120	243.9969	-23.4934	11.31	6.29	0.13	12	M5	cdots	cdots	1.125	cdots	3	
+205483258	RIK-210	245.8523	-17.2909	9.65	5.04	0.37	12	M2.5	-5.3	0.59	5.667	cdots	3	
+Notes.
+^a Sources of the names are: RIK: Rizzuto et al. (2015); UScoCTIO: Ardila et al. (2000); LHJ: Lodieu et al. (2007); AOC: Alves de Oliveira & Casali (2008); WMR: Wilking et al. (2005).
+^b $V-{K}_{s}$ estimated preferentially using a conversion based on the Gaia DR1 "G" magnitudes and 2mass K_s values. A "d" is appended if instead the $V-{K}_{s}$ estimate is based on Denis "I" magnitudes and 2mass K_s. A "k" is appended if the K2 count rate itself was used to estimate V.
+^c Longest wavelength at which there is a secure detection, in mum. A plus sign indicates if there is a plausible, small IR excess.
+^d Spectral type, Halpha equivalent width, and Li equivalent width for EPIC 203534383 and 203692610 are from our own HIRES spectra. The Li equivalent widths for EPIC 203849738, 204364515, 205024957, and 205046529 are also from our own HIRES spectra. See the discussion in the Appendix.
+^e An asterisk is attached to the period (P1 or P2) to designate which star in a binary has the unusual light curve that is discussed in this paper. All of the binary companions have normal, spotted-star light-curve morphologies.
+^f Light-curve classes: 1 = scallop shell; 2 = persistent short-duration flux dip; 3 = transient short-duration flux dip.

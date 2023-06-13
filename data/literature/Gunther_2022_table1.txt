@@ -1,0 +1,24 @@
+Table 1 
+Updated Parameters of the Complex Rotators from TESS Sectors 1 and 2
+
+
+TIC ID ^1	38820496	177309964	201789285	206544316	224283342	234295610	289840926*	332517282	425933644	425937691	
+R.A. (deg) ^1	7.19516	103.45258	33.88868	18.41884	356.35758	357.98325	317.629044	350.8786	3.69942	5.36556	
+Decl. (deg) ^1	-67.86237	-75.70396	-56.45488	-59.65974	-40.33782	-64.79293	-27.18098	-28.12114	-60.06352	-63.85226	
+Association ^2	Tuc. Hor.	Carina	Tuc. Hor.	Tuc. Hor.	Columba	Tuc. Hor.	beta Pictoris	AB Doradus	Tuc. Hor.	Tuc. Hor.	
+Membership Probability ^2	99.9%	83.2%	99.7%	100.0%	75.0%	99.9%	99.0%	99.1%	99.8%	98.8%	
+Age (Myr) ^2	45 +or- 4	${45}_{-7}^{+11}$	45 +or- 4	45 +or- 4	${42}_{-4}^{+6}$	45 +or- 4	24 +or- 3	${149}_{-10}^{+51}$	45 +or- 4	45 +or- 4	
+Distance (pc) ^1	44.06 +or- 0.12	91.08 +or- 0.49	45.16 +or- 0.17	43.07 +or- 0.10	38.12 +or- 0.10	48.17 +or- 0.11	40.33 +or- 0.18	39.08 +or- 0.10	44.26 +or- 0.18	-	
+Rotation Period (h) ^3	15.71	10.88	3.64	7.73	21.35	18.28	2.40	9.67	11.67	4.82	
+Halpha Equivalent Width (A) ^4	(5.3)	5.8	(5.3)	4.8	(5.3)	6.8	(5.3)	(5.3)	3.8	(5.3)	
+App. Eff. Temp., ${T}_{\mathrm{eff}}^{\mathrm{app}}$ (K) ^5	3000 +or- 100	3200 +or- 100	2800 +or- 100	3100 +or- 100	3100 +or- 100	3100 +or- 100	2700 +or- 100	3000 +or- 100	3200 +or- 100	2800 +or- 100	
+App. Radius, ${R}_{\star }^{\mathrm{app}}$ (R _sun) ^5	0.30 +or- 0.02	0.57 +or- 0.04	0.27 +or- 0.02	0.54 +or- 0.04	0.36 +or- 0.02	0.42 +or- 0.03	0.38 +or- 0.03	0.27 +or- 0.02	0.59 +or- 0.04	0.38 +or- 0.03	
+Temp. Suppression ^6	(6.2%)	6.5%	(6.2%)	6%	(6.2%)	7.1%	(6.2%)	(6.2%)	5.3%	(6.2%)	
+Radius Inflation ^6	(13.5%)	14%	(13.5%)	13%	(13.5%)	15.6%	(13.5%)	(13.5%)	11.5%	(13.5%)	
+Eff. Temp., ${T}_{\mathrm{eff}}^{{\rm{w}}/{\rm{o}}\,\mathrm{act}}$ (K) ^6	(3200)	3400 +or- 100	(3000)	3300 +or- 100	(3300)	3300 +or- 100	(2800)	(3200)	3400 +or- 100	(3000)	
+Radius, ${R}_{\star }^{{\rm{w}}/{\rm{o}}\,\mathrm{act}}$ (R _sun) ^6	(0.26)	0.50 +or- 0.04	(0.24)	0.48 +or- 0.04	(0.32)	0.36 +or- 0.03	(0.33)	(0.23)	0.53 +or- 0.04	(0.33)	
+Mass, M _sstarf (M _sun) ^7	(0.15)	0.29	(0.08)	0.22	(0.19)	0.2	(0.08)	(0.16)	0.29	(0.08)	
+Surface Gravity, ${\mathrm{log}}_{10}(g)$	(4.7)	4.4	(4.5)	4.3	(4.6)	4.5	(4.2)	(4.8)	4.4	(4.2)	
+Corotation Radius, R _cr (R _sstarf)	5.6	2.9	1.9	2.2	6.2	4.9	1.0	4.6	2.9	1.6	
+TESS Sectors	1-2	1-13	2-3	1-2	2	1	1	2	1-2	1-2	
+Note. Tuc. Hor.: Tucana Horologium. (1) from TICv8 (Stassun et al. 2018); (2) via Banyan Sigma (Gagne et al. 2018); (3) via TESS photometry; (4) via ANU spectroscopy; (5) via SED fit; (6) via (Stassun et al. 2012); (7) via the Baraffe et al. (2015) models for a star with the respective age, ${T}_{\mathrm{eff}}^{{\rm{w}}/{\rm{o}}\,\mathrm{act}}$, and ${R}_{\star }^{{\rm{w}}/{\rm{o}}\,\mathrm{act}}.$ Values in parentheses are only estimated using the mean H_alpha EW of the other four targets and should only be used as approximate guidance. * TIC 289840926 and TIC 289840928 form a binary system that is blended in a single TESS pixel but is spatially resolved by other surveys. TIC 289840926 is the complex rotator (see Section 3.1).
