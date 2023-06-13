@@ -584,7 +584,7 @@ def plot_phase_timegroups_mosaic(
     factor=0.8
     factor=1.1
     fig, axs = plt.subplots(
-        sharex=True, nrows=3, ncols=6,
+        nrows=3, ncols=6,
         figsize=(factor*5.2, factor*(3.5/7)*7),
         constrained_layout=True
     )
@@ -627,32 +627,32 @@ def plot_phase_timegroups_mosaic(
             titlepad=0.1,
             showtext=False,
             savethefigure=False,
+            titlefontsize='x-small'
         )
         if isinstance(ylim, (list, tuple)):
             ax.set_ylim(ylim)
 
-        if ix not in [0, 6, 12]:
-            ax.set_yticklabels([])
-
         #ax.hlines(2.5, -0.6666/2, 0.6666/2, colors='darkgray', alpha=1,
         #          linestyles='-', zorder=-2, linewidths=1)
 
+        ax.set_yticklabels([])
+        ax.set_xticklabels([])
+
         yticks = [-3,0,2]
         ax.set_yticks(yticks)
-
-        #ax.yaxis.set_minor_locator(MultipleLocator(1))
         ax.minorticks_off()
 
+        ax.set_xticks([-0.5, 0, 0.5])
+
         if ix in [0,6,12]:
-            ax.set_yticklabels(yticks, fontsize='small')
+            ax.set_yticklabels(yticks, fontsize='x-small')
 
         ix += 1
 
-    for ix in range(12,17):
-        axs[ix].set_xticks([-0.5, 0, 0.5])
-        axs[ix].set_xticklabels(['-0.5', '0', '0.5'], fontsize='small')
-    for ix in range(0,17):
-        axs[ix].set_xticks([-0.5, 0, 0.5])
+    for ix in range(12,18):
+        axs[ix].set_xticklabels(['-0.5', '0', '0.5'], fontsize='x-small')
+
+    axs[17].set_xticklabels([])
 
     if showtitle:
         fig.text(
@@ -664,14 +664,16 @@ def plot_phase_timegroups_mosaic(
         )
 
     fig.text(-0.01,0.5, r"Flux [%]", va='center', rotation=90, fontsize='large')
-    fig.text(0.5,-0.01, r"Phase, φ", fontsize='large')
+    fig.text(0.5,-0.01, r"Phase, φ", ha='center', fontsize='large')
 
     format_ax(ax)
     fig.tight_layout()
+    axs[17].set_xticklabels(['-0.5', '0', '0.5'], fontsize='x-small')
 
-    outpath = join(outdir,
-                   f"{ticid}_P{plot_period*24:.4f}_{lc_cadences}_phase_timegroups_mosaic.png")
-    #fig.savefig(outpath, dpi=300)
+    outpath = join(
+        outdir,
+        f"{ticid}_P{plot_period*24:.4f}_{lc_cadences}_phase_timegroups_mosaic.png"
+    )
 
     fig.tight_layout(h_pad=0.2, w_pad=0.)
 
