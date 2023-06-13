@@ -47,17 +47,24 @@ C) To assess what TESS data exists for a set of TIC IDs
 1. Run assess_tess_holdings.py
 
 ----------
-D) To produce the table for the manuscript analysis
+D) To produce the table for the catalog manuscript
 ----------
 1. Run (A) then (B)
 2. Manual label dip-based pipeline results w/ TagSpaces, at /results/cpvvetter/
 3. Get list of TIC ID's from Rahul, move to /data/targetlists/
 4. Manual label Rahul's CPV candidates, also at /results/cpvvetter/
 5. Merge labels using `merge_lgb_rahul_classification_lists.py`
-6. Run `make_cpv_table.py`
+6. Run find_CPVs.py using sample_id=="2023catalog_LGB_RJ_concat", which
+   generates all the vetting reports in a homogeneous way for the ms.
+7. Run `make_cpv_table.py` (relies on logs from step #6).
+
+----------
+E) To make the plots for the manuscript
+----------
+...todo
 
 
 ----------
-To search for transiting planets
+F) To search for transiting planets
 ----------
-(todo)
+...todo

@@ -87,6 +87,10 @@ def get_gaia_rows(ticid, allcols=0):
     outdf['dist_pc_upper_unc'] = upper_unc
     outdf['dist_pc_lower_unc'] = lower_unc
 
+    outdf['M_G'] = np.array(
+            outdf['phot_g_mean_mag'] + 5*np.log10(outdf['parallax']/1e3) + 5
+    )
+
     outdf = outdf.rename({"source_id": "dr2_source_id"},
                          axis="columns")
 
