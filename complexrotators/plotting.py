@@ -1182,7 +1182,6 @@ def plot_cpvvetter(
     findpeaks_result=None,
     binsize_phase=0.005
     ):
-    # TODO: add BANYAN-SIGMA panel!
 
     # get data
     d = periodsearch_result
@@ -1213,7 +1212,7 @@ def plot_cpvvetter(
         AAAADDDD
         EEFFKKLL
         GGHHKKLL
-        IIJJ..LL
+        IIJJMMLL
         """
     )
 
@@ -1508,6 +1507,42 @@ def plot_cpvvetter(
     ax.set_ylim([ymax, ymin])
     ax.set_xlabel('BP-RP')
     ax.set_ylabel(r'M$_{\rm G}$')
+
+    #
+    # banyan overlay
+    #
+    ax = axd["M"]
+    ax.set_axis_off()
+
+    import sys
+    sys.path.append("/Users/luke/Dropbox/proj/banyan_sigma")
+    from core import membership_probability
+
+    ra, dec = float(gdf.ra), float(gdf.dec)
+    pmra, pmdec = float(gdf.pmra), float(gdf.pmdec)
+    epmra, epmdec = float(gdf.pmra_error), float(gdf.pmdec_error)
+    plx, eplx = float(gdf.parallax), float(gdf.parallax_error)
+    output = membership_probability(ra=ra, dec=dec, pmra=pmra, pmdec=pmdec,
+                                    epmra=epmra, epmdec=epmdec, plx=plx, eplx=eplx,
+                                    use_plx=True, use_rv=False)
+
+    probs = np.array(output['ALL'].iloc[0].round(4))
+    assocs = np.array(output['ALL'].iloc[0].index)
+    banyan_df = pd.DataFrame({"prob": probs}, index=assocs)
+
+    sel = banyan_df.prob > 1e-4
+    sdf = banyan_df[sel].sort_values(by='prob', ascending=False)
+
+    csvdir = os.path.dirname(outpath)
+    csvname = f"TIC{ticid}_GDR2{dr2_source_id}_banyan_result.csv"
+    csvpath = join(csvdir, csvname)
+    sdf.to_csv(csvpath)
+
+    txt = sdf.__repr__()
+    txt_x = 0.5
+    txt_y = 0.5
+    ax.text(txt_x, txt_y, txt, ha='center', va='center', fontsize='small', zorder=2,
+            transform=ax.transAxes)
 
     #
     # DSS query
