@@ -63,7 +63,10 @@ def get_ticids(sample_id):
         #"268963753"
         #"67745212"
         #"201789285",
-        "402980664"
+        #"402980664"
+        #"251496897"
+        #"141146666" # neighbor of 141146667
+        "353927317" # EPIC 211070495, Rebull2016
         ]
 
         N_stars_to_search = len(ticids)
@@ -357,8 +360,8 @@ def find_CPV(ticid, sample_id, forcepdf=0):
 def main():
 
     sample_ids = [
-        #'debug'
-        '2023catalog_LGB_RJ_concat'
+        'debug'
+        #'2023catalog_LGB_RJ_concat'
         #'30pc_mkdwarf',
         #'30to50pc_mkdwarf',
         #'50to60pc_mkdwarf',

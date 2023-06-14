@@ -104,7 +104,7 @@ def main():
     N_5 = len(smdf[smdf.banyan_assoc == 'FIELD'])
 
     N_6 = len(sgdf[sgdf.banyan_assoc != 'FIELD'])
-    N_7 = len(sgdf[smdf.banyan_assoc != 'FIELD'])
+    N_7 = len(smdf[smdf.banyan_assoc != 'FIELD'])
 
     selcols = (
         "ticid goodsectors maybesectors N_sectors tic8_Tmag ruwe "
