@@ -3,13 +3,26 @@ Construct the extended and publication versions of the 2023 catalog table.
 
 Uses log output created by running find_CPVs.py using
 sample_id=="2023catalog_LGB_RJ_concat" first (see HOWTO.md)
+
+Utilities:
+
+| get_cpvtable_row(ticid)
+| gdr2_df = get_gaia_rows(ticid)
+| tdf = assess_tess_holdings(ticid)
+| ftdf = flatten_tdf(tdf, ticid)
+| bdf = get_banyan_result(gdr2_df)
+| t8_df = get_tic8_row(ticid)
+| tlc_df = get_tess_cpv_lc_properties(ticid)
+
 """
 
 from glob import glob
 from os.path import join
 import pandas as pd, numpy as np
 import os
-from complexrotators.paths import RESULTSDIR, TABLEDIR, LITDIR, LOCALDIR
+from complexrotators.paths import (
+    RESULTSDIR, TABLEDIR, LITDIR, LOCALDIR, PAPERDIR
+)
 from os.path import join
 
 from astroquery.mast import Catalogs
@@ -56,11 +69,47 @@ def main():
         (df.dist_pc < 150)
     )
 
+    min_goodsector = (
+        df.goodsectors.str.split(",").apply(
+            lambda x: np.array(x).astype(int)
+            if not np.all(pd.isnull(x)) else np.array([np.nan])
+        ).apply(lambda x: np.nanmin(x))
+    )
+    min_maybesector = (
+        df.maybesectors.str.split(",").apply(
+            lambda x: np.array(x).astype(int)
+            if not np.all(pd.isnull(x)) else np.array([np.nan])
+        ).apply(lambda x: np.nanmin(x))
+    )
+    sel_max55 = (
+        (min_goodsector <= 55) | (min_maybesector <= 55)
+    )
+    selcols = "ticid goodsectors maybesectors".split()
+    print(f"\n...\n")
+    print(f"WRN! including\n{df[~sel_max55][selcols]}\n, bc alpha per")
+    print(f"\n...\n")
+
     N_0 = len(df)
     sdf = df[sel]
     N_1 = len(sdf)
     N_2 = len(sdf[~pd.isnull(sdf.goodsectors)])
     N_3 = len(sdf[pd.isnull(sdf.goodsectors)])
+
+    # "good" CPVs
+    sgdf = sdf[~pd.isnull(sdf.goodsectors)]
+    # "maybe" CPVs
+    smdf = sdf[pd.isnull(sdf.goodsectors)]
+
+    N_4 = len(sgdf[sgdf.banyan_assoc == 'FIELD'])
+    N_5 = len(smdf[smdf.banyan_assoc == 'FIELD'])
+
+    N_6 = len(sgdf[sgdf.banyan_assoc != 'FIELD'])
+    N_7 = len(sgdf[smdf.banyan_assoc != 'FIELD'])
+
+    selcols = (
+        "ticid goodsectors maybesectors N_sectors tic8_Tmag ruwe "
+        "bp_rp tlc_mean_period banyan_assoc banyan_prob".split()
+    )
 
     # TODO: write these numbers to latex
     # \renewcommand{}{}
@@ -76,8 +125,32 @@ def main():
         f"N={N_2} unique TICID's labelled 'good' CPVs after selection fn"
         f"\n...\n"
         f"N={N_3} unique TICID's labelled 'maybe' CPVs after selection fn"
+        f"\n...\n"
+        f"N={N_4} good CPVs with 'field' designation from BANYAN"
+        f"\n...\n"
+        f"N={N_5} maybe CPVs with 'field' designation from BANYAN"
+        f"\n...\n"
+        f"N={N_6} good CPVs without 'field' designation from BANYAN"
+        f"\n...\n"
+        f"N={N_7} maybe CPVs without 'field' designation from BANYAN"
     )
     print(txt)
+
+    latex_txt = (
+        r"\newcommand{\ncpvsfound}{"+str(N_1)+"}\n"
+        r"\newcommand{\ngoods}{"+str(N_2)+"}\n"
+        r"\newcommand{\nmaybes}{"+str(N_3)+"}\n"
+        r"\newcommand{\ngoodsfieldbanyan}{"+str(N_4)+"}\n"
+        r"\newcommand{\nmaybesfieldbanyan}{"+str(N_5)+"}\n"
+        r"\newcommand{\ngoodsnotfieldbanyan}{"+str(N_6)+"}\n"
+        r"\newcommand{\nmaybesnotfieldbanyan}{"+str(N_7)+"}\n"
+        r"\newcommand{\nnotfieldbanyan}{"+str(N_6+N_7)+"}\n"
+    )
+
+    outpath = join(PAPERDIR, 'vals_cqv_table_statistics.tex')
+    with open(outpath, 'w') as f:
+        f.writelines(latex_txt)
+    print(f"Wrote {outpath}")
 
     import IPython; IPython.embed()
     assert 0
@@ -151,7 +224,7 @@ def get_tic8_row(t):
     return t8_row
 
 
-def get_tess_lc_properties(ticid):
+def get_tess_cpv_lc_properties(ticid):
 
     sample_id = "2023catalog_LGB_RJ_concat"
     cachedir = join(LOCALDIR, "cpv_finding")
@@ -223,7 +296,7 @@ def get_cpvtable_row(ticid):
 
     t8_df = get_tic8_row(ticid)
 
-    tlc_df = get_tess_lc_properties(ticid)
+    tlc_df = get_tess_cpv_lc_properties(ticid)
 
     pd.options.display.max_rows = 5000
 
@@ -250,4 +323,3 @@ def get_cpvtable_row(ticid):
 
 if __name__ == "__main__":
     main()
-import IPython; IPython.embed()
