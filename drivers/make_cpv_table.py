@@ -26,12 +26,58 @@ assert os.path.exists(indir)
 def main():
 
     csvpath = join(indir, "20230613_LGB_RJ_uticid_quality_label.csv")
-    df = pd.read_csv(csvpath, sep="|")
+    _df = pd.read_csv(csvpath, sep="|")
 
     rows = []
-    for t in df['ticid']:
+    for t in _df['ticid']:
         r = get_cpvtable_row(t)
         rows.append(r)
+
+    rdf = pd.concat(rows)
+
+    df = _df.merge(rdf, how='inner', on='ticid')
+    df = df.reset_index(drop=True)
+
+    msg = 'every unique ticid should have a row entry'
+    assert len(_df) == len(df), msg
+
+    csvpath = join(indir, "20230613_LGB_RJ_CPV_TABLE_supplemental.csv")
+    df.to_csv(csvpath, index=False, sep="|")
+    print(f"Wrote {csvpath}")
+
+    # re-apply selection function
+    sel = (
+        (df.tic8_Tmag < 16)
+        &
+        (df.bp_rp > 1.5)
+        &
+        (df.M_G > 4)
+        &
+        (df.dist_pc < 150)
+    )
+
+    N_0 = len(df)
+    sdf = df[sel]
+    N_1 = len(sdf)
+    N_2 = len(sdf[~pd.isnull(sdf.goodsectors)])
+    N_3 = len(sdf[pd.isnull(sdf.goodsectors)])
+
+    # TODO: write these numbers to latex
+    # \renewcommand{}{}
+    # type include file at /paper/
+    # TODO
+
+    txt = (
+        f"\n...\n"
+        f"N={N_0} unique TICID's labelled 'good' or 'maybe' CPVs before selection fn"
+        f"\n...\n"
+        f"N={N_1} unique TICID's labelled 'good' or 'maybe' CPVs after selection fn"
+        f"\n...\n"
+        f"N={N_2} unique TICID's labelled 'good' CPVs after selection fn"
+        f"\n...\n"
+        f"N={N_3} unique TICID's labelled 'maybe' CPVs after selection fn"
+    )
+    print(txt)
 
     import IPython; IPython.embed()
     assert 0
@@ -133,8 +179,10 @@ def get_tess_lc_properties(ticid):
         _n_peaks = int(stc['n_peaks'])
         _peaks_phaseunits = list(np.array(eval(stc['peaks_phaseunits'])).round(2))
 
-        array = np.array
-        properties = eval(stc['properties'])
+        # NOTE: the properties dict has a bunch of information, including dip
+        # depth.  this might be useful some day, but not today.
+        #array = np.array
+        #properties = eval(stc['properties'])
 
         nsplines_singlephase = stc['nsplines_singlephase']
 
@@ -143,7 +191,7 @@ def get_tess_lc_properties(ticid):
         pgconds.append(periodogram_condition)
         n_peaks.append(_n_peaks)
         peak_phaseunits.append(_peaks_phaseunits)
-        peak_props.append(properties)
+        #peak_props.append(properties)
         nspls.append(nsplines_singlephase)
 
     tlc_df = pd.DataFrame({
@@ -161,6 +209,10 @@ def get_tess_lc_properties(ticid):
 
 def get_cpvtable_row(ticid):
 
+    cachecsv = join(indir, f"TIC{ticid}_cpvtable_row.csv")
+    if os.path.exists(cachecsv):
+        return pd.read_csv(cachecsv, sep="|")
+
     gdr2_df = get_gaia_rows(ticid, allcols=1)
 
     tdf = assess_tess_holdings(ticid, outdir=indir)
@@ -177,7 +229,11 @@ def get_cpvtable_row(ticid):
 
     row = pd.concat((ftdf, gdr2_df, bdf, t8_df, tlc_df), axis='columns')
 
+    # TODO
+    # TODO
     # TODO : need to add these
+    # TODO
+    # TODO
     bonus_cols = (
         "teff_sedfit rstar_sedfit temp_suppression radius_inflation "
         "teff_noactivity rstar_noactivity mstar_baraffe2015 logg_baraffe2015 "
@@ -186,10 +242,10 @@ def get_cpvtable_row(ticid):
     for c in bonus_cols:
         row[c] = 'PENDING'
 
-    print(row.T)
+    row.to_csv(cachecsv, index=False, sep="|")
+    print(f"Wrote {cachecsv}")
 
     return row
-
 
 
 if __name__ == "__main__":
