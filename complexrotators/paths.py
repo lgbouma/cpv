@@ -9,6 +9,7 @@ CSVDIR = join(DATADIR, 'photometry', 'cdips_followup_csvs')
 TARGETSDIR = join(DATADIR, 'targetlists')
 RESULTSDIR = join(os.path.dirname(__path__[0]), 'results')
 TABLEDIR = join(RESULTSDIR, 'tables')
+PAPERDIR = join(os.path.dirname(__path__[0]), 'paper')
 
 # 120-second data is downloaded here
 LKCACHEDIR = join(
