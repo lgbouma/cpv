@@ -19,15 +19,17 @@ def main():
 
         #for manual_period in np.arange(18.5595, 18.5605, 0.0001):
         #for manual_period in np.arange(18.546, 18.565+0.001, 0.001):
-        for manual_period in np.arange(18.5600, 18.5620+0.0001, 0.0001):
-        #for manual_period in [18.5604]:
+        #for manual_period in np.arange(18.5600, 18.5620+0.0001, 0.0001):
+        #for manual_period in [18.5611]:
+        for manual_period in [18.5604]:
 
             cp.plot_phase_timegroups_mosaic(
                 outdir,
                 ticid=f'TIC_{ticid}',
                 lc_cadences='2min',
                 binsize_phase=0.005,
-                t0=1791.15,
+                #t0=1791.15, # NOTE default
+                t0=1791.12,
                 #t0=1791.19,
                 #manual_period=18.559/24,
                 manual_period=manual_period/24,
