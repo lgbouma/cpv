@@ -922,10 +922,35 @@ rapidly rotating star.
 \end{figure*}
 
 
-\section{The LP 12-502 glitch}
+\section{LP 12-502}
 
-Figure~\ref{fig:lpzoom} shows an alternative view of cycles 1233-1247
-from Figure~\ref{fig:lp}.
+{\it The light curve}---
+Figure~\ref{fig:lplc} shows an alternative view of the LP-502 light
+curve from Figure~\ref{fig:lp}, 
+split into ``time chunks'' wherever there was more than half a day of
+missing data in the TESS light curve.
+We binned the light curve to 15-minute intervals for visual clarity,
+and required at least one (120-second cadence) flux measurement per
+bin.
+Points more than 2.5$\sigma$ above the median are drawn in gray, also
+for visual clarity.
+Missing data are not drawn (a common plotting error when ``drawing''
+light curves, rather than showing a scatter plot).
+
+{\it State switches}---
+Figure~\ref{fig:lpzoom} shows an alternative view of cycles 1233-1247.
+
+\begin{figure*}[!t]
+	\begin{center}
+		\centering
+		\includegraphics[width=0.96\textwidth]{tic4029_segments.pdf}
+		\vspace{-0.2cm}
+		\caption{
+			LP 12-502 light curve, split into time chunks.
+		}
+		\label{fig:lplc}
+	\end{center}
+\end{figure*}
 
 \begin{figure*}[!t]
 	\begin{center}
@@ -933,7 +958,8 @@ from Figure~\ref{fig:lp}.
 		\includegraphics[width=0.96\textwidth]{TIC4029_zoom.png}
 		\vspace{-0.45cm}
 		\caption{
-			LP 12-502 is wild.
+			LP 12-502 cycles 1233-1247, showing the most dramatic state
+      change observed over the three year baseline.
 		}
 		\label{fig:lpzoom}
 	\end{center}

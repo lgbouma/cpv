@@ -2458,7 +2458,7 @@ def plot_tic4029_segments(outdir):
     set_style('science')
 
     f = 0.5
-    fig, ax = plt.subplots(figsize=(f*8.5, f*11))
+    fig, ax = plt.subplots(figsize=(f*8.5, f*9.5))
 
     ############
     # get data #
@@ -2528,7 +2528,7 @@ def plot_tic4029_segments(outdir):
         # between time gaps.
         _, _groups = find_lc_timegroups(x, mingap=0.5/24)
         for _g in _groups:
-            ax.plot(x[_g], y[_g], c='k', zorder=1, lw=0.2, alpha=0.3)
+            ax.plot(x[_g], y[_g], c='k', zorder=1, lw=0.2, alpha=0.15)
 
         _, _groups = find_lc_timegroups(sx, mingap=0.5/24)
         for _g in _groups:
