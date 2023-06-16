@@ -87,6 +87,7 @@ from matplotlib.ticker import (
 
 
 from scipy.ndimage import gaussian_filter1d
+from scipy.interpolate import interp1d, PchipInterpolator
 
 from aesthetic.plot import savefig, format_ax, set_style
 
@@ -129,21 +130,28 @@ def plot_TEMPLATE(outdir):
 
 
 def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
-               cyclewindow=None, idstr=None):
+               cyclewindow=None, idstr=None, t0=None):
     """
     Make a river plot
     """
 
-    t0 = np.nanmin(time)
+    finite_time = ~pd.isnull(time)
+
+    time = time[finite_time]
+    flux = flux[finite_time]
+
+    if t0 is None:
+        t0 = np.nanmin(time)
+
     flux -= np.nanmedian(flux) # already normalized
 
     cadence = np.nanmedian(np.diff(time)) # 2 minutes, in units of days
-    N_obs_per_cycle = int(period / cadence)
+    N_obs_per_cycle = int(np.round(period / cadence))
 
     cycle_number = np.floor( (time-t0) / period)
 
-    cycle_min = int(np.min(cycle_number))
-    cycle_max = int(np.max(cycle_number))
+    cycle_min = int(np.nanmin(cycle_number))
+    cycle_max = int(np.nanmax(cycle_number))
 
     flux_arr = np.zeros(
         (N_obs_per_cycle, cycle_max-cycle_min)
@@ -156,35 +164,73 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
 
         sel = (time > begin) & (time <= end)
 
-        if len(flux[sel])/N_obs_per_cycle < 0.9:
-            # for significantly empty cycles, do all nan.  "significantly
-            # empty" here means any more than 5 cadences (10 minutes, out of a
-            # ~1 day periods typically) off.
-            flux_arr[:, cycle_ind] = 0
+        ALGORITHM1 = 0
+        ALGORITHM2 = 1
 
-        elif len(flux[sel]) <= (N_obs_per_cycle-1):
-            # for cycles a few cadences short, pad with a few nans at the end
-            # of the array
-            use_flux = np.ones(N_obs_per_cycle)*0
+        assert ALGORITHM1 + ALGORITHM2 == 1
 
-            # the beginning of the array is the flux
-            use_flux[:flux[sel].shape[0]] = flux[sel]
+        if ALGORITHM1:
+            if len(flux[sel])/N_obs_per_cycle < 0.9:
+                # for significantly empty cycles, do all nan.  "significantly
+                # empty" here means any more than 5 cadences (10 minutes, out of a
+                # ~1 day periods typically) off.
+                flux_arr[:, cycle_ind] = 0
 
-            flux_arr[:, cycle_ind] = use_flux
+            elif len(flux[sel]) <= (N_obs_per_cycle-1):
+                # for cycles a few cadences short, pad with a few nans at the end
+                # of the array
+                use_flux = np.ones(N_obs_per_cycle)*0
 
-        elif len(flux[sel]) > N_obs_per_cycle:
-            use_flux = flux[sel][:N_obs_per_cycle]
-            flux_arr[:, cycle_ind] = use_flux
+                # the beginning of the array is the flux
+                use_flux[:flux[sel].shape[0]] = flux[sel]
 
-        else:
-            use_flux = flux[sel]
-            flux_arr[:, cycle_ind] = use_flux
+                flux_arr[:, cycle_ind] = use_flux
+
+            elif len(flux[sel]) > N_obs_per_cycle:
+                use_flux = flux[sel][:N_obs_per_cycle]
+                flux_arr[:, cycle_ind] = use_flux
+
+            else:
+                use_flux = flux[sel]
+                flux_arr[:, cycle_ind] = use_flux
+
+        if ALGORITHM2:
+
+            if len(time[sel])/N_obs_per_cycle < 0.1:
+                # for significantly empty cycles, do all nan.  "significantly
+                # empty" here means any more than 5 cadences (10 minutes, out of a
+                # ~1 day periods typically) off.
+                flux_arr[:, cycle_ind] = 0
+
+            else:
+                # select points slightly inside and outside of this cycle
+                out_sel = (
+                    (time > begin-0.05*period) & (time <= end+0.05*period)
+                )
+
+                t_start_this_cycle = t0 + cycle_ind * period
+                t_end_this_cycle = t0 + (cycle_ind+1) * period
+
+                fn = interp1d(time[out_sel], flux[out_sel],
+                              kind='nearest', fill_value=np.nan,
+                              bounds_error=False)
+
+                t_grid_this_cycle = np.arange(
+                    t_start_this_cycle, t_end_this_cycle, cadence
+                )
+
+                assert len(t_grid_this_cycle) == N_obs_per_cycle
+
+                flux_this_cycle = fn(t_grid_this_cycle)
+
+                flux_arr[:, cycle_ind] = flux_this_cycle
+
 
     vmin = np.nanmedian(flux)-4*np.nanstd(flux)
     vmax = np.nanmedian(flux)+4*np.nanstd(flux)
 
     fig, ax = plt.subplots(figsize=(6,10))
-    c = ax.pcolor(np.arange(0, period, cadence),
+    c = ax.pcolor(np.arange(0, period, cadence)/period - 0.5,
                   list(range(cycle_min, cycle_max)),
                   flux_arr.T,
                   cmap=cmap, vmin=vmin, vmax=vmax,
@@ -198,7 +244,7 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
     if isinstance(titlestr, str):
         ax.set_title(titlestr.replace("_", " "))
     ax.set_ylabel('Cycle number')
-    ax.set_xlabel('Time [days]')
+    ax.set_xlabel('Phase, $\phi$')
 
     if isinstance(cyclewindow, tuple):
         ax.set_ylim(cyclewindow)
@@ -632,8 +678,8 @@ def plot_phase_timegroups_mosaic(
         if isinstance(ylim, (list, tuple)):
             ax.set_ylim(ylim)
 
-        #ax.hlines(2.5, -0.6666/2, 0.6666/2, colors='darkgray', alpha=1,
-        #          linestyles='-', zorder=-2, linewidths=1)
+        ax.hlines(2.5, -0.6666/2, 0.6666/2, colors='darkgray', alpha=1,
+                  linestyles='-', zorder=-2, linewidths=1)
 
         ax.set_yticklabels([])
         ax.set_xticklabels([])
