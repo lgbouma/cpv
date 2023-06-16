@@ -106,29 +106,30 @@
   Complex quasiperiodic variables (CQVs) are pre-main-sequence
   M-dwarfs with almost-periodic optical modulation that includes both
   sharp and broad troughs.  The troughs are usually superposed over
-  smooth, spot-like modulation.  These objects are typically
-  10-100 million years (Myr) old, and they do not seem to have primordial gas-rich
+  smooth, spot-like modulation.  These objects are typically 10-100
+  million years (Myr) old, and they do not have primordial gas-rich
   disks.  Nonetheless, the preferred explanations for their optical
-  variability invoke long-lived material in orbit at the corotation
-  radius, for instance transiting dust clumps or stellar prominences.
-  Here, we report new CQVs discovered in TESS data collected between
-  July~2018 and Sep~2022.  Our search used two methods, the first
-  based on counting dips in phase-folded light curves, and the second
-  based on counting peaks in the Fourier domain.  From our analysis of
-  \nstarssearched\ M-dwarfs with $T$$<$16 and $d$$<$150\,pc, we find
-  \ngoods\ gold-standard CQVs.  Most of these discoveries are new,
-  and they include the brightest and closest
-  examples of this class of object known ($T$$\approx$10; $d$$\approx$20\,pc).  A few
-  objects are outliers among outliers; LP 12-502 for instance
-  shows four to eight local minima per cycle distributed over a ``dip
-  complex'' with a total duration that is nearly fixed over more than
-  1000 cycles.  Nonetheless, LP-502 at times also showed drastic shape
-  changes over less than one cycle.  More generally, we find that none
-  of the CQVs maintain a fixed light curve shape over timescales of
-  more than a few hundred cycles -- they are {\it quasi}periodic.
-  Although the physical explanation behind these objects remains
-  enigmatic, our sample may help clarify their origin.  Connections to
-  star, disk, and exoplanet evolution are emphasized.
+  variability invoke long-lived material in orbit at the Keplerian
+  corotation radius, for instance transiting dust clumps or stellar
+  prominences.  Here, we report new CQVs discovered in TESS data
+  collected between July~2018 and Sep~2022.  Our search used two
+  methods, the first based on counting dips in phase-folded light
+  curves, and the second based on counting peaks in the Fourier
+  domain.  From our analysis of \nstarssearched\ M-dwarfs with
+  $T$$<$16 and $d$$<$150\,pc, we find \ngoods\ gold-standard CQVs.
+  Most of these discoveries are new, and they include the brightest
+  and closest examples of this class of object known ($T$$\approx$11;
+  $d$$\approx$20\,pc).  A few objects are outliers among outliers; LP
+  12-502 for instance shows four to eight local minima per cycle
+  distributed over a ``dip complex'' with a total duration that is
+  nearly constant over more than 1000 cycles.  Nonetheless, LP-502 at
+  times also showed drastic shape changes over less than one cycle.
+  More generally, we find that none of the CQVs maintain a fixed light
+  curve shape over timescales of more than a few hundred cycles --
+  they are {\it quasi}periodic.  Although the physical explanation
+  behind these objects remains enigmatic, our sample may help clarify
+  their origin.  Connections to star, disk, and exoplanet evolution
+  are emphasized.
 \end{abstract}
 
 
@@ -175,9 +176,9 @@ depths and durations over less than one cycle, they more often evolve
 gradually, over tens to hundreds of cycles
 \citep[e.g.][]{2017AJ....153..152S,2022ApJ...925...75P,2023ApJ...945..114P}.
 
-The issue of what exactly causes the variability that defines the CQVs
-has yet to be resolved.  There are a few competing explanations.  All
-young M-dwarfs are spotted, which produces flux variations over
+The issue of what causes the variability that defines the CQVs has yet
+to be resolved.  There are a few competing explanations.  All young
+M-dwarfs are spotted, which produces flux variations over
 characteristic timescales of the rotation period, $P_{\rm rot}$, and
 its half-harmonic, $0.5\,P_{\rm rot}$.  The observed dips occur over
 durations as short as $0.05\,P_{\rm rot}$; a ``starspot-only''
@@ -185,9 +186,10 @@ scenario is therefore highly unlikely for any of the objects with
 sufficiently sharp dips
 \citep{2017AJ....153..152S,2021MNRAS.500.1366K}.   The more likely
 scenarios instead invoke sharp geometries with material extrinsic to
-the stellar surface \citep[e.g.][]{2017AJ....153..152S,2022AJ....163..144G}.  In the ``clump''
-scenario, opaque dust clumps orbiting near the Keplerian corotation
-radius eclipse the star
+the stellar surface
+\citep[e.g.][]{2017AJ....153..152S,2022AJ....163..144G}.  In the
+``clump'' scenario, opaque dust clumps orbiting near the Keplerian
+corotation radius eclipse the star
 \citep{2017AJ....153..152S,2023MNRAS.518.4734S}.  In the
 ``prominence'' scenario, long-lived condensations of plasma are
 trapped along the star’s magnetic field lines, also near corotation
@@ -332,22 +334,22 @@ $d$$<$150\,pc.
 
 Previous methods that have yielded CQV discoveries include visually
 examining stars known to be in young clusters
-\citep{2016AJ....152..114R,2017AJ....153..152S}, and automatically flagging rapid rotators
-with a large number of strong Fourier harmonics
-\citep{2019ApJ...876..127Z}.  The latter approach requires visual
-vetting, since most rapid rotators with many Fourier harmonics are
-false positives such as eclipsing binaries or multiple stars blended
-into a single photometric aperture.  In this work, we implemented a
-new search approach based on counting the number of sharp local minima
-in phase-folded light curves, while also using the previously tested
-Fourier approach.  We applied these two search techniques
-independently.   
+\citep{2016AJ....152..114R,2017AJ....153..152S}, and automatically
+flagging rapid rotators with a large number of strong Fourier
+harmonics \citep{2019ApJ...876..127Z}.  The latter approach requires
+visual vetting, since most rapid rotators with many Fourier harmonics
+are false positives such as eclipsing binaries or multiple stars
+blended into a single photometric aperture.  In this work, we
+implemented a new search approach based on counting the number of
+sharp local minima in phase-folded light curves, while also using the
+previously tested Fourier approach.  We applied these two search
+techniques independently.   
 
 
 \subsubsection{Fourier analysis}
 \label{subsec:fourier}
-For the Fourier analysis, we followed
-\citet{2019ApJ...876..127Z}.
+For the Fourier analysis, we followed \citet{2019ApJ...876..127Z}.
+
 {\bf todo for Rahul or Saul: explain the approach, in a few
 paragraphs.  Was the SAP\_FLUX or PDCSAP used? etc. }
 
@@ -424,39 +426,38 @@ Broadly speaking, the most common false positives for both the Fourier
 and dip-counting techniques were eclipsing binaries, spot-induced
 variability from rapid rotators, and variability from neighboring,
 off-target stars.  Typical false postive rates from our dip-counting
-pipeline were 5:1, with \nuniqdipflagged\ unique stars flagged, and about 20\% being
-labelled either ``good'' or ``possible'' CQVs; for the Fourier
-pipeline, {\bf the rate was X:Y, with ZZZZ unique stars flagged, and
-NN\% being labelled ``good'' or ``possible'' CQVs}.
+pipeline were 5:1, with \nuniqdipflagged\ unique stars flagged, and
+about 20\% being labelled either ``good'' or ``possible'' CQVs; for
+the Fourier pipeline, {\bf the rate was X:Y, with ZZZZ unique stars
+flagged, and NN\% being labelled ``good'' or ``possible'' CQVs}.
 
 
 \subsection{Stellar properties}
 
 \paragraph{Ages}
 We estimated the stellar ages by making probabilistic spatial and
-kinematic associations between the CQVs and known clusters in the solar
-neighborhood.  For most of the stars in our sample, we were able to do
-this using BANYAN\,$\Sigma$
+kinematic associations between the CQVs and known clusters in the
+solar neighborhood.  For most of the stars in our sample, we were able
+to do this using BANYAN\,$\Sigma$
 \citep{2018ApJ...856...23G}.\footnote{\url{https://github.com/jgagneastro/banyan_sigma},
-git commit \texttt{394b486}} This algorithm calculates the
-probability that a given star belongs to one of 27 young
-clusters (or ``assocations'') within 150\,pc of the Sun, by modeling the clusters
-as multivariate Gaussians in 3-D position and 3-D velocity space.  
-We used the
-Gaia DR2 sky positions, proper motions, and distances to calculate the
-membership probabilities.  
-BANYAN\,$\Sigma$ in turn analytically marginalizes over the radial velocity dimension.
-We emphasize that the probabilities returned by this procedure are qualitatively
-useful, but quantitatively dubious due to the non-Gaussian
-nature of most groups within the
-solar neighborhood \citep[see e.g.][Figure~10]{2021ApJ...917...23K}.
+git commit \texttt{394b486}} This algorithm calculates the probability
+that a given star belongs to one of 27 young clusters (or
+``assocations'') within 150\,pc of the Sun, by modeling the clusters
+as multivariate Gaussians in 3-D position and 3-D velocity space.  We
+used the Gaia DR2 sky positions, proper motions, and distances to
+calculate the membership probabilities.  BANYAN\,$\Sigma$ in turn
+analytically marginalizes over the radial velocity dimension.  The
+probabilities returned by this procedure are qualitatively useful, but
+quantitatively dubious due to the non-Gaussian nature of most groups
+within the solar neighborhood \citep[see
+e.g.][Figure~10]{2021ApJ...917...23K}.
 
-For a few cases where BANYAN\,$\Sigma$
-yielded ambiguous results, we consulted the meta-catalog of young,
-age-dated, and age-dateable stars within a kiloparsec from
-\citet{2022AJ....163..121B}, and also searched the local volume around
-each star for co-moving
-companions.\footnote{\url{https://github.com/adamkraus/Comove}, git commit \texttt{278b372}}
+For a few cases where BANYAN\,$\Sigma$ yielded ambiguous results, we
+consulted the meta-catalog of young, age-dated, and age-dateable stars
+within a kiloparsec from \citet{2022AJ....163..121B}, and also
+searched the local volume around each star for co-moving
+companions.\footnote{\url{https://github.com/adamkraus/Comove}, git
+commit \texttt{278b372}}
 
 
 \paragraph{Effective temperatures, radii, and masses}
@@ -489,55 +490,54 @@ companions.\footnote{\url{https://github.com/adamkraus/Comove}, git commit \text
 
 \subsection{CQV catalog}
 
-
-Table~\ref{tab:thetable} lists the \ncpvsfound\ CQVs identified by
-our search, and some of their important properties.
-\ngoods\ objects demonstrate what we view as unambiguous
-characteristics of the CPV phenomenon in at least one TESS sector, and
-we refer to these as the ``gold sample''.
-The remaining \nmaybes\ CPV candidates were ambiguous (in our view),
-and their variability might be caused by say, multiple starspot
-groups.
+Table~\ref{tab:thetable} lists the \ncpvsfound\ CQVs identified by our
+search, and some of their important properties.  \ngoods\ objects
+demonstrate what we view as unambiguous characteristics of the CPV
+phenomenon in at least one TESS sector, and we refer to these as the
+``gold sample''.  The remaining \nmaybes\ CPV candidates were
+ambiguous (in our view), and their variability might be caused by say,
+multiple starspot groups.  Additional TESS data could help resolve
+their classification.
 
 The mosaic in Figure~\ref{fig:singlemosaic} shows phased light curves
-for the 40 brightest objects.
-The TESS sectors in which these objects were identified show
-anywhere from one to eight local minima per cycle.
-Some stars show relatively ordinary modulation during one continuous
-portion of the phased light curve, and highly structured modulation in
-the remainder of the cycle (e.g. TIC~206544316, TIC~224283342,
-TIC~402980664).
-Others show structured modulation over the entire span of a cycle
-(e.g. TIC~2234692, TIC~401789285, TIC~425933644, TIC~142173958).
-Others still show some mix between these two modes.
+for the 40 brightest objects.  The TESS sectors in which these objects
+were identified show anywhere from one to eight local minima per
+cycle.  Some stars show relatively ordinary modulation during one
+continuous portion of the phased light curve, and highly structured
+modulation in the remainder of the cycle (e.g. TIC~206544316,
+TIC~224283342, TIC~402980664).  Others show structured modulation over
+the entire span of a cycle (e.g. TIC~2234692, TIC~401789285,
+TIC~425933644, TIC~142173958).  Others still show some mix between
+these two modes.
 
 \subsection{Ages}
 
-Of our \ncpvsfound\ confirmed and candidate CQVs, \nnotfieldbanyan\ 
-were confidently associated with a nearby moving group or open
-cluster using BANYAN\,$\Sigma$.
-The relevant groups are listed in Table~\ref{tab:thetable}; their ages
-span $\approx$5-150\,Myr.
-The most prodigious groups were Sco-Cen, Tuc-Hor, and Columba.
-The yield of CQVs in Sco-Cen (LCC / UCL / USco) is not surprising,
-since Sco-Cen contains the majority of pre-main-sequence stars in the
-solar neighborhood.
-The absence of CQVs in IC2602 and IC2391 is because those clusters are
-beyond 100\,pc, where the completeness of the TESS 120-second cadence
-data is below 10\%.
+Of our \ncpvsfound\ confirmed and candidate CQVs, \nnotfieldbanyan\
+were confidently associated with a nearby moving group or open cluster
+using BANYAN\,$\Sigma$.  The relevant groups are listed in
+Table~\ref{tab:thetable}; their ages span $\approx$5-150\,Myr.  The
+most prodigious groups were Sco-Cen, Tuc-Hor, and Columba.  The yield
+in Sco-Cen (LCC / UCL / USco) is not surprising, since Sco-Cen
+contains the majority of pre-main-sequence stars in the solar
+neighborhood.  The absence of CQVs in IC\,2602 and IC\,2391 can be
+understand by those clusters being beyond 100\,pc, where the
+completeness of the TESS 120-second cadence data is below 10\%; based
+on the abundance of CQVs in the 40\,Myr Tuc-Hor and Columba, the
+similarly-aged IC\,2602 and IC\,2391 clusters should have a large
+number of CQVs in the TESS full frame image data.
 
-Of the the \ngoodsfieldbanyan\ non-associated stars, one
-(TIC~302160226) is an obvious member of $\alpha$~Per ($t\approx
-86\pm16$\,Myr; \citealt{2022arXiv221109822B}).  For the other two
+Of the \ngoodsfieldbanyan\ stars for which BANYAN\,$\Sigma$ did not
+find any association, one (TIC~302160226) is a member of $\alpha$~Per
+($t\approx 86\pm16$\,Myr;
+\citealt{2021A&A...645A..84M,2022arXiv221109822B}).  For the other two
 (TIC~58084670 and TIC~141146667), we are convinced of both their CPV
 status and their youth, but we were not able to confidently associate
-either star with any young groups.
-Both were noted as being in the ``diffuse'' Class~II YSO
-population by \citet{2021ApJ...917...23K}.
+either star with any young groups.  Both objects were noted as being in the
+``diffuse'' Class~II YSO population near the Sun by \citet{2021ApJ...917...23K}.
 That diffuse population may contain kinematic structures that have yet
-to be unravelled, however the absence of obvious young, co-moving
-stars within $\Delta r$=$40$\,pc and $\Delta v$=$3$\,km\,s$^{-1}$
-of these stars suggest that they may have run away from their birth
+to be unravelled.  However, the absence of obvious young, co-moving
+stars within $\Delta r$=$40$\,pc and $\Delta v$=$3$\,km\,s$^{-1}$ of
+our two CPVs suggest that they may have ``run away'' from their birth
 locations.
 
 The CQV phenomenon persists at least up to 150\,Myr.  Our catalog
@@ -548,45 +548,73 @@ similarly-aged Psc-Eri member (TIC~38539720;
 \citealt{2020A&A...639A..64R}).  To our best knowledge, TIC~332517282
 was the previous record-holder for oldest-known CQV
 \citep{2019ApJ...876..127Z,2022AJ....163..144G}; at least one
-unambiguous case (EPIC~211070495) and a few other candidates were
-also previously known in the Pleiades \citep{2016AJ....152..114R}.
-While we expect to have been sensitive to CQVs in the nearby Hyades
-($\approx$700\,Myr), 
-again due to the specifics of the TESS 120-second selection function,
-we do not know at this time whether we would have been sensitive to
-such stars.
+unambiguous case (EPIC~211070495) and a few other candidates were also
+previously known in the Pleiades \citep{2016AJ....152..114R}.  While
+we expect to have been sensitive to CQVs in the nearby Hyades
+($\approx$700\,Myr), again due to the specifics of the TESS 120-second
+selection function, we do not know at this time whether we would have
+been sensitive to such stars.
 
-Finally, six CQVs were identified in the recently
-confirmed Argus association \citep{2019ApJ...870...27Z}.
-This serves as an indirect line of evidence supporting the reality,
-and youth, of that group.
-
-
-
-
+Finally, six CQVs were identified in the recently confirmed Argus
+association \citep{2019ApJ...870...27Z}.  This serves as an indirect
+line of evidence supporting the reality, and youth, of that group.
 
 
 \subsection{CQV evolution}
 
 \paragraph{LP 12-502}
-While many CPVs had multiple sectors of data, in our view the most
-astounding dataset was available for LP 12-502 (TIP 402980664).
-Figure~\ref{fig:lp} shows all available data from Sectors 18, 19, 25,
-26, 53, 58, and 59; the star was observed at 120-second cadence for
-every sector during which it was on silicon.
+While many CPVs had multiple sectors of data, an astounding dataset
+was available for LP 12-502 (TIC 402980664; $d$=21\,pc, $J$=9.4,
+$T$=11.1).  Figure~\ref{fig:lp} shows all available data from Sectors
+18, 19, 25, 26, 53, 58, and 59; the star was observed at 120-second
+cadence for every sector during which it was on silicon.
 
 For the first 64 cycles, the star shows a pattern reminiscent of a
-(bizarre) eclipsing binary, with four obvious dips, that we denote
-dips 1, 2, 3, and 4 at phases -0.28, -0.08, 0, and 0.25 respectively.
-The depth of dips 1 and 3 remain roughly fixed.
-Over the 64 cycles, dip 4 {\it decreases} in depth by about 2\%, while
-dip 2 {\it increases} in depth, by about the same amount.
+(bizarre) eclipsing binary, with four obvious dips, that we dub
+dips $\{ 1, 2, 3, 4 \}$ at phases $\{ -0.28, -0.08, 0, 0.25 \}$
+respectively.  Over cycles 0 to 64, the depth of dips 1 and 3 remain
+roughly fixed.  However dip 4 {\it decreases} in depth by about 2\%,
+while dip 2 {\it increases} in depth, by about the same amount.
 
-There is then a 6-month (184 cycle) gap out to Cycle 248.
-At this time, dip 1 is still present, at the same phase, and with
-roughly the same depth.
+{\bf todo: discussion needs auto-measured phases at fixed t0...}
+There is then a 6-month (184 cycle) gap out to Cycles 248-315, which
+show an intricately structured dip complex.
+Between Cycles 248-264, there are at least six dips, at phases $\{
+  -0.47, -0.28, -0.08,  0.  ,  0.06,  0.17 $\}.
+There is ``state switch'', roughly at BTJD 1993.5 - cycle 262.
+The lower black points in cycles 248--264 shift upward during cycle
+262, never to return.
+A large flare occurred a few cycles earlier, at BTJD 1989.2 (which may
+or may not be related).
+Regardless, the depths of the latter three-dip complex remain roughly
+the same after the state-switch;
+the first obvious dip in the sequence disappears.
+Ah, and the flux changes by 3.5\% over about 22 minutes (0.02\,$P$),
+which is the steepest slope exhibited anywhere in this object's
+remarkable dataset.
+During the beginning of Sector~26 (Cycles 283-298), there are seven
+clear dips per cycle.
+The the second orbit of this sector,
+there is another state-switch at BTJD 2030.7, immediately during a
+flare.   (And therefore likely caused by the flare!)
 
-%TODO continue writing about this.  What is the exact TJD of the jump?
+Finally, sectors 53--58 (cycles 1233-1481) showed between four and six
+dips per cycle, at various times.  
+Some dips, for instance the one at $\phi = -0.03$, remain stable in
+depth and duration over this five month interval.
+Other dips, such as the one at $\phi = +0.04$ in cycles 1233-1264,
+disappear entirely.
+Other dips grow, like the one at $\phi = +0.06$ between cycles 1499
+and 1481.
+Also, there is the epic state switch during cycles 1233-1247.
+Which appears to happen over less than one cycle, and there is no
+associated flare.
+
+Some are sharktooths.
+Dip1 in cycle48-64 is one.
+Dip1 in cycle 1466-1481 is one.
+It is definitely asymmetric!
+
 
 %TODO; make a version (for talks) showing dips 1234 over cycles0-64
 %TODO include +/- 1/3 as important durations.
@@ -610,10 +638,11 @@ A periodic signal does not modulate.
 		\vspace{-0.45cm}
 		\caption{
 			{\it Bottom:}
-      Evolution of LP 12-502 ($P$=18.5604\,h) at fixed period and epoch over three
-      years; small text denotes cycle number.  The TESS pointing law
-      dictates time gaps; larger gaps tend to yield larger shape
-      changes.
+      Evolution of LP 12-502 ($P$=18.5604\,h) at fixed period and
+      epoch over three years; small text denotes cycle number.  
+      There are 200 binned black points per cycle.
+      The TESS pointing law dictates time gaps; larger gaps tend to
+      yield larger shape changes.
       The dips usually evolve over tens to hundreds of cycles.
       However cycles 1233-1264 show a dip that ``switched'' from a depth
       and duration of 3\% and 3\,hr to 0.3\% and 1\,hr over less than
@@ -726,9 +755,9 @@ Heising-Simons 51~Pegasi~b Fellowship (LGB)
 {\bf author contribution statement goes here}
 L.G.B.~and R.~J. conceived the project and executed the
 dip-based and Fourier-based searches, respectively.
-They both drafted the initial manuscript.
-L.G.B.~performed the cluster membership analysis.
-S.~R. vetted the results from the Fourier search.
+L.G.B.~drafted the initial manuscript, and performed the cluster
+membership analysis.
+S.~R. and R.~J. vetted the results from the Fourier search.
 L.A.H.~contributed to project design.
 All authors assisted in manuscript revision.
 
