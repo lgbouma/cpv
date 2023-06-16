@@ -28,6 +28,7 @@ from astrobase.lcmath import (
     find_lc_timegroups, phase_magseries_with_errs, time_bin_magseries
 )
 from astrobase.services.identifiers import tic_to_gaiadr2
+from astrobase.lcmath import sigclip_magseries
 
 #############
 ## LOGGING ##
@@ -2448,3 +2449,114 @@ def plot_cadence_comparison(outdir, ticid: str = None, sector: int = None):
 
     outpath = join(outdir, f'cadence_comparison_{s}.png')
     savefig(fig, outpath, dpi=400)
+
+
+def plot_tic4029_segments(outdir):
+    # make plot
+
+    plt.close('all')
+    set_style('science')
+
+    f = 0.5
+    fig, ax = plt.subplots(figsize=(f*8.5, f*11))
+
+    ############
+    # get data #
+    ############
+    ticid = '402980664'
+    sample_id = '2023catalog_LGB_RJ_concat' # used for cacheing
+    period = 18.5611/24
+    t0 = 1791.12
+    cachedir = join(LOCALDIR, "cpv_finding", sample_id)
+
+    from complexrotators.getters import _get_lcpaths_fromlightkurve_given_ticid
+    from complexrotators.lcprocessing import prepare_cpv_light_curve
+
+    lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid)
+
+    # stack over all sectors
+    times, fluxs = [], []
+    for lcpath in np.sort(lcpaths):
+        (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
+         sector, starid) = prepare_cpv_light_curve(lcpath, cachedir)
+        times.append(x_obs)
+        fluxs.append(y_flat)
+    times = np.hstack(np.array(times).flatten())
+    fluxs = np.hstack(np.array(fluxs).flatten())
+
+    from astrobase.lcmath import find_lc_timegroups
+    ngroups, groups = find_lc_timegroups(times, mingap=12/24)
+
+    normfunc = True
+
+    for n, g in enumerate(groups):
+
+        gtime = times[g]
+        gflux = fluxs[g]
+
+        if normfunc:
+            gflux = gflux - np.nanmean(gflux)
+
+        # t = t0 + P*e
+        e_start = int(np.floor((gtime[0] - t0)/period))
+        e_end = int(np.floor((gtime[-1] - t0)/period))
+
+        if e_end - e_start < 1:
+            continue
+
+        txt = f"{e_start}"+"$\,$-$\,$"+f"{e_end}"
+
+        bd = time_bin_magseries(gtime, gflux, binsize=900, minbinelems=1)
+
+        if e_start > 1000:
+            # omitted segment hack
+            n -= 1
+
+        yoffset = -6 * n
+
+        norm = lambda x: 1e2*x + yoffset
+        norm_x = lambda x: x - np.nanmin(x)
+
+        x, y = norm_x(bd['binnedtimes']), norm(bd['binnedmags'])
+
+        sx, sy, _ = sigclip_magseries(x, y, np.zeros_like(y), sigclip=[10,2.5],
+                                       iterative=False, niterations=None,
+                                       meanormedian='median',
+                                       magsarefluxes=True)
+
+        # show flares in light gray; everything else in black; don't draw lines
+        # between time gaps.
+        _, _groups = find_lc_timegroups(x, mingap=0.5/24)
+        for _g in _groups:
+            ax.plot(x[_g], y[_g], c='k', zorder=1, lw=0.2, alpha=0.3)
+
+        _, _groups = find_lc_timegroups(sx, mingap=0.5/24)
+        for _g in _groups:
+            ax.plot(sx[_g], sy[_g], c='k', zorder=2, lw=0.3)
+
+        # manage text
+        fontsize = 4
+        tform = blended_transform_factory(ax.transAxes, ax.transData)
+        props = dict(boxstyle='square', facecolor='white', alpha=0.7, pad=0.15,
+                     linewidth=0)
+        ax.text(0.97,
+                np.nanpercentile(norm(bd['binnedmags']), 98), txt,
+                transform=tform, ha='right',va='bottom', color='k',
+                fontsize=fontsize, bbox=props)
+
+    ax.text(0.97, 0.98, 'Cycle #', va='top', ha='right', fontsize=6,
+            bbox=props, transform=ax.transAxes)
+
+    ax.set_xlabel('Days since chunk began')
+    ax.set_ylabel('Flux [%]')
+    #fig.text(-0.01,0.5, r"Flux [%]", va='center', rotation=90, fontsize='large')
+    #fig.text(0.5,-0.01, r"Time since chunk began [days]", ha='center', fontsize='large')
+
+    fig.tight_layout()
+
+    # set naming options
+    s = ''
+
+    bn = 'tic4029_segments'
+    outpath = join(outdir, f'{bn}{s}.png')
+    savefig(fig, outpath, dpi=500)
