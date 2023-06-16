@@ -567,8 +567,30 @@ While many CPVs had multiple sectors of data, an astounding dataset
 was available for LP 12-502 (TIC 402980664; $d$=21\,pc, $J$=9.4,
 $T$=11.1).  Figure~\ref{fig:lp} shows all available data from Sectors
 18, 19, 25, 26, 53, 58, and 59; the star was observed at 120-second
-cadence for every sector during which it was on silicon.
+cadence whenever it was observable by TESS.
+Measuring the PDM peak period over each sector independently yielded
+an average $\langle P \rangle = 18.5560$\,hr, with a difference
+between the maximum and minimum sector-level period of about one minute.
+Based on this range, the period is therefore stable to at least one
+minute ($\pm$0.017\,hr) over the three year baseline.
+However, in detail, a period shift of $\pm$1\,minute yields major
+phase drifts over the 3 year baseline; that time interval
+corresponds to roughly 1/1000$^{\rm th}$ of a period; we have
+observed 1500 cycles.
+The achievable period precision, $\sigma_{\rm P}$, can be estimated as
+\begin{equation}
+  \sigma_{\rm P} = \frac { \sigma_{\rm phi} P } { N_{\rm baseline} },
+\end{equation}
+for $N_{\rm baseline}$ the number of cycles in the observed baseline and
+$\sigma_{\rm phi}$ the phase precision with which any one feature (e.g.~a
+dip) can be tracked.
+Assuming $\sigma_{\rm phi} \approx 0.01$ yields an expected period precision
+$\sigma_{\rm P} \approx 0.45 seconds \approx 1.2\times 10^{-4}\,hr$.
+By visually fine-tuning over a grid in period, we eventually 
+found $P=18.5611 \pm 0.0001$\,hr, which seems to track certain
+features in the LP 12-502 light curve over its entire baseline.
 
+What features are observed?
 For the first 64 cycles, the star shows a pattern reminiscent of a
 (bizarre) eclipsing binary, with four obvious dips, that we dub
 dips $\{ 1, 2, 3, 4 \}$ at phases $\{ -0.28, -0.08, 0, 0.25 \}$
@@ -589,12 +611,13 @@ or may not be related).
 Regardless, the depths of the latter three-dip complex remain roughly
 the same after the state-switch;
 the first obvious dip in the sequence disappears.
-Ah, and the flux changes by 3.5\% over about 22 minutes (0.02\,$P$),
+Ah, and the deepest dip shows a flux exercusion of 3.5\% over about 22 minutes (0.02\,$P$),
 which is the steepest slope exhibited anywhere in this object's
 remarkable dataset.
-During the beginning of Sector~26 (Cycles 283-298), there are seven
-clear dips per cycle.
-The the second orbit of this sector,
+During Sector~26 (Cycles 283-315), there are seven clear dips per
+cycle, and perhaps even eight, if one counts five dips in the largest
+dip complex.
+During the second orbit of this sector,
 there is another state-switch at BTJD 2030.7, immediately during a
 flare.   (And therefore likely caused by the flare!)
 
@@ -638,7 +661,7 @@ A periodic signal does not modulate.
 		\vspace{-0.45cm}
 		\caption{
 			{\it Bottom:}
-      Evolution of LP 12-502 ($P$=18.5604\,h) at fixed period and
+      Evolution of LP 12-502 ($P$=18.6\,h) at fixed period and
       epoch over three years; small text denotes cycle number.  
       There are 200 binned black points per cycle.
       The TESS pointing law dictates time gaps; larger gaps tend to
@@ -751,6 +774,9 @@ phase curve of LP 12-502 using JWST/MIRI.
 \acknowledgments
 This work was supported by the 
 Heising-Simons 51~Pegasi~b Fellowship (LGB)
+TIC 402980664 was observed at 120-second cadence thanks to the TESS Guest
+Investigator programs G022252 (PI: J.~Schlieder; Sectors 18, 19, 25,
+26) and G04168 (PI: R.~Jayaraman; Sector 53).
 
 {\bf author contribution statement goes here}
 L.G.B.~and R.~J. conceived the project and executed the
