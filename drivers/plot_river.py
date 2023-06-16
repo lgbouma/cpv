@@ -2,17 +2,25 @@
 Given a TIC ID, make a river plot.
 """
 
-from complexrotators.helpers import (
-    get_complexrot_data,
-    get_complexrot_twentysec_data
-)
+import os
+import numpy as np
+from complexrotators.getters import _get_lcpaths_fromlightkurve_given_ticid
+
 from complexrotators.plotting import plot_river
-from complexrotators.paths import CSVDIR
+from complexrotators.paths import CSVDIR, RESULTSDIR, LOCALDIR
 from os.path import join
 
+from complexrotators.lcprocessing import (
+    prepare_cpv_light_curve
+)
+
+
 cmap = 'seismic'
+#cmap = 'PiYG'
 
 def many_ticids():
+
+    raise NotImplementedError('deprecated')
 
     #ticids = ['177309964','206544316','300651846','201789285']
     #cyclewindowss = [
@@ -41,31 +49,46 @@ def single_ticid():
 
     ##########################################
     # change these
-    ticid = '2234723'
-    cyclewindows = [None,(0,12),(260,300)] # [None,(0,65),(145,190)] # [None] #
-    is_20s = False
-    MANUAL_PERIOD = 2.4624
+    ticid = '402980664'
+    cyclewindows = [(0,1481), (0,64), (248,315), (1233,1481), (1411, 1481)]
+    sample_id = '2023catalog_LGB_RJ_concat' # used for cacheing
 
-    # typically None
-    readcsv = None
+    manual_period = 18.5611 / 24
+    t0 = 1791.15  # can be None
+
     ##########################################
 
-    # important keys: times, fluxs, period, t0, lsp.
-    if is_20s:
-        d = get_complexrot_twentysec_data(ticid)
-    else:
-        d = get_complexrot_data(ticid, hardcsv=readcsv)
+    # directory management
+    outdir = join(RESULTSDIR, 'river')
+    if not os.path.exists(outdir): os.mkdir(outdir)
+    outdir = join(RESULTSDIR, 'river', f'TIC_{ticid}')
+    if not os.path.exists(outdir): os.mkdir(outdir)
 
-    d['period'] = MANUAL_PERIOD
+    cachedir = join(LOCALDIR, "cpv_finding")
+    if not os.path.exists(cachedir): os.mkdir(cachedir)
+    cachedir = join(cachedir, sample_id)
+    if not os.path.exists(cachedir): os.mkdir(cachedir)
+
+    lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid)
+
+    # stack over all sectors
+    times, fluxs = [], []
+    for lcpath in np.sort(lcpaths):
+        (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
+         sector, starid) = prepare_cpv_light_curve(lcpath, cachedir)
+        times.append(x_obs)
+        fluxs.append(y_flat)
+    times = np.hstack(np.array(times).flatten())
+    fluxs = np.hstack(np.array(fluxs).flatten())
 
     idstr = f'TIC{ticid}'
-    titlestr = f'TIC{ticid}. P = {d["period"]:.4f}d.'
+    titlestr = f'TIC{ticid}. P = {manual_period*24:.4f}hr.'
 
+    # make the plots
     for cyclewindow in cyclewindows:
 
-        plot_river(d['times'], d['fluxs'], d['period'], d['outdir'],
-                   titlestr=titlestr, cmap=cmap, cyclewindow=cyclewindow,
-                   idstr=idstr)
+        plot_river(times, fluxs, manual_period, outdir, titlestr=titlestr,
+                   cmap=cmap, cyclewindow=cyclewindow, idstr=idstr, t0=t0)
 
 
 
