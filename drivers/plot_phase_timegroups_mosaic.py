@@ -18,7 +18,9 @@ def main():
         if not os.path.exists(outdir): os.mkdir(outdir)
 
         #for manual_period in np.arange(18.5595, 18.5605, 0.0001):
-        for manual_period in [18.5604]:
+        #for manual_period in np.arange(18.546, 18.565+0.001, 0.001):
+        for manual_period in np.arange(18.5600, 18.5620+0.0001, 0.0001):
+        #for manual_period in [18.5604]:
 
             cp.plot_phase_timegroups_mosaic(
                 outdir,
