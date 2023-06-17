@@ -2452,7 +2452,6 @@ def plot_cadence_comparison(outdir, ticid: str = None, sector: int = None):
 
 
 def plot_tic4029_segments(outdir):
-    # make plot
 
     plt.close('all')
     set_style('science')
@@ -2481,8 +2480,8 @@ def plot_tic4029_segments(outdir):
          sector, starid) = prepare_cpv_light_curve(lcpath, cachedir)
         times.append(x_obs)
         fluxs.append(y_flat)
-    times = np.hstack(np.array(times).flatten())
-    fluxs = np.hstack(np.array(fluxs).flatten())
+    times = np.hstack(np.array(times, dtype=object).flatten())
+    fluxs = np.hstack(np.array(fluxs, dtype=object).flatten())
 
     from astrobase.lcmath import find_lc_timegroups
     ngroups, groups = find_lc_timegroups(times, mingap=12/24)
@@ -2514,15 +2513,17 @@ def plot_tic4029_segments(outdir):
 
         yoffset = -6 * n
 
-        norm = lambda x: 1e2*x + yoffset
-        norm_x = lambda x: x - np.nanmin(x)
+        norm = lambda _y: 1e2*_y + yoffset
 
-        x, y = norm_x(bd['binnedtimes']), norm(bd['binnedmags'])
+        y = norm(bd['binnedmags'])
+        x = bd['binnedtimes']
+        x0 = np.nanmin(x)
+        x -= x0
 
         sx, sy, _ = sigclip_magseries(x, y, np.zeros_like(y), sigclip=[10,2.5],
-                                       iterative=False, niterations=None,
-                                       meanormedian='median',
-                                       magsarefluxes=True)
+                                      iterative=False, niterations=None,
+                                      meanormedian='median',
+                                      magsarefluxes=True)
 
         # show flares in light gray; everything else in black; don't draw lines
         # between time gaps.
@@ -2549,8 +2550,6 @@ def plot_tic4029_segments(outdir):
 
     ax.set_xlabel('Days since chunk began')
     ax.set_ylabel('Flux [%]')
-    #fig.text(-0.01,0.5, r"Flux [%]", va='center', rotation=90, fontsize='large')
-    #fig.text(0.5,-0.01, r"Time since chunk began [days]", ha='center', fontsize='large')
 
     fig.tight_layout()
 
