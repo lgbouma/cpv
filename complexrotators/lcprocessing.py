@@ -477,7 +477,7 @@ def count_phased_local_minima(
     return r
 
 
-def prepare_cpv_light_curve(lcpath, cachedir):
+def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0):
     """
     Given a SPOC 2-minute light curve, remove non-zero quality flags,
     median-normalize, and run a 5-day median filter over the light curve.
@@ -496,12 +496,14 @@ def prepare_cpv_light_curve(lcpath, cachedir):
     time = d['TIME']
     flux = d['PDCSAP_FLUX']
     qual = d['QUALITY']
+    cadenceno = d['CADENCENO']
 
     # remove non-zero quality flags
     sel = (qual == 0)
 
     x_obs = time[sel]
     y_obs = flux[sel]
+    cadenceno_obs = cadenceno[sel]
 
     # normalize around 1
     y_obs /= np.nanmedian(y_obs)
@@ -535,8 +537,14 @@ def prepare_cpv_light_curve(lcpath, cachedir):
             pickle.dump(lcd, f)
             LOGINFO(f'Made {pklpath}')
 
-    return (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend,
-            cadence_sec, sector, starid)
+    assert len(y_obs) == len(y_flat) == len(cadenceno_obs) == len(x_obs)
+
+    if returncadenceno:
+        return (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend,
+                cadence_sec, sector, starid, cadenceno_obs)
+    else:
+        return (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend,
+                cadence_sec, sector, starid)
 
 
 def p2p_rms(flux):
