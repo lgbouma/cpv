@@ -1,5 +1,6 @@
 import numpy as np, pandas as pd, matplotlib.pyplot as plt
 import os
+from glob import glob
 from os.path import join
 from complexrotators.paths import LOCALDIR, RESULTSDIR
 from complexrotators.getters import _get_lcpaths_fromlightkurve_given_ticid
@@ -7,6 +8,8 @@ from complexrotators.lcprocessing import prepare_cpv_light_curve
 from astrobase.lcmath import time_bin_magseries
 
 from aesthetic.plot import set_style, savefig
+
+from astropy.timeseries import LombScargle
 
 ############
 # get data #
@@ -143,7 +146,6 @@ def test1():
 
     # fit lomb scargle model
 
-    from astropy.timeseries import LombScargle
     nterms = 2
     ls = LombScargle(btimes[outofdip], bfluxs[outofdip], err[outofdip], nterms=nterms)
 
@@ -195,6 +197,158 @@ def test1():
     outpath = join(outdir, f"lsresid_mask_cycle{str(cyclemin).zfill(4)}-{str(cyclemax).zfill(4)}.png")
     savefig(fig, outpath, dpi=400)
 
+def get_4029_manual_mask(times, fluxs, cadencenos, get_full=0):
+
+    # made using glue, with the manual_masking_20230617.glu session
+    maskpaths = np.sort(
+        glob(join(RESULTSDIR, 'tic4029_segments', '*manual_mask*.csv'))
+    )
+
+    # out of dip times, fluxs, cadenceno's
+    ood_df = pd.concat((pd.read_csv(m) for m in maskpaths))
+    ood_df = ood_df.sort_values(by='cadenceno')
+
+    # full out of dip mask
+    full_ood = np.in1d(cadencenos, np.array(ood_df.cadenceno))
+
+    # sectors 18 and 19 out of dip
+    s18s19_ood = full_ood & (times > 1750) & (times < 1900)
+
+    # sectors 25 and 26 out of dip
+    s25s26_ood = full_ood & (times > 1950) & (times < 2100)
+
+    # sectors 53, 58, 59 out of dip
+    s53s58s59_ood =  full_ood & (times > 2600)
+
+    if get_full:
+        return full_ood
+
+    if get_split:
+        return s18s19_ood, s25s26_ood, s53s58s59_ood, full_ood
+
+
+def test2(nterms=1):
+    """
+    try fitting lomb scargle periodogram sinusoid model to out of dip data,
+    using manual masks and splitting into chunks
+    """
+    ticid = '402980664'
+    sample_id = '2023catalog_LGB_RJ_concat' # used for cacheing
+    period = 18.5611/24
+    t0 = 1791.12
+    cachedir = join(LOCALDIR, "cpv_finding", sample_id)
+
+    lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid)
+
+    # stack over all sectors
+    times, fluxs, cadencenos = [], [], []
+    for lcpath in np.sort(lcpaths):
+        (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
+         sector, starid, cadenceno) = prepare_cpv_light_curve(
+             lcpath, cachedir, returncadenceno=1
+         )
+        times.append(x_obs)
+        fluxs.append(y_flat)
+        cadencenos.append(cadenceno)
+    times = np.hstack(np.array(times, dtype=object).flatten())
+    fluxs = np.hstack(np.array(fluxs, dtype=object).flatten())
+    cadencenos = np.hstack(np.array(cadencenos, dtype=object).flatten())
+
+    model_id = f"manual_20230617_mask_v0_nterms{nterms}"
+    full_ood = get_4029_manual_mask(times, fluxs, cadencenos, get_full=1)
+
+    # btjd
+    timechunks = [
+        (1750, 1900), # s18/s19
+        (1950, 2100), # s25/s26
+        (2740, 2770), # s53
+        (2880, 2940), # s58/s59
+    ]
+
+    outtimes, outfluxs = [], []
+    for ix, timechunk in enumerate(timechunks):
+
+        # this time chunk
+        sel = (times > timechunk[0]) & (times < timechunk[1])
+        # out of dip during this time chunk
+        sel_ood = full_ood & (times > timechunk[0]) & (times < timechunk[1])
+
+        # fit lomb scargle model
+        ls = LombScargle(times[sel_ood], fluxs[sel_ood],
+                         1e-4*np.ones_like(fluxs[sel_ood]), nterms=nterms)
+
+        period_max = 18.6 / 24
+        period_min = 18.5 / 24
+        freq, power = ls.autopower(minimum_frequency=1/period_max,
+                                   maximum_frequency=1/period_min)
+
+        ls_freq_1 = freq[np.argmax(power)]
+        ls_period_1 = 1/ls_freq_1
+
+        # note: no need to do on binned times vs non-binned; either is good
+        flux_fit_1 = ls.model(times[sel], ls_freq_1)
+        flux_r = fluxs[sel] - flux_fit_1
+
+        #
+        # make the plot
+        #
+        plt.close("all")
+        set_style("science")
+        fig, ax = plt.subplots(figsize=(25,3))
+
+        ax.scatter(times[sel], fluxs[sel], c='k', s=0.5, zorder=1, linewidths=0)
+        ax.plot(times[sel], flux_fit_1, c='C0', zorder=2, lw=0.5)
+
+        yoffset = 0.9
+        ax.scatter(times[sel], flux_r+yoffset, c='k', s=0.5, zorder=1, linewidths=0)
+
+        outtimes.append(times[sel])
+        outfluxs.append(flux_r)
+
+        outdir = join(RESULTSDIR, "4029_mask")
+        if not os.path.exists(outdir): os.mkdir(outdir)
+
+        if ix == 0:
+            cyclemin, cyclemax = 0, 65
+        elif ix == 1:
+            cyclemin, cyclemax = 247, 316
+        elif ix == 2:
+            cyclemin, cyclemax = 1232, 1265
+        elif ix == 3:
+            cyclemin, cyclemax = 1410, 1482
+
+        ax.set_xlim([t0+cyclemin*period, t0+cyclemax*period])
+        ax.set_ylim([0.8, 1.05])
+        outpath = join(outdir, f"lsresid_{model_id}_cycle{str(cyclemin).zfill(4)}-{str(cyclemax).zfill(4)}.png")
+        savefig(fig, outpath, dpi=400)
+
+    outpath = join(outdir, f"lc_lsresid_{model_id}.csv")
+
+    times = np.hstack(np.array(outtimes, dtype=object).flatten())
+    r_fluxs = np.hstack(np.array(outfluxs, dtype=object).flatten())
+
+    out_df = pd.DataFrame({
+        'time': times,
+        'r_flux': r_fluxs # resdu
+    })
+
+    out_df.to_csv(outpath, index=False)
+    print(f"Wrote {outpath}")
+
+if __name__ == "__main__":
+
+    do_test0 = 0
+    do_test1 = 0
+    do_test2 = 1
+
+    if do_test0:
+        test0()
+    if do_test1:
+        test1()
+    if do_test2:
+        test2(nterms=1)
+        test2(nterms=2)
+
     # TODO:
     #
     # one idea for smarter automated mask construction...
@@ -206,13 +360,8 @@ def test1():
     # alternatively:
     # * try extra terms in the LS fit
     # * manually fine-tune the mask more
-    #
     # * let the LS fit change over the three main chunks (s18/19,  s25/26, s>50)
-    #
-    # i think the third would yield the best subtraction
 
     pass
 
-if __name__ == "__main__":
-    test1()
-    test0()
+
