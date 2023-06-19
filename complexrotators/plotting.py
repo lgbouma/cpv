@@ -2474,14 +2474,27 @@ def plot_tic4029_segments(outdir):
     lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid)
 
     # stack over all sectors
-    times, fluxs = [], []
+    times, fluxs, cadencenos = [], [], []
     for lcpath in np.sort(lcpaths):
         (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
-         sector, starid) = prepare_cpv_light_curve(lcpath, cachedir)
+         sector, starid, cadenceno) = prepare_cpv_light_curve(
+             lcpath, cachedir, returncadenceno=1
+         )
         times.append(x_obs)
         fluxs.append(y_flat)
+        cadencenos.append(cadenceno)
     times = np.hstack(np.array(times, dtype=object).flatten())
     fluxs = np.hstack(np.array(fluxs, dtype=object).flatten())
+    cadencenos = np.hstack(np.array(cadencenos, dtype=object).flatten())
+
+    # write copy of LC for glue cadence flagging
+    csvpath = join(outdir, f"stitched_TIC{ticid}_t_f_cadence.csv")
+    if not os.path.exists(csvpath):
+        _df = pd.DataFrame({'time':times, 'flux':fluxs, 'cadenceno':cadencenos})
+        _df.to_csv(csvpath, index=False)
+        print(f"Wrote {csvpath}")
+    else:
+        print(f"Found {csvpath}")
 
     from astrobase.lcmath import find_lc_timegroups
     ngroups, groups = find_lc_timegroups(times, mingap=12/24)
