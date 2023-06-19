@@ -33,6 +33,12 @@ v_eq = 2*np.pi*Rstar / P
 
 T0 = P * Rstar / (R_cr * np.pi)
 
+Rp0 = 4*u.Rearth
+δ0 = (Rp0/Rstar)**2
+Rp1 = 2*u.Rearth
+δ1 = (Rp1/Rstar)**2
+
+
 print(f"Oblateness (a-b)/a ~= {γ.cgs}")
 print(f"R_cr = {(R_cr/Rstar).cgs} Rstar")
 print(f"R_cr = {(R_cr).to(u.AU)} AU")
@@ -46,3 +52,7 @@ print(T_pole.to(u.K))
 print(f'v_eq = {v_eq.to(u.km/u.s)}')
 
 print(f'T0 = {T0.to(u.hr)}')
+
+print(f'Assuming Rstar = {Rstar}')
+print(f"For Rp0={Rp0}, δ={δ0.cgs:.2e}")
+print(f"For Rp1={Rp1}, δ={δ1.cgs:.2e}")

@@ -715,13 +715,17 @@ def plot_phase_timegroups_mosaic(
         ax.set_yticklabels([])
         ax.set_xticklabels([])
 
-        yticks = [-3,0,2]
-        ax.set_yticks(yticks)
+        gotyticks = False
+        if isinstance(ylim, (list, tuple)):
+            if max(ylim) >= 2 and min(ylim) <= -3:
+                yticks = [-3,0,2]
+                ax.set_yticks(yticks)
+                gotyticks = True
         ax.minorticks_off()
 
         ax.set_xticks([-0.5, 0, 0.5])
 
-        if ix in [0,6,12]:
+        if ix in [0,6,12] and gotyticks:
             ax.set_yticklabels(yticks, fontsize='x-small')
 
         ix += 1
@@ -750,6 +754,8 @@ def plot_phase_timegroups_mosaic(
     s = ''
     if isinstance(model_id, str):
         s += f'_{model_id}'
+    if isinstance(ylim, (list, tuple)):
+        s += f'_ymin{ylim[0]}_ymax{ylim[1]}'
 
     outpath = join(
         outdir,
