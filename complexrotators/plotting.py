@@ -18,6 +18,10 @@ Contents:
 
     | plot_lc_mosaic
     | plot_phase_timegroups_mosaic
+
+    | plot_cadence_comparison
+
+    | plot_tic4029_segments
 """
 
 #######################################
@@ -69,6 +73,7 @@ from numpy import array as nparr
 from collections import OrderedDict
 
 import matplotlib as mpl
+import matplotlib.colors as colors
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from astropy import units as u, constants as const
@@ -131,7 +136,8 @@ def plot_TEMPLATE(outdir):
 
 
 def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
-               cyclewindow=None, idstr=None, t0=None):
+               cyclewindow=None, idstr=None, t0=None, savstr=None, vmin=None,
+               vmax=None):
     """
     Make a river plot
     """
@@ -165,8 +171,8 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
 
         sel = (time > begin) & (time <= end)
 
-        ALGORITHM1 = 0
-        ALGORITHM2 = 1
+        ALGORITHM1 = 0 # janky
+        ALGORITHM2 = 1 # interpolates to nearest flux value any desired grid time
 
         assert ALGORITHM1 + ALGORITHM2 == 1
 
@@ -226,15 +232,21 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
 
                 flux_arr[:, cycle_ind] = flux_this_cycle
 
-
-    vmin = np.nanmedian(flux)-4*np.nanstd(flux)
-    vmax = np.nanmedian(flux)+4*np.nanstd(flux)
+    if not isinstance(vmin, float):
+        vmin = np.nanmedian(flux)-4*np.nanstd(flux)
+    if not isinstance(vmax, float):
+        vmax = np.nanmedian(flux)+4*np.nanstd(flux)
 
     fig, ax = plt.subplots(figsize=(6,10))
     c = ax.pcolor(np.arange(0, period, cadence)/period - 0.5,
                   list(range(cycle_min, cycle_max)),
                   flux_arr.T,
-                  cmap=cmap, vmin=vmin, vmax=vmax,
+                  cmap=cmap,
+                  vmin=vmin, vmax=vmax,
+                  #norm=colors.SymLogNorm(  # NOTE: tried this; looks bad
+                  #    linthresh=0.003, linscale=1,
+                  #     vmin=vmin, vmax=vmax, base=10
+                  #),
                   shading='auto')
 
     divider0 = make_axes_locatable(ax)
@@ -250,6 +262,14 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
     if isinstance(cyclewindow, tuple):
         ax.set_ylim(cyclewindow)
 
+    s = ''
+    if isinstance(savstr, str):
+        s += f"_{savstr}"
+    if isinstance(vmin, float):
+        s += f"_vmin{vmin:.5f}"
+    if isinstance(vmax, float):
+        s += f"_vmax{vmax:.5f}"
+
     if isinstance(idstr, str):
         estr = ''
         if isinstance(cyclewindow, tuple):
@@ -257,7 +277,7 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
                 "_"+repr(cyclewindow).
                 replace(', ','_').replace('(','').replace(')','')
             )
-        outpath = join(outdir, f'{idstr}_river_{cmap}{estr}.png')
+        outpath = join(outdir, f'{idstr}_river_{cmap}{estr}{s}.png')
     else:
         raise NotImplementedError
 
@@ -570,7 +590,8 @@ def plot_phase_timegroups_mosaic(
     xlim=[-0.6,0.6],
     yoffset=5,
     showtitle=1,
-    figsize_y=7
+    figsize_y=7,
+    model_id=None
     ):
     """
     As in plot_phase
@@ -621,6 +642,15 @@ def plot_phase_timegroups_mosaic(
     t0s = np.hstack(_t0s)
     periods = np.hstack(_periods)
     titlestrs = np.hstack(_titlestrs)
+
+    if isinstance(model_id, str):
+        # for now, just lp12-502
+        assert ticid == "TIC_402980664"
+        manual_csvpath = f'/Users/luke/Dropbox/proj/cpv/results/4029_mask/lc_lsresid_{model_id}.csv'
+        df = pd.read_csv(manual_csvpath)
+        times = np.array(df.time)
+        # residual flux from subtracting the model given in model_id
+        fluxs = np.array(df.r_flux)
 
     from astrobase.lcmath import find_lc_timegroups
     ngroups, groups = find_lc_timegroups(times, mingap=3/24)

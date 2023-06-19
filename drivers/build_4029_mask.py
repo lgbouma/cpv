@@ -363,5 +363,3 @@ if __name__ == "__main__":
     # * let the LS fit change over the three main chunks (s18/19,  s25/26, s>50)
 
     pass
-
-

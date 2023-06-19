@@ -59,12 +59,27 @@ D) To produce the table for the catalog manuscript
 7. Run `make_cpv_table.py` (relies on logs from step #6).
 
 ----------
-E) To make the plots for the manuscript
+E) To run the custom TIC4029 analysis
+----------
+1. Run `plot_tic4029_segments.py`, which writes times/fluxs/cadenceno's into
+   /results/tic4029_segments.
+2. Manually flag fine times in glue; write to the same directory.
+3. Run `build_4029_mask.py`, with settings flagged to generate the mask you
+   want, and the model of the desired complexity.
+4. Make river plots (plot_river.py)
+5. Make phased timegroup mosaic (plot_phase_timegroups_mosaic.py)
+
+
+
+----------
+F) To make the plots for the manuscript
 ----------
 ...todo
 
 
 ----------
-F) To search for transiting planets
+G) To search for transiting planets
 ----------
 ...todo
+
+
