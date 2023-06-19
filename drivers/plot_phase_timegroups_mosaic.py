@@ -35,7 +35,8 @@ def main():
                 manual_period=manual_period/24,
                 ylim=[-4.5,3],
                 #showtitle=1
-                showtitle=0
+                showtitle=0,
+                model_id=f"manual_20230617_mask_v0_nterms2" # NOTE can be None
             )
 
 if __name__ == "__main__":

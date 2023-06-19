@@ -747,9 +747,13 @@ def plot_phase_timegroups_mosaic(
     fig.tight_layout()
     axs[17].set_xticklabels(['-0.5', '0', '0.5'], fontsize='x-small')
 
+    s = ''
+    if isinstance(model_id, str):
+        s += f'_{model_id}'
+
     outpath = join(
         outdir,
-        f"{ticid}_P{plot_period*24:.4f}_{lc_cadences}_phase_timegroups_mosaic.png"
+        f"{ticid}_P{plot_period*24:.4f}_{lc_cadences}_phase_timegroups_mosaic{s}.png"
     )
 
     fig.tight_layout(h_pad=0.2, w_pad=0.)
@@ -758,9 +762,6 @@ def plot_phase_timegroups_mosaic(
     print(f"saved {outpath}")
     fig.savefig(outpath.replace('.png','.pdf'), bbox_inches='tight', dpi=450)
     print(f"saved {outpath.replace('.png','.pdf')}")
-
-
-
 
 
 def plot_quicklook_cr(x_obs, y_obs, x_trend, y_trend, x_flat, y_flat, outpath,
