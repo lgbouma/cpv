@@ -3,7 +3,7 @@ Given a TIC ID, make a river plot.
 """
 
 import os
-import numpy as np
+import numpy as np, pandas as pd
 from complexrotators.getters import _get_lcpaths_fromlightkurve_given_ticid
 
 from complexrotators.plotting import plot_river
@@ -16,6 +16,8 @@ from complexrotators.lcprocessing import (
 
 
 cmap = 'seismic'
+cmap = 'Paired'
+cmap = 'gist_stern'
 #cmap = 'PiYG'
 
 def many_ticids():
@@ -54,7 +56,18 @@ def single_ticid():
     sample_id = '2023catalog_LGB_RJ_concat' # used for cacheing
 
     manual_period = 18.5611 / 24
-    t0 = 1791.15  # can be None
+    t0 = 1791.15 + manual_period/2  # can be None
+
+    # e.g. written by build_4029_mask.py
+    nterms = 2
+    model_id = f"manual_20230617_mask_v0_nterms{nterms}"
+    # specifies lc subtrxn model
+    manual_csvpath = f'/Users/luke/Dropbox/proj/cpv/results/4029_mask/lc_lsresid_{model_id}.csv'
+
+    savstr = model_id # can be None; used for cacheing
+
+    vmin, vmax = -0.03, 0.03 #  can be None
+    vmin, vmax = -0.04, 0.01 #  can be None
 
     ##########################################
 
@@ -69,17 +82,25 @@ def single_ticid():
     cachedir = join(cachedir, sample_id)
     if not os.path.exists(cachedir): os.mkdir(cachedir)
 
-    lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid)
+    if isinstance(manual_csvpath, str):
+        df = pd.read_csv(manual_csvpath)
+        times = np.array(df.time)
+        # residual flux from subtracting the model given in model_id
+        fluxs = np.array(df.r_flux)
 
-    # stack over all sectors
-    times, fluxs = [], []
-    for lcpath in np.sort(lcpaths):
-        (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
-         sector, starid) = prepare_cpv_light_curve(lcpath, cachedir)
-        times.append(x_obs)
-        fluxs.append(y_flat)
-    times = np.hstack(np.array(times).flatten())
-    fluxs = np.hstack(np.array(fluxs).flatten())
+    else:
+        lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid)
+
+        # stack over all sectors
+        times, fluxs = [], []
+        for lcpath in np.sort(lcpaths):
+            (_, _, _, x_obs, _, y_flat, _, _, _,
+             _, _) = prepare_cpv_light_curve(lcpath, cachedir)
+            times.append(x_obs)
+            fluxs.append(y_flat)
+        times = np.hstack(np.array(times).flatten())
+        fluxs = np.hstack(np.array(fluxs).flatten())
+
 
     idstr = f'TIC{ticid}'
     titlestr = f'TIC{ticid}. P = {manual_period*24:.4f}hr.'
@@ -88,7 +109,8 @@ def single_ticid():
     for cyclewindow in cyclewindows:
 
         plot_river(times, fluxs, manual_period, outdir, titlestr=titlestr,
-                   cmap=cmap, cyclewindow=cyclewindow, idstr=idstr, t0=t0)
+                   cmap=cmap, cyclewindow=cyclewindow, idstr=idstr, t0=t0,
+                   savstr=savstr, vmin=vmin, vmax=vmax)
 
 
 
@@ -109,8 +131,6 @@ def single_kicid():
         plot_river(d['times'], d['fluxs'], d['period'], d['outdir'],
                    titlestr=titlestr, cmap=cmap, cyclewindow=cyclewindow,
                    idstr=idstr)
-
-
 
 
 if __name__ == "__main__":
