@@ -458,7 +458,8 @@ def plot_phase_timegroups(
     xlim=[-0.6,0.6],
     yoffset=5,
     showtitle=1,
-    figsize_y=7
+    figsize_y=7,
+    do4029_resid=0
     ):
     """
     As in plot_phase
@@ -514,6 +515,15 @@ def plot_phase_timegroups(
     periods = np.hstack(_periods)
     titlestrs = np.hstack(_titlestrs)
 
+    if do4029_resid:
+        # for now, just lp12-502
+        model_id = f"manual_20230617_mask_v0_nterms2"
+        manual_csvpath = f'/Users/luke/Dropbox/proj/cpv/results/4029_mask/lc_lsresid_{model_id}.csv'
+        df = pd.read_csv(manual_csvpath)
+        times = np.array(df.time)
+        # residual flux from subtracting the model given in model_id
+        fluxs = np.array(df.r_flux)
+
     from astrobase.lcmath import find_lc_timegroups
     ngroups, groups = find_lc_timegroups(times, mingap=3/24)
 
@@ -557,6 +567,12 @@ def plot_phase_timegroups(
 
         ix -= yoffset
 
+    if do4029_resid:
+        special_phases = [0.185, -0.29, -0.195, 0.265]
+        for p in special_phases:
+            ax.vlines(p, -100, 20, colors='darkgray', alpha=0.5,
+                      linestyles='--', zorder=-10, linewidths=0.5)
+
     if showtitle:
         ax.set_title(
             f"{ticid.replace('_', ' ')} "
@@ -574,7 +590,10 @@ def plot_phase_timegroups(
     format_ax(ax)
     fig.tight_layout()
 
-    outpath = join(outdir, f"{ticid}_P{plot_period*24:.4f}_{lc_cadences}_phase_timegroups.png")
+    s = ''
+    if do4029_resid:
+        s += 'resid_'
+    outpath = join(outdir, f"{s}{ticid}_P{plot_period*24:.4f}_{lc_cadences}_phase_timegroups.png")
     #fig.savefig(outpath, dpi=300)
     savefig(fig, outpath, dpi=450)
 

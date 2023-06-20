@@ -39,7 +39,8 @@ def main():
             #ylim=[-450,5],
             #figsize_y=12,
             #manual_period=8.254/24,
-            showtitle=0
+            showtitle=0,
+            do4029_resid=1
         )
 
 if __name__ == "__main__":
