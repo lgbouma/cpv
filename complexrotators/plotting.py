@@ -728,8 +728,8 @@ def plot_phase_timegroups_mosaic(
         if isinstance(ylim, (list, tuple)):
             ax.set_ylim(ylim)
 
-        ax.hlines(2.5, -0.6666/2, 0.6666/2, colors='darkgray', alpha=1,
-                  linestyles='-', zorder=-2, linewidths=1)
+        #ax.hlines(2.5, -0.6666/2, 0.6666/2, colors='darkgray', alpha=1,
+        #          linestyles='-', zorder=-2, linewidths=1)
 
         ax.set_yticklabels([])
         ax.set_xticklabels([])
