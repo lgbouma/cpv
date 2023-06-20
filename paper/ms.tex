@@ -53,11 +53,14 @@
 %%%%%%%%
 % CQVS %
 %%%%%%%%
+
 % dip-counting pipeline
 \newcommand{\nuniqdipflagged}{{368}} % up-to-date; get_lgb_list_count.py
 
 \input{vals_cqv_table_statistics}
 
+\newcommand{\ntwoyear}{21} % TODO: update
+\newcommand{\ntwoyearturnedoff}{5} % TODO: update
 
 \begin{document}
 
@@ -107,29 +110,33 @@
   M-dwarfs with almost-periodic optical modulation that includes both
   sharp and broad troughs.  The troughs are usually superposed over
   smooth, spot-like modulation.  These objects are typically 10-100
-  million years (Myr) old, and they do not have primordial gas-rich
+  million years (Myr) old;  they do not have primordial gas-rich
   disks.  Nonetheless, the preferred explanations for their optical
   variability invoke long-lived material in orbit at the Keplerian
   corotation radius, for instance transiting dust clumps or stellar
   prominences.  Here, we report new CQVs discovered in TESS data
-  collected between July~2018 and Sep~2022.  Our search used two
-  methods, the first based on counting dips in phase-folded light
-  curves, and the second based on counting peaks in the Fourier
-  domain.  From our analysis of \nstarssearched\ M-dwarfs with
+  collected between July~2018 and Sep~2022. 
+%  Our search used two
+%  methods, the first based on counting dips in phase-folded light
+%  curves, and the second based on counting peaks in the Fourier
+%  domain. 
+   From our analysis of \nstarssearched\ M-dwarfs with
   $T$$<$16 and $d$$<$150\,pc, we find \ngoods\ gold-standard CQVs.
   Most of these discoveries are new, and they include the brightest
   and closest examples of this class of object known ($T$$\approx$11;
   $d$$\approx$20\,pc).  A few objects are outliers among outliers; LP
-  12-502 for instance shows four to eight local minima per cycle
-  distributed over a ``dip complex'' with a total duration that is
-  nearly constant over more than 1000 cycles.  Nonetheless, LP-502 at
-  times also showed drastic shape changes over less than one cycle.
+  12-502 for instance shows a ``dip complex'' with a total duration that is
+  nearly constant over more than 1000 cycles, 
+  but exhibits anywhere from four to eight local minima per cycle.  
+  LP-502 also at
+  times showed drastic shape changes over less than one cycle.
   More generally, we find that none of the CQVs maintain a fixed light
   curve shape over timescales of more than a few hundred cycles --
   they are {\it quasi}periodic.  Although the physical explanation
   behind these objects remains enigmatic, our sample may help clarify
-  their origin.  Connections to star, disk, and exoplanet evolution
-  are emphasized.
+  their origin.  In particular, we highlight the plausibility of a disintegrating
+  planetesimal swarm model.
+  Connections to star, disk, and exoplanet evolution are emphasized.
 \end{abstract}
 
 
@@ -492,9 +499,9 @@ commit \texttt{278b372}}
 
 Table~\ref{tab:thetable} lists the \ncpvsfound\ CQVs identified by our
 search, and some of their important properties.  \ngoods\ objects
-demonstrate what we view as unambiguous characteristics of the CPV
+demonstrate what we view as unambiguous characteristics of the CQV
 phenomenon in at least one TESS sector, and we refer to these as the
-``gold sample''.  The remaining \nmaybes\ CPV candidates were
+``gold sample''.  The remaining \nmaybes\ CQV candidates were
 ambiguous (in our view), and their variability might be caused by say,
 multiple starspot groups.  Additional TESS data could help resolve
 their classification.
@@ -530,14 +537,14 @@ Of the \ngoodsfieldbanyan\ stars for which BANYAN\,$\Sigma$ did not
 find any association, one (TIC~302160226) is a member of $\alpha$~Per
 ($t\approx 86\pm16$\,Myr;
 \citealt{2021A&A...645A..84M,2022arXiv221109822B}).  For the other two
-(TIC~58084670 and TIC~141146667), we are convinced of both their CPV
+(TIC~58084670 and TIC~141146667), we are convinced of both their CQV
 status and their youth, but we were not able to confidently associate
 either star with any young groups.  Both objects were noted as being in the
 ``diffuse'' Class~II YSO population near the Sun by \citet{2021ApJ...917...23K}.
 That diffuse population may contain kinematic structures that have yet
 to be unravelled.  However, the absence of obvious young, co-moving
 stars within $\Delta r$=$40$\,pc and $\Delta v$=$3$\,km\,s$^{-1}$ of
-our two CPVs suggest that they may have ``run away'' from their birth
+our two CQVs suggest that they may have ``run away'' from their birth
 locations.
 
 The CQV phenomenon persists at least up to 150\,Myr.  Our catalog
@@ -560,120 +567,19 @@ association \citep{2019ApJ...870...27Z}.  This serves as an indirect
 line of evidence supporting the reality, and youth, of that group.
 
 
-\subsection{CQV evolution}
+\section{CQV evolution}
 
-\paragraph{LP 12-502}
-While many CPVs had multiple sectors of data, an astounding dataset
-was available for LP 12-502 (TIC 402980664; $d$=21\,pc, $J$=9.4,
-$T$=11.1).  Figure~\ref{fig:lp} shows all available data from Sectors
-18, 19, 25, 26, 53, 58, and 59; the star was observed at 120-second
-cadence whenever it was observable by TESS.
-Measuring the PDM peak period over each sector independently yielded
-an average $\langle P \rangle = 18.5560$\,hr, with a difference
-between the maximum and minimum sector-level period of about one minute.
-Based on this range, the period is therefore stable to at least one
-minute ($\pm$0.017\,hr) over the three year baseline.
-However, in detail, a period shift of $\pm$1\,minute yields major
-phase drifts over the 3 year baseline; that time interval
-corresponds to roughly 1/1000$^{\rm th}$ of a period; we have
-observed 1500 cycles.
-The achievable period precision, $\sigma_{\rm P}$, can be estimated as
-\begin{equation}
-  \sigma_{\rm P} = \frac { \sigma_{\rm phi} P } { N_{\rm baseline} },
-\end{equation}
-for $N_{\rm baseline}$ the number of cycles in the observed baseline and
-$\sigma_{\rm phi}$ the phase precision with which any one feature (e.g.~a
-dip) can be tracked.
-Assuming $\sigma_{\rm phi} \approx 0.01$ yields an expected period precision
-$\sigma_{\rm P} \approx 0.45 seconds \approx 1.2\times 10^{-4}\,hr$.
-By visually fine-tuning over a grid in period, we eventually 
-found $P=18.5611 \pm 0.0001$\,hr, which seems to track certain
-features in the LP 12-502 light curve over its entire baseline.
+\subsection{Evolution over two year baseline}
 
-What features are observed?
-For the first 64 cycles, the star shows a pattern reminiscent of a
-(bizarre) eclipsing binary, with four obvious dips, that we dub
-dips $\{ 1, 2, 3, 4 \}$ at phases $\{ -0.28, -0.08, 0, 0.25 \}$
-respectively.  Over cycles 0 to 64, the depth of dips 1 and 3 remain
-roughly fixed.  However dip 4 {\it decreases} in depth by about 2\%,
-while dip 2 {\it increases} in depth, by about the same amount.
-
-{\bf todo: discussion needs auto-measured phases at fixed t0...}
-There is then a 6-month (184 cycle) gap out to Cycles 248-315, which
-show an intricately structured dip complex.
-Between Cycles 248-264, there are at least six dips, at phases $\{
-  -0.47, -0.28, -0.08,  0.  ,  0.06,  0.17 $\}.
-There is ``state switch'', roughly at BTJD 1993.5 - cycle 262.
-The lower black points in cycles 248--264 shift upward during cycle
-262, never to return.
-A large flare occurred a few cycles earlier, at BTJD 1989.2 (which may
-or may not be related).
-Regardless, the depths of the latter three-dip complex remain roughly
-the same after the state-switch;
-the first obvious dip in the sequence disappears.
-Ah, and the deepest dip shows a flux exercusion of 3.5\% over about 22 minutes (0.02\,$P$),
-which is the steepest slope exhibited anywhere in this object's
-remarkable dataset.
-During Sector~26 (Cycles 283-315), there are seven clear dips per
-cycle, and perhaps even eight, if one counts five dips in the largest
-dip complex.
-During the second orbit of this sector,
-there is another state-switch at BTJD 2030.7, immediately during a
-flare.   (And therefore likely caused by the flare!)
-
-Finally, sectors 53--58 (cycles 1233-1481) showed between four and six
-dips per cycle, at various times.  
-Some dips, for instance the one at $\phi = -0.03$, remain stable in
-depth and duration over this five month interval.
-Other dips, such as the one at $\phi = +0.04$ in cycles 1233-1264,
-disappear entirely.
-Other dips grow, like the one at $\phi = +0.06$ between cycles 1499
-and 1481.
-Also, there is the epic state switch during cycles 1233-1247.
-Which appears to happen over less than one cycle, and there is no
-associated flare.
-
-Some are sharktooths.
-Dip1 in cycle48-64 is one.
-Dip1 in cycle 1466-1481 is one.
-It is definitely asymmetric!
-
-
-%TODO; make a version (for talks) showing dips 1234 over cycles0-64
-%TODO include +/- 1/3 as important durations.
-%TODO: note that duration between the minimum of "dip1" and "dip4" is
-%      kind of always 0.53
-
-
-
-\paragraph{None of them are strictly periodic}
-
-A periodic signal does not modulate.
-
-
-
-
-
-\begin{figure*}[!t]
-	\begin{center}
-    \centering
-    \includegraphics[width=0.9\textwidth]{TIC_402980664_P18.5604_2min_phase_timegroups_mosaic.pdf}
-		\vspace{-0.45cm}
-		\caption{
-			{\it Bottom:}
-      Evolution of LP 12-502 ($P$=18.6\,h) at fixed period and
-      epoch over three years; small text denotes cycle number.  
-      There are 200 binned black points per cycle.
-      The TESS pointing law dictates time gaps; larger gaps tend to
-      yield larger shape changes.
-      The dips usually evolve over tens to hundreds of cycles.
-      However cycles 1233-1264 show a dip that ``switched'' from a depth
-      and duration of 3\% and 3\,hr to 0.3\% and 1\,hr over less than
-      one cycle.
-		}
-		\label{fig:lp}
-	\end{center}
-\end{figure*}
+Figure~\ref{fig:evoln} shows ``before'' and ``after'' views
+of \ntwoyear\ CQVs for which observations were available at least two years
+apart.
+Of the \ntwoyear\ CQVs for which such a baseline was available,
+\ntwoyearturnedoff\ showed obvious signs of the phenomenon in one sector,
+and marginal or non-existence signs in the other.
+We emphasize that the periods themselves were all stable to $<$0.1\%.
+Broadly speaking, this shape evolution
+suggests that CQVs have a duty cycle of $\approx$75\%.
 
 
 \begin{figure*}[!t]
@@ -697,9 +603,210 @@ A periodic signal does not modulate.
 
 
 
+\subsection{Evolution over adjacent sectors, \& LP 12-502}
+\begin{figure*}[!t]
+	\begin{center}
+		\centering
+		\includegraphics[width=0.9\textwidth]{TIC_402980664_P18.5611_2min_phase_timegroups_mosaic_ymin-4.8_ymax3.pdf}
+		\vspace{-0.45cm}
+		\caption{
+			Evolution of LP 12-502 ($P$=18.6\,h) at fixed period and
+			epoch over three years. 
+			Each panel shows one (stacked) TESS orbit; small text denotes relative cycle number.
+			There are 200 binned black points per cycle.
+			The TESS pointing law dictates time gaps; larger gaps tend to
+			yield larger shape changes.
+			The dips usually evolve over tens to hundreds of cycles.
+			However cycles 1233-1264 show a dip that ``switched'' from a depth
+			and duration of 3\% and 3\,hr to 0.3\% and 1\,hr over less than
+			one cycle.
+		}
+		\label{fig:lp}
+	\end{center}
+
+
+\end{figure*}
+
+\subsubsection{LP 12-502 observations}
+While many CQVs had multiple sectors of adjacent or nearly-adjacent data
+LP 12-502 (TIC 402980664; $d$=21\,pc, $J$=9.4,
+$T$=11.1) stood out as an outlier among the CQV class.
+Figure~\ref{fig:lp} shows all available data from Sectors
+18, 19, 25, 26, 53, 58, and 59; the star was observed at 120-second
+cadence whenever it was observable by TESS.
+Measuring the PDM peak period over each sector independently yielded
+an average $\langle P \rangle = 18.5560$\,hr, with a difference
+between the maximum and minimum sector-level period of about one minute.
+Based on this range, the period is therefore stable to at least one
+minute ($\pm$0.017\,hr) over the three year baseline.
+However, in detail, a period shift of $\pm$1\,minute yields major
+phase drifts over the 3 year baseline; that time interval
+corresponds to roughly 1/1000$^{\rm th}$ of a period; we have
+observed 1500 cycles.
+The achievable period precision, $\sigma_{\rm P}$, can be estimated as
+\begin{equation}
+  \sigma_{\rm P} = \frac { \sigma_{\rm \phi} P } { N_{\rm baseline} },
+\end{equation}
+for $N_{\rm baseline}$ the number of cycles in the observed baseline and
+$\sigma_{\rm phi}$ the phase precision with which any one feature (e.g.~a
+dip) can be tracked.
+Assuming $\sigma_{\rm phi} \approx 0.01$ yields an expected period precision
+$\sigma_{\rm P} \approx 0.45 {\rm sec} \approx 1.2\times 10^{-4}\,{\rm hr}$.
+By visually fine-tuning over a grid in period, we eventually 
+found $P=18.5611 \pm 0.0001$\,hr, which seems to track certain
+features in the LP 12-502 light curve over its entire baseline.
+
+What features are observed?  For the first 64 cycles, the star shows a
+pattern reminiscent of a (bizarre) eclipsing binary, with four obvious
+dips, that we dub dips $\{ 1, 2, 3, 4 \}$ at phases $\{ -0.28, -0.08,
+0, 0.25 \}$ respectively.  Over cycles 0 to 64, the depth of dips 1
+and 3 remain roughly fixed.  However dip 4 {\it decreases} in depth by
+about 2\%, while dip 2 {\it increases} in depth, by about the same
+amount.  During cycles 48-64, it also seems that a fifth dip may be
+emerging, in the main ``large'' dip group.
+
+There is then a 6-month (184 cycle) gap out to Cycles 248-315, which
+show two intricately structured dip complexes, plus a single (leading)
+dip.  The single leading dip is present at roughly the same phase as
+in cycles 0-64; we believe they are the same struture.  Along a
+similar line of logic, it seems plausible that the first ``dip
+complex'' during cycles 248-264 represents an evolution of the initial
+complex seen during cycles 0-64, though with greatly reduced depth.
+During cycles 266-310, a moving local minimum develops between the two
+complexes; this feature is best visualized on the river plots.
+
+However, the second dip complex during cycles 248-315 is perhaps the
+most intricate.  During e.g.~cycles 283-298, this single complex
+clearly shows six local minima.  The deepest dip is very sharp: it
+shows a flux exercusion of 3.5\% over about 22 minutes (0.02\,$P$),
+which is the steepest slope exhibited anywhere in this object's
+remarkable dataset.  After the sharp dip, there is a roughly
+exponential fall-off spanning about a quarter of a period, punctuated
+by coherent local minima and maxima.  The sharp leading dip only
+decreases in its sharpness during cycles 299-315, during a sudden
+state-switch at BTJD 2030.7, which happens immediately during a flare.
+(And therefore which is likely caused by the flare!) To our best
+knowledge, this type of of behavior has not yet been observed on any
+comparable object.
+
+Finally, sectors 53--58 (cycles 1233-1481) showed between four and six
+dips per cycle, at various times.  Some dips remain stable in depth
+and duration over this five month interval.  Other dips grow, like the
+one at $\phi = +0.06$ between cycles 1499 and 1481.  Other dips, such
+as the one at $\phi = +0.12$ in cycles 1233-1264, disappear entirely.
+The most dramatic state switch occurs during cycles 1233-1247, when a
+large dip ``switches'' from a depth of 3\% and duration of 3 hours to
+a depth of 0.3\%, and a duration of 1 hour.
+
+\subsubsection{LP 12-502 interpretation}
+
+{\sc Dips can disappear instantaneously}---The state switches shown in cycles
+1233-1264 and 299-315 reveal that the dips can be {\it independent}
+and {\it additive}.  They also show that although dip depth is
+generally not preserved over a state switch, {\it ingress time}
+usually is conserved.
+It other words, throughout cycles 1233-1264, there are three local
+minima between phases of 0 and 0.3.  They all have identical ingress
+times.  The shape change during the transition strongly suggests that
+it was simply the leading dip that ``turned off', while the trailing
+two dips remained fixed.  The state switches during cycles 299-315 and
+248-264 share the same characteristic: it is always the {\it leading}
+dip of a complex that ``switches off'', leaving the trailing dips in
+its wake.
+
+{\sc Dips grow more slowly}---Although there are a few instances in
+which we observe dips to ``switch off'' over less than one cycle, dip
+growth seems to happen more slowly.  For instance, the dip that grows
+between phase 0 and 0.1 between cycles 260-290 begins to become
+visible around BTJD 1993.2, and growths in depth by about 2\% over
+about six cycles, to become easily detectable by eye by BTJD 1997.7.
+The evolution of this particular dip is most clear in the river plots.
+The evolution of the latter dip group in cycles 1410-1481 is another
+example of this slow mode of dip growth.
+
+{\sc Dip asymmetries}---The observed asymmetries include both sharp
+leading ingresses (e.g. for the main cycle 248-315 dip complex), and
+also extended ingresses with relatively sharper {\it egresses} (e.g.
+the deepest feature during cycles 1420-1464).  Some dips do not show
+detectable asymmetry at all.
+
+The asymmetry is an important characteristic because it can help
+diagnose the optical depth of the occulting material as a function of
+orbital phase angle.  Sharp leading edges with trailing exponential
+egresses for instance have been previously seen for transiting
+exocomets and disintegrating rocky bodies
+\citep[e.g.][]{2012ApJ...752....1R,2012A&A...545L...5B,2015Natur.526..546V,2019A&A...625L..13Z}.
+
+It is tempting to interpret certain features of the LP 12-502 light
+curve in this framework of a disintegrating planetesimal swarm.  For
+instance, the complex in cycles 248-298 could be well-fit by a sharp
+leading edge that decays over 0.2\,$P$ (3.7\,hours).  The earlier
+complex, during cycles 248-264 (pre-state-switch), could be fit by a
+similar profile.  There are two degenerate explanations for the small
+``wiggles'' in the exponential decay.  In one explanation, the decay
+timescale is fast ($\approx$0.03\,$P$), and there are up to five
+exocomets, superposed.  In the other, there is only one main
+``launching body'', and the material it ejects either has some
+sub-structure, or else is passing across (and in synchronicity with) a
+star with heavily substructured starspots across its surface.
+
+While the number of free parameters in this type of model is somewhat
+dizzying, we have no right to believe that nature need be
+simple.  Every dip in the exocomet tail model would have as free
+parameters the dip phase, the duration (captured by an exponential
+decay timescale), and the dip depth.  In detail, the impact parameter
+would also enter.  Allotting four free parameters per dip yields up to
+32 free parameters for the light curve at the most complicated times
+(assigning one exocomet per local minimum).
+
+Perhaps the most glaring issue with the planetesimal swarm idea is
+that a large number of the dips show asymmetries in the {\it wrong
+direction} relative to the naive expectation of a trailing comet tail.
+Dust forward scattering could be one possible way out; so too could
+simply invoking non-exponentially decaying dust
+distributions as a function of azimuth.
+
+
+
+{\sc Dip durations}---The shortest timescale that any of the {\it
+individual} dips seem to occur over is $\approx$0.07\,$P$, or about
+1.3\,hours.  For a $M_\star=0.25\,M_\odot$, $R_\star=0.5\,R_\odot$
+star, the characteristic timescale $T_{\rm dur}$ for the transit of a
+point-source over the stellar equator at $P=18.6\,$hours is also
+0.07\,$P$.  This means that while some of the LP 12-502 dips are
+sufficiently long to require structures that are extended in orbital
+azimuth, some are short enough that their durations are consistent
+with point sources.
+
+
+
+
+
 
 \section{Discussion}
 \label{sec:discussion}
+
+\paragraph{Quasiperiodicity}
+A periodic signal does not modulate; the CQVs are {\it quasi}periodic.
+This is a qualitative departure from
+the ``persistent'' {\it vs.} ``transient'' flux dip distinction from 
+\citet{2017AJ....153..152S}.  While the dips can appear persistent
+over timescales of even up to 100 cycles, our view is that all the CQV
+dips seem to be transient over timescales of more than 1000 cycles
+(Figure~\ref{fig:evoln}).
+
+With that said, one might expect a truly quasiperiodic process to be
+able to explore all phase angles with equal weight.  LP 12-502, and
+many other CQVs, have preferred phases.  For LP 12-502 for instance,
+all of the dips happen over a fixed phase duration of two thirds of
+the period.  Phases between $\{0.45,0.8\}$ are ``out of limits'' for
+any dipping material.  We interpret this as evidence
+either that {\it a)} some aspect the stellar magnetic field is
+strongly asymmetric, and can generate and hold stellar prominences at
+corotation, but only over two thirds of the great circle,
+or {\it b)} there is a physical structure -- for instance a
+disintegrating planetesimal swarm -- that is distributed over an arc
+of about 240$^\circ$.
 
 \paragraph{Some CQVs require external occulters}
 (rehash Bodman2017 timescale arguments)
@@ -711,7 +818,6 @@ exhibit exactly identical light curve morphology.
 There are of course similarities.
 
 TIC 272248916 and TIC 442571495 match.
-
 
 
 \paragraph{Predicting the future, given the past}
@@ -729,6 +835,24 @@ suggests that CQVs have a duty cycle of $\approx$75\%.
 This is analogous to quiescent
 prominences on the Sun \citep{1967SoPh....2...39K}.
 
+\paragraph{Connection to close-in exoplanets}
+The concordance model for planet formation invokes the presence of an accretion
+disk.
+The disk is truncated (by what?) at the magnetospheric truncation radius,
+which happens to often coincidentally be at the Keplerian corotation radius.
+In such a scenario, planetesimals and boulders can migrate inward due to
+Type X migration (CITE),
+until they hit a ``dust trap'' at the inner wall.
+Some support for this model comes from both the rotation periods of classical
+and weak-lined T Tauri stars
+(CITE Rebull2018,2019),
+from near-infrared interferometric observations that detect thermal
+emission from the disk wall (CITE CITE),
+and from the turn-over in the exoplanet orbital period distribution,
+which occurs around 5-10 days for FGK stars, 
+and perhaps even closer-in for M-dwarfs (CITE Petigura2022, and CITE for M-dwarfs).
+
+
 
 
 \section{Conclusions}
@@ -739,7 +863,9 @@ CQV behavior over at least one TESS sector between July~2018 and Sep~2022.
 Our search for these objects was restricted to dwarf stars bright enough
 for 1\% precision photometry with TESS over 1 hour ($T$$<$16),
 that were red ($\bprp<1.5$) and within 150\,pc of the Sun.
-We also note an additional \nmaybes\ candidate CQVs.
+These objects are listed in Table~\ref{tab:thetable}.
+This table also includes an additional \nmaybes\ candidate CQVs, whose
+designation is less certain.
 
 Analyzing the light curves of these objects, we can make the following conclusions.
 
@@ -747,11 +873,15 @@ Analyzing the light curves of these objects, we can make the following conclusio
 	%
 	\item CQVs are {\it quasi}periodic.
 	%
-	\item The CQV phenomenon persists for at least 150\,Myr.
+	\item The CQV phenomenon persists for at least 150\,Myr, based on the
+	existence of CQVs in AB Dor, the Pleiades, and Psc-Eri.
 	%
 	\item CQVs evolve over timescales that are both secular ($>$100\,cycles) and impulsive ($<$1 cycle).
 	%
-	\item The CQV duty cycle is $\approx 75$\%, based on 
+	\item Individual CQVs can show multiple, slightly different periods.  LP 12-502
+	is one example; others are included in Table~\ref{tab:thetable}.
+	%
+	\item The population-averaged duty cycle for CQVs seems to be $\approx 75$\%, based on 
 	the fraction of bonafide CQVs that ``turned off'' during TESS re-observations.
 \end{itemize}
 
@@ -885,8 +1015,8 @@ rapidly rotating star.
     \includegraphics[width=0.96\textwidth]{402980664_S0018_120sec_cpvvetter.pdf}
 		\vspace{-0.45cm}
 		\caption{
-      Validation plots used to label CQVs (the complete figure
-      set of \ncpvsfound\ images is available online).
+      {\bf Validation plots used to label CQVs}.  The complete figure
+      set of \ncpvsfound\ images is available online.
       Panels are as follows.
       {\it a)}: Phase-folded light curve; gray points are raw 2-minute
       data and black points are binned to 200 points per cycle.
@@ -946,11 +1076,53 @@ Figure~\ref{fig:lpzoom} shows an alternative view of cycles 1233-1247.
 		\includegraphics[width=0.96\textwidth]{tic4029_segments.pdf}
 		\vspace{-0.2cm}
 		\caption{
-			LP 12-502 light curve, split into time chunks.
+      {\bf LP 12-502 light curve}, split into time chunks.
 		}
 		\label{fig:lplc}
 	\end{center}
 \end{figure*}
+
+
+\begin{figure*}[!t]
+	\begin{center}
+    \centering
+    \includegraphics[width=0.45\textwidth]{ANNOTATED_resid_TIC_402980664_P18.5611_2min_phase_timegroups.png}
+		\vspace{-0.45cm}
+		\caption{
+      {\bf Alternative view of the evolution of LP 12-502}
+      (Figure~\ref{fig:lp}), arranged to emphasize changes in transit
+      times.  There are 200 binned black points per cycle; a two-harmonic
+      sinusoid has been subtracted over specific chunks in time ({\bf see text}).
+      Vertical gray lines are underplotted to help guide the eye to instances
+      in which preferred dip phases synchronize over long baselines.
+      The orange and green lines guide the eye to where dips
+      appear to change the positions of their local minima.
+		}
+		\label{fig:lp2}
+	\end{center}
+\end{figure*}
+
+
+\begin{figure*}[!t]
+	\begin{center}
+		\subfloat{
+			\includegraphics[width=0.43\textwidth]{TIC402980664_river_gist_stern_0_64_manual_20230617_mask_v0_nterms2_vmin-0.04000_vmax0.01000.png}
+			\includegraphics[width=0.43\textwidth]{TIC402980664_river_gist_stern_248_315_manual_20230617_mask_v0_nterms2_vmin-0.04000_vmax0.01000.png}
+		}
+	\vspace{0.4cm}
+			\subfloat{
+		\includegraphics[width=0.43\textwidth]{TIC402980664_river_gist_stern_1411_1481_manual_20230617_mask_v0_nterms2_vmin-0.04000_vmax0.01000.png}
+				\includegraphics[width=0.43\textwidth]{TIC402980664_river_gist_stern_1233_1265_manual_20230617_mask_v0_nterms2_vmin-0.04000_vmax0.01000.png}
+	}
+	\end{center}
+	\caption{
+    {\bf River plots of LP 12-502}, showing (clockwise from top-left) Sectors 18-19, 25-26, 53, and 58-59.
+    A two-harmonic
+    sinusoid has been subtracted over specific chunks in time ({\bf see text}).
+	}
+	\label{fig:lpriver0}
+\end{figure*}
+
 
 \begin{figure*}[!t]
 	\begin{center}
@@ -958,8 +1130,8 @@ Figure~\ref{fig:lpzoom} shows an alternative view of cycles 1233-1247.
 		\includegraphics[width=0.96\textwidth]{TIC4029_zoom.png}
 		\vspace{-0.45cm}
 		\caption{
-			LP 12-502 cycles 1233-1247, showing the most dramatic state
-      change observed over the three year baseline.
+			{\bf LP 12-502 cycles 1233-1247}, showing the most dramatic state
+			change observed over the three year baseline.
 		}
 		\label{fig:lpzoom}
 	\end{center}
