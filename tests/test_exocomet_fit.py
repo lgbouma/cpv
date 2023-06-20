@@ -35,7 +35,7 @@ def lnlike(theta, t, f, ferr, ulimb, verbose=False):
 
     tmid, impact, ce, lamb, period = theta
 
-    model = mu_comet_model(t*u.day, f, ferr, tmid*u.day, impact, ce,
+    model = mu_comet_model(t*u.day, tmid*u.day, impact, ce,
                            lamb/u.radian, period*u.day, Ms, Rs, ulimb)
 
     chi2 = np.power((f-model)/ferr, 2.)
@@ -49,7 +49,7 @@ def plotfit(theta, t, f, ferr, ulimb=None):
 
     tmid, impact, ce, lamb, period = theta
 
-    model = mu_comet_model(t*u.day, f, ferr, tmid*u.day, impact, ce,
+    model = mu_comet_model(t*u.day, tmid*u.day, impact, ce,
                            lamb/u.radian, period*u.day, Ms, Rs, ulimb)
 
     plt.close("all")
@@ -72,7 +72,7 @@ def plotfit_phase(theta, t, f, ferr, t0, ulimb=None):
 
     tmid, impact, ce, lamb, period = theta
 
-    model = mu_comet_model(t*u.day, f, ferr, tmid*u.day, impact, ce,
+    model = mu_comet_model(t*u.day, tmid*u.day, impact, ce,
                            lamb/u.radian, period*u.day, Ms, Rs, ulimb)
 
     plt.close("all")
@@ -140,7 +140,7 @@ def main_betapic():
     # randomly was 0.79 in Sebastian's example
 
     t_phase, Inorm, rh, lc = mu_comet_model(
-        t*u.day, f, ferr, par[0]*u.day, par[1], par[2], par[3]/u.radian,
+        t*u.day, par[0]*u.day, par[1], par[2], par[3]/u.radian,
         par[4]*u.day, Ms, Rs, ulimb, extra=True
     )
 
@@ -241,7 +241,7 @@ def main_tic4029():
     ulimb = 0.75 # guess; Claret2000, linear limb darkening, PHOENIX, Teff3000 logg 4-4.5 ish
 
     t_phase, Inorm, rh, lc = mu_comet_model(
-        t*u.day, f, ferr, par[0]*u.day, par[1], par[2], par[3]/u.radian,
+        t*u.day, par[0]*u.day, par[1], par[2], par[3]/u.radian,
         par[4]*u.day, Ms, Rs, ulimb, extra=True
     )
 
@@ -265,7 +265,8 @@ def main_tic4029():
 
     nll = lambda *args: -lnlike(*args)
 
-    #import IPython; IPython.embed()
+    import IPython; IPython.embed()
+    assert 0
     #TODO: speed up
     result = op.minimize(nll, par, method='nelder-mead', args=(t,f,ferr,ulimb),
                          options={'maxiter':10000,'xtol': 1e-8, 'disp': True})
@@ -282,7 +283,7 @@ def main_tic4029():
 
 if __name__ == "__main__":
 
-    do_betapic = 0
+    do_betapic = 1
     do_lp12 = 1
 
     if do_betapic:

@@ -102,7 +102,7 @@ def rchordit(b, Rstar):
     d1 = np.sqrt(1.-b*b)
     return d1*2*Rstar
 
-def mu_comet_model(tin, y, yerr, tmid, b_impact, cmax, lam, P, Mstar, Rstar,
+def mu_comet_model(tin, tmid, b_impact, cmax, lam, P, Mstar, Rstar,
                    ulimb, extra=False):
 
     tin_min = tin.min()
