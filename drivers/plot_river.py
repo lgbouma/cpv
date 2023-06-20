@@ -52,7 +52,7 @@ def single_ticid():
     ##########################################
     # change these
     ticid = '402980664'
-    cyclewindows = [(0,1481), (0,64), (248,315), (1233,1481), (1411, 1481)]
+    cyclewindows = [(0,1481), (0,64), (248,315), (1233, 1265), (1233,1481), (1411, 1481)]
     sample_id = '2023catalog_LGB_RJ_concat' # used for cacheing
 
     manual_period = 18.5611 / 24
