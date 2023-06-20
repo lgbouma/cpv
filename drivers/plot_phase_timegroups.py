@@ -26,10 +26,10 @@ def main():
             binsize_phase=0.005,
             #t0='binmin',
             # for 4029
-            t0=1791.15,
+            t0=1791.12,
             ylim=[-100,5],
             yoffset=5.5,
-            manual_period=18.5604/24,
+            manual_period=18.5611/24,
             # for 3006 2min
             #ylim=[-190,5],
             #yoffset=6.5,
