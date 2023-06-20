@@ -11,11 +11,15 @@ from aesthetic.plot import set_style, savefig
 
 from astropy.timeseries import LombScargle
 
+from complexrotators.getters import get_tic4029_lc_and_mask
+
 ############
 # get data #
 ############
 
 def build_4029_mask(times, fluxs, t0, period):
+    """zeroth order mask based on "smart logic", that in reality is way less
+    good than doing it manually"""
 
     cycle_number = np.floor( (times-t0) / period)
 
@@ -197,65 +201,18 @@ def test1():
     outpath = join(outdir, f"lsresid_mask_cycle{str(cyclemin).zfill(4)}-{str(cyclemax).zfill(4)}.png")
     savefig(fig, outpath, dpi=400)
 
-def get_4029_manual_mask(times, fluxs, cadencenos, get_full=0):
-
-    # made using glue, with the manual_masking_20230617.glu session
-    maskpaths = np.sort(
-        glob(join(RESULTSDIR, 'tic4029_segments', '*manual_mask*.csv'))
-    )
-
-    # out of dip times, fluxs, cadenceno's
-    ood_df = pd.concat((pd.read_csv(m) for m in maskpaths))
-    ood_df = ood_df.sort_values(by='cadenceno')
-
-    # full out of dip mask
-    full_ood = np.in1d(cadencenos, np.array(ood_df.cadenceno))
-
-    # sectors 18 and 19 out of dip
-    s18s19_ood = full_ood & (times > 1750) & (times < 1900)
-
-    # sectors 25 and 26 out of dip
-    s25s26_ood = full_ood & (times > 1950) & (times < 2100)
-
-    # sectors 53, 58, 59 out of dip
-    s53s58s59_ood =  full_ood & (times > 2600)
-
-    if get_full:
-        return full_ood
-
-    if get_split:
-        return s18s19_ood, s25s26_ood, s53s58s59_ood, full_ood
-
 
 def test2(nterms=1):
     """
     try fitting lomb scargle periodogram sinusoid model to out of dip data,
     using manual masks and splitting into chunks
     """
-    ticid = '402980664'
-    sample_id = '2023catalog_LGB_RJ_concat' # used for cacheing
+
     period = 18.5611/24
     t0 = 1791.12
-    cachedir = join(LOCALDIR, "cpv_finding", sample_id)
-
-    lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid)
-
-    # stack over all sectors
-    times, fluxs, cadencenos = [], [], []
-    for lcpath in np.sort(lcpaths):
-        (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
-         sector, starid, cadenceno) = prepare_cpv_light_curve(
-             lcpath, cachedir, returncadenceno=1
-         )
-        times.append(x_obs)
-        fluxs.append(y_flat)
-        cadencenos.append(cadenceno)
-    times = np.hstack(np.array(times, dtype=object).flatten())
-    fluxs = np.hstack(np.array(fluxs, dtype=object).flatten())
-    cadencenos = np.hstack(np.array(cadencenos, dtype=object).flatten())
 
     model_id = f"manual_20230617_mask_v0_nterms{nterms}"
-    full_ood = get_4029_manual_mask(times, fluxs, cadencenos, get_full=1)
+    times, fluxs, full_ood = get_tic4029_lc_and_mask(model_id)
 
     # btjd
     timechunks = [
