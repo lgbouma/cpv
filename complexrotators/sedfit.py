@@ -59,7 +59,7 @@ def run_SED_analysis(ticid):
     v = Vizier(columns=["*", "+_r"], catalog="II/328/allwise")
     result = v.query_region(c, frame='icrs', radius="10s")
 
-    outcsv = join(out_folder, "{starname}_allwise_query_results.csv")
+    outcsv = join(out_folder, f"{starname}_allwise_query_results.csv")
     if len(result) == 0:
         outdf = pd.DataFrame({})
         print(f"Did not find WISE match; cache null to {outcsv}")
