@@ -16,9 +16,11 @@ from os.path import join
 ra = 75.795
 dec = -30.399
 starname = 'NGTS-6'
-gaia_id = 4875693023844840448
+dr2_source_id = 4875693023844840448
 
-s = Star(starname, ra, dec, g_id=gaia_id)
+s = Star(starname, ra, dec, g_id=dr2_source_id)
+
+s.remove_mag('TESS')
 
 ######################
 # fit the photometry #
@@ -40,10 +42,10 @@ setup = [engine, nlive, dlogz, bound, sample, threads, dynamic]
 # Feel free to uncomment any unneeded/unwanted models
 models = [
 	#'phoenix',
-	#'btsettl',
+	'btsettl',
 	#'btnextgen',
 	#'btcond',
-	'kurucz',
+	#'kurucz',
 	#'ck04'
 ]
 
