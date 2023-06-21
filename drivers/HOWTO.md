@@ -59,7 +59,32 @@ D) To produce the table for the catalog manuscript
 7. Run `make_cpv_table.py` (relies on logs from step #6).
 
 ----------
-E) To run the custom TIC4029 analysis
+E) To run the SED analysis
+----------
+1. Download BT-Settl spectra from
+  http://svo2.cab.inta-csic.es/theory/newov2/index.php
+  BT-Settl - Theoretical Spectra
+  -> I did Teff from 2600-5500K, logg 3.5-6, met 0
+  -> BT-Settl/AGSS2009
+
+2. Install astroARIADNE into a dedicate conda environment.  Hack
+  astroARIADNE/plotter.py around line 1300 to read in the SVO subset of
+  BT-Settl spectra in the ascii format.
+
+  (The alternative path, of going to
+  https://phoenix.ens-lyon.fr/Grids/BT-Settl/AGSS2009/SPECTRA/ ->
+  BT-Settl_M-0.0_cool.tar and BT-Settl_M-0.0_a+0.0_hot.tar produces a separate
+  weird format, which is also not what is wanted.  The FITS format for AGSS2009
+  seems to not be available).
+
+3. Test on one star using tests/test_ariadne_fitter.py (and
+   test_ariadne_plots.py)
+
+4. Run `run_SED_analysis.py`, in the py38_ariadne environment.
+(TODO: this wrapper needs to actually be written!)
+
+----------
+F) To run the custom TIC4029 analysis
 ----------
 1. Run `plot_tic4029_segments.py`, which writes times/fluxs/cadenceno's into
    /results/tic4029_segments.
@@ -68,8 +93,6 @@ E) To run the custom TIC4029 analysis
    want, and the model of the desired complexity.
 4. Make river plots (plot_river.py)
 5. Make phased timegroup mosaic (plot_phase_timegroups_mosaic.py)
-
-
 
 ----------
 F) To make the plots for the manuscript
