@@ -281,6 +281,9 @@ def get_tess_cpv_lc_properties(ticid):
 
 
 def get_cpvtable_row(ticid):
+    """
+    ticid: str, e.g., "402980664"
+    """
 
     cachecsv = join(indir, f"TIC{ticid}_cpvtable_row.csv")
     if os.path.exists(cachecsv):
