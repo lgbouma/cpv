@@ -18,7 +18,7 @@ from astropy.coordinates import SkyCoord
 from astropy import units as u
 from astroquery.vizier import Vizier
 
-def run_SED_analysis(ticid):
+def run_SED_analysis(ticid, trimlist=None):
     """
     Run CQV-specific SED analysis.  Priors assume the star is a nearby M-dwarf.
     Output goes to /reuslts/ariadne_sed_fitting/{starname}
@@ -31,7 +31,17 @@ def run_SED_analysis(ticid):
 
     Args:
         ticid (str): e.g. "402980664"
+
+    Kwargs: list of quad tuples, each entry in form (>xmin, <xmax, >ymin, <ymax).
+    E.g., to exclude everything above 1e-9 erg/cm2/s, and below 0.4 micron in
+    the SED fit:
+        [ (None, None, 1e-9, None) ,
+          (None, 0.4, None, None) ],
+        which is equivalent to
+        [ (None, 0.4, 1e-9, None) ],
     """
+    print(42*'-')
+    print(f'Beginning {ticid}')
     ##################
     # query the star #
     ##################
@@ -49,12 +59,65 @@ def run_SED_analysis(ticid):
 
     # remove TESS mag; no new information
     s.remove_mag('TESS')
-    # remove mags likely to be biased by UV excess (see eg Ingleby+2013, ApJ)
-    s.remove_mag('GROUND_JOHNSON_B')
-    s.remove_mag('SDSS_g')
-    s.remove_mag('GaiaDR2v2_BP')
 
+    # remove mags likely to be biased by UV excess (see eg Ingleby+2013, ApJ)
+    # leave in Gaia BP because it's mostly fine
+
+    s.remove_mag("STROMGREN_u")
+    s.remove_mag("STROMGREN_b")
+    s.remove_mag("STROMGREN_v")
+
+    s.remove_mag('SkyMapper_u')
+    s.remove_mag('SkyMapper_g')
+
+    s.remove_mag('SDSS_u')
+    s.remove_mag('SDSS_g')
+
+    s.remove_mag('GALEX_FUV')
+    s.remove_mag('GALEX_NUV')
+
+    s.remove_mag('GROUND_JOHNSON_U')
+    s.remove_mag('GROUND_JOHNSON_B')
+
+    # remove skymapper; these seem biased vs other surveys like SDSS
+    s.remove_mag('SkyMapper_i')
+    s.remove_mag('SkyMapper_z')
+
+    #
+    # trim manually passed outliers (e.g. from crowded photometric fields)
+    #
+    if isinstance(trimlist, list):
+
+        sel = s.mags != 0
+
+        x = s.wave[sel]
+        y = (s.flux*s.wave)[sel]
+        n = s.filter_names[sel]
+
+        mask = np.zeros_like(x).astype(bool)
+
+        for trimentry in trimlist:
+
+            xmin, xmax, ymin, ymax = trimentry
+
+            if xmin is not None:
+                mask |= x > xmin
+            if xmax is not None:
+                mask |= x < xmin
+            if ymin is not None:
+                mask |= y > ymin
+            if ymax is not None:
+                mask |= y < ymax
+
+        mask_names = n[mask]
+
+        for mask_name in mask_names:
+            s.remove_mag(mask_name)
+
+
+    #
     # add WISE W3 and W4; for SED visualization only (not used in fitting); cache too
+    #
     c = SkyCoord(ra=ra, dec=dec, unit=(u.deg, u.deg))
     v = Vizier(columns=["*", "+_r"], catalog="II/328/allwise")
     result = v.query_region(c, frame='icrs', radius="10s")
@@ -136,11 +199,10 @@ def run_SED_analysis(ticid):
             'Av': ('uniform', 0, 0.2)
     }
 
-    f.initialize()
-
     cache_file = os.path.join(out_folder, 'BMA.pkl')
 
     if not os.path.exists(cache_file):
+        f.initialize()
         # this takes like 10 minutes
         f.fit_bma()
 
@@ -152,7 +214,7 @@ def run_SED_analysis(ticid):
     plots_out_folder = join(out_folder, 'plots')
     if not os.path.exists(plots_out_folder): os.mkdir(plots_out_folder)
 
-    artist = SEDPlotter(cache_file, plots_out_folder)
+    artist = SEDPlotter(cache_file, plots_out_folder, model='btsettl')
     artist.plot_SED_no_model()
     artist.plot_SED()
     artist.plot_bma_hist()
@@ -164,6 +226,9 @@ def run_SED_analysis(ticid):
         print('Found WISE W3 and/or W4; making IR excess plot')
         plots_out_folder = join(out_folder, 'plots_irexcess')
         if not os.path.exists(plots_out_folder): os.mkdir(plots_out_folder)
-        artist = SEDPlotter(cache_file, plots_out_folder, pdf=True, ir_excess=True)
+        artist = SEDPlotter(cache_file, plots_out_folder, ir_excess=True, model='btsettl')
         artist.plot_SED_no_model()
         artist.plot_SED()
+
+    print(f'Finished {ticid}')
+    print(42*'-')
