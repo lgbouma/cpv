@@ -66,7 +66,8 @@ def get_ticids(sample_id):
         #"402980664"
         #"251496897"
         #"141146666" # neighbor of 141146667
-        "353927317" # EPIC 211070495, Rebull2016
+        #"353927317" # EPIC 211070495, Rebull2016
+        "220433363" # tess blend; gaia multipeaked; wanna see s32
         ]
 
         N_stars_to_search = len(ticids)
@@ -207,7 +208,8 @@ def find_CPV(ticid, sample_id, forcepdf=0):
 
     if sample_id == 'debug':
         LOGWARNING("Found debug: taking only a single sector.")
-        lcpaths = [np.sort(lcpaths)[0]]
+        #lcpaths = [np.sort(lcpaths)[0]]
+        lcpaths = np.sort(lcpaths)
 
     #
     # for each light curve (sector / cadence specific), detrend, ((remove
