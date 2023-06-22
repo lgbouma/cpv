@@ -81,7 +81,12 @@ E) To run the SED analysis
    test_ariadne_plots.py)
 
 4. Run `run_SED_analysis.py`, in the py38_ariadne environment.
-(TODO: this wrapper needs to actually be written!)
+
+  * Inspect results as /results/ariadne_sed_fitting, to flag photometric
+    outliers and stars with IR excesses.
+  * Rerun any necessary cases, deleting the entire directory in each case.
+
+5. Rerun `make_cpv_table.py` to incorporate results into table.
 
 ----------
 F) To run the custom TIC4029 analysis
@@ -104,5 +109,3 @@ F) To make the plots for the manuscript
 G) To search for transiting planets
 ----------
 ...todo
-
-
