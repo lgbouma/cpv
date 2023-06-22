@@ -64,7 +64,9 @@
 
 \begin{document}
 
-\title{Pre-Main-Sequence M-Dwarfs With Complex Quasiperiodic Variability From Four Years of TESS}
+%\title{Pre-Main-Sequence M-Dwarfs With Complex Quasiperiodic Variability From Four Years of TESS}
+
+\title{Dust Clumps In Corotation Around Adolescent M-Dwarfs: Four Years of TESS}
 
 \correspondingauthor{TBD}
 \email{TBD}
@@ -113,8 +115,8 @@
   million years (Myr) old;  they do not have primordial gas-rich
   disks.  Nonetheless, the preferred explanations for their optical
   variability invoke long-lived material in orbit at the Keplerian
-  corotation radius, for instance transiting dust clumps or stellar
-  prominences.  Here, we report new CQVs discovered in TESS data
+  corotation radius, most likely transiting dust clumps.
+  Here, we report new CQVs discovered in TESS data
   collected between July~2018 and Sep~2022.  From our analysis of
   \nstarssearched\ M-dwarfs with $T$$<$16 and $d$$<$150\,pc, we find
   \ngoods\ gold-standard CQVs.  Most of these discoveries are new, and
@@ -124,13 +126,14 @@
   complex'' with a total duration that is nearly constant over more
   than 1000 cycles, but which exhibits anywhere from four to eight
   local minima per cycle.  LP-502 also demonstrated drastic shape
-  changes over less than one cycle, and has up to four distinct
+  changes over less than one cycle, and (locally) shows up to four distinct
   periods.  More generally, we find that none of the CQVs maintain a
   fixed light curve shape over timescales of more than a few hundred
-  cycles -- they are all {\it quasi}periodic.  Although the physical
-  explanation behind these objects remains enigmatic, our sample may
-  help clarify their origin.  Possible connections to star, disk, and
-  exoplanet evolution are emphasized.
+  cycles -- they are all {\it quasi}periodic.  Our sample will
+  help facilitate future modeling and observational efforts aimed at understanding
+  these objects, and connecting them to the broader
+  contexts of star, disk, and
+  exoplanet evolution.
 \end{abstract}
 
 
@@ -436,6 +439,7 @@ flagged, and NN\% being labelled ``good'' or ``possible'' CQVs}.
 
 
 \subsection{Stellar properties}
+\label{subsec:starprops}
 
 \paragraph{Ages}
 We estimated the stellar ages by making probabilistic spatial and
@@ -464,8 +468,61 @@ commit \texttt{278b372}}
 
 
 \paragraph{Effective temperatures, radii, and masses}
-%TODO
-{\bf TODO}
+
+We determine the stellar effective temperature and radii through SED
+fitting; the masses are then determined based on interpolation against
+the ``magnetic'' models of \citet{2016A&A...593A..99F}.
+
+For the SED fitting, we use \texttt{astroARIADNE}
+\citep{2022MNRAS.513.2719V}, tuned to use only the BT-Settl stellar
+atmosphere models \citep{Allard2012} based on the
+\citet{2009ARA&A..47..481A} solar abundances.  The broadband
+magnitudes we considered included $GG_{\rm BP}G_{\rm RP}$ from Gaia
+DR2, $Vgri$ from APASS, $JHK_{\rm S}$ from 2MASS, $riz$ from
+Pan-STARRS1, SDSS $riz$, and the WISE 1-2 passbands.  We specifically
+omitted UV flux measurements to avoid biasing our fit with any
+possible chromospheric UV excess.
+\texttt{astroARIADNE} compares the measured broadband flux measurements
+against pre-computed model grids, and by default fits for six
+parameters:
+$\{ T_{\rm eff}, R_\star, A_{\rm V}, \log g, [{\rm Fe/H}], d \}$.
+The distance  prior is drawn from \citet{2021AJ....161..147B}.
+The surface gravity and metallicity are generally unconstrained.
+And finally, given our particular use-case, 
+we assumed the following priors for the temperature, stellar size, and
+extinction:
+\begin{align}
+  T_{\rm eff} / {\rm K}    &\sim \mathcal{N}(3000, 1000), \\
+  R_\star / {\rm R}_\odot  &\sim \mathcal{T}_{\rm N}(0.5, 0.3, 0.1, 1.0), \\
+  A_{\rm V} / {\rm mag}    &\sim \mathcal{U}(0, 0.2),
+\end{align}
+for $\mathcal{N}$ the Gaussian and $\mathcal{U}$ the uniform
+distributions, and $\mathcal{T}(\mu, \sigma, a, b)$ a truncated normal
+distribution with mean $\mu$, standard deviation $\sigma$, and lower
+and upper bounds $a$ and $b$.
+Using \texttt{Dynesty} \citep{2020MNRAS.493.3132S},
+we statically sampled the posterior probability assuming the default
+Gaussian likelihood, and set a stopping threshold of ${\rm d}\log
+\mathcal{Z} < 0.01$, for $\mathcal{Z}$ the evidence.
+
+Given the effective temperatures and stellar radii from the SED fit,
+we then estimate the mass by interpolating against the ``magnetic''
+models of \citet{2016A&A...593A..99F}.  The need for models that
+incorporate some form of magnetic correction is well-documented for
+our regime of active, young M-dwarfs
+\citep[e.g.][]{2012ApJ...756...47S,2015ApJ...804..146D,2020ApJ...891...29S}.
+While one could of course allow a range of magnetic field strengths,
+and a corresponding range of fractions for starspot converage
+\citep{2020ApJ...891...29S}, we prefer the magnetic
+\citet{2016A&A...593A..99F} models based on the simplicity of their
+assumption that the surface magnetic field strength will be fixed at
+equipartition.
+We therefore interpolate our SED-measured temperatures and radii, at
+the known cluster-based stellar ages ages, in order to estimate
+(model-dependent) stellar masses.
+For the two systems without known ages (see below), we omit this mass
+estimate, due to the degeneracies in the inference problem.
+
 
 
 \begin{figure*}[!t]
@@ -732,36 +789,7 @@ orbital phase angle.  Sharp leading edges with trailing exponential
 egresses for instance have been previously seen for transiting
 exocomets and disintegrating rocky bodies
 \citep[e.g.][]{2012ApJ...752....1R,2012A&A...545L...5B,2015Natur.526..546V,2019A&A...625L..13Z}.
-
-It is tempting to interpret certain features of the LP 12-502 light
-curve in this framework of a disintegrating planetesimal swarm.  For
-instance, the complex in cycles 248-298 could be well-fit by a sharp
-leading edge that decays over 0.2\,$P$ (3.7\,hours).  The earlier
-complex, during cycles 248-264 (pre-state-switch), could be fit by a
-similar profile.  There are two degenerate explanations for the small
-``wiggles'' in the exponential decay.  In one explanation, the decay
-timescale is fast ($\approx$0.03\,$P$), and there are up to five
-exocomets, superposed.  In the other, there is only one main
-``launching body'', and the material it ejects either has some
-sub-structure, or else is passing across (and in synchronicity with) a
-star with heavily substructured starspots across its surface.
-
-While the number of free parameters in this type of model is somewhat
-dizzying, we have no right to believe that nature need be
-simple.  Every dip in the exocomet tail model would have as free
-parameters the dip phase, the duration (captured by an exponential
-decay timescale), and the dip depth.  In detail, the impact parameter
-would also enter.  Allotting four free parameters per dip yields up to
-32 free parameters for the light curve at the most complicated times
-(assigning one exocomet per local minimum).
-
-Perhaps the most glaring issue with the planetesimal swarm idea is
-that a large number of the dips show asymmetries in the {\it wrong
-direction} relative to the naive expectation of a trailing comet tail.
-Dust forward scattering could be one possible way out; so too could
-simply invoking non-exponentially decaying dust
-distributions as a function of azimuth.
-
+We discuss this possibility below.
 
 
 {\sc Dip durations}---The shortest timescale that any of the {\it
@@ -925,6 +953,48 @@ of dust for the clouds is not entirely implausible, though it remains
 to be explored.
 
 
+\paragraph{A planetesimal swarm at corotation seems unlikely}
+It is tempting to interpret certain features of the LP 12-502 light
+curve in this framework of a disintegrating planetesimal swarm.  For
+instance, the complex in cycles 248-298 could be well-fit by a sharp
+leading edge that decays over 0.2\,$P$ (3.7\,hours).  The earlier
+complex, during cycles 248-264 (pre-state-switch), could be fit by a
+similar profile.  There are two degenerate explanations for the small
+``wiggles'' in the exponential decay.  In one explanation, the decay
+timescale is fast ($\approx$0.03\,$P$), and there are up to five
+exocomets, superposed.  In the other, there is only one main
+``launching body'', and the material it ejects either has some
+sub-structure, or else is passing across (and in synchronicity with) a
+star with heavily substructured starspots across its surface.
+
+While the number of free parameters in this type of model is somewhat
+dizzying, we have no right to believe that nature need be
+simple.  Every dip in the exocomet tail model would have as free
+parameters the dip phase, the duration (captured by an exponential
+decay timescale), and the dip depth.  In detail, the impact parameter
+would also enter.  Allotting four free parameters per dip yields up to
+32 free parameters for the light curve at the most complicated times
+(assigning one exocomet per local minimum).
+
+However there are two glaring issues with the disintegrating planetesimal swarm idea.
+First, a large number of the dips show asymmetries in the {\it wrong
+	direction} relative to the naive expectation of a trailing comet tail.
+Dust forward scattering might be one possible way out; so too might
+invoking non-exponentially decaying dust
+distributions as a function of azimuth.
+Second, and perhaps more serious, a planetesimal swarm should be expected
+to be {\it exactly periodic} over observable timescales, on the presumption that the planetesimals
+would be massive enough to not feel any headwind or magnetic field.
+This is not what is observed; instead, every dip period
+that is observed to be distinct from the fundamental 18.5611\,hr period
+is both short-lived, and unique.
+This suggests structures much less massive than a 1--100\,km sized
+planetesimal,
+ more strongly
+which could be more strongly influenced by the stellar magnetic field.
+
+
+
 
 
 \section{Conclusions}
@@ -1020,7 +1090,7 @@ All authors assisted in manuscript revision.
 	%\texttt{IDL Astronomy User's Library} \citep{landsman_1995},
   %\texttt{IPython} \citep{perez_2007},
 	%\texttt{isochrones} \citep{morton_2015_isochrones},
-	%\texttt{lightkurve} \citep{lightkurve_2018},
+	\texttt{lightkurve} \citep{2018ascl.soft12013L},
   %\texttt{matplotlib} \citep{hunter_matplotlib_2007}, 
   %\texttt{MESA} \citep{paxton_modules_2011,paxton_modules_2013,paxton_modules_2015}
   %\texttt{numpy} \citep{walt_numpy_2011}, 
@@ -1076,6 +1146,13 @@ All authors assisted in manuscript revision.
 % 	TRAPPIST \citep{jehin_trappist_2011},
 % 	VLT:Antu (FORS2).
 %    ZTF.
+  {\it Broadband photometry}:
+    2MASS (CITE).
+    APASS (CITE).
+		Gaia \citep{2018A&A...616A...1G,2018A&A...616A...1G}.
+    Pan-STARRS1 (CITE).
+    SDSS (CITE).
+    AllWISE (CITE).
 }
 
 
