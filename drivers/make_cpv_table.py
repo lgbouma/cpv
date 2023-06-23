@@ -13,6 +13,7 @@ Utilities:
 | bdf = get_banyan_result(gdr2_df)
 | t8_df = get_tic8_row(ticid)
 | tlc_df = get_tess_cpv_lc_properties(ticid)
+| sed_df = get_sedfit_results(ticid)
 
 """
 
@@ -36,14 +37,14 @@ vetdir = join(RESULTSDIR, "cpvvetter")
 indir = join(TABLEDIR, "2023_catalog_table")
 assert os.path.exists(indir)
 
-def main():
+def main(overwrite=0):
 
     csvpath = join(indir, "20230613_LGB_RJ_uticid_quality_label.csv")
     _df = pd.read_csv(csvpath, sep="|")
 
     rows = []
     for t in _df['ticid']:
-        r = get_cpvtable_row(t)
+        r = get_cpvtable_row(t, overwrite=overwrite)
         rows.append(r)
 
     rdf = pd.concat(rows)
@@ -152,8 +153,6 @@ def main():
         f.writelines(latex_txt)
     print(f"Wrote {outpath}")
 
-    import IPython; IPython.embed()
-    assert 0
 
 
 def flatten_tdf(tdf, ticid):
@@ -279,14 +278,63 @@ def get_tess_cpv_lc_properties(ticid):
     return tlc_df
 
 
+def get_sedfit_results(ticid):
+    """
+    teff_sedfit rstar_sedfit temp_suppression radius_inflation
+    teff_noactivity rstar_noactivity
+    """
 
-def get_cpvtable_row(ticid):
+    sed_dir = join(RESULTSDIR, "ariadne_sed_fitting", f"TIC_{ticid}")
+    sed_path = join(sed_dir, "best_fit_average.dat")
+
+    if not os.path.exists(sed_path):
+
+        print(f"No SED fit result for {ticid} b/c ariadne has not run.")
+
+        sed_df = pd.DataFrame({
+            'teff_sedfit': 'PENDING',
+            'teff_sedfit_perr': 'PENDING',
+            'teff_sedfit_merr': 'PENDING',
+            'rstar_sedfit': 'PENDING',
+            'rstar_sedfit_perr':'PENDING',
+            'rstar_sedfit_merr':'PENDING',
+            'Av_sedfit': 'PENDING',
+            'Av_sedfit_perr': 'PENDING',
+            'Av_sedfit_merr': 'PENDING',
+        }, index=[0])
+
+        return sed_df
+
+    else:
+
+        a_df = pd.read_csv(sed_path, delim_whitespace=True)
+        a_df.index = a_df['#Parameter']
+
+    r = lambda x: int(np.round(x))
+    r1 = lambda x: np.round(x, 3)
+
+    sed_df = pd.DataFrame({
+        'teff_sedfit': r(a_df.loc['teff', 'median']),
+        'teff_sedfit_perr': r(a_df.loc['teff', 'upper']),
+        'teff_sedfit_merr': r(a_df.loc['teff', 'lower']),
+        'rstar_sedfit': r1(a_df.loc['rad', 'median']),
+        'rstar_sedfit_perr': r1(a_df.loc['rad', 'upper']),
+        'rstar_sedfit_merr': r1(a_df.loc['rad', 'lower']),
+        'Av_sedfit': r1(a_df.loc['Av', 'median']),
+        'Av_sedfit_perr': r1(a_df.loc['Av', 'upper']),
+        'Av_sedfit_merr':  r1(a_df.loc['Av', 'lower']),
+    }, index=[0])
+
+    return sed_df
+
+
+def get_cpvtable_row(ticid, overwrite=0):
     """
     ticid: str, e.g., "402980664"
     """
 
     cachecsv = join(indir, f"TIC{ticid}_cpvtable_row.csv")
-    if os.path.exists(cachecsv):
+    if os.path.exists(cachecsv) and not overwrite:
         return pd.read_csv(cachecsv, sep="|")
 
     gdr2_df = get_gaia_rows(ticid, allcols=1)
@@ -301,9 +349,11 @@ def get_cpvtable_row(ticid):
 
     tlc_df = get_tess_cpv_lc_properties(ticid)
 
+    sed_df = get_sedfit_results(ticid)
+
     pd.options.display.max_rows = 5000
 
-    row = pd.concat((ftdf, gdr2_df, bdf, t8_df, tlc_df), axis='columns')
+    row = pd.concat((ftdf, gdr2_df, bdf, t8_df, tlc_df, sed_df), axis='columns')
 
     # TODO
     # TODO
@@ -311,8 +361,7 @@ def get_cpvtable_row(ticid):
     # TODO
     # TODO
     bonus_cols = (
-        "teff_sedfit rstar_sedfit temp_suppression radius_inflation "
-        "teff_noactivity rstar_noactivity mstar_baraffe2015 logg_baraffe2015 "
+        "mstar_feiden2016 logg_feiden2016 "
         "R_corotation t_cross s_max manual_notes R10k_spectra_available"
     ).split()
     for c in bonus_cols:
@@ -325,4 +374,4 @@ def get_cpvtable_row(ticid):
 
 
 if __name__ == "__main__":
-    main()
+    main(overwrite=1)
