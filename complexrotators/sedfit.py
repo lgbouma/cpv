@@ -195,7 +195,7 @@ def run_SED_analysis(ticid, trimlist=None):
             'logg': ('normal', 4.5, 0.5),
             'z': ('uniform', -0.3, 0.3),
             'dist': ('default'),
-            'rad': ('truncnorm', 0.5, 0.3, 0.1, 1.0),
+            'rad': ('truncnorm', 0.5, 0.5, 0.1, 1.5),
             'Av': ('uniform', 0, 0.2)
     }
 
