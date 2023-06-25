@@ -100,8 +100,10 @@ F) To run the custom TIC4029 analysis
 5. Make phased timegroup mosaic (plot_phase_timegroups_mosaic.py)
 
 ----------
-F) To make the plots for the manuscript
+G) To make the plots and values files for the manuscript
 ----------
+1. Run `get_selection_function_values.py`
+
 ...todo
 
 

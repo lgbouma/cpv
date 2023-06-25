@@ -207,7 +207,8 @@ def get_banyan_result(gdr2_df):
         'banyan_prob': probs,
         'banyan_age': ages,
         'banyan_age_refs': age_refs,
-        'banyan_singleagefloat': singleagefloat,
+        'banyan_singleagefloat': float(singleagefloat),
+        'banyan_logsingleagefloat': np.log10(float(singleagefloat*1e6)),
     }, index=[0])
 
     return bdf
