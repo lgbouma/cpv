@@ -1,37 +1,37 @@
 #Table 1 
 #General Characteristics and Bayesian Priors of Young Associations
-assoc,age,age_reference
-118TAU,$\sim 10$,Mamajek2016
-ABDMG,${149}_{-19}^{+51}$,Bell2015
-BPMG,$24 \pm 3$,Bell2015
-CAR,${45}_{-7}^{+11}$,Bell2015
-CARN,200,Zuckerman2006
-CBER,${562}_{-84}^{+98},SilajLandstreet2014
-COL,${42}_{-4}^{+6}$,Bell2015
-CRA,$4-5$,Gennaro2012
-EPSC,${3.7}_{-1.4}^{+4.6}$,Murphy2013
-ETAC,$11 \pm 3$,Bell2015
-HYA,$750 \pm 100$,BrandtHuang2015
-IC2391,$50 \pm 5$,BarradoNavascues2004
-IC2602,${46}_{-5}^{+6}$,Dobbie2010
-LCC,$15 \pm 3$,PecautMamajek2016
-OCT,$35 \pm 5$,MurphyLawson2015
-PL8,60,Platais1998
-PLE,112 \pm 5,Dahm2015
-ROPH,<2,Wilking2008
-TAU,$1-2$,KenyonHartmann1995
-THA,$45 \pm 4$,Bell2015
-THOR,${22}_{-3}^{+4}$,Bell2015
-TWA,$10 \pm 3$,Bell2015
-UCL,$16 \pm 2$,PecautMamajek2016
-UCRA,$\sim 10$,Gagne2018
-UMA,$414 \pm 23$,Jones2015b
-USCO,$10 \pm 3$,PecautMamajek2016
-XFOR,$\sim 500$,PohnlPaunzen2010
-FIELD,???,--
+assoc,age,age_reference,agefloatval
+118TAU,$\sim 10$,Mamajek2016,10
+ABDMG,${149}_{-19}^{+51}$,Bell2015,149
+BPMG,$24 \pm 3$,Bell2015,24
+CAR,${45}_{-7}^{+11}$,Bell2015,45
+CARN,200,Zuckerman2006,200
+CBER,${562}_{-84}^{+98},SilajLandstreet2014,562
+COL,${42}_{-4}^{+6}$,Bell2015,42
+CRA,$4-5$,Gennaro2012,4.5
+EPSC,${3.7}_{-1.4}^{+4.6}$,Murphy2013,3.7
+ETAC,$11 \pm 3$,Bell2015,11
+HYA,$750 \pm 100$,BrandtHuang2015,750
+IC2391,$50 \pm 5$,BarradoNavascues2004,50
+IC2602,${46}_{-5}^{+6}$,Dobbie2010,46
+LCC,$15 \pm 3$,PecautMamajek2016,15
+OCT,$35 \pm 5$,MurphyLawson2015,35
+PL8,60,Platais1998,60
+PLE,112 \pm 5,Dahm2015,112
+ROPH,<2,Wilking2008,2
+TAU,$1-2$,KenyonHartmann1995,2
+THA,$45 \pm 4$,Bell2015,45
+THOR,${22}_{-3}^{+4}$,Bell2015,22
+TWA,$10 \pm 3$,Bell2015,10
+UCL,$16 \pm 2$,PecautMamajek2016,16
+UCRA,$\sim 10$,Gagne2018,10
+UMA,$414 \pm 23$,Jones2015b,414
+USCO,$10 \pm 3$,PecautMamajek2016,10
+XFOR,$\sim 500$,PohnlPaunzen2010,500
+FIELD,???,--,???
 # bonus
-VCA,90,Gagne2018f
-ARG,$40-50$,Zuckerman2018
-PRAE,670,Douglas2019
-MUTAU,60,Gagne2020
-PERI,120,Curtis2019
+VCA,90,Gagne2018f,90
+ARG,$40-50$,Zuckerman2018,45
+PRAE,670,Douglas2019,670
+MUTAU,60,Gagne2020,60
+PERI,120,Curtis2019,120
