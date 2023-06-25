@@ -22,7 +22,7 @@ from os.path import join
 import pandas as pd, numpy as np
 import os
 from complexrotators.paths import (
-    RESULTSDIR, TABLEDIR, LITDIR, LOCALDIR, PAPERDIR
+    DATADIR, RESULTSDIR, TABLEDIR, LITDIR, LOCALDIR, PAPERDIR
 )
 from os.path import join
 
@@ -31,6 +31,7 @@ from astroquery.mast import Catalogs
 from complexrotators.observability import (
     get_gaia_rows, assess_tess_holdings
 )
+from complexrotators.isochroneinterp import get_PARSEC
 from complexrotators import pipeline_utils as pu
 
 vetdir = join(RESULTSDIR, "cpvvetter")
@@ -199,12 +200,14 @@ def get_banyan_result(gdr2_df):
     probs = ",".join(list(sdf.prob.astype(str)))
     ages = ",".join(list(sdf.age.astype(str)))
     age_refs = ",".join(list(sdf.age_reference.astype(str)))
+    singleagefloat = list(sdf.agefloatval.astype(str))[0]
 
     bdf = pd.DataFrame({
         'banyan_assoc': assocs,
         'banyan_prob': probs,
         'banyan_age': ages,
-        'banyan_age_refs': age_refs
+        'banyan_age_refs': age_refs,
+        'banyan_singleagefloat': singleagefloat,
     }, index=[0])
 
     return bdf
@@ -328,6 +331,70 @@ def get_sedfit_results(ticid):
     return sed_df
 
 
+def get_isochrone_mass(sed_df, bdf):
+    """
+    Through naive nearest-neighbor interpolation against the PARSEC v1.2
+    isochrones, guess the isochronal mass.
+
+    The PARSEC grid was downloaded at a spacing of 1 to 200 myr, linearly
+    spaced by 1 myr; all available masses.  Solar metallicity.
+    """
+
+    CONDITIONS = (
+        (bdf['banyan_singleagefloat'].iloc[0] == "???")
+        or
+        (sed_df['rstar_sedfit'].iloc[0] == "PENDING")
+    )
+    if CONDITIONS:
+        iso_df = pd.DataFrame({
+            'mstar_parsec': np.nan,
+            'logg_parsec': np.nan,
+            'rstar_parsec': np.nan,
+            'age_parsec': np.nan,
+            'teff_parsec': np.nan,
+            'dist_parsec_dex': np.nan,
+        }, index=[0])
+        return iso_df
+
+    rstar = float(sed_df['rstar_sedfit'])
+    teff =  float(sed_df['teff_sedfit'])
+    age = float(bdf['banyan_singleagefloat'].iloc[0])
+
+    logR = np.log10(rstar)
+    logT = np.log10(teff)
+    logt = np.log10(age*1e6)
+
+    df = get_PARSEC()
+
+    dist = np.sqrt(
+        np.array( (df['logRstar'] - logR)**2 )
+        +
+        np.array( (df['logTe'] - logT)**2 )
+        +
+        np.array( (df['logAge'] - logt)**2 )
+    )
+
+    df['dist'] = dist
+
+    mstar_parsec = float(df.sort_values(by='dist').head(n=1)['Mass'])
+    logg_parsec = float(df.sort_values(by='dist').head(n=1)['logg'])
+    rstar_parsec = float(df.sort_values(by='dist').head(n=1)['Rstar'])
+    age_parsec = float(df.sort_values(by='dist').head(n=1)['logAge'])
+    teff_parsec = float(df.sort_values(by='dist').head(n=1)['Teff'])
+    dist_dex = float(df.sort_values(by='dist').head(n=1)['dist'])
+
+    iso_df = pd.DataFrame({
+        'mstar_parsec': mstar_parsec,
+        'logg_parsec': logg_parsec,
+        'rstar_parsec': rstar_parsec,
+        'age_parsec': age_parsec,
+        'teff_parsec': teff_parsec,
+        'dist_parsec_dex': dist_dex,
+    }, index=[0])
+
+    return iso_df
+
+
 def get_cpvtable_row(ticid, overwrite=0):
     """
     ticid: str, e.g., "402980664"
@@ -351,9 +418,18 @@ def get_cpvtable_row(ticid, overwrite=0):
 
     sed_df = get_sedfit_results(ticid)
 
+    iso_df = get_isochrone_mass(sed_df, bdf)
+
     pd.options.display.max_rows = 5000
 
-    row = pd.concat((ftdf, gdr2_df, bdf, t8_df, tlc_df, sed_df), axis='columns')
+    row = pd.concat((ftdf, gdr2_df, bdf, t8_df, tlc_df, sed_df, iso_df), axis='columns')
+
+    from astropy import constants as const, units as u
+    omega = 2*np.pi / (row['tlc_mean_period']*u.day)
+    row['R_corotation'] = (
+        (const.G * row['mstar_parsec']*u.Msun / omega**2)**(1/3)
+    ).to(u.Rsun).value
+    row['a_over_Rstar'] = row['R_corotation'] / row['rstar_sedfit']
 
     # TODO
     # TODO
@@ -361,8 +437,7 @@ def get_cpvtable_row(ticid, overwrite=0):
     # TODO
     # TODO
     bonus_cols = (
-        "mstar_feiden2016 logg_feiden2016 "
-        "R_corotation t_cross s_max manual_notes R10k_spectra_available"
+        "t_cross s_max manual_notes R10k_spectra_available"
     ).split()
     for c in bonus_cols:
         row[c] = 'PENDING'
