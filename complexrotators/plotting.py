@@ -2614,6 +2614,12 @@ def plot_tic4029_segments(outdir):
                 transform=tform, ha='right',va='bottom', color='k',
                 fontsize=fontsize, bbox=props)
 
+    x, y, dx, dy = 7.52, -44, 0, 2
+    ax.vlines(x, y, y+dy, colors='red', zorder=30, linewidths=0.5)
+
+    x, y, dx, dy = 5.98, -51, 0, 2
+    ax.vlines(x, y, y+dy, colors='red', zorder=30, linewidths=0.5)
+
     ax.text(0.97, 0.98, 'Cycle #', va='top', ha='right', fontsize=6,
             bbox=props, transform=ax.transAxes)
 

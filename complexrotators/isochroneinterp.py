@@ -2,6 +2,7 @@
 Tools when interpolating against isochrones.
 
 | get_Feiden2016
+| get_PARSEC
 """
 import os
 from os.path import join
@@ -76,5 +77,6 @@ def get_PARSEC():
     df['Teff'] = np.array(Teff.value)
     df['Rstar'] = np.array(Rstar.value)
     df['logRstar'] = np.log10(np.array(Rstar.value))
+    df['age'] = 10**(df.logAge) / (1e6)
 
     return df
