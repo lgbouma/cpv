@@ -9,7 +9,8 @@ df = pd.read_csv(csvpath)
 
 sel = (
     (df.TESSMAG < 16) & (df.bp_rp > 1.5) &
-    (df.M_G > 4) & (df.parallax > 1e3*(1/150))
+    (df.M_G > 4) & (df.parallax > 1e3*(1/150)) &
+    (df.SECTOR <= 55)
 )
 
 sdf = df[sel]
