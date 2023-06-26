@@ -50,12 +50,15 @@ def run_SED_analysis(ticid, trimlist=None):
     ra = float(gdr2_df.ra)
     dec = float(gdr2_df.dec)
     starname = f'TIC_{ticid}'
-    g_id = int(gdr2_df.dr2_source_id)
+    #g_id = int(gdr2_df.dr2_source_id)
 
     out_folder = join(RESULTSDIR, 'ariadne_sed_fitting', f'{starname}')
     if not os.path.exists(out_folder): os.mkdir(out_folder)
 
-    s = Star(starname.replace("_"," "), ra, dec, g_id=g_id)
+    s = Star(starname.replace("_"," "), ra, dec)
+
+    # NOTE: the "g_id" constructor here is actually (incorrectly!) assuming Gaia DR3 source_id's.
+    # s = Star(starname.replace("_"," "), ra, dec, g_id=g_id)
 
     # remove TESS mag; no new information
     s.remove_mag('TESS')
