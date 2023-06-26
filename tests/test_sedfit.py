@@ -10,6 +10,7 @@ trim_ticids = {
 ticid = '142173958'
 ticid = '89463560'
 ticid = '234295610'
+ticid = '177309964'
 
 trimlist = None
 if ticid in trim_ticids:

@@ -51,13 +51,14 @@ def single_ticid():
 
     ##########################################
     # change these
+
+    ##########
+    # TIC 4029 CONFIGURATION
     ticid = '402980664'
     cyclewindows = [(0,1481), (0,64), (248,315), (1233, 1265), (1233,1481), (1411, 1481)]
     sample_id = '2023catalog_LGB_RJ_concat' # used for cacheing
-
     manual_period = 18.5611 / 24
     t0 = 1791.15 + manual_period/2  # can be None
-
     # e.g. written by build_4029_mask.py
     nterms = 2
     model_id = f"manual_20230617_mask_v0_nterms{nterms}"
@@ -68,6 +69,24 @@ def single_ticid():
 
     vmin, vmax = -0.03, 0.03 #  can be None
     vmin, vmax = -0.04, 0.01 #  can be None
+    ##########
+
+    ##########
+    # TIC 405910546
+    ticid = '405910546'
+    cyclewindows = [(-11,27)] #[(0,1481), (0,64), (248,315), (1233, 1265), (1233,1481), (1411, 1481)]
+    sample_id = '2023catalog_LGB_RJ_concat' # used for cacheing
+    manual_period = 1.583
+    t0 = 2321.77 + manual_period/2
+    # e.g. written by build_4029_mask.py
+    nterms = None
+    model_id = None
+    # specifies lc subtrxn model
+    manual_csvpath = None
+    savstr = model_id # can be None; used for cacheing
+    vmin, vmax = -0.07, 0.05 #  can be None
+    ##########
+
 
     ##########################################
 

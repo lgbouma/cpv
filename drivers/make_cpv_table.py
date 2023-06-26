@@ -14,6 +14,7 @@ Utilities:
 | t8_df = get_tic8_row(ticid)
 | tlc_df = get_tess_cpv_lc_properties(ticid)
 | sed_df = get_sedfit_results(ticid)
+| iso_df = get_isochrone_mass(sed_df, bdf)
 
 """
 
@@ -93,6 +94,11 @@ def main(overwrite=0):
 
     N_0 = len(df)
     sdf = df[sel]
+
+    csvpath = join(indir, "20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied.csv")
+    sdf.to_csv(csvpath, index=False, sep="|")
+    print(f"Wrote {csvpath}")
+
     N_1 = len(sdf)
     N_2 = len(sdf[~pd.isnull(sdf.goodsectors)])
     N_3 = len(sdf[pd.isnull(sdf.goodsectors)])
@@ -202,13 +208,16 @@ def get_banyan_result(gdr2_df):
     age_refs = ",".join(list(sdf.age_reference.astype(str)))
     singleagefloat = list(sdf.agefloatval.astype(str))[0]
 
+    if singleagefloat == '???':
+        singleagefloat = np.nan
+
     bdf = pd.DataFrame({
         'banyan_assoc': assocs,
         'banyan_prob': probs,
         'banyan_age': ages,
         'banyan_age_refs': age_refs,
         'banyan_singleagefloat': float(singleagefloat),
-        'banyan_logsingleagefloat': np.log10(float(singleagefloat*1e6)),
+        'banyan_logsingleagefloat': np.log10(float(singleagefloat)*1e6),
     }, index=[0])
 
     return bdf
@@ -344,6 +353,8 @@ def get_isochrone_mass(sed_df, bdf):
     CONDITIONS = (
         (bdf['banyan_singleagefloat'].iloc[0] == "???")
         or
+        (pd.isnull(float(bdf['banyan_singleagefloat'].iloc[0])))
+        or
         (sed_df['rstar_sedfit'].iloc[0] == "PENDING")
     )
     if CONDITIONS:
@@ -358,21 +369,32 @@ def get_isochrone_mass(sed_df, bdf):
         return iso_df
 
     rstar = float(sed_df['rstar_sedfit'])
-    teff =  float(sed_df['teff_sedfit'])
-    age = float(bdf['banyan_singleagefloat'].iloc[0])
+    rstar_err = np.mean([
+        float(sed_df['rstar_sedfit_perr']),
+        float(sed_df['rstar_sedfit_merr'])
+    ])
 
-    logR = np.log10(rstar)
-    logT = np.log10(teff)
-    logt = np.log10(age*1e6)
+    teff =  float(sed_df['teff_sedfit'])
+    teff_err = np.mean([
+        float(sed_df['teff_sedfit_perr']),
+        float(sed_df['teff_sedfit_merr'])
+    ])
+
+    age = float(bdf['banyan_singleagefloat'].iloc[0])
+    if age < 10:
+        # set age floor of 10 myr
+        age = 10
+    # require age uncertainty of 10% or +/-5 myr, whichever is bigger
+    age_err = np.max([age*0.1, 5])
 
     df = get_PARSEC()
 
     dist = np.sqrt(
-        np.array( (df['logRstar'] - logR)**2 )
+        np.array( ( (df['Rstar'] - rstar) / rstar_err )**2 )
         +
-        np.array( (df['logTe'] - logT)**2 )
+        np.array( ( (df['Teff'] - teff) / teff_err )**2 )
         +
-        np.array( (df['logAge'] - logt)**2 )
+        np.array( ( (df['age'] - age) / age_err )**2 )
     )
 
     df['dist'] = dist
@@ -380,9 +402,9 @@ def get_isochrone_mass(sed_df, bdf):
     mstar_parsec = float(df.sort_values(by='dist').head(n=1)['Mass'])
     logg_parsec = float(df.sort_values(by='dist').head(n=1)['logg'])
     rstar_parsec = float(df.sort_values(by='dist').head(n=1)['Rstar'])
-    age_parsec = float(df.sort_values(by='dist').head(n=1)['logAge'])
+    age_parsec = float(df.sort_values(by='dist').head(n=1)['age'])
     teff_parsec = float(df.sort_values(by='dist').head(n=1)['Teff'])
-    dist_dex = float(df.sort_values(by='dist').head(n=1)['dist'])
+    dist_metric = float(df.sort_values(by='dist').head(n=1)['dist'])
 
     iso_df = pd.DataFrame({
         'mstar_parsec': mstar_parsec,
@@ -390,7 +412,7 @@ def get_isochrone_mass(sed_df, bdf):
         'rstar_parsec': rstar_parsec,
         'age_parsec': age_parsec,
         'teff_parsec': teff_parsec,
-        'dist_parsec_dex': dist_dex,
+        'dist_metric_parsec': dist_metric,
     }, index=[0])
 
     return iso_df
@@ -426,9 +448,9 @@ def get_cpvtable_row(ticid, overwrite=0):
     row = pd.concat((ftdf, gdr2_df, bdf, t8_df, tlc_df, sed_df, iso_df), axis='columns')
 
     from astropy import constants as const, units as u
-    omega = 2*np.pi / (row['tlc_mean_period']*u.day)
+    omega = 2*np.pi / (float(row['tlc_mean_period'])*u.day)
     row['R_corotation'] = (
-        (const.G * row['mstar_parsec']*u.Msun / omega**2)**(1/3)
+        (const.G * float(row['mstar_parsec'])*u.Msun / omega**2)**(1/3)
     ).to(u.Rsun).value
     row['a_over_Rstar'] = row['R_corotation'] / row['rstar_sedfit']
 
@@ -450,4 +472,4 @@ def get_cpvtable_row(ticid, overwrite=0):
 
 
 if __name__ == "__main__":
-    main(overwrite=1)
+    main(overwrite=0)

@@ -15,7 +15,7 @@ MANUAL_TRIM_DICT = {
 }
 
 csvpath = join(TABLEDIR, "2023_catalog_table",
-               "20230613_LGB_RJ_CPV_TABLE_supplemental.csv")
+               "20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied.csv")
 
 df = pd.read_csv(csvpath, sep="|")
 
