@@ -208,6 +208,8 @@ def run_SED_analysis(ticid, trimlist=None):
         f.initialize()
         # this takes like 10 minutes
         f.fit_bma()
+    else:
+        print(f"Found {cache_file}, skipping any re-fit.")
 
     ##############
     # make plots #
