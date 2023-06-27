@@ -171,7 +171,7 @@ that can be either sharp or broad, often superposed on smooth
 spot-like modulation
 \citep{2017AJ....153..152S,2018AJ....155...63S,2019ApJ...876..127Z}.
 Some CQVs show up to eight local minima (dips) per cycle; sharp peaks
-are also common.  Most CQVs are pre-main-sequence M-dwarfs without
+are common, but .  Most CQVs are pre-main-sequence M-dwarfs without
 near-infrared excesses, with ages of $\approx$5-150 million years
 (Myr), and rotation periods of at most two days; they are observed to
 be $\approx$1-3\% of M-dwarfs younger than 100 Myr
@@ -548,21 +548,20 @@ model mass is then one that minimizes this distance, and is quoted in
 Table~\ref{tab:thetable}.
 
 
-\begin{figure*}[!t]
+\begin{figure*}[!tp]
 	\begin{center}
 		\centering
-		\includegraphics[width=\textwidth]{lc_mosaic_dlt150_good_all.pdf}
+		\includegraphics[width=\textwidth]{f2.pdf}
+    \vspace{-0.7cm}
 		\caption{
-			{\bf CQVs from a search of the TESS 2-minute data at
-				$d$$<$150\,pc, acquired between July~2018 and Sep~2022.}
-			Phased TESS light curves over 1 month are shown for 40 CQVs;
-			they include the brightest and closest examples of CQVs known
-			($V$=14; $J$=9.5; $d$=25\,pc).  Gray are raw 2-minute data;
-			black bins to 300 points per cycle.  Periods in hours are listed
-			in the lower right corners of each panel.
-			{\bf todo:  add TIC IDs and sector numbers}.
-			% TODO: sort by brightness maybe?
-			% TODO: sort by period?
+      {\bf CQVs found in the TESS 2-minute data at
+      $d$$<$150\,pc, acquired between July~2018 and Sep~2022.}
+      Phased TESS light curves over one month are shown for \ngoods\
+      CQVs.
+      Gray are raw 2-minute data;
+			black bins to 300 points per cycle.  Each panel is labelled by
+      the TIC identifier, the TESS sector number, and the period in hours.
+      The ordering is discussed in Section~\ref{sec:catalog}
 		}
 		\label{fig:singlemosaic}
 	\end{center}
@@ -573,26 +572,39 @@ Table~\ref{tab:thetable}.
 \label{sec:results}
 
 \subsection{CQV catalog}
+\label{sec:catalog}
 
 Table~\ref{tab:thetable} lists the \ncpvsfound\ CQVs identified by our
-search, and some of their important properties.  \ngoods\ objects
-demonstrate what we view as unambiguous characteristics of the CQV
-phenomenon in at least one TESS sector, and we refer to these as the
-``gold sample''.  The remaining \nmaybes\ CQV candidates were
-ambiguous (in our view), and their variability might be caused by say,
-multiple starspot groups.  Additional TESS data could help resolve
-their classification.
+search, along important physical and observational properties.
+\ngoods\ objects demonstrate what we view as unambiguous
+characteristics of the CQV phenomenon in at least one TESS sector, and
+we refer to these as the ``gold sample''.  The remaining \nmaybes\ CQV
+candidates were ambiguous (in our view), and their variability might
+be caused by say, multiple starspot groups.  Additional data from TESS
+or other instruments can help resolve their classification; in
+Section~\ref{subsec:irexcess} below for instance we discuss
+a few cases in this ambiguous sample that are probably dippers.
 
 The mosaic in Figure~\ref{fig:singlemosaic} shows phased light curves
-for the 40 brightest objects.  The TESS sectors in which these objects
-were identified show anywhere from one to eight local minima per
-cycle.  Some stars show relatively ordinary modulation during one
+for the \ngoods\ bonafide CQVs.  
+The objects are sorted first in order of the number of TESS sectors in
+which they clearly demonstrated the CQV phenomenon, and secondarily by
+descending brightness.
+The objects at the top therefore have the most data.
+
+Generally, Figure~\ref{fig:singlemosaic} shows a broad range of
+variability, with anywhere from two to eight local minima per cycle.  
+Some stars show relatively ordinary modulation during one
 continuous portion of the phased light curve, and highly structured
 modulation in the remainder of the cycle (e.g. TIC~206544316,
 TIC~224283342, TIC~402980664).  Others show structured modulation over
 the entire span of a cycle (e.g. TIC~2234692, TIC~401789285,
 TIC~425933644, TIC~142173958).  Others still show some mix between
 these two modes.
+
+A few objets at first glance seem reminiscent of eclipsing binaries, for
+instance TIC~193831684.
+In every such case, 
 
 \subsection{Ages}
 
@@ -645,6 +657,7 @@ line of evidence supporting the reality, and youth, of that group.
 
 
 \subsection{Infrared excesses}
+\label{subsec:irexcess}
 
 As is typical for CQVs \citep{2017AJ....153..152S}, most CQVs in our
 catalog did not show infrared excesseses in the WISE1-4 bands.
@@ -1305,19 +1318,28 @@ rapidly rotating star.
 
 {\it The light curve}---
 Figure~\ref{fig:lplc} shows an alternative view of the LP-502 light
-curve from Figure~\ref{fig:lp}, 
-split into ``time chunks'' wherever there was more than half a day of
-missing data in the TESS light curve.
-We binned the light curve to 15-minute intervals for visual clarity,
-and required at least one (120-second cadence) flux measurement per
-bin.
+curve from Figure~\ref{fig:lp}, split into successive TESS orbits.  We
+binned the light curve to 15-minute intervals for visual clarity, and
+required at least one (120-second cadence) flux measurement per bin.
 Points more than 2.5$\sigma$ above the median are drawn in gray, also
-for visual clarity.
-Missing data are not drawn (a common plotting error when ``drawing''
-light curves, rather than showing a scatter plot).
+for visual clarity.  Missing data are not drawn (a common plotting
+error when ``drawing'' light curves, rather than showing a scatter
+plot).  The red lines point to specific state switches, discussed
+elsewhere in the text.
 
-{\it State switches}---
-Figure~\ref{fig:lpzoom} shows an alternative view of cycles 1233-1247.
+Figure~\ref{fig:lp2} shows another alternative view of
+Figure~\ref{fig:lp}, but arranged to enable easy visual appreciation
+of transit timing changes, rather than transit depth changes.
+A best-fitting two-harmonic sinusoid has been independently fitted and
+subtracted from the Sector
+18-19 data, 25-26 data, and 53, 58, and 59 data.
+
+Finally, Figure~\ref{fig:lpriver0} shows ``river plots'' of the
+same data, split into very similar intervals:
+the Sector 18-19 data, 25-26 data, 53 data, and 58-59 data.
+State changes are evident in these plots whenever there is a sudden
+change in color.
+{\bf todo: fix missing data to be different from the flare color} 
 
 \begin{figure*}[!tp]
 	\begin{center}
@@ -1336,7 +1358,6 @@ Figure~\ref{fig:lpzoom} shows an alternative view of cycles 1233-1247.
 		\label{fig:lplc}
 	\end{center}
 \end{figure*}
-
 
 \begin{figure*}[!t]
 	\begin{center}
@@ -1382,20 +1403,6 @@ Figure~\ref{fig:lpzoom} shows an alternative view of cycles 1233-1247.
 	}
 	\label{fig:lpriver0}
 \end{figure*}
-
-%
-%\begin{figure*}[!t]
-%	\begin{center}
-%		\centering
-%		\includegraphics[width=0.96\textwidth]{TIC4029_zoom.png}
-%		\vspace{-0.45cm}
-%		\caption{
-%			{\bf LP 12-502 cycles 1233-1247}, showing the most dramatic state
-%			change observed over the three year baseline.
-%		}
-%		\label{fig:lpzoom}
-%	\end{center}
-%\end{figure*}
 
 
 \section{No additional power at 20~second cadence}
