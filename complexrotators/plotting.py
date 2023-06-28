@@ -18,6 +18,8 @@ Contents:
 
     | plot_lc_mosaic
     | plot_full_lcmosaic
+    | plot_beforeafter_mosaic
+
     | plot_phase_timegroups_mosaic
 
     | plot_cadence_comparison
@@ -908,11 +910,18 @@ def plot_phased_light_curve(
                 lw=0.5, rasterized=True, alpha=alpha0)
 
     orb_bd = phase_bin_magseries(x_fold, y, binsize=binsize_phase, minbinelems=1)
-    ax.scatter(
-        orb_bd['binnedphases'], norm(orb_bd['binnedmags']), color=c1,
-        s=BINMS, linewidths=0,
-        alpha=alpha1, zorder=1002#, linewidths=0.2, edgecolors='white'
-    )
+    if c1 == 'k':
+        ax.scatter(
+            orb_bd['binnedphases'], norm(orb_bd['binnedmags']), color=c1,
+            s=BINMS, linewidths=0,
+            alpha=alpha1, zorder=1002#, linewidths=0.2, edgecolors='white'
+        )
+    else:
+        ax.scatter(
+            orb_bd['binnedphases'], norm(orb_bd['binnedmags']), color=c1,
+            s=BINMS, linewidths=0.07, edgecolors='k',
+            alpha=alpha1, zorder=1002#, linewidths=0.2, edgecolors='white'
+        )
 
     if isinstance(findpeaks_result, dict):
 
@@ -2635,6 +2644,457 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
     savefig(fig, outpath, dpi=400)
 
 
+def plot_beforeafter_mosaic(outdir, showtitles=1, titlefontsize=3.75,
+                            sortby=None):
+    """
+    the one that makes the publication
+    (on mico, assuming that find_CPVs.py has been run using
+    sample_id=="2023catalog_LGB_RJ_concat")
+    """
+
+    # load ticids
+    N_objects = 53 # fine if longer/shorter, just requires tweaking
+
+    tablepath = join(
+        TABLEDIR, "2023_catalog_table",
+        '20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied.csv'
+    )
+    df = pd.read_csv(tablepath, sep="|")
+    _df = df[~pd.isnull(df.goodsectors)]
+    assert len(_df) == N_objects
+
+    # get manually written sectors to plot
+    sectorpath = join(
+        DATADIR, 'targetlists', '20230613_LGB_RJ_changerspref.csv'
+    )
+    tdf = pd.read_csv(sectorpath)
+
+    # merge to same dataframe
+    df = _df.merge(tdf, on='ticid', how='inner')
+    assert len(df) == N_objects
+
+    if isinstance(sortby, str):
+        if sortby in ['tic8_Tmag','tlc_mean_period','dist_pc']:
+            df = df.sort_values(by=sortby)
+        elif sortby == 'Ngoodsectors_tic8_Tmag':
+            fn = lambda x: len(x.split(','))
+            df['Ngoodsectors'] = df.goodsectors_x.apply(fn)
+            df = df.sort_values(
+                by=['Ngoodsectors', 'tic8_Tmag'],
+                ascending=[False, True]
+            )
+        else:
+            raise NotImplementedError
+
+    # require "changersectors" manual label to be filled -- these are all cases
+    # for which "sectors" had >26 day baselines (irrespective of 2-day-data
+    # availability)
+    df = df[~pd.isnull(df.changersectors)]
+
+    fn = lambda x: x.split('-')[0]
+    df['beforesector'] = df['changersectors'].apply(fn)
+    fn = lambda x: x.split('-')[1]
+    df['aftersector'] = df['changersectors'].apply(fn)
+
+    #
+    # attempt pre-download all 120-second cadence light curves.  both the
+    # before and after sectors have to exist at 120-second cadence.
+    #
+    from complexrotators.getters import _get_lcpaths_fromlightkurve_given_ticid
+    beforesectorfound, aftersectorfound = [], []
+    for sectorcol in ['beforesector','aftersector']:
+        for ticid, sector in zip(df['ticid'], df[sectorcol]):
+            lcdir = '/Users/luke/.lightkurve-cache/mastDownload/TESS'
+            lcpaths = glob(join(
+                lcdir, f"tess*s{str(sector).zfill(4)}*{ticid}*",
+                f"*{ticid}*_lc.fits")
+            )
+            if not len(lcpaths) == 1:
+                lcpaths = _get_lcpaths_fromlightkurve_given_ticid(str(ticid), require_lc=1)
+                thepath = [l for l in lcpaths if f's{str(sector).zfill(4)}' in l]
+                if len(thepath) == 1:
+                    if sectorcol == 'beforesector':
+                        beforesectorfound.append(True)
+                    elif sectorcol == 'aftersector':
+                        aftersectorfound.append(True)
+                else:
+                    if sectorcol == 'beforesector':
+                        beforesectorfound.append(False)
+                    elif sectorcol == 'aftersector':
+                        aftersectorfound.append(False)
+            else:
+                if sectorcol == 'beforesector':
+                    beforesectorfound.append(True)
+                elif sectorcol == 'aftersector':
+                    aftersectorfound.append(True)
+
+    df['beforesectorfound'] = np.array(beforesectorfound)
+    df['aftersectorfound'] = np.array(aftersectorfound)
+
+    sel = df['beforesectorfound'] & df['aftersectorfound']
+
+    df = df[sel]
+
+    N = len(df)
+    print(f"Got {N} stars with beforesectorfound and aftersectorfound...")
+    cut_N = 27 # 54 panels total
+    print(f"Cutting to 27...")
+    df = df.head(n=cut_N)
+
+    a_ticids, a_beforesectors, a_aftersectors = (
+        np.array(df.ticid), np.array(df.beforesector), np.array(df.aftersector)
+    )
+    ticids, sectors = [], []
+    for ix in range(cut_N*2):
+        ticids.append(a_ticids[ix // 2])
+        if ix % 2 == 0:
+            sectors.append(a_beforesectors[ix // 2])
+        else:
+            sectors.append(a_aftersectors[ix // 2])
+
+    # prepare to get lc data
+    from complexrotators.lcprocessing import (
+        cpv_periodsearch, prepare_cpv_light_curve
+    )
+
+    #
+    # instantiate plot
+    #
+    plt.close('all')
+    set_style('science')
+
+
+    SIMPLEGRID = 0
+
+    if SIMPLEGRID:
+        factor = 0.8
+        # this gets it looking 90% correct
+        fig, axs = plt.subplots(nrows=9, ncols=6,
+                                figsize=(factor*7,factor*8.7),
+                                constrained_layout=True)
+        axs = axs.flatten()
+
+    else:
+        # this is the correct way to do it
+        # see tests/gridspec_demo3.py, where this insanity was prototyped
+        factor = 0.75
+        fig = plt.figure(figsize=(factor*6.5,factor*9.5))
+
+        from matplotlib.gridspec import GridSpec
+
+        x0 = 0.03
+        smx = 0.03
+        dx = 0.30
+        hspace = 0.2
+        wspace = 0.02
+        left, right = x0, x0+dx
+
+        axs = []
+
+        gs1 = GridSpec(9, 2, left=left, right=right, wspace=wspace, hspace=hspace)
+        for ix in range(9):
+            ax = fig.add_subplot(gs1[ix, 0])
+            axs.append(ax)
+            ax = fig.add_subplot(gs1[ix, 1])
+            axs.append(ax)
+
+        left, right = x0+smx+dx, x0+smx+2*dx
+        gs2 = GridSpec(9, 2, left=left, right=right, wspace=wspace, hspace=hspace)
+        for ix in range(9):
+            ax = fig.add_subplot(gs2[ix, 0])
+            axs.append(ax)
+            ax = fig.add_subplot(gs2[ix, 1])
+            axs.append(ax)
+
+        left, right = x0+2*smx+2*dx, x0+2*smx+3*dx
+        gs3 = GridSpec(9, 2, left=left, right=right, wspace=wspace, hspace=hspace)
+        for ix in range(9):
+            ax = fig.add_subplot(gs3[ix, 0])
+            axs.append(ax)
+            ax = fig.add_subplot(gs3[ix, 1])
+            axs.append(ax)
+
+
+    ix = 0
+
+    for ticid, sector, ax in zip(ticids, sectors, axs):
+
+        lcdir = '/Users/luke/.lightkurve-cache/mastDownload/TESS'
+        lcpaths = glob(join(
+            lcdir, f"tess*s{str(sector).zfill(4)}*{ticid}*",
+            f"*{ticid}*_lc.fits")
+        )
+        if not len(lcpaths) == 1:
+            print('bad lcpaths')
+            print(ticid, sector)
+            print(lcpaths)
+            import IPython; IPython.embed()
+            assert 0
+
+        lcpath = lcpaths[0]
+
+        cachedir = '/Users/luke/local/complexrotators/cpv_finding/2023catalog_LGB_RJ_concat'
+
+        # get the relevant light curve data
+        (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
+         sector, starid) = prepare_cpv_light_curve(lcpath, cachedir)
+
+        # get period, t0, and periodogram (PDM or LombScargle)
+        d = cpv_periodsearch(
+            x_obs, y_flat, starid, cachedir, t0='binmin', periodogram_method='pdm'
+        )
+
+        if str(ticid) == '335598085':
+            d['period'] = 1.3211004981093784/2
+        if str(ticid) == '177309964' and int(sector) == 11:
+            d['period'] *= 0.5
+        if str(ticid) == '234295610' and int(sector) == 28:
+            d['period'] *= 0.5
+        if str(ticid) == '272248916':
+            d['period'] = 0.3708350878122453
+        if str(ticid) == '289840926':
+            d['period'] = 0.1999953362691368 # lol what
+
+        bd = time_bin_magseries(d['times'], d['fluxs'], binsize=1200, minbinelems=1)
+
+        ylim = get_ylimguess(1e2*(bd['binnedmags']-np.nanmean(bd['binnedmags'])))
+
+        if showtitles:
+            if SIMPLEGRID:
+                if ix % 2 == 0:
+                    titlestr = f'TIC{ticid}, S{sector}, {d["period"]*24:.1f}h'
+                else:
+                    titlestr = f'... S{sector}'
+            else:
+                if ix % 2 == 0:
+                    spstr = 49*' '
+                    titlestr = spstr+f'TIC{ticid}, {d["period"]*24:.1f}h'
+                else:
+                    titlestr = None
+        else:
+            titlestr = None
+
+        VERBOSE = 1
+        if VERBOSE:
+            print(ticid, ix, f'{d["period"]*24:.1f}h')
+
+        binsize_phase = 1/300
+
+        BINMS=1.0
+        alpha0=0.15
+
+        # visually distinct colors generated by https://mokole.com/palette.html
+        # 27 colors; 5^ minimum lum, 80% max, 5000 loops
+        # sub indigo for lime, peru for gold, and darkorange for khaki
+        _colors = [
+            "#696969",
+            "#8b4513",
+            "#006400",
+            "#808000",
+            "#483d8b",
+            "#3cb371",
+            "#4682b4",
+            "#000080",
+            "#9acd32",
+            "#8b008b",
+            "#b03060",
+            "#48d1cc",
+            "#ff4500",
+            "#ff8c00",
+            #"#ffd700", # gold
+            "peru",
+            #"#00ff00", # lime
+            "indigo",
+            "#8a2be2",
+            "#00ff7f",
+            "#dc143c",
+            "#0000ff",
+            "#d8bfd8",
+            "#ff00ff",
+            "#1e90ff",
+            #"#f0e68c", # khaki
+            "darkorange",
+            "#ff1493",
+            "#ffa07a",
+            "#ee82ee",
+        ]
+        np.random.seed(42)
+        np.random.shuffle(_colors)
+        c1 = _colors[ix // 2]
+        #if ix % 2 == 0:
+        #    c1 = f"C{ix % 10}"
+        #else:
+        #    c1 = f"C{(ix-1) % 10}"
+
+        plot_phased_light_curve(
+            d['times'], d['fluxs'], d['t0'], d['period'], None, ylim=ylim,
+            xlim=[-0.6,0.6], binsize_phase=binsize_phase, BINMS=BINMS, titlestr=titlestr,
+            showtext=None, showtitle=False, figsize=None, c0='darkgray',
+            alpha0=alpha0, c1=c1, alpha1=1, phasewrap=True, plotnotscatter=False,
+            fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
+            showxticklabels=False, titlefontsize=titlefontsize,
+            titlepad=0.05
+        )
+
+        if SIMPLEGRID:
+            pass
+        else:
+            txt = f"S{sector}"
+            props = dict(boxstyle='square', facecolor='white', alpha=0.7,
+                         pad=0.15, linewidth=0)
+            tform = ax.transAxes
+            if ix % 2 == 0:
+                # lower right
+                ax.text(
+                    0.93, 0.09, txt, transform=tform, ha='right', va='bottom',
+                    color='k', fontsize=titlefontsize, bbox=props, zorder=99
+                )
+            else:
+                # lower left
+                ax.text(
+                    0.07, 0.09, txt, transform=tform, ha='left', va='bottom',
+                    color='k', fontsize=titlefontsize, bbox=props, zorder=99
+                )
+
+        if not showtitles:
+            txt = f'{d["period"]*24:.1f}h'
+            tform = ax.transAxes
+            props = dict(boxstyle='square', facecolor='white', alpha=0.7, pad=0.15,
+                         linewidth=0)
+            fontsize = 'xx-small'
+            ax.text(
+                0.97, 0.05, txt, transform=tform, ha='right',
+                va='bottom', color='k', fontsize=fontsize, bbox=props
+            )
+
+        ax.set_xticks([-0.5,0,0.5])
+
+        ylow, yhigh = int(np.ceil(ylim[0]))+1, int(np.floor(ylim[1]))-1
+        if np.diff([np.abs(ylow), yhigh]) <= 2:
+            ylowabs = np.abs(ylow)
+            yhighabs = np.abs(yhigh)
+            ylow = -np.min([ylowabs, yhighabs])
+            yhigh = np.min([ylowabs, yhighabs])
+            if ylow == yhigh == 0:
+                # 368129164 led to this
+                ylow = -1
+                yhigh = 1
+            if yhigh >= 10:
+                ylow = -9
+                yhigh = 9
+
+        ax.set_yticks([ylow, 0, yhigh])
+        ax.set_yticklabels([ylow, 0, yhigh], fontsize='small')
+
+        id_yticks = {
+            "405754448": [-1,0,1],
+            "300651846": [-3,0,3],
+            "167664935": [-9,0,9],
+            "353730181": [-6,0,6],
+            '335598085': [-3,0,3],
+            '302160226': [-3,0,2],
+            '234295610': [-4,0,4],
+            '201898222': [-2,0,2],
+            '264767454': [-1,0,1],
+            '440725886': [-9,0,9],
+            '5714469': [-6,0,6],
+            '442571495': [-3,0,3],
+            '264599508': [-3,0,3],
+            '193831684': [-9,0,4],
+            '177309964': [-7,0,7],
+            '402980664': [-2,0,1],
+            '141146667': [-7,0,7],
+            '363963079': [-7,0,7],
+            '89463560': [-4,0,4],
+            '142173958': [-7,0,7],
+            '405910546': [-6,0,3],
+            '118449916': [-6,0,4],
+            '425937691': [-8,0,8],
+            '397791443': [-9,0,9],
+            '312410638': [-4,0,4],
+            '332517282': [-7,0,7],
+            '144486786': [-1,0,1],
+            '38820496': [-1,0,1],
+            '38539720': [-8,0,8],
+            '289840926': [-9,0,9],
+            '404144841': [-6,0,6],
+            '89463560': [-4,0,4],
+            '368129164': [-1,0,1],
+            '50745567': [-2,0,2],
+            '425933644': [-4,0,4],
+            '146539195': [-4,0,3],
+            '206544316': [-6,0,6],
+            '272248916': [-2,0,2],
+            '178155030': [-3,0,3],
+            '224283342': [-4,0,2],
+
+        }
+        if str(ticid) in list(id_yticks.keys()):
+            yticks = id_yticks[str(ticid)]
+            ax.set_yticks(yticks)
+
+            if ix % 2 == 0:
+                ax.set_yticklabels(yticks)
+            else:
+                ax.set_yticklabels([])
+
+            if yticks[2] >= 9:
+                diff = 4
+            elif yticks[2] > 5:
+                diff = 2.5
+            elif yticks[2] > 2:
+                diff = 1.5
+            else:
+                diff = 1.
+            ax.set_ylim([yticks[0]-diff, yticks[2]+diff])
+
+            if str(ticid) == '397791443':
+                ax.set_ylim([-17,13])
+            if str(ticid) == '402980664':
+                ax.set_ylim([-3.5,2.5])
+
+        labelsize = 'xx-small'
+
+        ax.minorticks_off()
+
+        ax.tick_params(axis='both', which='major', labelsize=labelsize,
+                       pad=1.5)
+
+        ix += 1
+
+    # set x tick labels
+    if SIMPLEGRID:
+        for ax in axs[-6:]:
+            ax.set_xticklabels(['-0.5','0','0.5'], fontsize='small')
+    else:
+        for ix in [16,17, 34,35, 52,53]:
+            axs[ix].set_xticklabels(['-0.5','0','0.5'], fontsize='small')
+
+    fs = 'medium'
+    if SIMPLEGRID:
+        fig.text(0.5,0.0, r"Phase, φ", fontsize=fs)
+        fig.text(-0.01,0.5, r"Flux [%]", va='center', rotation=90, fontsize=fs)
+    else:
+        fig.text(0.5,0.07, r"Phase, φ", fontsize=fs, va='bottom', ha='center')
+        fig.text(-0.01,0.5, r"Flux [%]", va='center', ha='center', rotation=90, fontsize=fs)
+
+
+    # set naming options
+    s = ''
+    if showtitles:
+        s += '_showtitles'
+    if isinstance(sortby, str):
+        s += f'_{sortby}'
+
+    # height/width
+    if SIMPLEGRID:
+        fig.tight_layout(h_pad=0.1, w_pad=0.)
+
+    outpath = join(outdir, f'beforeafter_mosaic{s}.png')
+    savefig(fig, outpath, dpi=400)
+
+
+
 def plot_cadence_comparison(outdir, ticid: str = None, sector: int = None):
 
     assert isinstance(ticid, str)
@@ -2738,8 +3198,8 @@ def plot_tic4029_segments(outdir):
     plt.close('all')
     set_style('science')
 
-    f = 0.5
-    fig, ax = plt.subplots(figsize=(f*8.5, f*9.5))
+    f = 0.7
+    fig, ax = plt.subplots(figsize=(f*7.5, f*9))
 
     ############
     # get data #
@@ -2798,6 +3258,9 @@ def plot_tic4029_segments(outdir):
         if e_end - e_start < 1:
             continue
 
+        if e_start == -1:
+            e_start = 0
+
         txt = f"{e_start}"+"$\,$-$\,$"+f"{e_end}"
 
         bd = time_bin_magseries(gtime, gflux, binsize=900, minbinelems=1)
@@ -2831,7 +3294,7 @@ def plot_tic4029_segments(outdir):
             ax.plot(sx[_g], sy[_g], c='k', zorder=2, lw=0.3)
 
         # manage text
-        fontsize = 4
+        fontsize = 6
         tform = blended_transform_factory(ax.transAxes, ax.transData)
         props = dict(boxstyle='square', facecolor='white', alpha=0.7, pad=0.15,
                      linewidth=0)
@@ -2846,11 +3309,13 @@ def plot_tic4029_segments(outdir):
     x, y, dx, dy = 5.98, -51, 0, 2
     ax.vlines(x, y, y+dy, colors='red', zorder=30, linewidths=0.5)
 
-    ax.text(0.97, 0.98, 'Cycle #', va='top', ha='right', fontsize=6,
+    ax.text(0.97, 0.98, 'Cycle #', va='top', ha='right', fontsize=7,
             bbox=props, transform=ax.transAxes)
 
     ax.set_xlabel('Days since chunk began')
     ax.set_ylabel('Flux [%]')
+
+    ax.tick_params(axis='both', which='major', labelsize='small')
 
     fig.tight_layout()
 
