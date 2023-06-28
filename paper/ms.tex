@@ -265,7 +265,7 @@ empirically descriptive name.
 			\includegraphics[width=0.8\textwidth]{f1a.pdf}
 		}
 		
-		\vspace{-0.45cm}
+		\vspace{-0.6cm}
 		\subfloat{
 			\includegraphics[width=0.8\textwidth]{f1b.pdf}
 		}
@@ -561,7 +561,8 @@ Table~\ref{tab:thetable}.
       Gray are raw 2-minute data;
 			black bins to 300 points per cycle.  Each panel is labelled by
       the TIC identifier, the TESS sector number, and the period in hours.
-      The ordering is discussed in Section~\ref{sec:catalog}
+      Objects are ordered such that sources with the most TESS data available are
+       on top (see Section~\ref{sec:catalog}).
 		}
 		\label{fig:singlemosaic}
 	\end{center}
@@ -742,19 +743,21 @@ Broadly speaking, this shape evolution
 suggests that CQVs have a duty cycle of $\approx$75\%.
 
 
-\begin{figure*}[!t]
+\begin{figure*}[!tp]
 	\begin{center}
 		\centering
-		\includegraphics[width=0.9\textwidth]{lc_mosaic_dlt150_good_allchangers_2count_showtitles.png}
-		\vspace{-0.2cm}
+		\includegraphics[width=\textwidth]{f3.pdf}
+		\vspace{-0.6cm}
 		\caption{
-			{\bf Evolution of CQVs}: ``Before and
-			after'...  Panels
-			in the top two rows are separated by two years
-			($\approx$$10^3$ cycles); each panel shows one month.
-			Periods are listed in hours. 
-			{\bf todo: fix the plot and the caption.}
-			%			\vspace{-0.8cm}
+		{\bf CQVs keep their periods but change their shapes.}
+      32 of our \ngoods\ CQVs from Figure~\ref{fig:singlemosaic} 
+      had 120-second cadence TESS data available for
+      a baseline of at least two years; the 27 brightest are shown here.
+      Each panel shows one sector of TESS data, and is phased to its deepest minimum in flux.
+      Each panel's title shows the TIC identifier and approximate period in hours.
+      Text insets show the TESS sector numbers, which generally span two years, or at least
+      1{,}000 cycles.
+      The vertical scale is fixed across sectors to clarify shape changes.
 		}
 		\label{fig:evoln}
 	\end{center}
@@ -764,6 +767,27 @@ suggests that CQVs have a duty cycle of $\approx$75\%.
 
 
 \subsection{Evolution over adjacent sectors, \& LP 12-502}
+
+\begin{figure*}[!tp]
+	\begin{center}
+		\centering
+		\includegraphics[width=\textwidth]{f4.pdf}
+		\vspace{-0.4cm}
+		\caption{
+			{\bf LP 12-502 (TIC~402980664) light curve}, where each time chunk represents one TESS orbit.
+			Data were acquired in Sectors 18-19, 25-26, 53, and 57-58.
+			Flares are drawn in gray.
+			The red vertical lines highlight apparently instantaneous state changes in
+			the shape of the dip pattern.
+			The light curve is binned to 15-minute intervals so that
+			there are 96 points per day.  Data gaps with more than one missing 15-minute
+			cadence appear in white.
+		}
+		\label{fig:lplc}
+	\end{center}
+\end{figure*}
+
+
 \begin{figure*}[!t]
 	\begin{center}
 		\centering
@@ -791,9 +815,11 @@ suggests that CQVs have a duty cycle of $\approx$75\%.
 While many CQVs had multiple sectors of adjacent or nearly-adjacent data
 LP 12-502 (TIC 402980664; $d$=21\,pc, $J$=9.4,
 $T$=11.1) stood out as an outlier among the CQV class.
-Figure~\ref{fig:lp} shows all available data from Sectors
+Figure~\ref{fig:lplc} shows all available data from Sectors
 18, 19, 25, 26, 53, 58, and 59; the star was observed at 120-second
 cadence whenever it was observable by TESS.
+Figure~\ref{fig:lp} shows the same data, grouped into successive
+TESS orbits spanning half a lunar month each.
 Measuring the PDM peak period over each sector independently yielded
 an average $\langle P \rangle = 18.5560$\,hr, with a difference
 between the maximum and minimum sector-level period of about one minute.
@@ -1353,23 +1379,6 @@ State changes are evident in these plots whenever there is a sudden
 change in color.
 {\bf todo: fix missing data to be different from the flare color} 
 
-\begin{figure*}[!tp]
-	\begin{center}
-		\centering
-		\includegraphics[width=0.96\textwidth]{tic4029_segments.pdf}
-		\vspace{-0.2cm}
-		\caption{
-      {\bf LP 12-502 light curve}, where each time chunk represents one TESS orbit.
-      Flares are drawn in gray.
-      The red vertical lines highlight apparently instantaneous state changes in
-      the shape of the dip pattern.
-      The light curve is binned to 15-minute intervals so that
-      there are 96 points per day.  Data gaps with more than one missing 15-minute
-      cadence appear in white.
-		}
-		\label{fig:lplc}
-	\end{center}
-\end{figure*}
 
 \begin{figure*}[!t]
 	\begin{center}

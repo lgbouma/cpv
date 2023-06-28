@@ -7,3 +7,9 @@ cp $addir/models.pdf f1b.pdf
 
 # fig2
 cp $resultsdir/full_lcmosaic/full_lcmosaic_showtitles_Ngoodsectors_tic8_Tmag.pdf f2.pdf
+
+# fig3
+cp $resultsdir/beforeafter_mosaic/beforeafter_mosaic_showtitles_tic8_Tmag.pdf f3.pdf
+
+# fig4
+cp $resultsdir/tic4029_segments/tic4029_segments.pdf f4.pdf
