@@ -25,17 +25,9 @@ ticids = df.ticid
 
 bad_ticids = []
 
-DEBUG_CASES = [
-"58084670",
-"267953787",
-"368129164",
-"50745567",
-"59836633",
-]
-
-#FIXME: debugging!
-#for ticid in ticids:
-for ticid in DEBUG_CASES:
+#DEBUG_CASES = []
+#for ticid in DEBUG_CASES:
+for ticid in ticids:
 
     trimlist = None
     if str(ticid) in MANUAL_TRIM_DICT:

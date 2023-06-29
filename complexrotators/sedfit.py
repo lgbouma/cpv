@@ -38,7 +38,15 @@ knownfailures = {
     '50745567': {  'remove' : [
         'STROMGREN_y',
         'SDSS_z'
-    ] }
+    ] },
+    '368129164': {  'remove' : [
+        'SDSS_r',
+        'SDSS_i',
+        'SDSS_z',
+        'TYCHO_B_MvB',
+        'TYCHO_V_MvB',
+        'GROUND_JOHNSON_V',
+    ] },
 }
 
 def run_SED_analysis(ticid, trimlist=None):
