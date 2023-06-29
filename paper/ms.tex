@@ -164,22 +164,26 @@ surfaces such as starspots and faculae \citep{2021isma.book.....B},
 occultations by gas-rich circumstellar disks
 \citep{2017MNRAS.470..202B}, and, in geometrically favorable
 circumstances, eclipses by stars and planets
-\citep{2010exop.book...55W}.
+\citep{2010exop.book...55W}.  More exotic forms of optical variability
+relevant to this work include transiting exocomets (e.g. $\beta$~Pic;
+\citealt{2019A&A...625L..13Z}) and disintegrating rocky bodies around
+both M-dwarfs (e.g. K2-22; \citealt{2014ApJ...784...40R}) and white
+dwarfs (e.g. WD~1145; \citealt{2015Natur.526..546V}).
 
 Data from K2 and TESS have yielded a new class of variable star whose
 root cause is only beginning to become clear: complex quasiperiodic
 variables (CQVs).  These objects are identified phenomenologically
-using their optical light curves, which show quasiperiodic troughs
+using their optical light curves, which show nearly periodic troughs
 that can be either sharp or broad, often superposed on smooth
 spot-like modulation
 \citep{2017AJ....153..152S,2018AJ....155...63S,2019ApJ...876..127Z}.
-Some CQVs show up to eight local minima (dips) per cycle; sharp peaks
-are common, but .  Most CQVs are pre-main-sequence M-dwarfs without
-near-infrared excesses, with ages of $\approx$5-150 million years
-(Myr), and rotation periods of at most two days; they are observed to
-be $\approx$1-3\% of M-dwarfs younger than 100 Myr
-\citep{2016AJ....152..114R,2022AJ....163..144G}.  The dips can be
-chromatic, with a reddening law plausibly consistent with dust
+Some CQVs show up to eight local minima (dips) per cycle.  Most CQVs
+are pre-main-sequence M-dwarfs without near-infrared excesses, with
+ages of $\approx$5-150 million years (Myr), and rotation periods of at
+most two days; they are observed to be $\approx$1-3\% of M-dwarfs
+younger than 100 Myr \citep{2016AJ....152..114R,2022AJ....163..144G}.
+The dips can be chromatic, with a reddening law plausibly consistent
+with dust
 \citep{2020AJ....160...86B,2022AJ....163..144G,2023MNRAS.518.2921K}.
 And finally, while the dip shapes can ``jump'' between different
 depths and durations over less than one cycle, they more often evolve
@@ -211,11 +215,13 @@ come into view \citep{2019ApJ...876..127Z}.
 In our view, the arguments seem best established for the dust clump
 hypothesis \citep{2023MNRAS.518.4734S}.  This is primarily because the
 prominence scenario lacks a mechanism for generating broadband
-opacity, and the screen scenario seems inconsistent with the degree of
-observed periodicity, and the lack of infrared excess.  However,
-unambiguous evidence, for instance a spectroscopic detection of
-silicates during a CQV ``dip'', has yet to be presented to confirm
-which scenario is correct.
+opacity, and the screen scenario is inconsistent with the degree of
+observed periodicity, the lack of infrared excess, and the observed
+lifetime of the effect, which is an order of magnitude longer than the
+$\approx$$10^7$ years timescale typically quoted for the primordial
+disk to disperse (CITE).  However, unambiguous evidence, for instance
+a spectroscopic detection of silicates during a ``dip'', has yet to be
+acquired.
 
 CQVs have been challenging to understand because they have been both
 hard to discover and hard to characterize.   Discoverability is tied
@@ -348,19 +354,18 @@ down to $T$$<$16 and out to $d$$<$150\,pc.
 \subsection{CQV discovery}
 \label{subsec:discoverymethods}
 
-Previous methods for finding CQVs have included visually
-examining stars known to be in young clusters
+Previous methods for finding CQVs have included visually examining
+stars known to be in young clusters
 \citep{2016AJ....152..114R,2017AJ....153..152S}, and automatically
 flagging rapid rotators with a large number of strong Fourier
-harmonics \citep{2019ApJ...876..127Z}.  The latter approach still requires
-visual vetting, since ``stars with many Fourier harmonics''
-is a designation that
-includes objects such as eclipsing binaries or multiple stars
-blended into a single photometric aperture.  In this work, we
-implemented a new search approach based on counting the number of
-sharp local minima in phase-folded light curves, while also using the
-previously tested Fourier approach.  We applied these two search
-techniques independently.   
+harmonics \citep{2019ApJ...876..127Z}.  The latter approach still
+requires visual vetting, since ``stars with many Fourier harmonics''
+is a designation that includes objects such as eclipsing binaries or
+multiple stars blended into a single photometric aperture.  In this
+work, we implemented a new search approach based on counting the
+number of sharp local minima in phase-folded light curves, while also
+using the previously tested Fourier approach.  We applied these two
+search techniques independently.   
 
 
 \subsubsection{Counting dips}
@@ -438,6 +443,12 @@ We visually assessed whether the objects found using the Fourier
 (Section~\ref{subsec:counting}) techniques were consistent with
 expectations for CQVs by assembling the data shown in
 Appendix~\ref{app:vetting}.
+We labelled a star as a ``good'' CQV if at least one TESS sector
+showed what we viewed as the unambiguous signatures of the class (short
+period; at least three dips or else otherwise oddly-shaped dips;
+relative stability over a timescale of 30\,days).
+We also noted stars that we thought could be CQVs, but that were more
+ambiguous with a ``maybe'' flag.
 
 Broadly speaking, the most common false positives for both the Fourier
 and dip-counting techniques were eclipsing binaries, spot-induced
@@ -455,8 +466,8 @@ flagged, and NN\% being labelled ``good'' or ``possible'' CQVs}.
 \paragraph{Ages}
 We estimated the stellar ages by making probabilistic spatial and
 kinematic associations between the CQVs and known clusters in the
-solar neighborhood.  For most stars in our sample, we did
-this using BANYAN\,$\Sigma$
+solar neighborhood.  For most stars in our sample, we did this using
+BANYAN\,$\Sigma$
 \citep{2018ApJ...856...23G}.\footnote{\url{https://github.com/jgagneastro/banyan_sigma},
 git commit \texttt{394b486}} This algorithm calculates the probability
 that a given star belongs to one of 27 young clusters (or
@@ -469,7 +480,6 @@ probabilities returned by this procedure are qualitatively useful, but
 we emphasize that they are quantitatively dubious due to the
 non-Gaussian nature of most groups within the solar neighborhood
 \citep[see e.g.][Figure~10]{2021ApJ...917...23K}.
-
 
 For a few cases where BANYAN\,$\Sigma$ yielded ambiguous results, we
 consulted the meta-catalog of young, age-dated, and age-dateable stars
