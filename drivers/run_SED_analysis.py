@@ -24,7 +24,18 @@ df = df.sort_values(by=['goodsectors', 'tic8_Tmag'])
 ticids = df.ticid
 
 bad_ticids = []
-for ticid in ticids:
+
+DEBUG_CASES = [
+"58084670",
+"267953787",
+"368129164",
+"50745567",
+"59836633",
+]
+
+#FIXME: debugging!
+#for ticid in ticids:
+for ticid in DEBUG_CASES:
 
     trimlist = None
     if str(ticid) in MANUAL_TRIM_DICT:

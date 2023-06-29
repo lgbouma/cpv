@@ -18,6 +18,29 @@ from astropy.coordinates import SkyCoord
 from astropy import units as u
 from astroquery.vizier import Vizier
 
+# structure:
+# keys of ticids, values of dictionaries.
+#    the interior dictionaries have keys of "add" or "remove".  And then lists
+#    of the magnitudes to add, or the bandpasses to remove
+knownfailures = {
+    '58084670': { 'add' : [
+        (11.857, 0.021, '2MASS_J'),
+        (11.226, 0.023, '2MASS_H'),
+        (10.988, 0.018, '2MASS_K'),
+        (10.652, 0.023, 'WISE_RSR_W1'),
+        (10.530, 0.020, 'WISE_RSR_W2'),
+    ]  },
+    '267953787': { 'add' : [
+        (11.343, 0.022, '2MASS_J'),
+        (10.713, 0.024, '2MASS_H'),
+        (10.362, 0.021, '2MASS_K'),
+    ]  },
+    '50745567': {  'remove' : [
+        'STROMGREN_y',
+        'SDSS_z'
+    ] }
+}
+
 def run_SED_analysis(ticid, trimlist=None):
     """
     Run CQV-specific SED analysis.  Priors assume the star is a nearby M-dwarf.
@@ -57,6 +80,16 @@ def run_SED_analysis(ticid, trimlist=None):
 
     s = Star(starname.replace("_"," "), ra, dec)
 
+    if ticid == '368129164':
+        # missing parallax
+        plx = 54.6875
+        e_plx = 0.3313
+        from cdips.utils.gaiaqueries import parallax_to_distance_highsn
+        dist, upper_unc, lower_unc = parallax_to_distance_highsn(
+            parallax_mas, e_parallax_mas=e_plx, gaia_datarelease='gaia_dr2'
+        )
+        e_dist = np.mean([upper_unc, lower_unc])
+
     # NOTE: the "g_id" constructor here is actually (incorrectly!) assuming Gaia DR3 source_id's.
     # s = Star(starname.replace("_"," "), ra, dec, g_id=g_id)
 
@@ -75,6 +108,12 @@ def run_SED_analysis(ticid, trimlist=None):
 
     s.remove_mag('SDSS_u')
     s.remove_mag('SDSS_g')
+
+    s.remove_mag('PS1_g')
+    s.remove_mag('PS1_r')
+    s.remove_mag('PS1_i')
+    s.remove_mag('PS1_z')
+    s.remove_mag('PS1_y')
 
     s.remove_mag('GALEX_FUV')
     s.remove_mag('GALEX_NUV')
@@ -146,6 +185,15 @@ def run_SED_analysis(ticid, trimlist=None):
             s.add_mag(W3mag, e_W3mag, 'WISE_RSR_W3')
         if (not pd.isnull(W4mag)) and (not pd.isnull(e_W4mag)):
             s.add_mag(W4mag, e_W4mag, 'WISE_RSR_W4')
+
+    if ticid in knownfailures:
+        if 'add' in knownfailures[ticid]:
+            for _m in knownfailures[ticid]['add']:
+                mag, e_mag, bandpass = _m
+                s.add_mag(mag, e_mag, bandpass)
+        if 'remove' in knownfailures[ticid]:
+            for _m in knownfailures[ticid]['remove']:
+                s.remove_mag(_m)
 
     ######################
     # fit the photometry #
