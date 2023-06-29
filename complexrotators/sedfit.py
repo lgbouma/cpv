@@ -78,7 +78,8 @@ def run_SED_analysis(ticid, trimlist=None):
     out_folder = join(RESULTSDIR, 'ariadne_sed_fitting', f'{starname}')
     if not os.path.exists(out_folder): os.mkdir(out_folder)
 
-    s = Star(starname.replace("_"," "), ra, dec)
+    if ticid != '368129164':
+        s = Star(starname.replace("_"," "), ra, dec)
 
     if ticid == '368129164':
         # missing parallax
@@ -86,9 +87,15 @@ def run_SED_analysis(ticid, trimlist=None):
         e_plx = 0.3313
         from cdips.utils.gaiaqueries import parallax_to_distance_highsn
         dist, upper_unc, lower_unc = parallax_to_distance_highsn(
-            parallax_mas, e_parallax_mas=e_plx, gaia_datarelease='gaia_dr2'
+            plx, e_parallax_mas=e_plx, gaia_datarelease='gaia_dr2'
         )
         e_dist = np.mean([upper_unc, lower_unc])
+
+        s = Star(starname.replace("_"," "), ra, dec, plx=plx,
+                 plx_e=e_plx, dist=dist, dist_e=e_dist)
+        print(42*'-')
+        print('Set distance...')
+        print(42*'-')
 
     # NOTE: the "g_id" constructor here is actually (incorrectly!) assuming Gaia DR3 source_id's.
     # s = Star(starname.replace("_"," "), ra, dec, g_id=g_id)
@@ -186,6 +193,9 @@ def run_SED_analysis(ticid, trimlist=None):
         if (not pd.isnull(W4mag)) and (not pd.isnull(e_W4mag)):
             s.add_mag(W4mag, e_W4mag, 'WISE_RSR_W4')
 
+    #
+    # iterative manual cleanup
+    #
     if ticid in knownfailures:
         if 'add' in knownfailures[ticid]:
             for _m in knownfailures[ticid]['add']:
