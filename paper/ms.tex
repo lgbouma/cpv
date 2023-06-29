@@ -63,7 +63,7 @@
 
 \input{vals_cqv_table_statistics}
 
-\newcommand{\ntwoyear}{21} % TODO: update
+\newcommand{\ntwoyear}{27} % TODO: update
 \newcommand{\ntwoyearturnedoff}{5} % TODO: update
 
 \begin{document}
@@ -117,26 +117,28 @@
   The modulation is likely induced by dust clumps in orbit at the
   Keplerian corotation radius.  Here, we report new CQVs discovered in
   TESS data collected between July~2018 and Sep~2022, and analyze
-  their variability.  Our analysis of \nstarssearched\ K- and
-  M-dwarfs with $T$$<$16 and $d$$<$150\,pc yielded \ngoods\
-  gold-standard CQVs.  Most of these discoveries are new, and they
-  include the brightest and closest examples of this class of object
-  known ($T$$\approx$11; $d$$\approx$20\,pc), as well as the most
-  massive ($\approx$0.65\,M$_\odot$).  A few objects are outliers
-  among outliers; LP 12-502 for instance shows a ``dip complex'' with
-  a period and total duration that are fixed over more than 1000
-  cycles, but which in detail shows anywhere from four to eight
-  local minima per cycle.  LP-502 also demonstrated drastic shape
-  changes over less than one cycle, and at times displayed distinct
-  superposed periods simultaneously.  Broadly speaking, we find that
-  none of the CQVs maintain a fixed light curve shape over timescales
-  of more than a few hundred cycles -- they are all {\it
-  quasi}periodic.  We revisit the arguments for why transient
-  corotating dust clumps are the most likely explanation, though there
-  are other possibilities.  In the future, we expect that our sample
-  will help facilitate modeling and observational efforts aimed at
-  understanding these objects, and connecting them to the broader
-  contexts of star, disk, and exoplanet evolution.
+  their variability.  Our analysis of \nstarssearched\ K- and M-dwarfs
+  with $T$$<$16 and $d$$<$150\,pc yielded \ngoods\ gold-standard CQVs.
+  Most of these discoveries are new, and they include the brightest
+  and closest examples of this class of object known ($T$$\approx$9.5;
+  $d$$\approx$20\,pc), as well as the most massive
+  ($\approx$0.65\,M$_\odot$).  A few objects are outliers among
+  outliers; LP 12-502 for instance shows a ``dip complex'' with a
+  period and total duration that are fixed over more than 1000 cycles,
+  but which in detail shows anywhere from four to eight local minima
+  per cycle.  LP-502 at times demonstrated drastic shape changes over
+  less than one cycle, and also displayed distinct superposed periods
+  simultaneously.  Broadly speaking, we find that none of the CQVs
+  maintain a fixed light curve shape over timescales of more than a
+  few hundred cycles, and we revisit the arguments for why transient
+  corotating dust clumps are the most likely explanation.  In the
+  future, we expect that our sample will facilitate modeling and
+  observational efforts aimed at understanding these objects, and
+  connecting them to the broader contexts of star, disk, and exoplanet
+  evolution.  For instance, based on the rate of dip evolution, we
+  estimate that the incident dust flux corresponds to of order an
+  asteroid belt's worth of mass accreting onto these stars over $10^8$
+  years.
 \end{abstract}
 
 
@@ -737,12 +739,26 @@ the star in clumps from tidally disrupted infalling bodies.
 
 \subsection{Evolution over two year baseline}
 
-Figure~\ref{fig:evoln} shows ``before'' and ``after'' views
-of \ntwoyear\ CQVs for which observations were available at least two years
-apart.
-Of the \ntwoyear\ CQVs for which such a baseline was available,
-\ntwoyearturnedoff\ showed obvious signs of the phenomenon in one sector,
+Figure~\ref{fig:evoln} shows ``before'' and ``after'' views of 27 CQVs
+for which TESS 120-second cadence observations were available at least
+two years apart.
+Such a baseline was available for 32 of the \ngoods\ CQVs in our
+catalog; for plotted purposes we show the brightest 27.
+Of these 27 CQVs,
+a few show clear signs of the phenomenon in one sector,
 and marginal or non-existence signs in the other.
+While there is some subjectivity in this assessment, to our eye
+cases for which at least one sector would be flagged as ``ambiguous'' include
+TIC~368129164 (S23 might be labelled an EB),
+TIC~193831684 (which has been erroneously labelled an EB CITE Albrecht paper),
+TIC~177309964 (S38 would be simply a rotating star),
+TIC~404144841 (S38 looks like a rotating star),
+TIC~201898222 (S3 looks like a rotating star),
+TIC~144486786 (S32 might be flagged as a possible RS CVn),
+TIC~38820496 (S28 might be a possible RS CVn).
+One could easily also imagine in cases like TIC~206544316 that if
+observed at lower signal to noise, the drastic shape evolution would
+not be appreciated.
 We emphasize that the periods themselves were all stable to $<$0.1\%.
 Broadly speaking, this shape evolution
 suggests that CQVs have a duty cycle of $\approx$75\%.
