@@ -89,11 +89,11 @@ def single_ticid():
 
     ##########
     ticid = '300651846'
-    cyclewindows = [(-10, 700), (2300, 2600)]
+    cyclewindows = [(0, 650), (2305, 2630)]
     sample_id = '2023catalog_LGB_RJ_concat'
     manual_period =  8.2551/24
-    manual_period =  8.2549/24
-    t0 = 2170.
+    manual_period =  8.254/24  #better
+    t0 = 2170. - 5*manual_period
     nterms = None
     model_id = None
     # specifies lc subtrxn model
