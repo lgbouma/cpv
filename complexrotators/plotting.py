@@ -169,7 +169,7 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
         (N_obs_per_cycle, cycle_max-cycle_min)
     )
 
-    for cycle_ind in range(cycle_min, cycle_max):
+    for ix, cycle_ind in enumerate(range(cycle_min, cycle_max)):
 
         begin = t0 + period*cycle_ind
         end = t0 + period*(cycle_ind+1)
@@ -235,7 +235,11 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
 
                 flux_this_cycle = fn(t_grid_this_cycle)
 
-                flux_arr[:, cycle_ind] = flux_this_cycle
+                print(cycle_ind, N_obs_per_cycle)
+                try:
+                    flux_arr[:, ix] = flux_this_cycle
+                except IndexError:
+                    import IPython; IPython.embed()
 
     if not isinstance(vmin, float):
         vmin = np.nanmedian(flux)-4*np.nanstd(flux)
