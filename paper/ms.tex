@@ -44,6 +44,7 @@
 \newcommand{\caltech}{Department of Astronomy, MC 249-17, California Institute of Technology, Pasadena, CA 91125, USA}
 \newcommand{\mitkavli}{MIT Kavli Institute and Department of Physics, 77 Massachusetts Avenue, Cambridge, MA 02139}
 \newcommand{\berkeley}{Astronomy Department, University of California, Berkeley, CA 94720, USA}
+\newcommand{\princeton}{Department of Astrophysical Sciences, Princeton University, 4 Ivy Lane, Princeton, NJ 08540, USA}
 
 %
 % ms specific numbers
@@ -105,6 +106,10 @@
 
 \author[0000-0003-2058-6662]{George~R.~Ricker}
 \affiliation{\mitkavli}
+
+\author[0000-0001-7204-6727]{G\'asp\'ar \'A. Bakos}
+\affiliation{\princeton}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1340,7 +1345,7 @@ Analyzing the light curves of these objects, we draw the following conclusions.
 
 \begin{itemize}
 	%
-  \item CQVs are {\it quasi}periodic.  While the mean periods in our
+  \item CQVs are quasiperiodic.  While the mean periods in our
     sample seem to remain fixed over the span of available
     observations, the light curve shapes themselves evolve, similar to
     rotating stars.
@@ -1348,13 +1353,13 @@ Analyzing the light curves of these objects, we draw the following conclusions.
   \item The same CQV can show dips with very similar but clearly
     distinct periods.  LP 12-502, for instance, showed dips with four
     distinct periods within $\pm 0.3\%$ of the fundamental period,
-    sometimes simultaneous, and each lasting for up to 50 cycles.
+    sometimes simultaneously, and each lasting for up to 50 cycles.
 	%
   \item The CQV phenomenon persists for at least 150\,Myr, based on
     the existence of CQVs in AB Dor, the Pleiades, and Psc-Eri.  It
     may extend to even older ages, however the lack of detected CQVs
-    in the Hyades and Praesepe suggest that the phenomenon is unique
-    to the pre-main-sequence for M-dwarfs.
+    in the Hyades and Praesepe suggests that the phenomenon does become
+    less common at older ages.
 	%
   \item CQVs evolve over timescales that are both secular
     ($>$100\,cycles) and impulsive ($<$1 cycle).  ``State-switches''
@@ -1389,13 +1394,15 @@ TIC 402980664 was observed at 120-second cadence thanks to the TESS Guest
 Investigator programs G022252 (PI: J.~Schlieder; Sectors 18, 19, 25,
 26) and G04168 (PI: R.~Jayaraman; Sector 53).
 
-{\bf author contribution statement goes here}
-L.G.B.~and R.~J. conceived the project and executed the
+%{\bf author contribution statement goes here}
+LGB~and RJ conceived the project and executed the
 dip-based and Fourier-based searches, respectively.
-L.G.B.~drafted the initial manuscript, and performed the cluster
-membership analysis.
-S.~R. and R.~J. vetted the results from the Fourier search.
-L.A.H.~advised on project scope and experiment design.
+LGB~drafted the initial manuscript, and performed the cluster
+membership, SED, and variability analyses.
+SR and RJ vetted the results from the Fourier search.
+LAH advised on project scope and experiment design.
+GAB acquired and maintained the servers used to run the dip-finding
+pipeline.
 All authors assisted in manuscript revision.
 
 %\clearpage
@@ -1602,6 +1609,24 @@ change in color.
     For Sector 53, gray is identical, while cyan is 18.5145\,hr.
     For Sectors 58-59, the magenta line is 18.5473\,hr, and the green
     line is 18.5672\,hr.
+	}
+	\label{fig:lpriver0}
+\end{figure*}
+
+\section{More river plots}
+
+\begin{figure*}[!t]
+	\begin{center}
+		\subfloat{
+			\includegraphics[width=0.43\textwidth]{TIC300651846_river_seismic_0_650_vmin-0.06000_vmax0.06000.png}
+			\includegraphics[width=0.43\textwidth]{TIC300651846_river_seismic_2305_2630_vmin-0.06000_vmax0.06000.png}
+		}
+	\end{center}
+	\vspace{-0.4cm}
+	\caption{
+		{\bf River plots of TIC 300651846}.
+		The envelope has not been subtracted.
+		7 sectors of continuous 2-minute observations.  (Thanks to DDT029)
 	}
 	\label{fig:lpriver0}
 \end{figure*}
