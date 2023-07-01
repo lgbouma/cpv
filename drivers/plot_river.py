@@ -16,8 +16,8 @@ from complexrotators.lcprocessing import (
 
 
 cmap = 'seismic'
-cmap = 'Paired'
-cmap = 'gist_stern'
+#cmap = 'Paired'
+#cmap = 'gist_stern'
 #cmap = 'PiYG'
 
 def many_ticids():
@@ -87,6 +87,19 @@ def single_ticid():
     vmin, vmax = -0.07, 0.05 #  can be None
     ##########
 
+    ##########
+    ticid = '300651846'
+    cyclewindows = [(-10, 700), (2300, 2600)]
+    sample_id = '2023catalog_LGB_RJ_concat'
+    manual_period =  8.2551/24
+    manual_period =  8.2549/24
+    t0 = 2170.
+    nterms = None
+    model_id = None
+    # specifies lc subtrxn model
+    manual_csvpath = None
+    savstr = model_id # can be None; used for cacheing
+    vmin, vmax = -0.06, 0.06 #  can be None
 
     ##########################################
 

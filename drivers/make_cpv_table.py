@@ -108,7 +108,15 @@ def main(overwrite=0):
     # "maybe" CPVs
     smdf = sdf[pd.isnull(sdf.goodsectors)]
 
-    N_4 = len(sgdf[sgdf.banyan_assoc == 'FIELD'])
+    def num2word(num):
+        units = [
+            "zero", "one", "two", "three", "four", "five", "six",
+            "seven", "eight", "nine", "ten"
+        ]
+        assert num <= 10
+        return units[num]
+
+    N_4 = num2word(len(sgdf[sgdf.banyan_assoc == 'FIELD']))
     N_5 = len(smdf[smdf.banyan_assoc == 'FIELD'])
 
     N_6 = len(sgdf[sgdf.banyan_assoc != 'FIELD'])
@@ -472,4 +480,4 @@ def get_cpvtable_row(ticid, overwrite=0):
 
 
 if __name__ == "__main__":
-    main(overwrite=0)
+    main(overwrite=1)
