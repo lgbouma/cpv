@@ -3,6 +3,14 @@ import os
 from os.path import join
 from complexrotators.paths import PAPERDIR
 
+def add_comma(num):
+	# latexify numbers greater than 1{,}000
+    num_str = str(num)
+    if num < 1000:
+        return num_str
+    else:
+        return add_comma(num // 1000) + '{,}' + num_str[-3:]
+
 localdir = '/Users/luke/local/SPOCLC'
 csvpath = join(localdir, 'gaia_X_spoc2min_merge.csv')
 df = pd.read_csv(csvpath)
@@ -19,8 +27,8 @@ N_1 = len(np.unique(sdf.TICID))
 N_2 = len(sdf)
 
 latex_txt = (
-    r"\newcommand{\nstarssearched}{"+str(N_1)+"}\n"
-    r"\newcommand{\nlcssearched}{"+str(N_2)+"}\n"
+    r"\newcommand{\nstarssearched}{"+add_comma(N_1)+"}\n"
+    r"\newcommand{\nlcssearched}{"+add_comma(N_2)+"}\n"
 )
 
 outpath = join(PAPERDIR, 'vals_searched_stars.tex')
