@@ -25,6 +25,8 @@ Contents:
     | plot_cadence_comparison
 
     | plot_tic4029_segments
+
+    | plot_catalogscatter
 """
 
 #######################################
@@ -86,7 +88,7 @@ from astropy.time import Time
 from astropy.table import Table
 
 import matplotlib.patheffects as pe
-from matplotlib.ticker import MaxNLocator
+from matplotlib.ticker import MaxNLocator, FixedLocator, FuncFormatter
 from matplotlib.transforms import blended_transform_factory
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
@@ -1782,7 +1784,8 @@ def underplot_gcns(ax, get_xval_no_corr, get_yval_no_corr):
     norm = ImageNormalize(vmin=vmin, vmax=vmax, stretch=LogStretch())
 
     cmap = "Greys"
-    density = ax.scatter_density(_x[s], _y[s], cmap=cmap, norm=norm)
+    cmap = white_viridis
+    density = ax.scatter_density(_x[s], _y[s], cmap=cmap, norm=norm, zorder=1)
 
 
 def get_flx_wav_given_2d_and_target(flx_2d, wav_2d, target_wav):
@@ -3329,3 +3332,215 @@ def plot_tic4029_segments(outdir):
     bn = 'tic4029_segments'
     outpath = join(outdir, f'{bn}{s}.png')
     savefig(fig, outpath, dpi=500)
+
+
+def plot_catalogscatter(outdir, showmaybe=0):
+
+    # get data
+    tablepath = join(
+        TABLEDIR, "2023_catalog_table",
+        '20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied.csv'
+    )
+    df = pd.read_csv(tablepath, sep="|")
+    maybe_df = df[pd.isnull(df.goodsectors)]
+    df = df[~pd.isnull(df.goodsectors)]
+
+    #y, x, ylabel, xlabel, yscale, xscale
+    tuples = [
+        ("M_G", "bp_rp", '$\mathrm{M}_{G}$ [mag]', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'linear', 'linear'),
+        ("tic8_Tmag", "dist_pc", '$T$ [mag]', '$d$ [pc]', 'linear', 'linear'),
+        #('dec', 'ra', r'$\delta$ [deg]', r'$\alpha$ [deg]', 'linear', 'linear'),
+        ('b', 'l', '$b$ [deg]', '$l$ [deg]', 'linear', 'linear'),
+        ('tlc_mean_period', 'bp_rp', '$P$ [hours]', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'log', 'linear'),
+        #('rstar_sedfit', 'teff_sedfit', '$R_{\! \star}$ [$R_\odot$]', '$T_\mathrm{eff}$ [K]', 'linear', 'linear'),
+        #('ruwe', 'bp_rp', 'RUWE', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'log', 'linear'),
+        ('tlc_mean_period', 'a_over_Rstar', '$P$ [hours]', '$R_{\mathrm{cr}}/R_{\! \star}$', 'log', 'linear'),
+        ('banyan_singleagefloat', 'mstar_parsec', 'Age [Myr]', '$M_{\! \star}$ [$M_\odot$]', 'log', 'linear'),
+        #('rstar_sedfit', 'banyan_singleagefloat', '$R_{\! \star}$ [$R_\odot$]', 'Age [Myr]', 'linear', 'log'),
+    ]
+
+    # make plot
+    plt.close('all')
+    set_style('clean')
+
+    f = 1.6
+    DO_NINECOLS = 0
+    if DO_NINECOLS:
+        fig = plt.figure(figsize=(f*4,f*3))
+        axd = fig.subplot_mosaic(
+            """
+            ABC
+            DEF
+            GHI
+            """
+        )
+        axs = [axd[k] for k in 'A,B,C,D,E,F,G,H,I'.split(',')]
+    else:
+        fig = plt.figure(figsize=(f*4,f*2.5))
+        axd = fig.subplot_mosaic(
+            """
+            ABC
+            DEF
+            """
+        )
+        axs = [axd[k] for k in 'A,B,C,D,E,F'.split(',')]
+
+    for ix, ax in enumerate(axs):
+
+        ykey, xkey, ylabel, xlabel, yscale, xscale = tuples[ix]
+
+        # underplot the target sample distribution
+        show_underplot = 0
+        if ykey == 'M_G' and xkey == 'bp_rp':
+            axkey = 'A'
+            show_underplot = 1
+            get_xval = lambda df: df[xkey]
+            get_yval = lambda df: df[ykey]
+        elif xkey == 'dist_pc' and ykey == 'tic8_Tmag':
+            axkey = 'B'
+            show_underplot = 1
+            get_xval = lambda df: 1 / (df['parallax']*1e-3)
+            get_yval = lambda df: df['TESSMAG']
+        elif (xkey=='ra' and ykey=='dec') or (xkey=='l' and ykey=='b'):
+            axkey = 'C'
+            show_underplot = 1
+            get_xval = lambda df: df[xkey]
+            get_yval = lambda df: df[ykey]
+        if show_underplot:
+            ss = axd[axkey].get_subplotspec()
+            axd[axkey].remove()
+            import mpl_scatter_density # adds projection='scatter_density'
+            axd[axkey] = fig.add_subplot(ss, projection='scatter_density')
+            ax = axd[axkey]
+            _d = underplot_cqvtargets(ax, get_xval, get_yval)
+
+        if ykey == 'tlc_mean_period':
+            f = 24
+        else:
+            f = 1
+
+
+        ax.scatter(
+            df[xkey], f*df[ykey], c='k', s=4, linewidths=0, zorder=10
+        )
+        if showmaybe:
+            ax.scatter(
+                maybe_df[xkey], f*maybe_df[ykey], c='k', s=2.5, linewidths=0, alpha=0.5, zorder=9
+            )
+
+        ax.set_xscale(xscale)
+        ax.set_yscale(yscale)
+
+        if ykey == 'M_G' and xkey == 'bp_rp':
+            ylim = ax.get_ylim()[::-1]
+            ax.set_ylim([15,5])
+            assert max(df[ykey]) < 15
+            assert min(df[ykey]) > 5
+            ax.set_xlim([1.4,4.5])
+            ax.set_yticks([14,10,6])
+            ax.set_yticklabels([14,10,6])
+
+        if ykey == 'tlc_mean_period':
+            ax.set_ylim([2, 48])
+            assert max(df[ykey]) < 48
+            assert max(maybe_df[ykey]) < 48
+
+            # epic solution to the problem of "how do I get my mixed
+            # major and minor labels working on a log plot?"
+            minor_locator = FixedLocator([2,3,4,5,6,7,8,9,10,20,30,40])
+            ax.yaxis.set_minor_locator(minor_locator)
+            major_locator = FixedLocator([10])
+            ax.yaxis.set_major_locator(major_locator)
+            ax.set_yticklabels([10])
+            def fn(x, pos):
+                labels = [None,3,None,None,None,None,None,None,None,30,None]
+                return labels[pos]
+            formatter = FuncFormatter(fn)
+            ax.yaxis.set_minor_formatter(formatter)
+
+        if ykey == 'tic8_Tmag':
+            ax.set_ylim([9,16])
+
+        if xkey == 'dist_pc':
+            ax.set_xlim([5, 155])
+            assert max(df['dist_pc']) < 155
+            assert max(maybe_df['dist_pc']) < 155
+
+        if ykey == 'ruwe':
+            ax.set_yticks([1, 10])
+            ax.set_yticklabels([1, 10])
+
+        if xkey == 'a_over_Rstar':
+            minor_locator = FixedLocator([1,3,5,7])
+            ax.xaxis.set_minor_locator(minor_locator)
+            major_locator = FixedLocator([2,4,6])
+            ax.xaxis.set_major_locator(major_locator)
+            ax.set_xticklabels([2,4,6])
+
+        if xkey == 'banyan_singleagefloat':
+            ax.set_xlim([0.9,200])
+            ax.set_xticks([1,10,100])
+            ax.set_xticklabels([1,10,100])
+
+        if ykey == 'banyan_singleagefloat':
+            ax.set_ylim([0.9,200])
+            ax.set_yticks([1,10,100])
+            ax.set_yticklabels([1,10,100])
+
+        if xkey == 'bp_rp':
+            ax.set_xticks([2,3,4])
+            ax.set_xticklabels([2,3,4])
+
+        if ykey == 'rstar_sedfit':
+            ax.set_yticks([0.2,0.6,1.0,1.4])
+            ax.set_yticklabels([0.2,0.6,1.0,1.4])
+
+        ax.set_xlabel(xlabel, labelpad=0.2)
+        ax.set_ylabel(ylabel, labelpad=0.3)
+
+    # set naming options
+    s = ''
+    if showmaybe:
+        s += '_showmaybe'
+
+    bn = 'catalogscatter'
+    outpath = join(outdir, f'{bn}{s}.png')
+
+    fig.tight_layout(w_pad=0.2, h_pad=0.2)
+
+    savefig(fig, outpath, dpi=400)
+
+
+def underplot_cqvtargets(ax, get_xval, get_yval):
+
+    from complexrotators.getters import get_cqv_search_sample
+    df_bkgd = get_cqv_search_sample()
+
+    from matplotlib.colors import LinearSegmentedColormap
+    # "Viridis-like" colormap with white background
+    white_viridis = LinearSegmentedColormap.from_list('white_viridis', [
+        (0, '#ffffff'),
+        (1e-20, '#440053'),
+        (0.2, '#404388'),
+        (0.4, '#2a788e'),
+        (0.6, '#21a784'),
+        (0.8, '#78d151'),
+        (1, '#fde624'),
+    ], N=256)
+
+    _x = get_xval(df_bkgd)
+    _y = get_yval(df_bkgd)
+    s = np.isfinite(_x) & np.isfinite(_y)
+
+    # add log stretch...
+    from astropy.visualization import LogStretch
+    from astropy.visualization.mpl_normalize import ImageNormalize
+    vmin, vmax = 0.1, 10000
+    vmin, vmax = 0.1, 5000
+
+    norm = ImageNormalize(vmin=vmin, vmax=vmax, stretch=LogStretch())
+
+    cmap = "Greys"
+    density = ax.scatter_density(_x[s], _y[s], cmap=cmap, norm=norm)
+
+    return density
