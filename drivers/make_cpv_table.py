@@ -21,13 +21,17 @@ Utilities:
 from glob import glob
 from os.path import join
 import pandas as pd, numpy as np
-import os
+import os, time
 from complexrotators.paths import (
     DATADIR, RESULTSDIR, TABLEDIR, LITDIR, LOCALDIR, PAPERDIR
 )
 from os.path import join
 
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 from astroquery.mast import Catalogs
+from astroquery.exceptions import ResolverError
 
 from complexrotators.observability import (
     get_gaia_rows, assess_tess_holdings
@@ -233,15 +237,73 @@ def get_banyan_result(gdr2_df):
 
 def get_tic8_row(t):
 
+    cachepath = join(indir, f"TIC_{t}_mast_tic8_query.csv")
+
+    if os.path.exists(cachepath):
+        print(f'Found {cachepath}, returning.')
+        return pd.read_csv(cachepath)
+
     ticstr = f"TIC {t}"
-    tic_data = Catalogs.query_object(ticstr, catalog="TIC")
+    MAX_ITER = 10
+    ix = 0
+    # MAST hosting anything is a recipe for failed queries, TBH.
+    tic_data = None
+    while ix < MAX_ITER and tic_data is None:
+        try:
+            tic_data = Catalogs.query_object(ticstr, catalog="TIC")
+        except ResolverError as e:
+            time.sleep(3)
+            ix += 1
+            print(f'TIC {t} failed initial MAST query with {e}, retrying {ix}/{MAX_ITER}...')
+    if tic_data is None:
+        raise ResolverError(f'TIC {t} failed to get MAST query.')
 
     t8_row = pd.DataFrame(tic_data.to_pandas().iloc[0]).T
 
     t8_row = t8_row.rename({c:f"tic8_{c}" for c in t8_row.columns},
                            axis='columns')
 
+    t8_row.to_csv(cachepath, index=False)
+    print(f'Cached {cachepath}')
+
     return t8_row
+
+
+def identify_outliers(array, threshold=0.8):
+    """
+    Identifies outliers in an array of floats using a majority
+    consensus style veto based on z-scores.
+
+    Args:
+        array (numpy.ndarray or list): The input array of floats.
+
+        threshold (float, optional): The threshold for outlier
+        identification. Defaults to 0.8.
+
+    Returns:
+        numpy.ndarray: A boolean mask indicating the outliers in the
+        input array.
+    """
+    array = np.array(array)
+    mean = np.mean(array)
+    std = np.std(array)
+    z_scores = (array - mean) / std
+
+    consensus_threshold = int(threshold * len(array))
+    outlier_mask = np.abs(z_scores) > 1
+
+    while np.sum(outlier_mask) > consensus_threshold:
+        array = array[~outlier_mask]
+        mean = np.mean(array)
+        std = np.std(array)
+        z_scores = (array - mean) / std
+        outlier_mask = np.abs(z_scores) > 1
+
+    final_mask = np.zeros_like(z_scores, dtype=bool)
+    final_mask[np.abs(z_scores) > 1] = True
+
+    return final_mask
+
 
 
 def get_tess_cpv_lc_properties(ticid):
@@ -287,12 +349,45 @@ def get_tess_cpv_lc_properties(ticid):
         #peak_props.append(properties)
         nspls.append(nsplines_singlephase)
 
+    periods = np.array(periods).astype(float)
+
+    # ticids which upon manual inspection of the tlc_periods column will work
+    # with identify_outliers this is the better method in that it's still
+    # averaging over multiple sectors (whereas the choices made below, except
+    # for TIC 402980664, are adopted from ONE sector)
+    BAD_TICIDS_AUTO = [
+        '177309964', '193136669', '2234692', '264767454', '300651846', '440725886', '57830249'
+    ]
+    #ticids which need the period set manually
+    BAD_TICIDS_MANUAL = {
+        '234295610': 0.76202,
+        '272248916': 0.37084,
+        '289840926': 0.199995,
+        '335598085': 0.66034,
+        '402980664': 18.5611/24,
+    }
+
+    use_periods = periods * 1.
+
+    if str(ticid) in BAD_TICIDS_MANUAL:
+        use_periods = np.array([ BAD_TICIDS_MANUAL[str(ticid)] ])
+        msg = f'WRN! TIC {ticid} got {periods}, using {use_periods}'
+
+    elif str(ticid) in BAD_TICIDS_AUTO:
+        outliers = identify_outliers(periods)
+        use_periods = periods[~outliers]
+        msg = f'WRN! TIC {ticid} got {periods}, dropping {periods[outliers]}'
+        print(42*'!')
+        print(msg)
+        print(42*'!')
+
     tlc_df = pd.DataFrame({
-        'tlc_mean_period': np.nanmean(periods).round(6),
+        'tlc_mean_period': np.nanmean(use_periods).round(6),
         'tlc_mean_npeaks': np.nanmean(n_peaks).round(1),
         'tlc_sectors': ",".join(np.array(sectors).astype(str)),
         'tlc_npeaks': ",".join(np.array(n_peaks).astype(str)),
         'tlc_periods': ",".join(np.array(periods).round(5).astype(str)),
+        'tlc_useperiods': ",".join(np.array(use_periods).round(5).astype(str)),
         'tlc_peakloc_phaseunits': repr(peak_phaseunits).replace("],", "];")[1:-1]
     }, index=[0])
 
