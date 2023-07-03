@@ -16,3 +16,6 @@ cp $resultsdir/tic4029_segments/tic4029_segments.pdf f4.pdf
 
 # fig5
 cp $resultsdir/phase_timegroups_mosaic/TIC_402980664/TIC_402980664_P18.5611_2min_phase_timegroups_mosaic_ymin-4.8_ymax3.pdf f5.pdf
+
+# fig6
+cp $resultsdir/catalogscatter/catalogscatter_showmaybe.pdf f6.pdf
