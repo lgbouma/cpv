@@ -7,6 +7,8 @@ Contents:
 | _get_local_lcpaths_given_ticid
 | _get_lcpaths_fromlightkurve_given_ticid
 
+| get_cqv_search_sample
+
 tic4029 specialized:
 | get_tic4029_lc_and_mask
 | get_4029_manual_mask
@@ -18,6 +20,21 @@ from os.path import join
 from glob import glob
 import subprocess
 from complexrotators.paths import LKCACHEDIR, LOCALDIR, RESULTSDIR
+
+def get_cqv_search_sample():
+    localdir = '/Users/luke/local/SPOCLC'
+    csvpath = join(localdir, 'gaia_X_spoc2min_merge.csv')
+    df = pd.read_csv(csvpath)
+
+    sel = (
+        (df.TESSMAG < 16) & (df.bp_rp > 1.5) &
+        (df.M_G > 4) & (df.parallax > 1e3*(1/150)) &
+        (df.SECTOR <= 55)
+    )
+
+    sdf = df[sel]
+    return sdf
+
 
 def get_tic4029_lc_and_mask(model_id):
     """
