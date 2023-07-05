@@ -77,7 +77,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % primary authors
-\author{Author list and order not final!}
+\author{Author list \& order not final!}
 \author[0000-0002-0514-5538]{Luke~G.~Bouma}
 \altaffiliation{51 Pegasi b Fellow}
 \affiliation{\caltech}
@@ -199,7 +199,7 @@ marginally-ionized gas, embedded within the hotter corona, that would
 be centrifugally supported near corotation
 \citep{1989MNRAS.238..657C,2019MNRAS.482.2853J,2022MNRAS.514.5465W}.
 Such structures are analogous to quiescent prominences and filaments
-observed in the solar corona \citep[see e.g.][]{2015ASSL..415.....V},
+seen in the solar corona \citep[see e.g.][]{2015ASSL..415.....V},
 though at much larger relative distances from the stellar surface.  A
 final possibility that has been suggested is one of a ``screen'', in
 which the inner wall of a quiescent circumstellar disk blocks a
@@ -234,40 +234,37 @@ $V$$\approx$15.5 to $V$$>$20.  This renders time-series spectroscopy
 at high resolution technically impossible, despite its potential
 utility in ruling between the models.
 
-One way to help rule between the mechanisms is to therefore find
-bright and nearby CQVs, since these objects will be the most amenable
-to detailed photometric and spectroscopic analyses.  To do this, in
-this work, we use 120-second cadence data acquired by TESS between
-July~2018 and Sep~2022 (Sectors 1-55; Cycles 1-4).  We present our
-search methods in Section~\ref{sec:methods}, and the properties of the
-resulting CQV catalog in Section~\ref{sec:results}.  The evolution of
-many CQVs over a two-year baseline is described in
-Section~\ref{sec:evoln}, including a deep-dive into LP 12-502.
-Implications are discussed in Section~\ref{sec:discussion}, and we
-conclude in Section~\ref{sec:conclusion}.
+One way to help rule between the mechanisms is to find bright and
+nearby CQVs, since these objects will be the most amenable to detailed
+photometric and spectroscopic analyses.  To do this, in this work we
+use 120-second cadence data acquired by TESS between July~2018 and
+Sep~2022 (Sectors 1-55; Cycles 1-4).  We present our search methods in
+Section~\ref{sec:methods}, and the properties of the resulting CQV
+catalog in Section~\ref{sec:results}.  The evolution of many CQVs over
+a two-year baseline is described in Section~\ref{sec:evoln}, including
+a deep-dive into LP 12-502.  Implications are discussed in
+Section~\ref{sec:discussion}, and we conclude in
+Section~\ref{sec:conclusion}.
 
 A word on nomenclature.  CQVs have been called ``transient and
 persistent flux dips'', ``scallop shells'', ``batwings'',
 \citep{2017AJ....153..152S} ``complex rotators'',
 \citep{2019ApJ...876..127Z,2022AJ....163..144G,2023ApJ...945..114P}
-and ``complex periodic variables'' \citep{2023MNRAS.518.2921K}.  
-The CQVs should generally not be conflated with ``dippers'', which are classical T
-Tauri stars with infrared excesses, and drastically and 
-at best marginally periodic variability linked
-to obscuring inner disk structures and accretion hot spots
-\citep{2014AJ....147...82C,2021ApJ...908...16R}.  
-With that said, a few similarities between CQVs and dippers do exist
-(see Sections~\ref{subsec:irexcess} and~\ref{subsec:discdippers}).
-At the risk of
-introducing yet another standard, we prefer a nomenclature that
-reflects how, when observed over timescales of more than tens of
-cycles, CQVs are almost but not exactly periodic.  They are
-irregularly periodic, or for short, quasiperiodic.  While the
-three-type classification scheme proposed by
-\citet{2017AJ....153..152S} may indeed provide some helpful visual
-distinctions amongst CQV sub-classes, it seems likely that they are
-all explained by a single underlying phenomenon, and so we opt to
-refer to them by a single empirically descriptive name.
+and ``complex periodic variables'' \citep{2023MNRAS.518.2921K}.  The
+CQVs should not be conflated with ``dippers'', which are classical T
+Tauri stars with infrared excesses, and large-amplitude variability
+linked to obscuring inner disk structures and accretion hot spots
+\citep{2014AJ....147...82C,2021ApJ...908...16R}.  With that said, a
+few similarities between CQVs and dippers do exist (see
+Sections~\ref{subsec:irexcess} and~\ref{subsec:discdippers}).  At the
+risk of introducing yet another standard, we hope to introduce a
+nomenclature that reflects how, when observed over timescales of more
+than tens of cycles, CQVs are almost but not exactly periodic.  They
+are quasiperiodic.  While the three-type classification scheme
+proposed by \citet{2017AJ....153..152S} may indeed provide some
+helpful visual distinctions amongst CQV sub-classes, it seems likely
+that they are all explained by a single underlying phenomenon, and so
+we opt to refer to them by a single empirically descriptive name.
 
 
 \begin{figure*}[!t]
@@ -541,8 +538,9 @@ commit \texttt{278b372}}
 
 \paragraph{Effective temperatures, radii, and masses}
 
-We determined the stellar effective temperature and radii through SED
-fitting; we then estimated the masses by interpolating against the
+We determined the stellar effective temperature and radii by 
+fitting the broadband spectral energy distributions (SEDs); we then estimated the masses by interpolating against the
+sizes, temperatures, and ages against the
 PARSEC v1.2S models \citep{2012MNRAS.427..127B,2014MNRAS.444.2525C}.
 
 For the SED fitting, we used \texttt{astroARIADNE}
