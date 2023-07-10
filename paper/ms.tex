@@ -633,16 +633,16 @@ Table~\ref{tab:thetable}.
 \subsection{CQV catalog}
 \label{sec:catalog}
 
-Table~\ref{tab:thetable} lists the \ncpvsfound\ CQVs identified by our
-search, along with important physical and observational properties.
-\ngoods\ objects demonstrated what we viewed as unambiguous
-characteristics of the CQV phenomenon in at least one TESS sector; we
-refer to these as the ``gold sample''.  We found the remaining
-\nmaybes\ CQV candidates to be ambiguous; their variability might be
-caused by say, multiple starspot groups.  Additional data from TESS or
-other instruments could help resolve their classification.  In the
-following discussion, we will primarily restrict our discussion to the
-gold sample.
+Table~\ref{tab:thetable} lists the \ncpvsfound\ objects identified by
+our search.  \ngoods\ objects demonstrated what we viewed as
+unambiguous characteristics of the CQV phenomenon in at least one TESS
+sector; we refer to these as the ``gold sample''.  We found the
+remaining \nmaybes\ CQV candidates to be ambiguous; their variability
+might be caused by say, multiple starspot groups.  Additional data
+from TESS or other instruments could help resolve their
+classification.  The boolean \texttt{quality} column in the table divides
+the two classes.  In the following discussion, we will restrict our
+discussion to the gold sample.
 
 The mosaic in Figure~\ref{fig:cqvs} shows phased light curves for the
 \ngoods\ bonafide CQVs.  The objects are sorted first in order of the
@@ -1788,6 +1788,45 @@ All authors assisted in manuscript revision.
 
 \bibliographystyle{yahapj}                            
 \bibliography{bibliography} 
+
+\clearpage
+
+\startlongtable
+\begin{deluxetable}{rrrrrrlrllrrrr}
+\tabletypesize{\footnotesize}
+%\tabletypesize{\scriptsize}
+\tablecaption{Complex quasiperiodic variables identified in the TESS 2-minute data. \label{tab:thetable}}
+%\toprule
+%TIC & $T$ & $d$ & BP-RP & RUWE & $P$ & assoc & age & teff & rstar & mstar & rcr & qual & Nsectors \\
+%\midrule
+%\endhead
+\startdata
+TIC & $T$ & $d$ & $\bprp$ & RUWE & $P$ & Assoc & Age & $T_{\rm eff}$ & $R_\star$ & $M_\star$ & $R$$_{\rm cr}$ & Quality & $N_{\rm sector}$ \\
+-- & mag & pc & mag & -- & hr & -- & Myr & K & $R_\odot$ & $M_\odot$ & $R_\star$ & -- & -- \\
+\hline
+\input{20230613_LGB_RJ_CPV_TABLE_selfnapplied_rounded_data}
+\enddata
+\tablecomments{This table includes \ngoods\ CQVs (\texttt{Quality} flag true), and \nmaybes\ candidate CQVs (\texttt{Quality} flag false).  The machine-readable version, available online, includes additional columns for the Gaia DR2 source identifiers and parameter uncertainties.  The age uncertainties are typically $\approx \pm 10\%$,
+	but can be asymmetric.  The median temperature, radius, and mass uncertainties are $\pm XXX$\,K, $\pm XX$\%, and $\pm YY$\% respectively.
+	$N_{\rm sector}$ denotes the number of TESS sectors for which data are expected to be acquired between July~2018 and Oct~2024.   Association names and provenance follow conventions adopted by \citet{2018ApJ...856...23G}: 
+	ABDMG: AB~Doradus moving group \citep{2015MNRAS.454..593B}.
+	ARG: Argus \citep{2019ApJ...870...27Z}.
+	APER: $\alpha$~Persei open cluster \citep{2023AJ....166...14B}.
+	BPMG: $\beta$~Pic moving group \citep{2015MNRAS.454..593B}.
+	CAR: Carina \citep{2015MNRAS.454..593B}.
+	COL: Columba \citep{2015MNRAS.454..593B}.
+	EPSC: $\epsilon$ Chamaeleontis \citep{2013MNRAS.435.1325M}.
+	LCC: Lower Centaurus Crux \citep{2016MNRAS.461..794P}.
+	PERI: Pisces-Eridani \citep{2019AJ....158...77C}.
+	PLE: Pleiades \citep{2015ApJ...813..108D}.
+	TAU: Taurus \citep{1995ApJS..101..117K}.
+	THA: Tucana-Horologium assocation \citep{2015MNRAS.454..593B}.
+	TWA: TW Hydrae assocation \citep{2015MNRAS.454..593B}.
+	UCL: Upper Centaurus Lupus \citep{2016MNRAS.461..794P}.
+	USCO: Upper Scorpius \citep{2016MNRAS.461..794P}.
+}
+\end{deluxetable}
+\clearpage
 
 \appendix
 %\section{Validation plots}
