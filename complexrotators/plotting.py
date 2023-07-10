@@ -2459,6 +2459,8 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
     if isinstance(sortby, str):
         if sortby in ['tic8_Tmag','tlc_mean_period','dist_pc']:
             df = df.sort_values(by=sortby)
+        elif sortby in ['Rcr_over_Rstar']:
+            df = df.sort_values(by=sortby, ascending=False)
         elif sortby == 'Ngoodsectors_tic8_Tmag':
             fn = lambda x: len(x.split(','))
             df['Ngoodsectors'] = df.goodsectors_x.apply(fn)
