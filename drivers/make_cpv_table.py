@@ -99,6 +99,8 @@ def main(overwrite=0):
     N_0 = len(df)
     sdf = df[sel]
 
+    sdf['qual'] = ~pd.isnull(sdf.goodsectors)
+
     csvpath = join(indir, "20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied.csv")
     sdf.to_csv(csvpath, index=False, sep="|")
     print(f"Wrote {csvpath}")
@@ -108,6 +110,7 @@ def main(overwrite=0):
     N_3 = len(sdf[pd.isnull(sdf.goodsectors)])
 
     # "good" CPVs
+
     sgdf = sdf[~pd.isnull(sdf.goodsectors)]
     # "maybe" CPVs
     smdf = sdf[pd.isnull(sdf.goodsectors)]
@@ -125,16 +128,6 @@ def main(overwrite=0):
 
     N_6 = len(sgdf[sgdf.banyan_assoc != 'FIELD'])
     N_7 = len(smdf[smdf.banyan_assoc != 'FIELD'])
-
-    selcols = (
-        "ticid goodsectors maybesectors N_sectors tic8_Tmag ruwe "
-        "bp_rp tlc_mean_period banyan_assoc banyan_prob".split()
-    )
-
-    # TODO: write these numbers to latex
-    # \renewcommand{}{}
-    # type include file at /paper/
-    # TODO
 
     txt = (
         f"\n...\n"
@@ -172,6 +165,84 @@ def main(overwrite=0):
         f.writelines(latex_txt)
     print(f"Wrote {outpath}")
 
+    # write portion that will go to latex
+    sdf['period'] = sdf['tlc_mean_period']*24
+    sdf['age'] = sdf['banyan_adopted_age']
+    sdf['assoc'] = sdf['banyan_adopted_assoc']
+    sdf['p_assoc'] = sdf['banyan_adopted_prob']
+    sdf['quality'] = sdf['qual'].astype(int)
+    shortcols = (
+        "ticid "
+        #"dr2_source_id ra dec "
+        "tic8_Tmag dist_pc "
+        "bp_rp ruwe period assoc "
+        #"banyan_prob"
+        "age teff_sedfit "
+        "rstar_sedfit mstar_parsec Rcr_over_Rstar  "
+        "quality N_sectors".split()
+    )
+    longcols = (
+        "ticid "
+        "dr2_source_id ra dec "
+        "tic8_Tmag dist_pc "
+        "bp_rp ruwe period assoc "
+        #"banyan_prob "
+        "age "
+        "teff_sedfit teff_sedfit_perr teff_sedfit_merr "
+        "rstar_sedfit rstar_sedfit_perr rstar_sedfit_merr "
+        "mstar_parsec Rcr_over_Rstar  "
+        "quality N_sectors".split()
+    )
+    pcols = shortcols + ['dist_metric_parsec']
+
+    wdf = sdf[shortcols]
+    wldf = sdf[longcols]
+    pdf = sdf[pcols]
+
+    wdf = wdf.sort_values(by=['quality','tic8_Tmag'], ascending=[False,True])
+    wldf = wldf.sort_values(by=['quality','tic8_Tmag'], ascending=[False,True])
+    pdf = pdf.sort_values(by=['quality','tic8_Tmag'], ascending=[False,True])
+
+    rounddict = {
+        'ra': 5,
+        'dec': 5,
+        'tic8_Tmag': 2,
+        'ruwe': 2,
+        'bp_rp': 3,
+        'dist_pc': 1,
+        'period': 2,
+        'rstar_sedfit': 2,
+        'mstar_parsec': 2,
+        'Rcr_over_Rstar': 2
+    }
+    formatters = {}
+    for k,v in rounddict.items():
+        formatters[k] = lambda x: np.round(x, v)
+    formatters['age'] = lambda x: int(x) if ~pd.isnull(x) else 'NaN'
+
+    wdf = wdf.round(rounddict)
+    wldf = wldf.round(rounddict)
+    pdf = pdf.round(rounddict)
+
+    csvpath = join(indir, "20230613_LGB_RJ_CPV_TABLE_selfnapplied_rounded.csv")
+    wdf.to_csv(csvpath, index=False, sep="|")
+    print(f"Wrote {csvpath}")
+
+    texpath = join(PAPERDIR, "20230613_LGB_RJ_CPV_TABLE_selfnapplied_rounded_data.tex")
+    wdf.to_latex(texpath, index=False, longtable=False, formatters=formatters)
+    with open(texpath, 'r') as f:
+        texlines = f.readlines()
+    texlines = texlines[4:-2] # trim header and footer
+    with open(texpath, 'w') as f:
+        f.writelines(texlines)
+    print(f"Wrote {texpath}")
+
+    csvpath = join(indir, "20230613_LGB_RJ_CPV_TABLE_selfnapplied_rounded_longMRT.csv")
+    wldf.to_csv(csvpath, index=False, sep="|")
+    print(f"Wrote {csvpath}")
+
+    pd.options.display.max_rows = 5000
+    print(pdf)
 
 
 def flatten_tdf(tdf, ticid):
@@ -217,19 +288,48 @@ def get_banyan_result(gdr2_df):
     assocs = ",".join(list(sdf.assoc.astype(str)))
     probs = ",".join(list(sdf.prob.astype(str)))
     ages = ",".join(list(sdf.age.astype(str)))
+    agefloatvals = ",".join(list(sdf.agefloatval.astype(str)))
     age_refs = ",".join(list(sdf.age_reference.astype(str)))
-    singleagefloat = list(sdf.agefloatval.astype(str))[0]
 
-    if singleagefloat == '???':
-        singleagefloat = np.nan
+    if len(assocs.split(',')) == 1 and assocs.split(',')[0] == 'FIELD':
+        adopted_assoc = 'FIELD'
+        adopted_age_float = np.nan
+        adopted_prob = 1
+        adopted_age_ref = ''
+
+    else:
+
+        # first listed association is field -> take second assoc
+        if assocs.split(',')[0] == 'FIELD':
+            adopted_assoc = assocs.split(",")[1]
+            adopted_prob = probs.split(",")[1]
+            adopted_age_float = agefloatvals.split(",")[1]
+            adopted_age_ref = age_refs.split(',')[1]
+
+        if assocs.split(',')[0] != 'FIELD':
+
+            if len(assocs.split(',')) > 1:
+                adopted_assoc = assocs.split(",")[0]
+                adopted_prob = probs.split(",")[0]
+                adopted_age_float = agefloatvals.split(",")[0]
+                adopted_age_ref = age_refs.split(',')[0]
+
+            else:
+                adopted_assoc = assocs
+                adopted_prob = probs
+                adopted_age_float = agefloatvals
+                adopted_age_ref = age_refs
 
     bdf = pd.DataFrame({
         'banyan_assoc': assocs,
+        'banyan_adopted_assoc': adopted_assoc,
         'banyan_prob': probs,
+        'banyan_adopted_prob': adopted_prob,
         'banyan_age': ages,
+        'banyan_adopted_age': float(adopted_age_float),
+        'banyan_log_adopted_age': np.log10(float(adopted_age_float)*1e6),
         'banyan_age_refs': age_refs,
-        'banyan_singleagefloat': float(singleagefloat),
-        'banyan_logsingleagefloat': np.log10(float(singleagefloat)*1e6),
+        'banyan_adopted_age_ref': adopted_age_ref,
     }, index=[0])
 
     return bdf
@@ -454,9 +554,9 @@ def get_isochrone_mass(sed_df, bdf):
     """
 
     CONDITIONS = (
-        (bdf['banyan_singleagefloat'].iloc[0] == "???")
+        (bdf['banyan_adopted_age'].iloc[0] == "???")
         or
-        (pd.isnull(float(bdf['banyan_singleagefloat'].iloc[0])))
+        (pd.isnull(float(bdf['banyan_adopted_age'].iloc[0])))
         or
         (sed_df['rstar_sedfit'].iloc[0] == "PENDING")
     )
@@ -467,7 +567,7 @@ def get_isochrone_mass(sed_df, bdf):
             'rstar_parsec': np.nan,
             'age_parsec': np.nan,
             'teff_parsec': np.nan,
-            'dist_parsec_dex': np.nan,
+            'dist_metric_parsec': np.nan,
         }, index=[0])
         return iso_df
 
@@ -483,7 +583,7 @@ def get_isochrone_mass(sed_df, bdf):
         float(sed_df['teff_sedfit_merr'])
     ])
 
-    age = float(bdf['banyan_singleagefloat'].iloc[0])
+    age = float(bdf['banyan_adopted_age'].iloc[0])
     if age < 10:
         # set age floor of 10 myr
         age = 10
@@ -552,10 +652,10 @@ def get_cpvtable_row(ticid, overwrite=0):
 
     from astropy import constants as const, units as u
     omega = 2*np.pi / (float(row['tlc_mean_period'])*u.day)
-    row['R_corotation'] = (
+    row['Rcr'] = (
         (const.G * float(row['mstar_parsec'])*u.Msun / omega**2)**(1/3)
     ).to(u.Rsun).value
-    row['a_over_Rstar'] = row['R_corotation'] / row['rstar_sedfit']
+    row['Rcr_over_Rstar'] = row['Rcr'] / row['rstar_sedfit']
 
     # TODO
     # TODO
@@ -575,4 +675,4 @@ def get_cpvtable_row(ticid, overwrite=0):
 
 
 if __name__ == "__main__":
-    main(overwrite=1)
+    main(overwrite=0)

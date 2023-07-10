@@ -491,8 +491,6 @@ def get_bestmonth_hoursobservable(
     return outdf
 
 
-
-
 def merge_to_observability_table(
     csvpath, r_gaia, r_tess, r_tic8, r_tesspoint, r_astroplan
     ):
