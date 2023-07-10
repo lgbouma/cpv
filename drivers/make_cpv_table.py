@@ -264,6 +264,8 @@ def get_banyan_result(gdr2_df):
     sys.path.append("/Users/luke/Dropbox/proj/banyan_sigma")
     from core import membership_probability
 
+    dr2_source_id = str(gdr2_df.dr2_source_id.iloc[0])
+
     ra, dec = float(gdr2_df.ra), float(gdr2_df.dec)
     pmra, pmdec = float(gdr2_df.pmra), float(gdr2_df.pmdec)
     epmra, epmdec = float(gdr2_df.pmra_error), float(gdr2_df.pmdec_error)
@@ -319,6 +321,17 @@ def get_banyan_result(gdr2_df):
                 adopted_prob = probs
                 adopted_age_float = agefloatvals
                 adopted_age_ref = age_refs
+
+    # alpha per case
+    if dr2_source_id == '438223592047536640':
+        assocs = 'APER'
+        adopted_assoc = 'APER'
+        banyan_prob = 0
+        adopted_prob = 1
+        ages = '$86 \pm 14$'
+        adopted_age_float = 86
+        age_refs = 'BoyleBouma2023'
+        adopted_age_ref = 'BoyleBouma2023'
 
     bdf = pd.DataFrame({
         'banyan_assoc': assocs,
