@@ -111,16 +111,16 @@
   the Keplerian corotation radius.  Here, we report new CQVs
   discovered in TESS data collected between July~2018 and Sep~2022.
   Our search of \nstarssearched\ K- and M-dwarfs with $T$$<$16 and
-  $d$$<$150\,pc yielded \ngoods\ gold-standard CQVs.  Most of these
+  $d$$<$150\,pc yielded \ngoods\ high-quality CQVs.  Most of these
   discoveries are new, and they include the brightest
   ($T$$\approx$9.5) and closest ($d$$\approx$20\,pc)
   examples of this class of object known, as well as the most massive
-  ($\approx$0.65\,M$_\odot$).  A few objects are outliers among
+  ($\approx$0.6-0.8\,M$_\odot$).  A few objects are outliers among
   outliers; LP 12-502 for instance shows a ``dip complex'' with a
   period and total duration that are fixed over more than 1{,}000
   cycles, but which in detail exhibits anywhere from four to eight
   local minima per cycle.  LP-502 also displayed distinct superposed
-  periods simultaneously, and displayed drastic shape changes shortly
+  periods simultaneously, and showed drastic shape changes shortly
   after flares.  Broadly speaking, we find that none of the CQVs
   maintain a fixed light curve shape over timescales of more than a
   few hundred cycles, and we revisit the arguments for why transient
@@ -130,8 +130,7 @@
   the broader contexts of star, disk, and exoplanet evolution.  For
   instance, if the transiting material is dust, then the rate of dip
   evolution implies that of order an asteroid belt's worth of mass
-  passes through these structures over the $10^8$ years for which they
-  are observed.
+  passes through these structures over their lifetime of $10^8$ years.
 \end{abstract}
 
 
@@ -180,8 +179,7 @@ gradually, over tens to hundreds of cycles
 \citep[e.g.][]{2017AJ....153..152S,2022ApJ...925...75P,2023ApJ...945..114P}.
 
 A few competing explanations for what causes the complex quasiperiodic
-variability are shown in Figure~\ref{fig:f1}, along with some
-representative light curves.  All young M-dwarfs are spotted, which
+variability are shown in Figure~\ref{fig:f1}.  All young M-dwarfs are spotted, which
 produces flux variations over characteristic timescales of the
 rotation period, $P_{\rm rot}$, and its half-harmonic, $0.5\,P_{\rm
 rot}$.  The observed dips occur over durations as short as
@@ -213,17 +211,17 @@ transitions in hydrogen or perhaps a molecular opacity.  The screen
 scenario seems inconsistent with the degree of observed periodicity,
 the lack of infrared excess, and the observed lifetime of CQVs
 extending an order of magnitude longer than the $\approx$$10^7$ year
-timescale typically quoted for the primordial disk to disperse.
-However, unambiguous evidence has yet to be acquired in support of any
-scenario.  Such evidence might include a spectroscopic detection of
-silicate 10\,$\mu$m dust absorption during a dip, or perhaps detection
-of transient Balmer-line absorption during the dips, similar to
-observations made in systems such as AB~Dor \citep[see the review
-by][]{1999ASPC..158..146C}.
+timescale typically quoted for primordial disk dispersal.
+However, unambiguous evidence in support of any one scenario has yet
+to be acquired.  Such evidence might include a spectroscopic detection
+of silicate 10\,$\mu$m dust absorption during a dip, or perhaps
+detection of transient Balmer-line absorption as a function of cycle
+phase, similar to observations made in systems such as AB~Dor
+\citep[see the review by][]{1999ASPC..158..146C}.
 
 CQVs remain mysterious because they have been both hard to discover
 and hard to characterize.   Discoverability is tied to rarity: CQVs
-comprise about 1\% of the youngest 1\% of M-dwarfs
+comprise $\approx$1\% of the youngest $\approx$1\% of M-dwarfs
 \citep{2018AJ....155..196R}.  Out of the millions of stars monitored
 by K2 and TESS, about 50 CQVs have been reported to date
 \citep{2016AJ....152..114R,2017AJ....153..152S,2018AJ....155...63S,2019ApJ...876..127Z,2020AJ....160...86B,2022AJ....163..144G,2023ApJ...945..114P}.
@@ -231,23 +229,23 @@ The known CQVs are correspondingly faint; the initial K2 discoveries
 \citep{2016AJ....152..114R,2017AJ....153..152S} were M2-M6 dwarfs at
 distances $\gtrsim$100\,pc, yielding optical brightnesses of
 $V$$\approx$15.5 to $V$$>$20.  This renders time-series spectroscopy
-at high resolution technically impossible, despite its potential
-utility in ruling between the models.
+at high resolution out of reach for current facilities, despite its
+potential utility in ruling between the models.
 
-One way to help rule between the mechanisms is to find bright and
-nearby CQVs, since these objects will be the most amenable to detailed
-photometric and spectroscopic analyses.  To do this, in this work we
-use 120-second cadence data acquired by TESS between July~2018 and
-Sep~2022 (Sectors 1-55; Cycles 1-4).  We present our search methods in
-Section~\ref{sec:methods}, and the properties of the resulting CQV
-catalog in Section~\ref{sec:results}.  The evolution of many CQVs over
-a two-year baseline is described in Section~\ref{sec:evoln}, including
-a deep-dive into LP 12-502.  Implications are discussed in
+In this work, we aim to find bright and nearby CQVs, since these
+objects will be the most amenable to detailed photometric and
+spectroscopic analyses.  To do this, we use 120-second cadence data
+acquired by TESS between July~2018 and Sep~2022 (Sectors 1-55; Cycles
+1-4).  We present our search methods in Section~\ref{sec:methods}, and
+the properties of the resulting CQV catalog in
+Section~\ref{sec:results}.  The evolution of many CQVs over a two-year
+baseline is described in Section~\ref{sec:evoln}, including a
+deep-dive into LP 12-502.  Implications are discussed in
 Section~\ref{sec:discussion}, and we conclude in
 Section~\ref{sec:conclusion}.
 
-A word on nomenclature.  CQVs have been called ``transient and
-persistent flux dips'', ``scallop shells'', ``batwings'',
+A point on nomenclature.  CQVs have been called ``transient flux
+dips'', ``persistent flux dips'', ``scallop shells'', ``batwings'',
 \citep{2017AJ....153..152S} ``complex rotators'',
 \citep{2019ApJ...876..127Z,2022AJ....163..144G,2023ApJ...945..114P}
 and ``complex periodic variables'' \citep{2023MNRAS.518.2921K}.  The
@@ -262,7 +260,7 @@ nomenclature that reflects how, when observed over timescales of more
 than tens of cycles, CQVs are almost but not exactly periodic.  They
 are quasiperiodic.  While the three-type classification scheme
 proposed by \citet{2017AJ....153..152S} may indeed provide some
-helpful visual distinctions amongst CQV sub-classes, it seems likely
+helpful visual distinctions amongst the CQVs, it seems likely
 that they are all explained by a single underlying phenomenon, and so
 we opt to refer to them by a single empirically descriptive name.
 
@@ -307,7 +305,7 @@ we opt to refer to them by a single empirically descriptive name.
 
 We analyzed the ``short'' 120-second cadence data acquired by TESS
 between July~2018 and Sep~2022 (Sectors 1-55).  Specifically, we used
-the 120-second cadence light curve products produced by the mission's
+the 120-second cadence light curve products produced by the 
 Science Processing and Operations Center at NASA Ames
 \citep{2016SPIE.9913E..3EJ}.  While the TESS data products also
 include full frame images with cadences of 200, 600, and 1800 seconds,
@@ -636,13 +634,13 @@ Table~\ref{tab:thetable}.
 Table~\ref{tab:thetable} lists the \ncpvsfound\ objects identified by
 our search.  \ngoods\ objects demonstrated what we viewed as
 unambiguous characteristics of the CQV phenomenon in at least one TESS
-sector; we refer to these as the ``gold sample''.  We found the
+sector; we refer to these as the ``high-quality sample''.  We found the
 remaining \nmaybes\ CQV candidates to be ambiguous; their variability
 might be caused by say, multiple starspot groups.  Additional data
 from TESS or other instruments could help resolve their
 classification.  The boolean \texttt{quality} column in the table divides
 the two classes.  In the following discussion, we will restrict our
-discussion to the gold sample.
+discussion to the high-quality sample.
 
 The mosaic in Figure~\ref{fig:cqvs} shows phased light curves for the
 \ngoods\ bonafide CQVs.  The objects are sorted first in order of the
@@ -1518,26 +1516,28 @@ optical depth $\tau$ of the cloud to be at least unity and by positing
 some composition for the cloud.  In other
 words, a minimum constraint on the number density follows by
 requiring the cloud to be optically thick.  For cases like LP 12-502,
-this is resonable because the transit duration implies $R_{\rm
+this is reasonable because the transit duration implies $R_{\rm
 cloud}\ll R_\star$.  Carrying out the relevant calculation assuming
 the occulting material is dust grains 1\,$\mu$m in size,
 \citet{2023MNRAS.518.4734S} find minimum cloud masses of order
 $10^{12}$\,kg (their Eq.~23), which scale linearly with both the
-optical depth and dust grain radius.  This is roughly comparable to a
+optical depth and dust grain radius.  This is comparable to a
 small asteroid; the asteroid belt itself has a mass of
-order $\approx$10$^{21}$\,kg (CITE).  Also by way of comparison,
-the previously-discussed cool gas prominences for AB~Dor would need to
-have masses of order $10^{14}$\,kg \citep{1990MNRAS.247..415C}, about
+order $\approx$10$^{21}$\,kg (CITE).  
+The previously discussed cool gas prominences would need to have
+masses of order $10^{14}$\,kg \citep{1990MNRAS.247..415C}, about
 100$\times$ larger than the requisite dust mass.
 
 Our observations provide a direct measurement of how often dips
 appear and disappear, both due to sudden state-switches, and
 due to more gradual, secular evolution.  For instance, LP~12-502
 showed three ``state-switch'' events over the six months of available TESS
-observations, during cycles 248-264, 299-315, and 1233-1247.  It is
+observations, during cycles 248-264, 299-315, and 1233-1247.  In each
+case, a dip ``turned off''.  It is
 plausible to imagine that these events correspond to either mass being
 ejected from corotation, or perhaps being accreted onto the star.  In
 either case, the corresponding $\dot{M} \equiv M\cdot {\rm d}N/{\rm d}t$
+time-averaged over six months
 is $\approx$3$\times$$10^{-18} M_\odot\,{\rm yr}^{-1} \approx
 1\times10^{-12} M_\oplus\,{\rm yr}^{-1}$.  Considered cumulatively
 over the $\approx$$10^8$ years for which the CQV phenomenon is
@@ -1545,6 +1545,10 @@ observed, this yields a cumulative moved dust mass of
 $10^{-4}\,M_\oplus$, of order the Solar System's asteroid belt.
 If the occulting material is gas, the masses involved would be of
 order 100 times larger.
+For cases in which we observe the {\it growth} of
+dips, such as the Sector~29 data for TIC~224283342, the dip depths
+typically increase by of order a few percent over ten to twenty days.
+{\bf fixme: add closing sentence}
 
 
 
