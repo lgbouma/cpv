@@ -26,3 +26,27 @@ Mcum = Mdot * timescale
 
 print(f'Mcum over 1e8 yr: {Mcum.to(u.Mearth):.1e}')
 print(f'Mcum over 1e8 yr divided by asteroid belt mass: {Mcum/M_asteroidbelt:.2f}')
+
+# What about for growth seen in TIC 224283342, of 3% in depth over 20 days?
+# from Sanderson2023 eq23
+τ = 1
+Qext = 3
+rdust = 1 # micron
+rhodust = 3000 # kg m^-3
+
+delta = 0.03
+rcloud_by_rstar = np.sqrt(delta)
+
+Rstar = 0.39*u.Rsun
+
+m_cloud = (
+    1.6e12 * (τ/1) * (Qext/3)**(-1)
+    * ( (1/0.1) * (rcloud_by_rstar) * (Rstar/ (0.34*u.Rsun) ) )**2
+    * (rdust/1) * (rhodust / 3000)
+)*u.kg
+print(f"Mcloud {m_cloud:.2e}")
+
+dt = 20*u.day
+
+dM_dt = m_cloud / dt
+print(f'Mdot {dM_dt.to(u.Mearth/u.yr):.1e}')
