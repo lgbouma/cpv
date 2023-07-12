@@ -3356,7 +3356,8 @@ def plot_catalogscatter(outdir, showmaybe=0):
         ('tlc_mean_period', 'bp_rp', '$P$ [days]', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'log', 'linear'),
         #('rstar_sedfit', 'teff_sedfit', '$R_{\! \star}$ [$R_\odot$]', '$T_\mathrm{eff}$ [K]', 'linear', 'linear'),
         #('ruwe', 'bp_rp', 'RUWE', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'log', 'linear'),
-        ('tlc_mean_period', 'Rcr_over_Rstar', '$P$ [hours]', '$R_{\mathrm{cr}}/R_{\! \star}$', 'log', 'linear'),
+        #('tlc_mean_period', 'Rcr_over_Rstar', '$P$ [hours]', '$R_{\mathrm{cr}}/R_{\! \star}$', 'log', 'linear'),
+        ('Rcr_over_Rstar', 'tlc_mean_period',  '$R_{\mathrm{cr}}/R_{\! \star}$', '$P$ [hours]', 'linear', 'log'),
         ('banyan_adopted_age', 'mstar_parsec', 'Age [Myr]', '$M_{\! \star}$ [$M_\odot$]', 'log', 'linear'),
         #('rstar_sedfit', 'banyan_singleagefloat', '$R_{\! \star}$ [$R_\odot$]', 'Age [Myr]', 'linear', 'log'),
     ]
@@ -3443,10 +3444,9 @@ def plot_catalogscatter(outdir, showmaybe=0):
                     ha='right',va='top', color='darkgray', fontsize='small')
 
 
-        if ykey == 'tlc_mean_period' and xkey == 'Rcr_over_Rstar':
-            f = 24
-            f0 = f
-            f1 = f
+        fx = 1
+        if xkey == 'tlc_mean_period' and ykey == 'Rcr_over_Rstar':
+            fx = 24
 
         elif ykey == 'banyan_adopted_age':
             np.random.seed(42)
@@ -3463,11 +3463,11 @@ def plot_catalogscatter(outdir, showmaybe=0):
             f1 = 1
 
         ax.scatter(
-            df[xkey], f0*df[ykey], c='C0', s=6, linewidths=0, zorder=10
+            fx*df[xkey], f0*df[ykey], c='C0', s=6, linewidths=0, zorder=10
         )
         if showmaybe:
             ax.scatter(
-                maybe_df[xkey], f1*maybe_df[ykey], c='C0', s=4.5, linewidths=0, alpha=0.5, zorder=9
+                fx*maybe_df[xkey], f1*maybe_df[ykey], c='C0', s=4.5, linewidths=0, alpha=0.5, zorder=9
             )
 
         ax.set_xscale(xscale)
@@ -3484,24 +3484,29 @@ def plot_catalogscatter(outdir, showmaybe=0):
             ax.set_yticks([14,10,6])
             ax.set_yticklabels([14,10,6])
 
-        if ykey == 'tlc_mean_period' and xkey == 'Rcr_over_Rstar':
-            ax.set_ylabel("$P$ [hours]")
-            ax.set_ylim([2, 48])
-            assert max(df[ykey]) < 48
-            assert max(maybe_df[ykey]) < 48
+        if xkey == 'tlc_mean_period' and ykey == 'Rcr_over_Rstar':
+            ax.set_xlabel("$P$ [hours]")
+            ax.set_xlim([2, 48])
+            assert max(df[xkey]) < 48
+            assert max(maybe_df[xkey]) < 48
 
             # epic solution to the problem of "how do I get my mixed
             # major and minor labels working on a log plot?"
             minor_locator = FixedLocator([2,3,4,5,6,7,8,9,10,20,30,40])
-            ax.yaxis.set_minor_locator(minor_locator)
+            ax.xaxis.set_minor_locator(minor_locator)
             major_locator = FixedLocator([10])
-            ax.yaxis.set_major_locator(major_locator)
-            ax.set_yticklabels([10])
+            ax.xaxis.set_major_locator(major_locator)
+            ax.set_xticklabels([10])
             def fn(x, pos):
                 labels = [None,3,None,None,None,None,None,None,None,30,None]
                 return labels[pos]
             formatter = FuncFormatter(fn)
-            ax.yaxis.set_minor_formatter(formatter)
+            ax.xaxis.set_minor_formatter(formatter)
+
+            ax.set_yticks([2,4,6])
+            ax.set_yticklabels([2,4,6])
+            minor_locator = FixedLocator([1,3,5,7])
+            ax.yaxis.set_minor_locator(minor_locator)
 
         if ykey == 'tlc_mean_period' and xkey == 'bp_rp':
             ax.set_yticks([0.1, 1, 10])
