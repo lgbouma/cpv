@@ -3353,11 +3353,11 @@ def plot_catalogscatter(outdir, showmaybe=0):
         ("tic8_Tmag", "dist_pc", '$T$ [mag]', '$d$ [pc]', 'linear', 'linear'),
         #('dec', 'ra', r'$\delta$ [deg]', r'$\alpha$ [deg]', 'linear', 'linear'),
         ('b', 'l', '$b$ [deg]', '$l$ [deg]', 'linear', 'linear'),
-        ('tlc_mean_period', 'bp_rp', '$P$ [hours]', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'log', 'linear'),
+        ('tlc_mean_period', 'bp_rp', '$P$ [days]', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'log', 'linear'),
         #('rstar_sedfit', 'teff_sedfit', '$R_{\! \star}$ [$R_\odot$]', '$T_\mathrm{eff}$ [K]', 'linear', 'linear'),
         #('ruwe', 'bp_rp', 'RUWE', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'log', 'linear'),
-        ('tlc_mean_period', 'a_over_Rstar', '$P$ [hours]', '$R_{\mathrm{cr}}/R_{\! \star}$', 'log', 'linear'),
-        ('banyan_singleagefloat', 'mstar_parsec', 'Age [Myr]', '$M_{\! \star}$ [$M_\odot$]', 'log', 'linear'),
+        ('tlc_mean_period', 'Rcr_over_Rstar', '$P$ [hours]', '$R_{\mathrm{cr}}/R_{\! \star}$', 'log', 'linear'),
+        ('banyan_adopted_age', 'mstar_parsec', 'Age [Myr]', '$M_{\! \star}$ [$M_\odot$]', 'log', 'linear'),
         #('rstar_sedfit', 'banyan_singleagefloat', '$R_{\! \star}$ [$R_\odot$]', 'Age [Myr]', 'linear', 'log'),
     ]
 
@@ -3378,7 +3378,7 @@ def plot_catalogscatter(outdir, showmaybe=0):
         )
         axs = [axd[k] for k in 'A,B,C,D,E,F,G,H,I'.split(',')]
     else:
-        fig = plt.figure(figsize=(f*4,f*2.5))
+        fig = plt.figure(figsize=(f*3.5,f*2.5))
         axd = fig.subplot_mosaic(
             """
             ABC
@@ -3415,34 +3415,77 @@ def plot_catalogscatter(outdir, showmaybe=0):
             axd[axkey] = fig.add_subplot(ss, projection='scatter_density')
             ax = axd[axkey]
             _d = underplot_cqvtargets(ax, get_xval, get_yval)
+            if axkey == 'A':
+                ax.text(0.97,0.97, 'CQVs', transform=ax.transAxes,
+                        ha='right',va='top', color='C0', fontsize='small')
+                ax.text(0.97,0.92, 'Candidates', transform=ax.transAxes,
+                        ha='right',va='top', color='C0', fontsize='small',
+                        alpha=0.5)
+                ax.text(0.97,0.87, 'Searched TESS targets', transform=ax.transAxes,
+                        ha='right',va='top', color='darkgray', fontsize='small',
+                        alpha=0.9)
 
-        if ykey == 'tlc_mean_period':
+
+        if ykey == 'tlc_mean_period' and xkey == 'bp_rp':
+            from gyrointerp.getters import get_Pleiades
+            df_plei = get_Pleiades(overwrite=0)
+            df_plei = df_plei[df_plei.flag_benchmark_period]
+            ax.scatter(
+                df_plei['dr2_bp_rp'], df_plei['Prot'], c='darkgray', s=3,
+                linewidths=0, zorder=-1
+            )
+            ax.text(0.97,0.97, 'CQVs', transform=ax.transAxes,
+                    ha='right',va='top', color='C0', fontsize='small')
+            ax.text(0.97,0.92, 'Candidates', transform=ax.transAxes,
+                    ha='right',va='top', color='C0', fontsize='small',
+                    alpha=0.5)
+            ax.text(0.97,0.87, 'Pleiades (R+16)', transform=ax.transAxes,
+                    ha='right',va='top', color='darkgray', fontsize='small')
+
+
+        if ykey == 'tlc_mean_period' and xkey == 'Rcr_over_Rstar':
             f = 24
-        else:
-            f = 1
+            f0 = f
+            f1 = f
 
+        elif ykey == 'banyan_adopted_age':
+            np.random.seed(42)
+            ferr = np.random.normal(1, 0.02, size=len(df))
+            f0 = ferr*1.
+            print(f0)
+            np.random.seed(42)
+            ferr = np.random.normal(1, 0.02, size=len(maybe_df))
+            f1 = ferr*1.
+            print(f1)
+
+        else:
+            f0 = 1
+            f1 = 1
 
         ax.scatter(
-            df[xkey], f*df[ykey], c='k', s=4, linewidths=0, zorder=10
+            df[xkey], f0*df[ykey], c='C0', s=6, linewidths=0, zorder=10
         )
         if showmaybe:
             ax.scatter(
-                maybe_df[xkey], f*maybe_df[ykey], c='k', s=2.5, linewidths=0, alpha=0.5, zorder=9
+                maybe_df[xkey], f1*maybe_df[ykey], c='C0', s=4.5, linewidths=0, alpha=0.5, zorder=9
             )
 
         ax.set_xscale(xscale)
         ax.set_yscale(yscale)
 
-        if ykey == 'M_G' and xkey == 'bp_rp':
+        if xkey == 'bp_rp':
+            ax.set_xlim([1.4,4.5])
+
+        if ykey == 'M_G':
             ylim = ax.get_ylim()[::-1]
             ax.set_ylim([15,5])
             assert max(df[ykey]) < 15
             assert min(df[ykey]) > 5
-            ax.set_xlim([1.4,4.5])
             ax.set_yticks([14,10,6])
             ax.set_yticklabels([14,10,6])
 
-        if ykey == 'tlc_mean_period':
+        if ykey == 'tlc_mean_period' and xkey == 'Rcr_over_Rstar':
+            ax.set_ylabel("$P$ [hours]")
             ax.set_ylim([2, 48])
             assert max(df[ykey]) < 48
             assert max(maybe_df[ykey]) < 48
@@ -3459,6 +3502,10 @@ def plot_catalogscatter(outdir, showmaybe=0):
                 return labels[pos]
             formatter = FuncFormatter(fn)
             ax.yaxis.set_minor_formatter(formatter)
+
+        if ykey == 'tlc_mean_period' and xkey == 'bp_rp':
+            ax.set_yticks([0.1, 1, 10])
+            ax.set_yticklabels([0.1, 1, 10])
 
         if ykey == 'tic8_Tmag':
             ax.set_ylim([9,16])
@@ -3479,13 +3526,13 @@ def plot_catalogscatter(outdir, showmaybe=0):
             ax.xaxis.set_major_locator(major_locator)
             ax.set_xticklabels([2,4,6])
 
-        if xkey == 'banyan_singleagefloat':
-            ax.set_xlim([0.9,200])
+        if xkey == 'banyan_adopted_age':
+            ax.set_xlim([0.9,250])
             ax.set_xticks([1,10,100])
             ax.set_xticklabels([1,10,100])
 
-        if ykey == 'banyan_singleagefloat':
-            ax.set_ylim([0.9,200])
+        if ykey == 'banyan_adopted_age':
+            ax.set_ylim([0.9,250])
             ax.set_yticks([1,10,100])
             ax.set_yticklabels([1,10,100])
 
