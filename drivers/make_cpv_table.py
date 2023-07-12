@@ -123,10 +123,10 @@ def main(overwrite=0):
         assert num <= 10
         return units[num]
 
-    N_4 = num2word(len(sgdf[sgdf.banyan_assoc == 'FIELD']))
+    N_4 = num2word(len(sgdf[sgdf.banyan_assoc == 'FIELD']) + 1)
     N_5 = len(smdf[smdf.banyan_assoc == 'FIELD'])
 
-    N_6 = len(sgdf[sgdf.banyan_assoc != 'FIELD'])
+    N_6 = len(sgdf[sgdf.banyan_assoc != 'FIELD']) + 1
     N_7 = len(smdf[smdf.banyan_assoc != 'FIELD'])
 
     txt = (
