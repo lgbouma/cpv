@@ -3432,7 +3432,7 @@ def plot_catalogscatter(outdir, showmaybe=0):
             df_plei = df_plei[df_plei.flag_benchmark_period]
             ax.scatter(
                 df_plei['dr2_bp_rp'], df_plei['Prot'], c='darkgray', s=3,
-                linewidths=0, zorder=-1
+                linewidths=0, zorder=-1, alpha=0.7
             )
             ax.text(0.97,0.97, 'CQVs', transform=ax.transAxes,
                     ha='right',va='top', color='C0', fontsize='small')
