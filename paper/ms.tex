@@ -1,3 +1,19 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MS TODO's
+%
+% * find/replace "centrifugally supported" with something less
+% jargony, and more physically meaningful.  (read CR89)
+%
+% * "Bound-free absorption can provide
+%   wavelength-dependent opacity, but the absorption coefficients
+%   generally {\it grow} with increasing wavelength, rather than {\it
+%   shrink} as one needs in order to get deeper absorption in the blue
+%   than in the red."
+%   --> Isn't this statement wavelength dependent????
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % upon AAS submission
 %\documentclass[12pt,twocolumn,tighten,linenumbers]{aastex63}
 %\documentclass[12pt,twocolumn,tighten,linenumbers,trackchanges]{aastex63}
@@ -23,8 +39,8 @@
 \newcommand{\rhostar}{{$\rho_\star$}}
 \newcommand{\mearth}{{M$_\oplus$}}
 \newcommand{\rearth}{{R$_\oplus$}}
-\newcommand{\rsun}{{R$_\odot$}}
-\newcommand{\msun}{{M$_\odot$}}
+\newcommand{\rsun}{{$R_\odot$}}
+\newcommand{\msun}{{$M_\odot$}}
 \newcommand{\bprp}{G_{\rm BP} - G_{\rm RP}}
 
 \newcommand{\minus}{\scalebox{0.5}[1.0]{$-$}}
@@ -126,12 +142,12 @@
   $d$$<$150\,pc yielded \ngoods\ high-quality CQVs.  Most of these
   discoveries are new, and they include the brightest
   ($T$$\approx$9.5) and closest ($d$$\approx$20\,pc)
-  examples of this class of object known, and perhaps also the most massive
-  ($\approx$0.6-0.8\,M$_\odot$).  A few objects are outliers among
-  outliers; LP 12-502 for instance shows a ``dip complex'' with a
+  examples of this class of object known, and probably also the most massive
+  ($\approx$0.6-0.8\,$M_\odot$) and oldest ($\approx$200\,Myr).  A few objects are outliers among
+  outliers; LP 12-502 for instance shows a recurring ``dip complex'' with a
   period and total duration that are fixed over more than 1{,}000
   cycles, but which in detail exhibits anywhere from four to eight
-  local minima per cycle.  LP-502 also displayed distinct superposed
+  local minima per cycle.  LP 12-502 also displayed distinct superposed
   periods simultaneously, and showed drastic shape changes shortly
   after flares.  Broadly speaking, we find that none of the CQVs
   maintain a fixed light curve shape over timescales of more than a
@@ -252,8 +268,8 @@ acquired by TESS between July~2018 and Sep~2022 (Sectors 1-55; Cycles
 the properties of the resulting CQV catalog in
 Section~\ref{sec:results}.  The evolution of many CQVs over a two-year
 baseline is described in Section~\ref{sec:evoln}, including a
-deep-dive into LP 12-502.  Implications are discussed in
-Section~\ref{sec:discussion}, and we conclude in
+deep-dive into LP 12-502.  We describe a few implications in
+Section~\ref{sec:discussion}, and conclude in
 Section~\ref{sec:conclusion}.
 
 A point on nomenclature.  CQVs have been called ``transient flux
@@ -423,19 +439,19 @@ from the median value of $\delta f_i \equiv f_i - f_{i+1}$, where $f$
 is the flux and $i$ is an index over time.
 
 To correctly identify local minima near the edges of the phased light
-curve, which usually would cover phases $\phi \in [ 0,1 ]$, we in fact
+curve, which usually would cover phases $\phi \in [ 0,1 ]$, we 
 performed the entire procedure over a phase-folded light curve
 spanning $\phi \in [-1,2 ]$, by duplicating and concatenating the
 ordinary phase-folded light curve.  The free parameters we adopted
 throughout this analysis procedure, for instance the maximum number of
 spline knots per cycle, and how large and wide of a local minimum to
-consider a ``true dip'', were chosen during a testing period based on
+consider a ``true dip'', were chosen during testing based on
 their ability to correctly re-identify a large fraction ($>$90\%) of
 known CQVs, while also being able to consistently reject common false
 positives such as rapidly rotating spot-induced variability and
 typical eclipsing binaries.
 
-Overall, for a star to clear this process and to proceed to manual
+Overall, for a star to proceed to manual
 examination, we required that it have a peak PDM period below two
 days, and that it exhibited at least three sharp local minima (as
 algorithmically reported) in at least one observed TESS sector.
@@ -459,7 +475,7 @@ For the Fourier analysis, we followed \citet{2019ApJ...876..127Z}.
 		\caption{
 			{\bf Validation plots used to  label CQVs}.  The complete figure
 			set, with one image per sector for each of \ncpvsfound\ CQVs
-			and candidate CQVs
+			and CQV candidates
 			is available online {\bf For internal collaboration review:
 				\url{https://www.dropbox.com/scl/fo/zlj3txot4cvymfb22wewu/h?dl=0&rlkey=3ec5f9o5xewrixzfkhkdenopa}}.
 			Panels are as follows.
@@ -497,16 +513,16 @@ For the Fourier analysis, we followed \citet{2019ApJ...876..127Z}.
 	\end{center}
 \end{figure*}
 
-We visually assessed whether the objects found using the Fourier
-(Section~\ref{subsec:fourier}) and dip-counting
-(Section~\ref{subsec:counting}) techniques were consistent with
+We visually assessed whether the objects found using the dip-counting
+(Section~\ref{subsec:counting}) and Fourier
+(Section~\ref{subsec:fourier}) techniques were consistent with
 expectations for CQVs by assembling the data shown in
-Figure~\ref{fig:vet}.  We labeled a star as a ``good'' CQV if
-at least one TESS sector showed what we viewed as the unambiguous
-signatures of the class (short period; at least three dips or else
-otherwise oddly-shaped dips; relative stability over a timescale of
-30\,days).  We also noted stars that we thought could be CQVs, but
-that were more ambiguous with a ``maybe'' flag.
+Figure~\ref{fig:vet}.  We labeled a star as a ``good'' CQV if at least
+one TESS sector showed what we viewed as the unambiguous signatures of
+the class (short period; at least three dips or else otherwise
+oddly-shaped dips; relative stability over a timescale of 30\,days).
+We independently noted stars that we thought could be CQVs, but that were more
+ambiguous.
 
 Broadly speaking, the most common false positives for both the Fourier
 and dip-counting techniques were eclipsing binaries, spot-induced
@@ -535,7 +551,7 @@ used the Gaia DR2 sky positions, proper motions, and distances to
 calculate the membership probabilities.  BANYAN\,$\Sigma$ in turn
 analytically marginalizes over the radial velocity dimension.  The
 probabilities returned by this procedure are qualitatively useful, but
-we emphasize that they are quantitatively dubious due to the
+should be assessed with caution due to the
 non-Gaussian nature of most groups within the solar neighborhood
 \citep[see e.g.][Figure~10]{2021ApJ...917...23K}.
 
@@ -555,7 +571,7 @@ sizes, temperatures, and ages against the
 PARSEC v1.2S models \citep{2012MNRAS.427..127B,2014MNRAS.444.2525C}.
 
 For the SED fitting, we used \texttt{astroARIADNE}
-\citep{2022MNRAS.513.2719V}.  We adopted the ``BT-Settl'' stellar
+\citep{2022MNRAS.513.2719V}.  We adopted the BT-Settl stellar
 atmosphere models \citep{Allard2012} assuming the
 \citet{2009ARA&A..47..481A} solar abundances, and the
 \citet{2006MNRAS.368.1087B} water line lists.  The broadband
@@ -573,7 +589,7 @@ we assumed the following priors for the temperature, stellar size, and
 extinction:
 \begin{align}
   T_{\rm eff} / {\rm K}    &\sim \mathcal{N}(3000, 1000), \\
-  R_\star / {\rm R}_\odot  &\sim \mathcal{T}_{\rm N}(0.5, 0.3, 0.1, 1.5), \\
+  R_\star / R_\odot  &\sim \mathcal{T}_{\rm N}(0.5, 0.3, 0.1, 1.5), \\
   A_{\rm V} / {\rm mag}    &\sim \mathcal{U}(0, 0.2),
 \end{align}
 for $\mathcal{N}$ the Gaussian and $\mathcal{U}$ the uniform
@@ -592,14 +608,14 @@ that incorporate some form of correction for young, active M-dwarfs is
 well-documented
 \citep[e.g.][]{2012ApJ...756...47S,2015ApJ...804..146D,2016A&A...593A..99F,2020ApJ...891...29S}.
 Plausible explanations for anomalous M-dwarf colors and sizes relative
-to model predictions include star starspot coverage
+to model predictions include starspot coverage
 \citep[e.g.][]{2017ApJ...836..200G}, and potentially incomplete line
 lists \citep[e.g.][]{2013A&A...556A..15R}.  In the PARSEC models,
 \citet{2014MNRAS.444.2525C} performed an empirical correction to the
 temperature--opacity relation drawn from the BT-Settl model
 atmospheres, in order to match observed masses and radii of younq
-eclipsing binaries.  This is sufficient for our purpose of estimating
-accurate stellar masses.  Given our observed $\{ \tilde{T}_{\rm eff},
+eclipsing binaries.  This is sufficient for our goal of estimating
+stellar masses.  Given our observed $\{ \tilde{T}_{\rm eff},
 \tilde{M}_\star, \tilde{t} \}$, and approximating their uncertainties
 as Gaussian $\sigma_{\tilde{T}_{\rm eff}}$, $\sigma_{\tilde{M}_\star}$
 and $\sigma_{\tilde{t}}$, we evaluate a distance $d$ between our
@@ -647,19 +663,17 @@ Table~\ref{tab:thetable} lists the \ncpvsfound\ objects identified by
 our search.  \ngoods\ objects demonstrated what we viewed as
 unambiguous characteristics of the CQV phenomenon in at least one TESS
 sector; we refer to these as the ``high-quality sample''.  The
-classification of the remaining \nmaybes\ CQV candidates was ambiguous; their variability
-might be caused by say, multiple starspot groups.  Additional data
+classification of the remaining \nmaybes\ CQV candidates was ambiguous.  Additional data
 from TESS or other instruments could help resolve their
 classification.  The boolean \texttt{quality} column in the table divides
-the two classes.  In the following discussion, we will restrict our
+the two classes.  In the following, we will restrict our
 discussion to the high-quality sample.
 
 The mosaic in Figure~\ref{fig:cqvs} shows phased light curves for the
-\ngoods\ bonafide CQVs.  The objects are sorted first in order of the
+\ngoods\ CQVs.  The objects are sorted first in order of the
 number of TESS 120-second cadence sectors in which they clearly
 demonstrated the CQV phenomenon, and secondarily by descending
-brightness.  The objects at the top generally have the most 120-second
-cadence data.  The top five objects by this metric are TIC~300651846
+brightness.  The top five objects by this metric are TIC~300651846
 ($T$$=$13.5, 12 sectors); TIC~402980664 ($T$$=$11.1, 7 sectors);
 TIC~89463560 ($T$$=$13.5, 5 sectors); TIC~363963079 ($T$$=$12.9, 5
 sectors); and TIC~294328887 ($T$$=$14.2, 4 sectors).  The brightest
@@ -671,11 +685,11 @@ five CQVs span 9.3$<$$T$$<$11.1; the faintest five span
 In terms of the light curve shapes, Figure~\ref{fig:cqvs} shows a
 broad range of variability, with anywhere from two to eight local
 minima per cycle.  Some stars show relatively ordinary modulation
-during one continuous portion of the phased light curve, and highly
+during one portion of the phased light curve, and highly
 structured modulation in the remainder of the cycle (e.g.
 TIC~206544316, TIC~224283342, TIC~402980664).  Others show structured
 modulation over the entire span of a cycle (e.g. TIC~2234692,
-TIC~401789285, TIC~425933644, TIC~142173958).  Others still show some
+TIC~401789285, TIC~425933644, TIC~142173958).  Others show some
 mix between these two modes.
 
 A small number of objects at first glance seem reminiscent of
@@ -683,7 +697,6 @@ eclipsing binaries, such as TIC~193831684 or TIC~5714469.  In these
 few cases, we believe that that are unlikely to be eclipsing binaries
 due to additional coherent variations in the light curves that are
 distinct from any binary phenomenology of which we are aware.
-Follow-up spectroscopy would be needed to definitively resolve this issue.
 
 
 \subsection{Ages}
@@ -698,11 +711,12 @@ were also identified in the Argus association
 evidence supporting the reality, and youth, of that group.  The yield
 in Sco-Cen is not particularly surprising, since Sco-Cen contains the
 majority of pre-main-sequence stars in the solar neighborhood.
-However, given the $\lesssim$$10\%$ completeness
-of TESS beyond 100\,pc, there are probably many more CQVs that remain to be discovered in
-Sco-Cen.  IC\,2602 and IC\,2391, which are located slightly beyond
-100\,pc, are an example of this completeness effect: our search did
-not find any CQVs in those clusters.
+However, given the $\lesssim$$10\%$ completeness of TESS beyond
+100\,pc, there are probably many more CQVs that remain to be
+discovered in Sco-Cen.  
+%IC\,2602 and IC\,2391, which are located slightly beyond
+%100\,pc, are an example of this completeness effect: our search did
+%not find any CQVs in those clusters.
 
 Of the \ngoodsfieldbanyan\ stars for which BANYAN\,$\Sigma$ did not
 find any association, one (TIC~302160226) is a member of $\alpha$~Per
@@ -733,18 +747,12 @@ primarily rests on the lithium sequence of its G-dwarfs
 \citep{2006ApJ...649L.115Z}, which shows a coeval population of stars
 older than the Pleiades and younger than the 400\,Myr Ursa Major
 moving group.  The formal BANYAN-$\Sigma$ membership probability is
-however somewhat low, perhaps due to a 
-
-It would interesting to perform independent tests of
-the group's age, for instance using gyrochronology of F, G or K
-members, in order to verify this .
-
-%While
-%we expect to have been sensitive to CQVs in the nearby Hyades
-%($\approx$700\,Myr), again due to the specifics of the TESS 120-second
-%selection function, we do not know at this time whether we would have
-%been sensitive to such stars.
-
+however somewhat low, perhaps due to the missing radial velocity.
+This could be relatively easily resolved by acquiring even a
+medium-resolution spectrum.
+An independent assessment of the group's kinematics using Gaia data,
+and its rotation sequence using TESS, could lend further credence in
+such an analysis.
 
 
 \subsection{Infrared excesses}
@@ -756,15 +764,15 @@ Visually inspecting the SEDs of our entire \ncpvsfound\ star sample,
 we labeled two objects as having ``good'' infrared excesses (both W3
 and W4), and three as ``possible'' infrared excess.
 
-The two ``good'' IR excesses belonged to ``candidate'' CQVs
+The two ``good'' IR excesses belonged to ``ambiguous'' CQVs
 TIC~193136669 (TWA~34) and TIC~57830249 (TWA~33).  Both are in the TW
 Hydrae association ($\approx$10\,Myr), and have relatively long
 periods of 38\,hr and 44\,hr respectively.  In our initial labeling,
-we labeled both as ``maybe'' CQVs because the dips in their light
+we labeled both as ``ambiguous'' CQVs because the dips in their light
 curves did not show the rigid periodicity typical of CQVs;  their
 periods were also relatively long.  After labeling them, inspection
 of further sectors clarified that both sources are dippers (see plots
-in Figure~\ref{fig:vet}).  In addition, TIC 193136669 has a cold
+in Figure~\ref{fig:vet}).  Independently, TIC 193136669 has a cold
 molecular disk based on observed 1.3\,mm continuum emission and
 resolved Keplerian $^{12}{\rm CO}(2-1)$ emission
 \citep{2015A&A...582L...5R}.  It was also labeled a dipper by
@@ -774,8 +782,9 @@ ambiguities in our search process.  TIC 57830249 (TWA~33) also has
 previously detected 1.3\,mm continuum emission
 \citep{2015A&A...582L...5R}, suggestive of cold dust grains being
 present.  It is also a dipper.
-Given these ``errors'', plausible evolutionary connections between CQVs and
-dippers are discussed in Section~\ref{subsec:discdippers}.
+Section~\ref{subsec:discdippers} highlights plausible evolutionary
+connections between CQVs and dippers in light of these
+``misclassifications'' .
 
 Our three ``possible'' infrared excesses were TIC~405910546,
 289840926, and 244161191.  After a literature search, we concluded
@@ -784,8 +793,8 @@ TIC~405910546, in LCC, shows a unique TESS light curve, reminiscent of
 a $P$=38\,hr singly-eclipsing binary, except with additional
 substructure during each eclipse that resembles the CQV phenomenon
 more than any other variability of which we are aware.  TIC~289840926
-($\beta$~Pic moving group, $P$=4.8\,hr), show what we believe is a
-clear CQV signals, but has no definitive evidence for a large, dusty
+($\beta$~Pic moving group, $P$=4.8\,hr), shows what we believe is a
+clear CQV signal, but has no definitive evidence for a large, dusty
 disk.  TIC~244161191 (TOI-278), in Columba, also has no
 definitive evidence for a large disk.  It is however
 ``multi-periodic''---in addition to the 7.17\,hr CQV signal, this
@@ -805,10 +814,10 @@ confirmed \ngoods\ CQVs in our catalog; for plotting purposes we show
 the brightest 27.  
 We have phased each sector to its own local minimum because for most of the
 sources we do not know the period at the precision necessary to be able to
-accurately propagate it over two years.
+accurately propagate an ephemeris over two years.
 
 Of these 27 CQVs in Figure~\ref{fig:evoln}, a few show clear signs of the
-CQV phenomenon in one sector, and marginal or non-existence signs in the
+CQV phenomenon in one sector, and marginal or non-existent signs in the
 other.  While there is subjectivity in this assessment, to our
 eyes cases for which at least one sector would be flagged as
 ``ambiguous'' include
@@ -823,11 +832,10 @@ TIC~193831684, assessed on a single-sector basis, would probably be
 labeled an eclipsing binary---in fact, \citet{2021ApJ...912..123J}
 implicitly have already given this source such a label.  However,
 based on the the shape evolution between Sectors 13 and 39, it is a
-CQV.  One could easily also imagine in cases like TIC~206544316 that
-if observed at lower signal to noise, the drastic shape evolution
-would not be appreciated.  We emphasize that the periods themselves
-were all stable to $<$0.1\%.  Broadly speaking, this shape evolution
-suggests that CQVs have an ``on/off'' duty cycle of $\approx$75\%.
+CQV.  
+Based on the fraction of sources overall that ``turned off'', the
+observed shape evolution implies that CQVs have a duty cycle of
+$\approx$75\%.
 This type of correction is likely worth including in population-level
 estimates of how intrinsically common CQVs are in the low-mass stellar
 population \citep[e.g.][]{2022AJ....163..144G}.
@@ -916,7 +924,7 @@ lunar month each.
 
 The average period, determined by measuring the PDM peak period over
 each sector independently, was $\langle P \rangle = 18.5560$\,hr.  The
-range between the maximum and minimum sector-specifics periods was
+range between the maximum and minimum sector-specific periods was
 measured to be about one minute.  Based on this range, the star's
 period is stable to at least one minute ($\pm$0.017\,hr) over the
 three year baseline.  However, in detail, a period shift of
@@ -943,14 +951,13 @@ minima.  We dub these dips $\{ 1, 2, 3, 4 \}$ at phases $\{ -0.28,
 -0.08, 0, 0.25 \}$, respectively.  Over cycles 0 to 64, the depth of
 dips 1 and 3 remain roughly fixed.  However dip 4 {\it decreases} in
 depth by about 2\%, while dip 2 {\it increases} in depth, by about the
-same amount (see Figure~\ref{fig:lp}).  During cycles 48-64, it also
-seems that a fifth dip may be emerging, in the main ``large'' dip
-group.
+same amount (see Figure~\ref{fig:lp}).  During cycles 48-64, a fifth
+dip may also be emerging, in the main ``large'' dip group.
 
 There is then a 6-month (184 cycle) gap to Cycles 248-315, which show
 two intricately structured dip complexes, plus a small leading dip.
-The single leading dip is present at roughly the same phase as in
-cycles 0-64; they seem likely to be the same struture.  Along a
+The single leading dip is present at the same phase as in
+cycles 0-64, and is therefore likely to be the same struture.  Along a
 similar line of logic, it seems plausible that the first ``dip
 complex'' during cycles 248-264 represents an evolution of the initial
 complex seen during cycles 0-64, though with greatly reduced depth.
@@ -960,16 +967,16 @@ the two complexes; this feature is best visualized on the river plots
 
 The second dip complex during cycles 248-315 shows the most
 substructure.  During e.g.~cycles 283-298, this single complex shows
-six local minima.  The deepest dip is sharp: it shows a flux
-exercusion of 3.5\% over about 22 minutes (0.02\,$P$), which is the
-steepest slope exhibited anywhere in this object's remarkable dataset.
-After the sharp dip, there is a roughly exponential fall-off spanning
-about a quarter of a period, punctuated by coherent local minima and
-maxima which in detail (Appendix~\ref{app:lp}) have slightly longer
-periods than the sharp dip.  The sharp leading dip only decreases
-during a sudden state-switch at BTJD 2030.7 (cycles 299-315), which
-happens immediately during a flare (Figure~\ref{fig:lplc}).  The
-trailing dips remain afterwards.
+six local minima.  The deepest dip is sharp: it shows a flux excursion
+of 3.5\% over about 22 minutes (0.02\,$P$), which is the steepest
+slope exhibited anywhere in the LP~12-502 remarkable dataset.  After
+the sharp dip, there is a roughly exponential fall-off spanning about
+a quarter of a period, punctuated by coherent local minima and maxima
+which in detail (Appendix~\ref{app:lp}) have slightly longer periods
+than the sharp dip.  The sharp leading dip only decreases in depth
+following a sudden state-switch at BTJD 2030.7 (cycles 299-315), which
+happens during a flare (Figure~\ref{fig:lplc}).  The trailing dips
+remain thereafter.
 
 Sectors 53--58 (cycles 1233-1481) are comparatively tame; they showed
 only four to six dips per cycle.  Some dips remain stable in depth and
@@ -986,23 +993,22 @@ a depth of 0.3\%, and a duration of 1 hour.
 {\sc State-switches reveal dip independence}---The state-switches seen
 in cycles 1233-1247 and 299-315 confirm that dips can disappear in
 less than one cycle, a point which has been previously appreciated
-\citep{2017AJ....153..152S}.  What is new in these particular changes,
-for instance cycles 1233-1264 of Figure~\ref{fig:lp}, is that the
-morphology changes show that the dips can be {\it independent} and
-{\it additive}.  It other words, throughout cycles 1233-1264, there
-are three local minima between phases of 0 and 0.3.  They all have
-identical ingress times.  The shape change during the transition
-implies that the leading dip that ``turned off'' (changed its depth),
-while the trailing two dips remained fixed in their depths.  In other
-words, the structures producing these dips must be independent, to the
-degree that one can undergo a severe change, while the others can
+\citep{2017AJ....153..152S}.  What is new in these particular changes
+is that the morphology changes show that the dips can be {\it
+independent} and {\it additive}.  For example, throughout cycles
+1233-1264, there are three local minima between phases of 0 and 0.3.
+They all have identical ingress times.  The shape change during the
+transition implies that the leading dip that ``turned off'' (reduced
+its depth and duration), while the trailing two dips remained fixed.
+In other words, the structures producing these dips are independent to
+the degree that one can undergo a severe change while the others
 remain essentially identical.  The state switches during cycles
 248-264 and 299-315 share the same characteristic: it is always the
 {\it leading} dip of a complex that ``switches off'', leaving the
 (fixed-depth) trailing dips in its wake.
 
 {\sc Slow growth; rapid death}---Although there are a few instances in
-which we observe dips ``switch off'' over less than one cycle, dip
+which we observe dips switch off over less than one cycle, dip
 growth seems to happen more slowly.  For instance, the dip that grows
 between phase 0 and 0.1 between cycles 260-290 begins to become
 visible around BTJD 1993.2, and growths in depth by about 2\% over
@@ -1014,8 +1020,8 @@ example of this slow mode of dip growth.
 % 16 px vs 310 px for a full phase
 %Based on our SED fitting $R_\star=0.369\,R_\odot$
 %star, and from the isochrone mass, $M_\star=0.215\,M_\odot$ 
-{\sc Dip durations}---The shortest timescale for any of the {\it
-individual} LP 12-502 dips seems to be $\approx$0.06\,$P$ $\approx$
+{\sc Dip durations}---The shortest dip duration for any of the
+individual LP 12-502 dips seems to be $\approx$0.06\,$P$ $\approx$
 1.08\,hr.  In comparison, using the stellar radius and mass derived in
 Section~\ref{subsec:starprops}, the characteristic timescale $T_{\rm
 dur} \equiv R_\star P / (\pi a)$ for the transit of a point-source at
@@ -1023,7 +1029,7 @@ corotation is 1.03\,hr ({\bf uncertainties?}).  This means that while
 some of the LP 12-502 dips are sufficiently long to require structures
 that are extended in orbital azimuth, the durations of other dips are
 consistent with effective radii for the occulting material $R_{\rm
-eff} \ll R_\star$ .  This implies $a/R_\star \approx 5.8$ for this
+eff} \ll R_\star$.  This implies $a/R_\star \approx 5.8$ for this
 material, and so the analogous timescale at the stellar surface is
 about six times slower.
 
@@ -1058,7 +1064,7 @@ the star simultaneously, at marginally different separations.
 		\caption{
       {\bf Properties of CQVs identified by our search}.
       The \ngoods\ bonafide CQVs in Table~\ref{tab:thetable} are 
-      the dark blue circles; \nmaybes\ candidate CQVs are light blue circles.
+      the dark blue circles; \nmaybes\ ambiguous CQV candidates are light blue circles.
       The top panels show the \nstarssearched\ target stars with 120-second cadence TESS data
       as the shaded gray background;
       darker regions correspond to a larger relative number of searched stars.
@@ -1073,7 +1079,7 @@ the star simultaneously, at marginally different separations.
 \end{figure*}
 
 
-\subsection{Typical and Extreme Cases}
+\subsection{Typical and extreme CQVs}
 \label{subsec:extreme}
 Figure~\ref{fig:catalogscatter} shows some of the derived properties
 for our CQV catalog, and contrasts them against both the target star
@@ -1081,10 +1087,10 @@ sample (top panels), and the population of rotating stars in the Pleiades
 from \citet{2016AJ....152..114R}.
 Generally, CQVs are much younger than typical field stars. 
 In terms of their rotation, relative to the Pleiades,
-they are among the more rapidly rotating half.
+they are among the more rapidly rotating half of M-dwarfs.
 The dearth of $T$$>$15.5 CQVs in our sample, despite our search extending
-to $T$$=$16, is a consequence of the 120-second selection function.
-%
+to $T$$=$16, is a consequence of the 120-second selection function,
+not detection sensitivity.
 
 The closest CQV in our catalog is DG~CVn (TIC~368129164;
 $d$$=$18\,pc), a member of AB Dor.  To our knowledge, this manuscript
@@ -1095,21 +1101,21 @@ TIC~201789285, at 3.64\,hr.  The longest period belongs to
 TIC~405910546, at 37.9\,hr.  If the latter source turns out to be an
 eclipsing binary, the next-longest would be TIC~193831684 (31.0\,hr).
 
-The lowest mass ($\approx 0.12$\,M$_\odot$) belongs to TIC~267953787.
+The lowest mass ($\approx 0.12$\,$M_\odot$) belongs to TIC~267953787.
 The catalog contains a few other stars with similar mass.  Given the
 small number of sub-stellar mass objects in our target sample, this
 suggests that future studies of brown dwarf photometric variability
-might also yield complex quasiperiodic variables, though there would
+might also yield complex quasiperiodic variables, though there could
 be degeneracies in interpretation with planetary surface features such
 as clouds and latitudinal bands
 \citep[e.g.][]{2021ApJ...906...64A,2022ApJ...924...68V}.
 
 The most massive CQV in our sample is a subject of some interest.  To
 date, the only stars reported to show the CQV phenomenon are M-dwarfs,
-with typical stellar masses $\lesssim$0.3\,M$_\odot$
+with typical stellar masses $\lesssim$0.3\,$M_\odot$
 \citep{2022AJ....163..144G}.  TIC~405754448 and 405910546 however
-appear to have masses of 0.82 and 0.60\,M$_\odot$ respectively.  The
-next-highest masses are $\approx$0.40\,M$_\odot$.  The masses for the
+appear to have masses of 0.82 and 0.60\,$M_\odot$ respectively.  The
+next-highest masses are $\approx$0.40\,$M_\odot$.  The masses for the
 former two objects are consistent with their CAMD locations, and their
 membership in LCC.  Based on its light curve morphology, TIC~405910546
 should be studied in greater depth, to confirm it is not an eclipsing
@@ -1122,20 +1128,20 @@ pre-main-sequence K-dwarfs.
 
 \subsection{CQVs are quasiperiodic}
 A periodic signal repeats exactly; the CQVs do not
-(Figure~\ref{fig:evoln}).  Their periods however do appear to be
-constant to within measurement precision over thousands of cycles.
-They are therefore {\it quasi}periodic.  This point with previous
+(Figure~\ref{fig:evoln}).  While their periods appear to remain
+constant to within measurement precision over thousands of cycles, the
+light curve shapes evolve over 10 to 1{,}000 cycles.
+They are therefore {\it quasi}periodic.  This observation is consistent
 studies by \citet{2022AJ....163..144G} and
 \citet{2023ApJ...945..114P}.  However it marks a qualitative departure
 from the ``persistent'' {\it vs.} ``transient'' flux dip distinction
-described by \citet{2017AJ....153..152S};  while the dips can persist
-over timescales of even up to 100 cycles, all CQV dips seem to be
-transient over timescales of more than 1000 cycles
+described by \citet{2017AJ....153..152S};  since all CQV dips seem to
+be transient over timescales of more than 1{,}000 cycles
 (Figure~\ref{fig:evoln}).
 
 With that said, one might expect a truly quasiperiodic process to be
 able to explore all phase angles with equal weight.  LP 12-502, and
-multiple other CQVs, seem to have preferred phases.  For LP 12-502,
+perhaps other CQVs, seem to have preferred phases.  For LP 12-502,
 all of the dips happen over phases corresponding to only two thirds of
 the period (Figure~\ref{fig:lp}).  The remaining third seems to be
 ``out of limits'' for any dipping material.  This could be evidence
@@ -1154,11 +1160,11 @@ been previously seen for transiting exocomets and disintegrating rocky
 bodies
 \citep[e.g.][]{2012ApJ...752....1R,2012A&A...545L...5B,2015Natur.526..546V,2019A&A...625L..13Z}.
 
-Examining Figure~\ref{fig:cqvs}, it is not obvious whether the CQVs as
+Examining Figure~\ref{fig:cqvs}, it is not obvious whether CQVs as
 a whole show any preference for sharper ingresses, or sharper
 egresses.  In some cases (e.g. TIC~425933644), the continuum itself is
-not particularly well-defined, and so the meaning of ``ingress'' and
-``egress'' are not particularly clear.  In others, such as Sector~36
+not well-defined, and so the meaning of ``ingress'' and
+``egress'' are not clear.  In others, such as Sector~36
 of TIC~89463560, there is a single clear sharp ingress with an
 exponential egress, which could be directly fit using e.g.~a model
 analogous to those used for exocomets
@@ -1169,7 +1175,7 @@ depth (and its implications for the equivalent ``radius'' of the
 transiting cloud).  Although we briefly explored such models, it
 quickly became clear that careful modeling of sources such as LP
 12-502 merits its own in-depth study.  Connections could likely also
-be made to the toroidal geometries that are produced by outflowing
+be made to the toroidal geometries that can be produced by outflowing
 atmospheres of transiting planets
 \citep[e.g.][]{2019ApJ...873...89M,2022ApJ...926..226M}.
 
@@ -1180,17 +1186,17 @@ We believe that the most likely scenarios to explain CQVs
 are either the dust clump scenario or the prominence scenario
 (Figure~\ref{fig:f1}).  Both invoke clumpy material that would be
 centrifugally supported at the corotation radius.  The prominence idea
-has a longer history, based first on analogy with quiescent
+has a longer history, based on analogy with quiescent
 prominences/filaments observed to exist in the solar corona for up to
-a few weeks \citep[see e.g.][]{2015ASSL..415.....V}.  In an extrasolar
+a few weeks \citep[see][]{2015ASSL..415.....V}.  In an extrasolar
 context, spectroscopic detections of transient Balmer- and
 resonance-line absorption seen for stars such as AB~Dor and Speedy~Mic
 \citep[e.g.][]{1989MNRAS.238..657C,1993MNRAS.262..369J,2006MNRAS.365..530D,2016MNRAS.463..965L}
 led to the interpretation that the data could best be explained by
-similar prominence structures: cold, minimally ionized hydrogen clouds
+similar structures: cold, minimally ionized hydrogen clouds
 or filaments that scatter chromospheric emission from the star to
 produce the observed spectroscopic line variations
-\citep[see][]{1989MNRAS.238..657C}.  The (short-term) mechanical
+\citep[see][]{1989MNRAS.238..657C}.  The short-term mechanical
 stability of such gas configurations is theoretically plausible
 \citep{2000MNRAS.316..647F,2022MNRAS.514.5465W}, and the
 interpretation of this class of observations seems at least somewhat
@@ -1242,9 +1248,9 @@ reason: its absorption coefficient peaks near 8500\,\AA, and is an
 order of magnitude smaller at $\approx$3000\AA.
 (\citealt{1992oasp.book.....G}, following \citealt{1979MNRAS.187P..59W}).
 Thompson scattering is also ruled out, because it is gray.  Dust, with
-its relatively featureless but increasing extinction curve when going
-bluer into the optical \citep{1989ApJ...345..245C}, is to our
-knowledge the most obvious opacity source.
+its larger absorption cross-section in the blue than the red
+\citep{1989ApJ...345..245C}, is to our knowledge the most obvious
+opacity source.
 
 While the reasoning above seems fairly convincing, it has a
 flaw.  The argument presented above would imply that regardless of a
@@ -1254,10 +1260,10 @@ There is however a rapidly rotating magnetic B-star, $\sigma$~Ori~E,
 which shows dips that are deeper in the blue than in the red
 \citep{1977ApJ...216L..31H}.  Photometric and spectroscopic
 observations of this star have been understood in terms of absorbing
-circumstellar material, quite analogous to the geometries we are
+circumstellar material, analogous to the geometries we are
 discussing for much cooler M-dwarfs \citep{2005ApJ...630L..81T}.  This
-material however cannot be dust, due to the relevant sublimation
-timescales.  It is instead thought to be sourced from bound-free
+material however is unlikely to be dust, due to the relevant sublimation
+timescales.  The opacity is instead thought to be sourced from bound-free
 absorption from neutral hydrogen \citep{2005ApJ...630L..81T}.
 Separate and smaller amplitude emission in that system may also come
 from electrons scattering photospheric light toward the observer when
@@ -1282,7 +1288,7 @@ question has direct bearing on the potential utility of these objects.
 Independent of the microphysical basis for gas absorption, the observed
 lifetime of the CQV phenomenon could provide another dimension to discern between
 the gas {\it vs.} dust clump scenarios.
-Based on the available statistics from the studies of L.~Rebull and J.~Stauffer,
+Based on the available statistics from the studies by L.~Rebull and J.~Stauffer,
 it seems plausible that CQV occurrence decreases in time, bottoming to zero
 well before the $\approx$700\,Myr age of Praesepe.
 This is odd in the context of the prominence scenario, because pre-main-sequence
@@ -1296,8 +1302,8 @@ Based on the degree to which M-dwarfs remain rapid rotators over the first 700\,
 \citep[e.g. Figure~13 of][]{2022AJ....164...80R}, 
 it seems surprising in the gas clump (prominence) scenario that no stars
 older than 150\,Myr have been seen to exhibit the phenomenon.
-In the dust clump scenario this is not a problem, because the dust could
-be externally sourced, and would be expected to have a finite supply.
+In the dust clump scenario this is not a problem, because if the dust
+were externally sourced, it would be expected to have a finite supply.
 
 %\subsubsection{Does the CQV lifetime inform the mechanism?}
 %Independent of the microphysical basis for gas absorption, the
@@ -1337,10 +1343,10 @@ Planet occurrence rate studies based on Kepler showed that around
 between 1-4\,$R_\oplus$ and orbital periods within 3 days
 \citep{2015ApJ...807...45D}.  The number increases to $\approx$0.7
 planets per star, for planets with 1-4\,$R_\oplus$ and $P$$<$10\,days.
-Extrapolating to all small close-in planets, from say
+Extrapolating to all small close-in planets, with say
 0.1-4\,$R_\oplus$ and within 10 days, it is reasonable to expect on
 average one planet per M-dwarf.  TRAPPIST-1b ($P$=1.5\,days) is one
-example of this type of planet, in orbit around a 0.08\,M$_\odot$ star
+example of this type of planet, in orbit around a 0.08\,$M_\odot$ star
 \citep{2017Natur.542..456G}.
 
 In the context of planet formation theory, the locations of these
@@ -1353,30 +1359,69 @@ studies).  Within models that have migrating compact multiplanet
 resonant chains, the inner-most planets arrive within $\approx$5-10
 stellar radii within the first 100\,Myr \citep{2018haex.bookE.142I}.
 
-It is tempting to try to interpret features of the CQV light curves in
-terms of the possible presence of close-in exoplanets, or even
-planetesimals.  Rocky planets this young would likely have molten
-global magma oceans analogous to those that existed on the Earth and
-Moon \citep[see][]{2022arXiv220310023L}, and thus would being
-undergoing significant outgassing and atmospheric escape.  While a
-scenario in which close-in rocky planets serve as a possible source of
-dust for the clouds is {\it a priori} plausible, it is currently only
-a subject of speculation.
+Given this context, it is tempting to try to interpret features of the
+CQV light curves in terms of the possible presence of close-in
+exoplanets, or even planetesimals.  Rocky planets this young would
+likely have molten global magma oceans analogous to those that existed
+on the Earth and Moon \citep[see][]{2022arXiv220310023L}, and thus
+would be undergoing significant outgassing and atmospheric escape.
+However while a scenario in which close-in rocky planets or
+planetesimals serve as a possible source of dust for the clouds is
+{\it a priori} plausible, any evidence in support of such a picture
+currently seems ambiguous at best.
 
-Given the dip depth variations that are observed in systems like LP
-12-502, one might be driven in this framework toward a picture of a
-disintegrating planetesimal swarm.  The sizes of the planetesimals
+In systems like LP 12-502, the observed dip depth variations would
+necessarily drive one toward a picture of a disintegrating
+planetesimal swarm, rather than just a single planetesimal.  
+While the
+number of free parameters in this type of model is somewhat dizzying,
+we have no right to believe that nature need be simple.
+The need for a swarm rather than just one launching body would
+be driven by the observation that we see dips appear and disappear at
+many {\it different phases}, but with roughly the same period.
+The observed changing dip depths in response to flares would be
+understood through the planetesimal outflow rates being stalled by
+changes in the local magnetic field or coronal plasma density.
+The sizes of these purported planetesimals
 would need to be $\lesssim 1$\,$R_\oplus$, based on the non-detections
 of their transits, analogous to e.g.  K2-22
 \citep{2015ApJ...812..112S} or KOI-2700 \citep{2014ApJ...784...40R}.
-The dip-profile asymmetries during certain segments of the light curve
-plausibly match this idea; for instance, the complex in cycles 248-298
-could be well-fit by a sharp leading edge that decays over 0.2\,$P$
-(3.7\,hours).  The earlier complex, during cycles 248-264
-(pre-state-switch), could be fit by a similar profile.  While the
-number of free parameters in this type of model is somewhat dizzying,
-we have no right to believe that nature need be simple.
+Typical sizes of bodies in the asteroid belt for instance span
+hundreds of meters to a few kilometers.
 
+The planetesimal swarm model would also predict that certain orbital
+phases would produce recurrent dips if observed over sufficiently long
+timescales, since the launching planetesimal would be massive enough
+to remain in orbit, and similar to say K2-22 would stochastically
+eject material.  While the regularity of the dip phases of LP~12-502
+over the existing baseline (Figure~\ref{fig:lp2}) might agree with
+this prediction, 
+for most other CQVs (Figure~\ref{fig:evoln}) the data seem likely to
+be in tension with this expectation.
+
+There are a few additional problems for the idea of a disintegrating
+planetesimal swarm.  First, many of the dips show asymmetries in
+the wrong direction relative to the naive expectation of a
+trailing comet tail.  Invoking non-exponentially decaying dust
+distributions as a function of azimuth might be one way out of this,
+but such an idea would need stronger theoretical footing.  
+Dynamical stability would be a separate concern:
+in a model in which any new dip is ``explained'' by invoking a new
+planetesimal, one might eventually pack the corotation radius to a
+degree where instability over short timescales would be guranteed.
+
+It is certainly possible that exoplanets or exoplanetesimals could end
+up being connected to the CQV phenomenon, for instance as a possible
+source of dust through collisions at greater separations from the
+star.  However for the time being, none of the CQVs that we have
+studied in this work seem to show clear evidence for this type of
+origin scenario.
+
+%The dip-profile asymmetries during certain segments of the light curve
+%plausibly match this idea; for instance, the complex in cycles 248-298
+%could be well-fit by a sharp leading edge that decays over 0.2\,$P$
+%(3.7\,hours).  The earlier complex, during cycles 248-264
+%(pre-state-switch), could be fit by a similar profile.  
 
 %There are two degenerate explanations for the small
 %``wiggles'' in the exponential decay.  In one explanation, the decay
@@ -1393,29 +1438,14 @@ we have no right to believe that nature need be simple.
 %light curve at the most complicated times (assigning one exocomet per
 %local minimum).
 
-Ultimately, there are a few problems for the idea of a disintegrating
-planetesimal.  First, a large number of the dips show asymmetries in
-the {\it wrong direction} relative to the naive expectation of a
-trailing comet tail.  Invoking non-exponentially decaying dust
-distributions as a function of azimuth might be one way out of this,
-but such an idea would need stronger theoretical footing.  More
-important is that the (unseen) planets or planetesimals should be on
-{\it exactly periodic} orbits over observable timescales, on the
-presumption that the planetesimals would be massive enough to not feel
-any headwind or magnetic field.  For most CQVs, this is inconsistent
-with the data; dips in sources such as LP 12-502 appear and disappear
-at {\it distinct phases}, but with the same period.  It seems
-challenging to reconcile this behavior with the possible presence of
-just a single launching body.  Finally, the fact that the dips often
-respond to events like flares suggests that that the responsible
-material be much less massive than a 1--100\,km sized planetesimal,
-and therefore more easily influenced by the stellar magnetic field.
 
-It is certainly possible that exoplanets could end up being connected
-to the CQV phenomenon, for instance as a possible source of dust
-through collisions at greater separations from the star.  However for
-the time being, none of the CQVs that we have studied in this work
-seem to show clear evidence for an exoplanetary origin.
+%It seems
+%challenging to reconcile this behavior with the possible presence of
+%just a single launching body.  Finally, the fact that the dips often
+%respond to events like flares suggests that that the responsible
+%material be much less massive than a 1--100\,km sized planetesimal,
+%and therefore more easily influenced by the stellar magnetic field.
+
 
 
 %  % TODO: needed??
@@ -1446,21 +1476,20 @@ seem to show clear evidence for an exoplanetary origin.
 \subsection{From dippers to debris disks}
 \label{subsec:discdippers}
 
-It is amusing that in identifying the two candidate CQV sources in
+It is amusing that in identifying the two ambiguous CQV sources in
 Section~\ref{subsec:irexcess} with outlying SEDs (TICs~193136669 and
 TIC~57830249), we were prompted to reconsider our light curve-based
 labeling, to
 ultimately conclude that these sources are dippers.  This episode
-suggests that there could be overlap between the two classes of
-object.  It is also worth emphasizing that our labeling of
+suggests that there could be overlap between CQVs and dippers.  It is also worth emphasizing that our labeling of
 e.g.~TIC~57830249 was based on a single sector of TESS data
 (Sector~36) when its behavior is relatively periodic and it showed
-relative dip depths of a few percent.  However in other TESS sectors
+dip depths of a few percent.  However in other TESS sectors
 (e.g. Sector~10), this source looks completely different, varying in
 apparent flux by a factor of two, with hardly any discernible
 periodicity at all.
 
-Comparing these results against the backdrop of our increasing
+Assessing these results against the backdrop of our increasing
 understanding of dippers
 \citep[e.g.][]{2014AJ....147...82C,2016ApJ...816...69A,2021ApJ...908...16R,2022ApJS..263...14C},
 it is clear that the loss of an infrared excess is associated with
@@ -1580,7 +1609,8 @@ dips, such as the Sector~29 data for TIC~224283342,
 or Sector~5 of TIC~294328885,
 the dip depths
 typically increase by of order a few percent over ten to twenty days.
-{\bf fixme: add closing sentence}
+This growth rate yields a mass flux one order of magnitude larger
+than the earlier estimate.
 
 
 
@@ -1598,14 +1628,14 @@ In this sample of stars, we found \ngoods\ objects that showed complex
 quasiperiodic behavior over at least one TESS sector.  Because the
 TESS 120-second stellar sample was rooted in a heterogeneous selection
 function that may have been biased in favor of young stars over field
-stars, we caution against interpreting our detection statistics in
-terms of broader population occurrence rates.  The \ngoods\ bonafide
+stars, we caution against interpreting our detection fraction in
+terms of broader population statistics.  The \ngoods\ bonafide
 CQVs are listed in Table~\ref{tab:thetable}.  This table also includes
-an additional \nmaybes\ candidate CQVs, whose designation is less
+an additional \nmaybes\ ambiguous CQVs, whose designation is less
 certain.
 
-Analyzing the TESS light curves and stellar properties of this sample
-of objects, we draw the following conclusions.
+Analyzing the TESS light curves and stellar properties of these
+objects, we draw the following conclusions.
 
 \begin{enumerate}[leftmargin=*]
 	%
@@ -1621,8 +1651,8 @@ of objects, we draw the following conclusions.
   %
     \item CQVs evolve over timescales that are both secular
     ($>$100\,cycles) and impulsive ($<$1 cycle).  ``State-switches''
-    can cause dips to collapse instantaneously, and are often (but not
-    exclusively) linked with observed optical flares.  Dip growth
+    can cause dips to collapse instantaneously, and are often but not
+    exclusively linked with observed optical flares.  Dip growth
     however seems to happen over durations of at least ten cycles, and
     slow dip decay can also occur.
   %
@@ -1642,13 +1672,13 @@ of objects, we draw the following conclusions.
     lifetime of the phenomenon is likely limited to the first few
     hundred million years.
 	%
-    \item The duty cycle for CQVs seems to be $\approx 75$\%, based on
+    \item The duty cycle for CQVs seems to be $\approx$$75$\%, based on
     the fraction of bonafide CQVs that turned on or turned off during
     TESS re-observations, two years after their initial observation.
   %
     \item While the majority of detected CQVs have masses of
-    0.1-0.5\,M$_\odot$, the upper mass limit for the CQV phenomenon
-    might extend into the K-dwarf regime ($<$$0.8$\,M$_\odot$).
+    0.1-0.5\,$M_\odot$, the upper mass limit for the CQV phenomenon
+    might extend into the K-dwarf regime ($<$$0.8$\,$M_\odot$).
     TIC~405754448 and TIC~405910546, with masses of $\approx$0.8 and
     $\approx$0.6 solar masses, are the two massive outliers
     (Section~\ref{subsec:extreme}), and we encourage additional
@@ -1688,15 +1718,15 @@ observations to help clarify its interpretation.
 In both the gas and dust scenarios, CQVs are preferentially viewed
 edge-on.
 This implies that after correcting for the line-of-sight inclination,
-it seems plausible that a sizable fraction of low mass stars (at
-least one third; \citealt{2022AJ....163..144G}) trap circumstellar
-material but are not observed in transit.
+at least one third of low mass stars
+\citep{2022AJ....163..144G} trap circumstellar
+material in the same way.
 In addition, CQVs should preferentially show edge-on
 transiting planets, at larger distances from the star than the
 corotating material.
 Given the interest level inherent to both of these points, important follow-up
 observational work also includes searching for outer transiting
-planets, and also measuring equatorial velocities in
+planets, and measuring equatorial velocities in
 order to test whether the stellar inclination angles are indeed
 preferentially edge-on.
 
@@ -1706,10 +1736,9 @@ scale of the clumping material would help clarify the nature of
 the magnetic and plasma environments around these young stars, 
 and would also help build intuition for why the light curves have the
 bizarre shapes that are observed.
-It is certainly possible that the relevant puzzles in plasma physics
-and radiative transfer could also be connected to our
-understanding of the close-in rocky planets that are expected to be
-present around most of these stars.
+The relevant puzzles in plasma physics and radiative transfer could
+likely be connected to our understanding of the close-in rocky planets
+that are expected to be present around most of these stars.
 The challenges intrinsic to both the observational and theoretical
 work seem worth the effort.
 
@@ -1851,9 +1880,17 @@ TIC & $T$ & $d$ & $\bprp$ & RUWE & $P$ & Assoc & Age & $T_{\rm eff}$ & $R_\star$
 \hline
 \input{20230613_LGB_RJ_CPV_TABLE_selfnapplied_rounded_data}
 \enddata
-\tablecomments{This table includes \ngoods\ CQVs (\texttt{Quality} flag true), and \nmaybes\ candidate CQVs (\texttt{Quality} flag false).  The machine-readable version, available online, includes additional columns for the Gaia DR2 source identifiers and parameter uncertainties.  The age uncertainties are typically $\approx \pm 10\%$,
-	but can be asymmetric.  The median temperature, radius, and mass uncertainties are $\pm XXX$\,K, $\pm XX$\%, and $\pm YY$\% respectively.
-	$N_{\rm sector}$ denotes the number of TESS sectors for which data are expected to be acquired between July~2018 and Oct~2024.   Association names and provenance follow conventions adopted by \citet{2018ApJ...856...23G}: 
+\tablecomments{This table includes \ngoods\ CQVs (\texttt{Quality}
+  flag true), and \nmaybes\ ambiguous CQVs (\texttt{Quality} flag
+  false).  The machine-readable version, available online, includes
+  additional columns for the Gaia DR2 source identifiers and parameter
+  uncertainties.  The age uncertainties are typically $\approx \pm
+  10\%$, but can be asymmetric.  The median temperature, radius, and
+  mass uncertainties are $\pm XXX$\,K, $\pm XX$\%, and $\pm YY$\%
+  respectively.  $N_{\rm sector}$ denotes the number of TESS sectors
+  for which data are expected to be acquired between July~2018 and
+  Oct~2024.   Association names and provenance follow conventions
+  adopted by \citet{2018ApJ...856...23G}: 
 	ABDMG: AB~Doradus moving group \citep{2015MNRAS.454..593B}.
 	ARG: Argus \citep{2019ApJ...870...27Z}.
 	APER: $\alpha$~Persei open cluster \citep{2023AJ....166...14B}.
