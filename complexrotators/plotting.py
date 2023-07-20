@@ -3336,7 +3336,7 @@ def plot_tic4029_segments(outdir):
     savefig(fig, outpath, dpi=500)
 
 
-def plot_catalogscatter(outdir, showmaybe=0):
+def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None):
 
     # get data
     tablepath = join(
@@ -3348,26 +3348,52 @@ def plot_catalogscatter(outdir, showmaybe=0):
     df = df[~pd.isnull(df.goodsectors)]
 
     #y, x, ylabel, xlabel, yscale, xscale
-    tuples = [
-        ("M_G", "bp_rp", '$\mathrm{M}_{G}$ [mag]', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'linear', 'linear'),
-        ("tic8_Tmag", "dist_pc", '$T$ [mag]', '$d$ [pc]', 'linear', 'linear'),
-        #('dec', 'ra', r'$\delta$ [deg]', r'$\alpha$ [deg]', 'linear', 'linear'),
-        ('b', 'l', '$b$ [deg]', '$l$ [deg]', 'linear', 'linear'),
-        ('tlc_mean_period', 'bp_rp', '$P$ [days]', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'log', 'linear'),
-        #('rstar_sedfit', 'teff_sedfit', '$R_{\! \star}$ [$R_\odot$]', '$T_\mathrm{eff}$ [K]', 'linear', 'linear'),
-        #('ruwe', 'bp_rp', 'RUWE', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'log', 'linear'),
-        #('tlc_mean_period', 'Rcr_over_Rstar', '$P$ [hours]', '$R_{\mathrm{cr}}/R_{\! \star}$', 'log', 'linear'),
-        ('Rcr_over_Rstar', 'tlc_mean_period',  '$R_{\mathrm{cr}}/R_{\! \star}$', '$P$ [hours]', 'linear', 'log'),
-        ('banyan_adopted_age', 'mstar_parsec', 'Age [Myr]', '$M_{\! \star}$ [$M_\odot$]', 'log', 'linear'),
-        #('rstar_sedfit', 'banyan_singleagefloat', '$R_{\! \star}$ [$R_\odot$]', 'Age [Myr]', 'linear', 'log'),
-    ]
+    if plotsubset is None:
+        tuples = [
+            ("M_G", "bp_rp", '$\mathrm{M}_{G}$ [mag]', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'linear', 'linear'),
+            ("tic8_Tmag", "dist_pc", '$T$ [mag]', '$d$ [pc]', 'linear', 'linear'),
+            #('dec', 'ra', r'$\delta$ [deg]', r'$\alpha$ [deg]', 'linear', 'linear'),
+            ('b', 'l', '$b$ [deg]', '$l$ [deg]', 'linear', 'linear'),
+            ('tlc_mean_period', 'bp_rp', '$P$ [days]', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'log', 'linear'),
+            #('rstar_sedfit', 'teff_sedfit', '$R_{\! \star}$ [$R_\odot$]', '$T_\mathrm{eff}$ [K]', 'linear', 'linear'),
+            #('ruwe', 'bp_rp', 'RUWE', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'log', 'linear'),
+            #('tlc_mean_period', 'Rcr_over_Rstar', '$P$ [hours]', '$R_{\mathrm{cr}}/R_{\! \star}$', 'log', 'linear'),
+            ('Rcr_over_Rstar', 'tlc_mean_period',  '$R_{\mathrm{cr}}/R_{\! \star}$', '$P$ [hours]', 'linear', 'log'),
+            ('banyan_adopted_age', 'mstar_parsec', 'Age [Myr]', '$M_{\! \star}$ [$M_\odot$]', 'log', 'linear'),
+            #('rstar_sedfit', 'banyan_singleagefloat', '$R_{\! \star}$ [$R_\odot$]', 'Age [Myr]', 'linear', 'log'),
+        ]
+    elif plotsubset == 'sanitychecks':
+        tuples = [
+            ("M_G", "bp_rp", '$\mathrm{M}_{G}$ [mag]', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'linear', 'linear'),
+            #("tic8_Tmag", "dist_pc", '$T$ [mag]', '$d$ [pc]', 'linear', 'linear'),
+            #('dec', 'ra', r'$\delta$ [deg]', r'$\alpha$ [deg]', 'linear', 'linear'),
+            #('b', 'l', '$b$ [deg]', '$l$ [deg]', 'linear', 'linear'),
+            #('tlc_mean_period', 'bp_rp', '$P$ [days]', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'log', 'linear'),
+            #('rstar_sedfit', 'teff_sedfit', '$R_{\! \star}$ [$R_\odot$]', '$T_\mathrm{eff}$ [K]', 'linear', 'linear'),
+            #('tlc_mean_period', 'Rcr_over_Rstar', '$P$ [hours]', '$R_{\mathrm{cr}}/R_{\! \star}$', 'log', 'linear'),
+            #('Rcr_over_Rstar', 'tlc_mean_period',  '$R_{\mathrm{cr}}/R_{\! \star}$', '$P$ [hours]', 'linear', 'log'),
+            #('rstar_sedfit', 'banyan_singleagefloat', '$R_{\! \star}$ [$R_\odot$]', 'Age [Myr]', 'linear', 'log'),
+            ('bp_rp', 'teff_sedfit', 'bp_rp', 'teff_sedfit', 'linear', 'linear'),
+            ('banyan_adopted_age', 'mstar_parsec', 'Age [Myr]', '$M_{\! \star}$ [$M_\odot$]', 'log', 'linear'),
+            ('teff_sedfit', 'teff_parsec', 'teff_sedfit', 'teff_parsec', 'linear', 'linear'),
+            ('rstar_sedfit', 'rstar_parsec', 'rstar_sedfit', 'rstar_parsec', 'linear', 'linear'),
+            ('dist_metric_parsec', 'rstar_sedfit', 'dist_metric_parsec', 'rstar_sedfit', 'linear', 'linear'),
+            ('dist_metric_parsec', 'mstar_parsec', 'dist_metric_parsec', 'mstar_parsec', 'linear', 'linear'),
+            ('banyan_adopted_age', 'age_parsec', 'banyan_adopted_age', 'age_parsec', 'linear', 'linear'),
+            ('ruwe', 'bp_rp', 'RUWE', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'log', 'linear'),
+        ]
+    else:
+        raise NotImplementedError
+
 
     # make plot
     plt.close('all')
     set_style('clean')
 
     f = 1.6
-    DO_NINECOLS = 0
+    assert len(tuples) in [6,9]
+    DO_NINECOLS = 0 if len(tuples) == 6 else 1
+
     if DO_NINECOLS:
         fig = plt.figure(figsize=(f*4,f*3))
         axd = fig.subplot_mosaic(
@@ -3552,10 +3578,26 @@ def plot_catalogscatter(outdir, showmaybe=0):
         ax.set_xlabel(xlabel, labelpad=0.2)
         ax.set_ylabel(ylabel, labelpad=0.3)
 
+        if (
+            ('rstar' in xkey and 'rstar' in ykey)
+            or
+            ('age' in xkey and 'age' in ykey)
+            or
+            ('teff' in xkey and 'teff' in ykey)
+        ):
+            xlo, xhi = ax.get_xlim()
+            ylo, yhi = ax.get_ylim()
+            ax.plot([0, max([xhi, yhi])], [0, max([xhi, yhi])], c='k', lw=0.5, zorder=-100, alpha=0.5)
+            ax.set_xlim([xlo, xhi])
+            ax.set_ylim([ylo, yhi])
+
+
     # set naming options
     s = ''
     if showmaybe:
         s += '_showmaybe'
+    if isinstance(plotsubset, str):
+        s += f'_{plotsubset}'
 
     bn = 'catalogscatter'
     outpath = join(outdir, f'{bn}{s}.png')
