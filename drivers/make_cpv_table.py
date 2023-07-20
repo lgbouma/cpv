@@ -129,6 +129,9 @@ def main(overwrite=0):
     N_6 = len(sgdf[sgdf.banyan_assoc != 'FIELD']) - 1
     N_7 = len(smdf[smdf.banyan_assoc != 'FIELD'])
 
+    N_8 = sgdf[sgdf.ruwe > 2]
+    N_9 = smdf[smdf.ruwe > 2]
+
     txt = (
         f"\n...\n"
         f"N={N_0} unique TICID's labelled 'good' or 'maybe' CPVs before selection fn"
@@ -158,6 +161,8 @@ def main(overwrite=0):
         r"\newcommand{\ngoodsnotfieldbanyan}{"+str(N_6)+"}\n"
         r"\newcommand{\nmaybesnotfieldbanyan}{"+str(N_7)+"}\n"
         r"\newcommand{\nnotfieldbanyan}{"+str(N_6+N_7)+"}\n"
+        r"\newcommand{\ngoodhighruwe}{"+str(N_8)+"}\n"
+        r"\newcommand{\nmaybehighruwe}{"+str(N_9)+"}\n"
     )
 
     outpath = join(PAPERDIR, 'vals_cqv_table_statistics.tex')
