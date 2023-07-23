@@ -26,6 +26,8 @@ Contents:
 
     | plot_tic4029_segments
 
+    | plot_hd37776_comparison
+
     | plot_catalogscatter
 """
 
@@ -1742,8 +1744,13 @@ def get_2px_neighbors(c_obj, tessmag):
 
     radius = 42*u.arcsecond
 
+    #nbhr_stars = Catalogs.query_region(
+    #    "{} {}".format(float(c_obj.ra.value), float(c_obj.dec.value)),
+    #    catalog="TIC",
+    #    radius=radius
+    #)
     nbhr_stars = Catalogs.query_region(
-        "{} {}".format(float(c_obj.ra.value), float(c_obj.dec.value)),
+        c_obj,
         catalog="TIC",
         radius=radius
     )
@@ -1784,7 +1791,7 @@ def underplot_gcns(ax, get_xval_no_corr, get_yval_no_corr):
     norm = ImageNormalize(vmin=vmin, vmax=vmax, stretch=LogStretch())
 
     cmap = "Greys"
-    cmap = white_viridis
+    #cmap = white_viridis
     density = ax.scatter_density(_x[s], _y[s], cmap=cmap, norm=norm, zorder=1)
 
 
@@ -3640,3 +3647,183 @@ def underplot_cqvtargets(ax, get_xval, get_yval):
     density = ax.scatter_density(_x[s], _y[s], cmap=cmap, norm=norm)
 
     return density
+
+
+def plot_hd37776_comparison(outdir, showtitles=1, titlefontsize=3.75,
+                            selfn='hd37776'):
+
+    # mostmassiveCQV,  HD 37776/landstreet/V901 Ori
+    if selfn == 'hd37776':
+        ticids = ['405754448', '11400909']
+        optionalid = [None, 'HD 37776']
+        showsectors = [38, 6]
+    # HD 64740, in VelaOB2
+    elif selfn == 'hd64740':
+        ticids = ['201789285', '268971806']
+        optionalid = [None, 'HD 64740']
+        showsectors = [3, 34]
+    # sigma-ori
+    elif selfn == 'sigmaoriE':
+        msg = (
+            "there are not any good matches..."
+            "because i would have labelled sigma Ori E an RS CVn"
+        )
+        raise NotImplementedError(msg)
+
+    # prepare to get lc data
+    from complexrotators.lcprocessing import (
+        cpv_periodsearch, prepare_cpv_light_curve
+    )
+
+    #
+    # instantiate plot
+    #
+    set_style("science")
+    fig, axs = plt.subplots(figsize=(2,4), nrows=2)
+
+    ix = 0
+
+    for ticid, sector, ax, opt in zip(ticids, showsectors, axs, optionalid):
+
+        lcdir = '/Users/luke/.lightkurve/cache/mastDownload/TESS'
+        lcpaths = glob(join(
+            lcdir, f"tess*s{str(sector).zfill(4)}*{ticid}*",
+            f"*{ticid}*_lc.fits")
+        )
+        if not len(lcpaths) == 1:
+            print('bad lcpaths')
+            print(ticid, sector)
+            print(lcpaths)
+            import IPython; IPython.embed()
+            assert 0
+
+        lcpath = lcpaths[0]
+
+        cachedir = outdir
+
+        # get the relevant light curve data
+        (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
+         sector, starid) = prepare_cpv_light_curve(lcpath, cachedir)
+
+        if ticid == '11400909':
+            sel = x_obs < 1487
+            x_obs = x_obs[sel]
+            y_flat = y_flat[sel]
+
+        # get period, t0, and periodogram (PDM or LombScargle)
+        d = cpv_periodsearch(
+            x_obs, y_flat, starid, cachedir, t0='binmin', periodogram_method='pdm'
+        )
+        if ticid == '11400909':
+            d['period'] *= 0.5
+
+        bd = time_bin_magseries(d['times'], d['fluxs'], binsize=1200, minbinelems=1)
+
+        ylim = get_ylimguess(1e2*(bd['binnedmags']-np.nanmean(bd['binnedmags'])))
+
+        if showtitles:
+            if isinstance(opt, str):
+                titlestr = f'TIC {ticid} ({opt}), S{sector}, {d["period"]*24:.1f}h'
+            else:
+                titlestr = f'TIC {ticid}, S{sector}, {d["period"]*24:.1f}h'
+        else:
+            titlestr = None
+
+        binsize_phase = 1/300
+
+        BINMS=1.0
+        alpha0=0.15
+
+        plot_phased_light_curve(
+            d['times'], d['fluxs'], d['t0'], d['period'], None, ylim=ylim,
+            xlim=[-0.6,0.6], binsize_phase=binsize_phase, BINMS=BINMS, titlestr=titlestr,
+            showtext=None, showtitle=False, figsize=None, c0='darkgray',
+            alpha0=alpha0, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
+            fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
+            showxticklabels=False, titlefontsize=titlefontsize,
+            titlepad=0.05
+        )
+
+        if not showtitles:
+            txt = f'{d["period"]*24:.1f}h'
+            tform = ax.transAxes
+            props = dict(boxstyle='square', facecolor='white', alpha=0.7, pad=0.15,
+                         linewidth=0)
+            fontsize = 'xx-small'
+            ax.text(
+                0.97, 0.05, txt, transform=tform, ha='right',
+                va='bottom', color='k', fontsize=fontsize, bbox=props
+            )
+
+        ax.set_xticks([-0.5,0,0.5])
+
+        ylow, yhigh = int(np.ceil(ylim[0]))+1, int(np.floor(ylim[1]))-1
+        if np.diff([np.abs(ylow), yhigh]) <= 2:
+            ylowabs = np.abs(ylow)
+            yhighabs = np.abs(yhigh)
+            ylow = -np.min([ylowabs, yhighabs])
+            yhigh = np.min([ylowabs, yhighabs])
+            if ylow == yhigh == 0:
+                # 368129164 led to this
+                ylow = -1
+                yhigh = 1
+            if yhigh >= 10:
+                ylow = -9
+                yhigh = 9
+
+        ax.set_yticks([ylow, 0, yhigh])
+        ax.set_yticklabels([ylow, 0, yhigh])
+
+        id_yticks = {
+            "405754448": [-1,0,1],
+        }
+        if str(ticid) in list(id_yticks.keys()):
+            yticks = id_yticks[str(ticid)]
+            ax.set_yticks(yticks)
+            ax.set_yticklabels(yticks)
+            if yticks[2] >= 9:
+                diff = 4
+            elif yticks[2] > 5:
+                diff = 2.5
+            elif yticks[2] > 2:
+                diff = 1.5
+            else:
+                diff = 1.
+            ax.set_ylim([yticks[0]-diff, yticks[2]+diff])
+
+            if str(ticid) == '397791443':
+                ax.set_ylim([-17,13])
+
+        if ticid == '268971806':
+            ax.set_ylim([-0.22, 0.22])
+            ax.set_yticks([-0.2, 0, 0.2])
+            ax.set_yticklabels([-0.2, 0, 0.2])
+
+        labelsize = 'xx-small'
+
+        ax.minorticks_off()
+
+        ax.tick_params(axis='both', which='major', labelsize=labelsize,
+                       pad=1.5)
+
+        ix += 1
+
+    for ax in axs:
+        ax.set_xticklabels(['-0.5','0','0.5'])
+
+    fs = 'medium'
+    axs[-1].set_xlabel(r"Phase, φ", fontsize=fs)
+    fig.text(-0.01,0.5, r"Flux [%]", va='center', rotation=90, fontsize=fs)
+
+    # set naming options
+    s = ''
+    if showtitles:
+        s += '_showtitles'
+    if isinstance(selfn, str):
+        s += f'_{selfn}'
+
+    # height/width
+    fig.tight_layout(h_pad=0.1, w_pad=0.)
+
+    outpath = join(outdir, f'hd37776_comparison{s}.png')
+    savefig(fig, outpath, dpi=400)

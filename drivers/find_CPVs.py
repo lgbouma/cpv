@@ -67,7 +67,9 @@ def get_ticids(sample_id):
         #"251496897"
         #"141146666" # neighbor of 141146667
         #"353927317" # EPIC 211070495, Rebull2016
-        "220433363" # tess blend; gaia multipeaked; wanna see s32
+        #"220433363" # tess blend; gaia multipeaked; wanna see s32
+        #"268971806" # HD 64740 has lots of data!
+        "254612758"  # rahul...
         ]
 
         N_stars_to_search = len(ticids)
