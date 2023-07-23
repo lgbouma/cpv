@@ -13,7 +13,7 @@ PAPERDIR = join(os.path.dirname(__path__[0]), 'paper')
 
 # 120-second data is downloaded here
 LKCACHEDIR = join(
-    os.path.expanduser('~'), '.lightkurve-cache', 'mastDownload', 'TESS'
+    os.path.expanduser('~'), '.lightkurve', 'cache', 'mastDownload', 'TESS'
 )
 
 # system-dependent.
