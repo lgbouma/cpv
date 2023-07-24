@@ -129,8 +129,8 @@ def main(overwrite=0):
     N_6 = len(sgdf[sgdf.banyan_assoc != 'FIELD']) - 1
     N_7 = len(smdf[smdf.banyan_assoc != 'FIELD'])
 
-    N_8 = sgdf[sgdf.ruwe > 2]
-    N_9 = smdf[smdf.ruwe > 2]
+    N_8 = len(sgdf[sgdf.ruwe > 2])
+    N_9 = len(smdf[smdf.ruwe > 2])
 
     txt = (
         f"\n...\n"
