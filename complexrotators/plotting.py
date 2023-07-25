@@ -1,34 +1,35 @@
 """
 Contents:
 
-    | plot_TEMPLATE
+    Templates:
+        | plot_TEMPLATE
 
-    | plot_river
-    | plot_phase
-    | plot_phase_timegroups
-    | plot_multicolor_phase
-    | plot_phased_light_curve
+    Light curves:
+        | plot_river
+        | plot_phase
+        | plot_phase_timegroups
+        | plot_multicolor_phase
+        | plot_phased_light_curve
+        | plot_lc_mosaic
+        | plot_full_lcmosaic
+        | plot_beforeafter_mosaic
+        | plot_phase_timegroups_mosaic
+        | plot_cadence_comparison
 
-    | plot_dipcountercheck
-    | plot_cpvvetter
+    Single-object:
+        | plot_tic4029_segments
 
-    | plot_spectrum_windows
+    Pipeline:
+        | plot_dipcountercheck
+        | plot_cpvvetter
+        | plot_quasiperiodic_removal_diagnostic
 
-    | plot_quasiperiodic_removal_diagnostic
+    Spectra:
+        | plot_spectrum_windows
 
-    | plot_lc_mosaic
-    | plot_full_lcmosaic
-    | plot_beforeafter_mosaic
-
-    | plot_phase_timegroups_mosaic
-
-    | plot_cadence_comparison
-
-    | plot_tic4029_segments
-
-    | plot_hd37776_comparison
-
-    | plot_catalogscatter
+    Population:
+        | plot_catalogscatter
+        | plot_magnetic_bstar_comparison
 """
 
 #######################################
