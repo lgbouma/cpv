@@ -3650,19 +3650,26 @@ def underplot_cqvtargets(ax, get_xval, get_yval):
     return density
 
 
-def plot_hd37776_comparison(outdir, showtitles=1, titlefontsize=3.75,
-                            selfn='hd37776'):
+def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
+                                   selfn='hd37776'):
 
     # mostmassiveCQV,  HD 37776/landstreet/V901 Ori
     if selfn == 'hd37776':
         ticids = ['405754448', '11400909']
         optionalid = [None, 'HD 37776']
         showsectors = [38, 6]
+        texts = None
     # HD 64740, in VelaOB2
     elif selfn == 'hd64740':
         ticids = ['201789285', '268971806']
         optionalid = [None, 'HD 64740']
         showsectors = [3, 34]
+        texts = None
+    elif selfn == 'both':
+        ticids = ['405754448', '11400909', '201789285', '268971806']
+        optionalid = [None, 'HD 37776', None, 'HD 64740']
+        showsectors = [38, 6, 3, 34]
+        texts = [0.8, 7, 0.1, 7] # masses
     # sigma-ori
     elif selfn == 'sigmaoriE':
         msg = (
@@ -3670,6 +3677,8 @@ def plot_hd37776_comparison(outdir, showtitles=1, titlefontsize=3.75,
             "because i would have labelled sigma Ori E an RS CVn"
         )
         raise NotImplementedError(msg)
+    else:
+        raise NotImplementedError
 
     # prepare to get lc data
     from complexrotators.lcprocessing import (
@@ -3680,7 +3689,10 @@ def plot_hd37776_comparison(outdir, showtitles=1, titlefontsize=3.75,
     # instantiate plot
     #
     set_style("science")
-    fig, axs = plt.subplots(figsize=(2,4), nrows=2)
+    if len(ticids) == 2:
+        fig, axs = plt.subplots(figsize=(2,4), nrows=2)
+    elif len(ticids) == 4:
+        fig, axs = plt.subplots(figsize=(4,1.5), ncols=4)
 
     ix = 0
 
@@ -3724,7 +3736,7 @@ def plot_hd37776_comparison(outdir, showtitles=1, titlefontsize=3.75,
 
         if showtitles:
             if isinstance(opt, str):
-                titlestr = f'TIC {ticid} ({opt}), S{sector}, {d["period"]*24:.1f}h'
+                titlestr = f'{opt}, S{sector}, {d["period"]*24:.1f}h'
             else:
                 titlestr = f'TIC {ticid}, S{sector}, {d["period"]*24:.1f}h'
         else:
@@ -3754,6 +3766,18 @@ def plot_hd37776_comparison(outdir, showtitles=1, titlefontsize=3.75,
             ax.text(
                 0.97, 0.05, txt, transform=tform, ha='right',
                 va='bottom', color='k', fontsize=fontsize, bbox=props
+            )
+
+        if isinstance(texts, list):
+            text = texts[ix]
+            txt = r'$\approx \!$' + f'{text}' + '$\,M_\odot$'
+            tform = ax.transAxes
+            props = dict(boxstyle='square', facecolor='white', alpha=1, pad=0.15,
+                         linewidth=0)
+            fontsize = 'xx-small'
+            ax.text(
+                0.98, 0.05, txt, transform=tform, ha='right', va='bottom',
+                color='k', fontsize=fontsize, bbox=props
             )
 
         ax.set_xticks([-0.5,0,0.5])
@@ -3796,7 +3820,7 @@ def plot_hd37776_comparison(outdir, showtitles=1, titlefontsize=3.75,
                 ax.set_ylim([-17,13])
 
         if ticid == '268971806':
-            ax.set_ylim([-0.22, 0.22])
+            ax.set_ylim([-0.25, 0.25])
             ax.set_yticks([-0.2, 0, 0.2])
             ax.set_yticklabels([-0.2, 0, 0.2])
 
@@ -3813,7 +3837,7 @@ def plot_hd37776_comparison(outdir, showtitles=1, titlefontsize=3.75,
         ax.set_xticklabels(['-0.5','0','0.5'])
 
     fs = 'medium'
-    axs[-1].set_xlabel(r"Phase, φ", fontsize=fs)
+    fig.text(0.5, 0, r"Phase, φ", fontsize=fs, va='bottom', ha='center')
     fig.text(-0.01,0.5, r"Flux [%]", va='center', rotation=90, fontsize=fs)
 
     # set naming options
@@ -3824,7 +3848,7 @@ def plot_hd37776_comparison(outdir, showtitles=1, titlefontsize=3.75,
         s += f'_{selfn}'
 
     # height/width
-    fig.tight_layout(h_pad=0.1, w_pad=0.)
+    fig.tight_layout(h_pad=0.3, w_pad=0.)
 
-    outpath = join(outdir, f'hd37776_comparison{s}.png')
+    outpath = join(outdir, f'magnetic_bstar_comparison{s}.png')
     savefig(fig, outpath, dpi=400)
