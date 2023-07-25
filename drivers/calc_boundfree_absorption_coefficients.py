@@ -73,34 +73,43 @@ def κ_Hbf(λ, n_0, T):
 def main():
 
     # wavelength in angstroms
-    λ = np.linspace(0, 2e4, int(1e4))
-    T = 10000 # kelvin
+    λ = np.linspace(2500, 2e4, int(1e4))
 
-    # Gray Fig 8.2, 'alpha_bound-free for hydrogen'
-    plt.close("all")
-    set_style("clean")
-    fig, ax = plt.subplots(figsize=(4,3))
-    for n in range(1,6):
-        ax.plot(λ, α_0*g_bf(λ,n)*λ**3/(n**5) / (1e-17), label=f'n={n}')
-    ax.legend(loc='best', fontsize='small')
-    ax.set_ylabel('α_bf(H) [1e-17 cm2/H atom]')
-    ax.set_xlabel('λ [angstrom]')
-    ax.set_title(f"T = {T} K")
+    for T in [3500, 10000, 11572]:
 
-    # convert to opacity
-    plt.close("all")
-    set_style("clean")
-    fig, ax = plt.subplots(figsize=(4,3))
-    for n0 in range(1,6):
-        ax.plot(λ, κ_Hbf(λ, n0, T) / (1e-17), label=f'n0={n0}')
-    ax.set_yscale('log')
-    ax.legend(loc='best', fontsize='small')
-    ax.set_ylabel('κ_bf(H) [1e-17 cm2/H atom]')
-    ax.set_xlabel('λ [angstrom]')
-    ax.set_title(f"T = {T} K")
+        # Gray Fig 8.2, 'alpha_bound-free for hydrogen'
+        plt.close("all")
+        set_style("clean")
+        fig, ax = plt.subplots(figsize=(4,3))
+        for n in range(1,6):
+            ax.plot(λ, α_0*g_bf(λ,n)*λ**3/(n**5) / (1e-17), label=f'n={n}')
+        ax.legend(loc='best', fontsize='small')
+        ax.set_ylabel('α_bf(H) [1e-17 cm2/H atom]')
+        ax.set_xlabel('λ [angstrom]')
+        ax.set_title(f"T = {T} K")
+        outpath = f'../results/radiative_transfer/bf_absorption_coeff_hydrogen_{T}K.png'
+        savefig(fig, outpath)
 
-    outpath = '../results/radiative_transfer/bf_opacity_hydrogen.png'
-    savefig(fig, outpath)
+        # convert to opacity
+        plt.close("all")
+        set_style("clean")
+        fig, ax = plt.subplots(figsize=(4,3))
+        κ_max = np.zeros_like(λ)
+
+        for n0 in range(1,6):
+            ax.plot(λ, κ_Hbf(λ, n0, T) / (1e-26), label=f'n0={n0}', alpha=0.5)
+            κ_max = np.maximum(κ_max, κ_Hbf(λ, n0, T))
+
+        ax.plot(λ, κ_max / (1e-26), label=f'total', alpha=1, c='k', lw=2)
+
+        ax.set_yscale('log')
+        ax.legend(loc='best', fontsize='x-small')
+        ax.set_ylabel('κ_bf(H) [1e-26 cm2/H atom]')
+        ax.set_xlabel('λ [angstrom]')
+        ax.set_title(f"T = {T} K")
+
+        outpath = f'../results/radiative_transfer/bf_opacity_hydrogen{T}K.png'
+        savefig(fig, outpath)
 
 
 if __name__ == "__main__":
