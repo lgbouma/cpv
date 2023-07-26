@@ -3658,13 +3658,13 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
         ticids = ['405754448', '11400909']
         optionalid = [None, 'HD 37776']
         showsectors = [38, 6]
-        texts = None
+        texts = [0.8, 7] # masses
     # HD 64740, in VelaOB2
     elif selfn == 'hd64740':
         ticids = ['201789285', '268971806']
         optionalid = [None, 'HD 64740']
         showsectors = [3, 34]
-        texts = None
+        texts = [0.1, 7] # masses
     elif selfn == 'both':
         ticids = ['405754448', '11400909', '201789285', '268971806']
         optionalid = [None, 'HD 37776', None, 'HD 64740']
@@ -3690,7 +3690,8 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
     #
     set_style("science")
     if len(ticids) == 2:
-        fig, axs = plt.subplots(figsize=(2,4), nrows=2)
+        factor = 1.5
+        fig, axs = plt.subplots(figsize=(factor*2,factor*1.5), ncols=2)
     elif len(ticids) == 4:
         fig, axs = plt.subplots(figsize=(4,1.5), ncols=4)
 
@@ -3747,6 +3748,7 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
         BINMS=1.0
         alpha0=0.15
 
+        titlefontsize = 'xx-small'
         plot_phased_light_curve(
             d['times'], d['fluxs'], d['t0'], d['period'], None, ylim=ylim,
             xlim=[-0.6,0.6], binsize_phase=binsize_phase, BINMS=BINMS, titlestr=titlestr,
@@ -3770,7 +3772,8 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
 
         if isinstance(texts, list):
             text = texts[ix]
-            txt = r'$\approx \!$' + f'{text}' + '$\,M_\odot$'
+            #txt = r'$\approx \!$' + f'{text}' + '$\,M_\odot$'
+            txt = f'{text}' + '$\,M_\odot$'
             tform = ax.transAxes
             props = dict(boxstyle='square', facecolor='white', alpha=1, pad=0.15,
                          linewidth=0)
@@ -3836,7 +3839,7 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
     for ax in axs:
         ax.set_xticklabels(['-0.5','0','0.5'])
 
-    fs = 'medium'
+    fs = 'small'
     fig.text(0.5, 0, r"Phase, φ", fontsize=fs, va='bottom', ha='center')
     fig.text(-0.01,0.5, r"Flux [%]", va='center', rotation=90, fontsize=fs)
 
@@ -3848,7 +3851,7 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
         s += f'_{selfn}'
 
     # height/width
-    fig.tight_layout(h_pad=0.3, w_pad=0.)
+    fig.tight_layout(h_pad=0.2, w_pad=0.2)
 
     outpath = join(outdir, f'magnetic_bstar_comparison{s}.png')
     savefig(fig, outpath, dpi=400)
