@@ -55,6 +55,8 @@
 \newcommand{\berkeley}{Astronomy Department, University of California, Berkeley, CA 94720, USA}
 \newcommand{\princeton}{Department of Astrophysical Sciences, Princeton University, 4 Ivy Lane, Princeton, NJ 08540, USA}
 \newcommand{\esa}{European Space Agency (ESA), European Space Research and Technology Centre (ESTEC), Keplerlaan 1, 2201 AZ Noordwijk, Netherlands}
+\newcommand{\howard}{Department of Physics and Astronomy, Howard University, Washington DC, 20059}
+\newcommand{\goddard}{Center for Research and Exploration in Space Science and Technology, and X-ray Astrophysics Laboratory, NASA/GSFC, Greenbelt, MD 20771, USA}
 
 %
 % ms specific numbers
@@ -103,17 +105,21 @@
 \author[0000-0002-7778-3117]{Rahul~Jayararaman}
 \affiliation{\mitkavli}
 
+\author{Saul~Rappaport}
+\affiliation{\mitkavli}
+
 \author{Lynne~A.~Hillenbrand}
 \affiliation{\caltech}
+
+\author[0000-0003-4062-0776]{Alexandre David-Uraz}
+\affiliation{\howard}
+\affiliation{\goddard}
 
 \author[0000-0001-7204-6727]{G\'asp\'ar \'A. Bakos}
 \affiliation{\princeton}
 
 \author{-----SUGGESTED CONTRIBUTORS, PENDING DISCUSSION, COMMENTS, ANALYSES, ETC-----}
 %
-\author{Saul~Rappaport}
-\affiliation{\mitkavli}
-
 \author[0000-0001-6381-515X]{Luisa M. Rebull}
 \affiliation{\caltech}
 
@@ -143,18 +149,18 @@
   of these discoveries are new, and they include the brightest
   ($T$$\approx$9.5) and closest ($d$$\approx$20\,pc) examples of this
   class of object known, as well as the most massive
-  ($\approx$0.6-0.8\,$M_\odot$) and oldest ($\approx$200\,Myr).  A few
+  ($\approx$0.6-0.8\,$M_\odot$) and the oldest ($\approx$200\,Myr).  A few
   objects are outliers among outliers; LP 12-502 for instance shows a
   recurring ``dip complex'' with a period and total duration that are
-  fixed over more than 1{,}000 cycles, but which in detail showed
+  fixed over more than 1{,}000 cycles, but which in detail contains
   anywhere from four to eight local minima per cycle, and at times
-  displayed distinct superposed periods simultaneously.  Broadly
+  displays distinct superposed periods simultaneously.  Broadly
   speaking, we find that none of the CQVs maintain a fixed light curve
   shape over timescales of more than a few hundred cycles, and we
   revisit the arguments for why transient corotating material is the
   most viable explanation.  We expect that our sample will facilitate
   future efforts aimed at connecting these objects to the broader
-  contexts of star, disk, and exoplanet evolution. 
+  contexts of star, disk, and perhaps even exoplanet evolution. 
   %For instance, if the transiting material is dust, then the rate of
   %dip evolution implies that of order an asteroid belt's worth of mass
   %passes through these structures over their lifetime of
@@ -243,9 +249,9 @@ timescale typically quoted for primordial disk dispersal.  However,
 unambiguous evidence in support of any one scenario has yet to be
 acquired.  Such evidence might include a spectroscopic detection of
 silicate 10\,$\mu$m dust absorption during a dip, or perhaps detection
-of transient Balmer-line absorption as a function of cycle phase,
-similar to observations made in systems such as AB~Dor \citep[see the
-review by][]{1999ASPC..158..146C}.
+of transient Balmer-line excesses as a function of cycle phase,
+similar to observations made in systems such as AB~Dor
+\citep[see][]{1999ASPC..158..146C} or PTFO 8-8695 \citep{2016ApJ...830...15J}.
 
 CQVs remain mysterious because they have been both hard to discover
 and hard to characterize.   Discoverability is tied to rarity: CQVs
@@ -268,7 +274,7 @@ acquired by TESS between July~2018 and Sep~2022 (Sectors 1-55; Cycles
 the properties of the resulting CQV catalog in
 Section~\ref{sec:results}.  The evolution of many CQVs over a two-year
 baseline is described in Section~\ref{sec:evoln}, including a
-deep-dive into LP 12-502.  We describe a few implications in
+deep-dive into LP 12-502.  We discuss a few implications in
 Section~\ref{sec:discussion}, and conclude in
 Section~\ref{sec:conclusion}.
 
@@ -1379,16 +1385,18 @@ would be expected to have a finite supply.
 
 \subsection{Planets or planetesimal swarms near corotation?}
 
-Planet occurrence rate studies from Kepler have shown that high-mass
+Close-in planets are common around M-dwarfs;
+studies from Kepler have shown that high-mass
 M  dwarfs have $\approx$0.1 planets per star with sizes between
 1-4\,$R_\oplus$ and orbital periods within 3 days
 \citep{2015ApJ...807...45D}.  The number increases to $\approx$0.7
-planets per star for planets with 1-4\,$R_\oplus$ and $P$$<$10\,days.
-Extrapolating to all small close-in planets, with say
+planets per star considering planets out to $P$$<$10\,days.
+Extrapolating to all small close-in planets with say
 0.1-4\,$R_\oplus$ and within 10 days, it is reasonable to expect on
-average one planet per M dwarf.  TRAPPIST-1b ($P$=1.5\,days) is an
-example of this type of planet, in orbit around a 0.08\,$M_\odot$ star
-\citep{2017Natur.542..456G}.
+average one close-in planet per M dwarf.  
+%TRAPPIST-1b ($P$=1.5\,days) is an
+%example of this type of planet, orbiting around a 0.08\,$M_\odot$ star
+%\citep{2017Natur.542..456G}.
 
 In the context of planet formation, the stopping location for the
 inner-most planet is set by the location of the protoplanetary disk's
@@ -1397,27 +1405,28 @@ truncation radius is defined by equating the magnetic pressure from
 the stellar magnetosphere with the ram pressure form the inflowing
 gas, it also tends to roughly coincide with the Keplerian corotation
 radius \citep{2016ARA&A..54..135H}.  Within models that have compact
-multiplanet resonant chains migrate inward due to gas drag, the
-inner-most planets arrive within $\approx$5-10 stellar radii before
+multiplanet resonant chains migrating inward due to gas drag, the
+inner-most planets therefore arrive at $\approx$5-10 stellar radii before
 the disk becomes depleted.
 
-In this context, it is tempting to try to interpret features of the
+Given this context, it is tempting to try to interpret features of the
 CQV light curves in terms of the possible presence of close-in
-exoplanets, or even planetesimals, that are expected to exist in
-abundance around these stars.  Rocky planets this young could have
+exoplanets, or even planetesimals.  Rocky planets this young could have
 molten global magma oceans analogous to those that existed on the
 Earth and Moon \citep[see][]{2022arXiv220310023L}, and thus might be
-undergoing significant outgassing and atmospheric escape.  However,
-although it is {\it a priori} plausible that close-in rocky planets or
-planetesimals could serve as a possible source of material for the
-clouds, any evidence in support of such a picture currently seems
+undergoing significant outgassing and atmospheric escape.  The system
+would then be analogous to the Jupiter-Io plasma torus \citep[e.g.][]{1980JGR....85.1171N}, with a similar rotation
+period for the primary and orbital period for the secondary,
+but magnetic fields stronger by a factor of $\approx$1{,}000.
+While this type of configuration is {\it a priori} plausible,
+any evidence in support of such a picture currently seems
 ambiguous at best.
 
 In systems like LP 12-502, the observed dip depth variations would
 necessarily drive one toward a picture of a disintegrating
 planetesimal swarm, rather than just a single planetesimal.  
-While the number of free parameters in this type of model is somewhat
-dizzying, we have no right to believe that nature need be simple.
+%While the number of free parameters in this type of model is somewhat
+%dizzying, we have no right to believe that nature need be simple.
 The need for a swarm rather than just one launching body would
 be driven by the observation that we see dips appear and disappear at
 many {\it different phases}, but with roughly the same period.
@@ -1430,31 +1439,30 @@ analogous to e.g.  K2-22 \citep{2015ApJ...812..112S} or KOI-2700
 \citep{2014ApJ...784...40R}.  Typical sizes of bodies in the asteroid
 belt for instance span hundreds of meters to a few kilometers.
 
-The planetesimal swarm model would predict that certain orbital phases
+There are at least three problems with the idea of a disintegrating
+planetesimal swarm.
+First, this model would predict that certain orbital phases
 would produce recurrent dips if observed over sufficiently long
-timescales, since the launching planetesimal would be massive enough
-to remain in orbit, and similar to say K2-22 would stochastically
-eject material.  While the regularity of the dip phases of LP~12-502
-over the existing baseline (Figure~\ref{fig:lp2}) might agree with
-this prediction, for most other CQVs (Figure~\ref{fig:evoln}) the data
+baselines, because the launching planetesimal would be massive enough
+to remain in orbit, while stochastically
+ejecting material.  An analogous system might be K2-22.
+For most CQVs (Figure~\ref{fig:evoln}), the data
 seem to be in tension with this expectation.
-
-There are a few additional problems for the idea of a disintegrating
-planetesimal swarm.  First, many of the dips show asymmetries in the
+A second issue is that many of the dips show asymmetries in the
 wrong direction relative to the naive expectation of a trailing comet
 tail.  Invoking non-exponentially decaying dust distributions as a
 function of azimuth might be one way out of this, but such an idea
-would need stronger theoretical footing.  Dynamical stability would be
-a separate concern: in a model in which any new dip is ``explained''
+lacks firm theoretical footing.  Finally, dynamical stability is a concern:
+in a model in which any new dip is ``explained''
 by invoking a new planetesimal, one might eventually pack the
 corotation radius to a degree where instability over short timescales
 would be guaranteed.
 
 It is certainly possible that exoplanets or exoplanetesimals could end
 up being connected to the CQV phenomenon, for instance as a possible
-source of dust through collisions at greater separations from the
-star.  However for the time being, none of the CQVs that we have
-studied in this work seem to show clear evidence for this type of
+sources for the occulting dust or gas.
+However for the time being, none of the CQVs that we have
+studied in this work show clear evidence for this type of
 origin scenario.
 
 %The dip-profile asymmetries during certain segments of the light curve
@@ -1607,20 +1615,20 @@ important physical significance.
 		\centering
 		%\includegraphics[width=0.9\textwidth]{f8.pdf}
 		\subfloat{
-			\includegraphics[width=0.48\textwidth]{f8a.pdf}
+			\includegraphics[width=0.49\textwidth]{f8a.pdf}
 		}
 			
 		\vspace{-0.4cm}
 		\subfloat{
-			\includegraphics[width=0.48\textwidth]{f8b.pdf}
+			\includegraphics[width=0.49\textwidth]{f8b.pdf}
 		}
 		\vspace{-0.1cm}
 		\caption{
-      {\bf The magnetic B star connection}.  HD~37776 and HD~64740 (right column) are
+      {\bf The magnetic B star connection.}  HD~37776 and HD~64740 (left column) are
       magnetic B stars with field geometries dominated by high order
       multipoles.
 			Here, we compare their phased TESS light curves against the
-			``best-matching'' CQV light curves (left column), selected by eye from
+			``best-matching'' CQV light curves (right column), selected by eye from
 			Figure~\ref{fig:cqvs}.
       Stellar masses rounded to one significant figure are given
       in the lower right of each panel; the star, TESS sector, and
@@ -1685,15 +1693,15 @@ corotation \citep{2005ApJ...630L..81T}.  The $\sigma$~Ori class is
 distinct from Be-star decretion disks, which do not have any obvious
 connection to the stellar magnetic field \citep{2013A&ARv..21...69R}.
 
-One possible argument against the connection between CQVs and the
+An argument against the connection between CQVs and the
 $\sigma$~Ori~E analogs is that the light curve of $\sigma$~Ori~E is
 much simpler than those in Figure~\ref{fig:cqvs}, with only two broad
 local minima, and one ``hump'' \citep{2005ApJ...630L..81T}.  Within
-the model proposed by Townsend et al., this is tied to the star's
-magnetic field, which to first-order is reasonably described as a
+the model proposed by Townsend et al., this is explained by the simplicity of the star's
+magnetic field, which to first-order is a
 dipole, similar to most other magnetic B stars
-\citep{2009ARA&A..47..333D}.  This approximation fits the qualitative
-behavior of not only the broadband light curves, but also the
+\citep{2009ARA&A..47..333D}.  This approximation matches the qualitative
+behavior of both the broadband light curves, and the
 line-profile variations seen in hydrogen, helium, and carbon
 \citep{2012MNRAS.419..959O}.
 
@@ -1717,23 +1725,22 @@ B stars like $\sigma$~Ori~E.
 This is consistent with the non-axisymmetric topologies that have been
 reported in a small number of M dwarfs for which Zeeman Doppler
 Imaging is technically feasible 
-\citep[see the recent review by][]{2021A&ARv..29....1K}.
+\citep[see the review by][]{2021A&ARv..29....1K}.
 
-The physical similarity between the B stars and the M dwarfs is
-presumably the existence of a ``centrifugal magnetosphere'': in other
-words, they both satisfy the condition $R_{\rm A} > R_{\rm cr}$, for
+The physical similarity between the B stars and the M dwarfs 
+presumably has its origin in the existence of a ``centrifugal magnetosphere'' \citep[see][]{2013MNRAS.429..398P}.
+In other
+words, both classes of objects probably satisfy the condition $R_{\rm A} > R_{\rm cr}$, for
 $R_{\rm A}$ the Alfv\'en radius.
-% TODO : qualitiatively explain, and cite Petit+2013
-In the converse case of a ``dynamical'' magnetosphere...
-{\bf todo: summarize Petit2013}
-%FIXME TODO
-%FIXME TODO
-%FIXME TODO
-{\bf
-LGB todo: make the connection to Jupiter-Io magnetosphere, and that
-plasma torus too
-}
-
+When this condition holds, stable points exist wherever the outward
+centrifugal force is balanced by magnetic tension of closed field loops.
+In the converse ``dynamical'' case, when  $R_{\rm A} < R_{\rm cr}$, any
+material launched by the star returns to its surface over the free-fall timescale.
+% While there are some qualitative connections to Jupiter-Io, it's not perfect.
+% In that system, R_A>R_cr...
+% But the plasma torus exists near Io's 42 hour orbit
+% ...and is nonetheless STILL FORCED into corotation at a 10hr period (presumably by Jupiter's B-field).
+% This type of structure is very different, because here we actually see the plasma at corotation!
 
 \section{Conclusions}
 \label{sec:conclusion}
@@ -1807,7 +1814,7 @@ objects, we draw the following conclusions.
     \item Surprising analogs to the M  and K dwarf CQVs exist in
     magnetic B stars, but only those with multipolar field topologies.
     This suggests that the CQV dips and warps are strongly sculpted
-    by the stellar magnetic fields, which would also be multipolar.
+    by the stellar magnetic fields, which are probably also multipolar.
   %
     \item The closest CQVs to the Sun are at distances of 15-20\,pc, and
     the brightest CQVs have $V$$\approx$12 ($J$$\approx$7.5).  This
@@ -1884,6 +1891,7 @@ LGB~drafted the initial manuscript, and performed the cluster
 membership, SED, and variability analyses.
 SR and RJ vetted the results from the Fourier search.
 LAH advised on project scope and experiment design.
+AD identified the magnetic B star connection.
 G\'AB acquired and maintained the servers used to run the dip-finding
 pipeline.
 GRR is an architect of the TESS mission.
