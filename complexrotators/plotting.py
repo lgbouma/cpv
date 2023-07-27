@@ -2500,7 +2500,7 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
 
     for ticid, sector, ax in zip(df.ticid, df.showsector, axs):
 
-        lcdir = '/Users/luke/.lightkurve-cache/mastDownload/TESS'
+        lcdir = '/Users/luke/.lightkurve/cache/mastDownload/TESS'
         lcpaths = glob(join(
             lcdir, f"tess*s{str(sector).zfill(4)}*{ticid}*",
             f"*{ticid}*_lc.fits")
@@ -2721,7 +2721,7 @@ def plot_beforeafter_mosaic(outdir, showtitles=1, titlefontsize=3.75,
     beforesectorfound, aftersectorfound = [], []
     for sectorcol in ['beforesector','aftersector']:
         for ticid, sector in zip(df['ticid'], df[sectorcol]):
-            lcdir = '/Users/luke/.lightkurve-cache/mastDownload/TESS'
+            lcdir = '/Users/luke/.lightkurve/cache/mastDownload/TESS'
             lcpaths = glob(join(
                 lcdir, f"tess*s{str(sector).zfill(4)}*{ticid}*",
                 f"*{ticid}*_lc.fits")
@@ -2834,9 +2834,10 @@ def plot_beforeafter_mosaic(outdir, showtitles=1, titlefontsize=3.75,
 
     ix = 0
 
+    _periods = []
     for ticid, sector, ax in zip(ticids, sectors, axs):
 
-        lcdir = '/Users/luke/.lightkurve-cache/mastDownload/TESS'
+        lcdir = '/Users/luke/.lightkurve/cache/mastDownload/TESS'
         lcpaths = glob(join(
             lcdir, f"tess*s{str(sector).zfill(4)}*{ticid}*",
             f"*{ticid}*_lc.fits")
@@ -2871,6 +2872,8 @@ def plot_beforeafter_mosaic(outdir, showtitles=1, titlefontsize=3.75,
             d['period'] = 0.3708350878122453
         if str(ticid) == '289840926':
             d['period'] = 0.1999953362691368 # lol what
+
+        _periods.append(d['period'])
 
         bd = time_bin_magseries(d['times'], d['fluxs'], binsize=1200, minbinelems=1)
 
@@ -3078,6 +3081,14 @@ def plot_beforeafter_mosaic(outdir, showtitles=1, titlefontsize=3.75,
                        pad=1.5)
 
         ix += 1
+
+    outdf = pd.DataFrame({
+        'ticid': ticids,
+        'sector': sectors,
+        'period': _periods
+    })
+    outcsv = join(outdir, 'beforeafter_periods.csv')
+    outdf.to_csv(outcsv, index=False)
 
     # set x tick labels
     if SIMPLEGRID:
@@ -3655,16 +3666,16 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
 
     # mostmassiveCQV,  HD 37776/landstreet/V901 Ori
     if selfn == 'hd37776':
-        ticids = ['405754448', '11400909']
-        optionalid = [None, 'HD 37776']
-        showsectors = [38, 6]
-        texts = [0.8, 7] # masses
+        ticids = ['11400909', '405754448']
+        optionalid = ['HD 37776', None]
+        showsectors = [6, 38]
+        texts = [7, 0.8] # masses
     # HD 64740, in VelaOB2
     elif selfn == 'hd64740':
-        ticids = ['201789285', '268971806']
-        optionalid = [None, 'HD 64740']
-        showsectors = [3, 34]
-        texts = [0.1, 7] # masses
+        ticids = ['268971806', '201789285']
+        optionalid = ['HD 64740', None]
+        showsectors = [34, 3]
+        texts = [7, 0.1] # masses
     elif selfn == 'both':
         ticids = ['405754448', '11400909', '201789285', '268971806']
         optionalid = [None, 'HD 37776', None, 'HD 64740']
@@ -3690,7 +3701,7 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
     #
     set_style("science")
     if len(ticids) == 2:
-        factor = 1.5
+        factor = 1.4
         fig, axs = plt.subplots(figsize=(factor*2,factor*1.5), ncols=2)
     elif len(ticids) == 4:
         fig, axs = plt.subplots(figsize=(4,1.5), ncols=4)
@@ -3748,6 +3759,10 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
         BINMS=1.0
         alpha0=0.15
 
+        yoffset = 0
+        if ticid == '405754448':
+            yoffset = 0.25
+
         titlefontsize = 'xx-small'
         plot_phased_light_curve(
             d['times'], d['fluxs'], d['t0'], d['period'], None, ylim=ylim,
@@ -3756,7 +3771,7 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
             alpha0=alpha0, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
             fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
             showxticklabels=False, titlefontsize=titlefontsize,
-            titlepad=0.05
+            titlepad=0.05, yoffset=yoffset
         )
 
         if not showtitles:
@@ -3822,10 +3837,22 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
             if str(ticid) == '397791443':
                 ax.set_ylim([-17,13])
 
-        if ticid == '268971806':
-            ax.set_ylim([-0.25, 0.25])
-            ax.set_yticks([-0.2, 0, 0.2])
-            ax.set_yticklabels([-0.2, 0, 0.2])
+        if ticid == '405754448':
+            ax.set_ylim([-1.5, 1.5])
+            ax.set_yticks([-1, 0, 1])
+            ax.set_yticklabels([-1, 0, 1])
+        if ticid == '11400909': # hd37776
+            ax.set_ylim([-1.5, 1.5])
+            ax.set_yticks([-1, 0, 1])
+            ax.set_yticklabels([-1, 0, 1])
+        if ticid == '201789285':
+            ax.set_ylim([-7, 7])
+            ax.set_yticks([-5, 0, 5])
+            ax.set_yticklabels([-5, 0, 5])
+        if ticid == '268971806': # hd64740
+            ax.set_ylim([-0.2, 0.2])
+            ax.set_yticks([-0.1, 0, 0.1])
+            ax.set_yticklabels([-0.1, 0, 0.1])
 
         labelsize = 'xx-small'
 
