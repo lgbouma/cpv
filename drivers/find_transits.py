@@ -247,6 +247,7 @@ def remove_quasiperiodic_signal(
     y_nw_model = fn(x_nw_model)
 
     out_dict = {
+        'period': period,
         'best_interp_key': best_interp_key,
         'mad_resid_1hr': mad_resid_1hr,
         'fn': fn,
@@ -292,8 +293,8 @@ def main():
 
     sample_id = 'debug'
     ticids = ["402980664"]
-    ticids = ["224283342"]
-    ticids = ["254612758"]
+    #ticids = ["224283342"]
+    #ticids = ["254612758"]
 
     for ticid in ticids:
         LOGINFO(42*'-')

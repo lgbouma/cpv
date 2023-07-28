@@ -2005,6 +2005,7 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
 
     n = lambda x: 1e2 * (x - np.nanmean(x))
 
+    # flux vs phase
     ax = axd['A']
     ax.scatter(ns.x_sw, n(ns.y_sw), zorder=1, s=0.2, c='lightgray', linewidths=0)
     ax.scatter(ns.x_sw_b, n(ns.y_sw_b), zorder=3, s=1, c='k', linewidths=0)
@@ -2015,6 +2016,7 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
                'ylabel': 'Flux [%]', 'xlim':[-0.6,0.6]})
     ax.set_xticklabels([])
 
+    # resid flux vs phase
     ax = axd['B']
     ax.scatter(ns.x_sw, n(ns.y_resid_sw), zorder=1, s=0.2, c='lightgray',
                linewidths=0)
@@ -2028,6 +2030,7 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
                'ylabel': 'Resid [%]', 'xlim':[-0.6,0.6]})
     ax.set_xticklabels([])
 
+    # resid flux vs phase colored and binned by time
     ax = axd['E']
     cmap = mpl.colormaps['Spectral']
     norm = mpl.colors.Normalize(vmin=ns.cyclenum_sw.min(), vmax=ns.cyclenum_sw.max())
@@ -2051,17 +2054,32 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     ax.set_ylim(ylim_resid)
     ax.update({'xlabel': 'φ', 'ylabel': 'Resid [%]', 'xlim':[-0.6, 0.6]})
 
+    # flux vs time raw
     ax = axd['C']
-    ax.scatter(ns.time, n(ns.flux), s=0.2, marker='o', c='k', linewidths=0)
-    ylim = get_ylimguess(n(ns.flux))
+    bd = time_bin_magseries(ns.time, n(ns.flux), binsize=900, minbinelems=1)
+    ax.scatter(ns.time, n(ns.flux), s=0.1, marker='o', c='lightgray', linewidths=0)
+    ax.scatter(bd['binnedtimes'], bd['binnedmags'], c='k', s=0.3, zorder=2, linewidths=0)
+    ylim = get_ylimguess(bd['binnedmags'])
+    #ylim = get_ylimguess(n(ns.flux))
     ax.set_ylim(ylim)
     ax.update({'xlabel': '', 'ylabel': 'Flux [%]'})
     ax.set_xticklabels([])
 
+    # flux vs time resid
     ax = axd['D']
-    ax.scatter(ns.time, n(ns.y_resid_nsnw), s=0.2, marker='o', c='k', linewidths=0)
+    bd = time_bin_magseries(ns.time, n(ns.y_resid_nsnw), binsize=900, minbinelems=1)
+    ax.scatter(ns.time, n(ns.y_resid_nsnw), s=0.1, marker='o', c='lightgray', linewidths=0)
+    ax.scatter(bd['binnedtimes'], bd['binnedmags'], c='k', s=0.3, zorder=2, linewidths=0)
     ax.set_ylim(ylim_resid)
     ax.update({'xlabel': 'TESS Julian Date [days]', 'ylabel': 'Resid [%]'})
+
+    tform = blended_transform_factory(ax.transData, ax.transAxes)
+    tmid = np.nanmean(ns.time)
+    t_lo = tmid - d['period']/2
+    t_hi = tmid + d['period']/2
+    ax.hlines(0.9, t_lo, t_hi, colors='red', alpha=1,
+              linestyles='-', zorder=5, linewidths=2, transform=tform)
+
 
     fig.tight_layout(h_pad=0)
 
@@ -2072,14 +2090,6 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
                     linewidths=0, cmap=cmap, alpha=1,
                     vmin=min_cycle, vmax=max_cycle, rasterized=True)
 
-    #axins1 = inset_axes(ax, width="25%", height="3%", loc='upper right',
-    #                    borderpad=1.2)
-
-    #x0,y0,dx,dy = 0.7, 1.0, 0.3, 0.05
-    #axins1 = inset_axes(ax, width="100%", height="100%",
-    #                    bbox_to_anchor=(x0,y0,dx,dy),
-    #                    loc='lower left',
-    #                    bbox_transform=ax.transAxes)
     x0,y0,dx,dy = 0.03, 0.2, 0.3, 0.05
     axins1 = inset_axes(ax, width="100%", height="100%",
                         bbox_to_anchor=(x0,y0,dx,dy),
