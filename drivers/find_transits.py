@@ -38,7 +38,7 @@ from os.path import join
 from glob import glob
 import numpy as np, pandas as pd, matplotlib.pyplot as plt
 
-from complexrotators.paths import LOCALDIR, SPOCDIR
+from complexrotators.paths import LOCALDIR, SPOCDIR, TABLEDIR
 from complexrotators.getters import (
     _get_lcpaths_given_ticid, _get_local_lcpaths_given_ticid,
     _get_lcpaths_fromlightkurve_given_ticid
@@ -291,17 +291,20 @@ def remove_quasiperiodic_signal(
 
 def main():
 
-    sample_id = 'debug'
-    ticids = ["402980664"]
-    #ticids = ["224283342"]
-    #ticids = ["254612758"]
+    #sample_id = 'debug'
+    #ticids = ["402980664", "224283342", "254612758"]
+
+    sample_id = '20230613_LGB_RJ_selfnapplied'
+    csvpath = join(
+        TABLEDIR, "2023_catalog_table", "20230613_LGB_RJ_CPV_TABLE_selfnapplied_rounded.csv"
+    )
+    df = pd.read_csv(csvpath, sep="|")
+    ticids = np.array(df.ticid).astype(str)
 
     for ticid in ticids:
         LOGINFO(42*'-')
         LOGINFO(f"Beginning find_transits for {ticid}...")
         find_transits(ticid, sample_id)
-
-
 
 if __name__ == "__main__":
     main()
