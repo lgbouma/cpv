@@ -1811,9 +1811,7 @@ def get_flx_wav_given_2d_and_target(flx_2d, wav_2d, target_wav):
     return flx, wav
 
 
-def plot_spectrum_windows(outdir):
-
-    starid = 'TIC146539195'
+def plot_spectrum_windows(outdir, starid, inst='HIRES'):
 
     # note: could add in K 7699..
     #lines = ['Ca K', 'Ca H & Hε', 'He', 'Hα', 'Li', 'K']
@@ -1871,7 +1869,7 @@ def plot_spectrum_windows(outdir):
         range(len(lines)), lines, xlims, ylims, xticks, globs
     ):
 
-        fitspaths = glob(join(DATADIR, 'spectra', starid, _glob))
+        fitspaths = glob(join(DATADIR, 'spectra', inst, starid, _glob))
         assert len(fitspaths) == 1
         spectrum_path = fitspaths[0]
 
