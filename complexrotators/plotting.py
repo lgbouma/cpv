@@ -26,6 +26,7 @@ Contents:
 
     Spectra:
         | plot_spectrum_windows
+        | plot_winered_windows
 
     Population:
         | plot_catalogscatter
@@ -849,7 +850,7 @@ def plot_phased_light_curve(
     fig=None, ax=None, savethefigure=True,
     findpeaks_result=None, ylabel=None, showxticklabels=True,
     yoffset=0, dy=5, normfunc=True, xtxtoffset=0, titlepad=None,
-    titlefontsize='small'
+    titlefontsize='small', showtimeticks=None
     ):
     """
     Non-obvious args:
@@ -865,6 +866,7 @@ def plot_phased_light_curve(
         fig, ax: if passed, overrides default
         showtext: bool or stirng.  If string, the string is shown.
         findpeaks_result: output from ``count_phased_local_minima``
+        showtimeticks: list of times to show with colored ticks
     """
 
     # make plot
@@ -941,6 +943,22 @@ def plot_phased_light_curve(
         peakloc = findpeaks_result['peaks_phaseunits']
         peakloc[peakloc>0.5] -= 1 # there must be a smarter way
         ax.scatter(peakloc, np.ones(len(peakloc))*0.98+yoffset, transform=tform,
+                   marker='v', s=10, linewidths=0, edgecolors='none',
+                   color='k', alpha=0.5, zorder=1000)
+
+    if isinstance(showtimeticks, (list, np.ndarray)):
+
+        times = np.array(showtimeticks)
+        phases = (times - t0)/period - np.floor((times - t0)/period)
+        # wrap to [-0.5, 0.5]
+        phases[phases > 0.5] -= 1
+
+        if not xlim == [-0.6,0.6]:
+            raise AssertionError("phasing off otherwise")
+
+        tform = blended_transform_factory(ax.transData, ax.transAxes)
+
+        ax.scatter(phases, np.ones(len(phases))*0.98+yoffset, transform=tform,
                    marker='v', s=10, linewidths=0, edgecolors='none',
                    color='k', alpha=0.5, zorder=1000)
 
