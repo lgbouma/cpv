@@ -914,10 +914,10 @@ def plot_phased_light_curve(
         norm = lambda x: x
 
     if not plotnotscatter:
-        ax.scatter(x_fold, norm(y), color=c0, label="data", marker='.',
+        ax.scatter(x_fold, norm(y), color=c0, marker='.',
                    s=1, rasterized=True, alpha=alpha0, linewidths=0)
     else:
-        ax.plot(x_fold, norm(y), color=c0, label="data",
+        ax.plot(x_fold, norm(y), color=c0,
                 lw=0.5, rasterized=True, alpha=alpha0)
 
     orb_bd = phase_bin_magseries(x_fold, y, binsize=binsize_phase, minbinelems=1)
@@ -1894,7 +1894,6 @@ def plot_spectrum_windows(outdir, starid, inst='HIRES'):
         flx_2d, wav_2d = read_hires(
             spectrum_path, is_registered=0, return_err=0
         )
-        instrument = 'HIRES'
 
         ax = axs[ix]
 
@@ -1918,38 +1917,10 @@ def plot_spectrum_windows(outdir, starid, inst='HIRES'):
             ax.set_xticks(xtick)
             ax.set_xticklabels([str(x) for x in xtick])
 
-        #props = dict(boxstyle='square', facecolor='white', alpha=0.8, pad=0.15,
-        #             linewidth=0)
-        #txt = 'Li-I'
-        #yval = 0.1 if 'KOI-7913' in starname else 0.7
-        #delta = 0.05 if starname not in ['Kepler-1627', 'KOI-7368'] else 0
-        #ax0.text(0.5+delta, yval, txt, transform=ax0.transAxes,
-        #         ha='right',va='bottom', color='k',
-        #         fontsize='x-small', bbox=props)
-        #txt = 'Hα'
-        #yval = 0.1 if 'KOI-7913' not in starname else 0.7
-        #ax1.text(0.9, yval, txt, transform=ax1.transAxes,
-        #         ha='right',va='bottom', color='k',
-        #         fontsize='x-small', bbox=props)
-
-        #if starname in ['Kepler-1627', 'KOI-7368']:
-        #    ax0.yaxis.set_major_locator(MultipleLocator(0.2))
-        #else:
-        #    ax0.yaxis.set_major_locator(MultipleLocator(0.1))
         if line == 'K':
             ax.yaxis.set_major_locator(MultipleLocator(0.5))
         if line == 'Li':
             ax.yaxis.set_major_locator(MultipleLocator(0.3))
-
-        #if starname != 'KOI-7913_B':
-        #    ax1.yaxis.set_major_locator(MultipleLocator(0.2))
-        #else:
-        #    ax1.yaxis.set_major_locator(MultipleLocator(0.3))
-        #ax1.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-        #ax.xaxis.set_minor_locator(MultipleLocator(10))
-
-        #ax0.tick_params(axis='both', which='major', labelsize='x-small')
-        #ax1.tick_params(axis='both', which='major', labelsize='x-small')
 
     #axs[0].set_ylabel("Relative flux")
     fig.text(-0.01,0.5, r'Relative flux', va='center', ha='center',
@@ -1963,8 +1934,182 @@ def plot_spectrum_windows(outdir, starid, inst='HIRES'):
     # set naming options
     s = ''
 
-    outpath = os.path.join(outdir, f'{starid}_spectrum_windows{s}.png')
+    outpath = os.path.join(outdir, f'{starid}_{inst}_spectrum_windows{s}.png')
     savefig(fig, outpath, dpi=400)
+
+
+def plot_winered_windows(outdir, inst='WINERED',
+                         datestr='june10', frameid='WINA00038986',
+                         starid='TIC_89026133'):
+    """
+    atomic Ti (m=167, 168, 180, 182), and Ca (m=171)
+
+    m165 is REALLY GOOD!!!
+        [10661, 10669]
+
+    m167 needs decent sky subtrxn
+
+    m168 is great, no contamination at all
+        [10496, 10504]
+
+    m171 Ca is nice, but beware extraction near chip edges
+        [10344, 10350.5]
+
+    m181 is a bit crappy -- skip
+
+    m182 has two nice lines, tho 9708 needs sky sub
+        [9676, 9682]
+        [9706, 9712]
+
+    """
+
+    if datestr == 'june10':
+        vnum = 'v1'
+    elif datestr == 'june03':
+        vnum = 'v0'
+
+    lines = 'Ti Ti Ca Ti Ti'.split()
+
+    wavs = [
+        9678.346822347512, # Ti m182 first
+        9708.478432545879, # Ti m182 second
+        10346.80091026195, #  Ca m171
+        10499.156483768491, # Ti m168
+        10664.70983956067, # Ti m165
+    ]
+
+    deltawav = 5 # angstrom
+    xlims = [
+        [w-deltawav, w+deltawav] for w in wavs
+    ]
+    ylims = [
+        [0.8,1.1],
+        [0.8,1.1],
+        [0.8,1.1],
+        [0.8,1.1],
+        [0.75,1.1]
+    ]
+    xticks = [
+        [9675, 9680],
+        [9705, 9710],
+        [10345, 10350],
+        [10496, 10501],
+        [10661, 10666]
+    ]
+    globs = [
+        '*m182*',
+        '*m182*',
+        '*m171*',
+        '*m168*',
+        '*m165*',
+    ]
+
+    badbands = [
+        [9707.9,9708.3],
+        [9711.2,9711.6],
+        [9703.5,9705.],
+        [10349.7,10350.6]
+    ]
+
+    #
+    # make plot
+    #
+    plt.close('all')
+    #set_style('clean')
+    set_style('science')
+
+    f = 2.5
+    fig, axs = plt.subplots(ncols=len(lines), figsize=(f*3.3,f*1.15))
+    axs = axs.flatten()
+
+    from cdips_followup.spectools import read_winered
+
+    def get_lam_to_dv(wav0):
+
+        def lam_to_dv(lam):
+            dv_by_c = (lam - wav0)/wav0
+            dv = dv_by_c * 2.998e5 # units: km/s
+            return dv
+
+        return lam_to_dv
+
+    def get_dv_to_lam(wav0):
+
+        def dv_to_lam(dv):
+            dv_by_c = dv / 2.998e5
+            lam = (dv_by_c * wav0) + wav0
+            return lam
+
+        return dv_to_lam
+
+
+    for ix, line, xlim, ylim, xtick, _glob in zip(
+        range(len(lines)), lines, xlims, ylims, xticks, globs
+    ):
+
+        airvac = "VAC"
+        fitspaths = glob(join(DATADIR, 'spectra', inst,
+                              f"bouma_{datestr}_hiresy",
+                              f"{starid}_{frameid}_output_{vnum}", f"{starid}_sum",
+                              f"{airvac}_NORM", "fsr1.05", _glob))
+        assert len(fitspaths) == 1
+        spectrum_path = fitspaths[0]
+
+        flx, wav = read_winered(spectrum_path)
+
+        ax = axs[ix]
+
+        norm = lambda x: x/np.nanmedian(x)
+        fn = lambda x: gaussian_filter1d(x, sigma=4)
+
+        sel = ((xlim[0]-20) < wav) & (wav < xlim[1]+20)
+        ax.plot(
+            wav[sel], fn(norm(flx[sel])), c='k', zorder=3, lw=0.2
+        )
+
+        ax.set_title(line)
+        ax.set_xlim(xlim)
+        if ylim is not None:
+            ax.set_ylim(ylim)
+        if xtick is not None:
+            ax.set_xticks(xtick)
+            ax.set_xticklabels([str(x) for x in xtick])
+
+        for badband in badbands:
+            ymin, ymax = ax.get_ylim()
+            _y = np.linspace(ymin, ymax, 100)
+            ax.fill_betweenx(_y, np.ones_like(_y)*badband[0],
+                             np.ones_like(_y)*badband[1], zorder=-100, color='k',
+                             alpha=0.2, ec='none')
+
+        wav = wavs[ix]
+        ax.vlines(wav, ymin, ymax, colors='k',
+                  linestyles=':', zorder=-5, lw=0.5, alpha=0.5)
+
+        ax.set_ylim(ylim)
+
+    for ix in range(len(lines)):
+        wav0 = wavs[ix]
+        secax_x = axs[ix].secondary_xaxis(
+            -0.2, functions=(get_lam_to_dv(wav0), get_dv_to_lam(wav0))
+        )
+
+
+
+    fig.text(-0.01,0.5, r'Relative flux', va='center', ha='center',
+             rotation=90)
+
+    fig.text(0.5,-0.01, r'Wavelength [$\AA$] and Velocity [km/s]', va='center', ha='center',
+             rotation=0)
+
+    fig.tight_layout(w_pad=0.2)
+
+    # set naming options
+    s = ''
+
+    outpath = os.path.join(outdir, f'{starid}_{inst}_{frameid}_spectrum_windows{s}.png')
+    savefig(fig, outpath, dpi=400)
+
 
 
 def plot_quasiperiodic_removal_diagnostic(d, pngpath):
