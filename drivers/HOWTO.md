@@ -104,10 +104,13 @@ G) To make the plots and values files for the manuscript
 ----------
 1. Run `get_selection_function_values.py`
 
-...todo
-
+----------
+H) To reduce WINERED spectra
+----------
+1. From ~/proj/WARP, run exec.sh in the py37_warp environment.
+  - Tune individual frame id's, and obj id's, as required.
 
 ----------
-G) To search for transiting planets
+X) To search for transiting planets
 ----------
 ...todo
