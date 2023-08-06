@@ -3267,7 +3267,7 @@ def plot_beforeafter_mosaic(outdir, showtitles=1, titlefontsize=3.75,
             ax.set_xticklabels(['-0.5','0','0.5'], fontsize='small')
     else:
         for ix in [16,17, 34,35, 52,53]:
-            axs[ix].set_xticklabels(['-0.5','0','0.5'], fontsize='small')
+            axs[ix].set_xticklabels(['-0.5','0','0.5'], fontsize=labelsize)
 
     fs = 'medium'
     if SIMPLEGRID:
@@ -3486,7 +3486,7 @@ def plot_tic4029_segments(outdir):
         # between time gaps.
         _, _groups = find_lc_timegroups(x, mingap=0.5/24)
         for _g in _groups:
-            ax.plot(x[_g], y[_g], c='k', zorder=1, lw=0.2, alpha=0.15)
+            ax.plot(x[_g], y[_g], c='k', zorder=1, lw=0.2, alpha=0.25)
 
         _, _groups = find_lc_timegroups(sx, mingap=0.5/24)
         for _g in _groups:
