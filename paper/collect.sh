@@ -21,5 +21,6 @@ cp $resultsdir/phase_timegroups_mosaic/TIC_402980664/TIC_402980664_P18.5611_2min
 cp $resultsdir/catalogscatter/catalogscatter_showmaybe.pdf f7.pdf
 
 # fig8
-cp $resultsdir/magnetic_bstar_comparison/magnetic_bstar_comparison_showtitles_hd37776.pdf f8a.pdf
-cp $resultsdir/magnetic_bstar_comparison/magnetic_bstar_comparison_showtitles_hd64740.pdf f8b.pdf
+cp $resultsdir/magnetic_bstar_comparison/magnetic_bstar_comparison_showtitles_simpleB.pdf f8a.pdf
+cp $resultsdir/magnetic_bstar_comparison/magnetic_bstar_comparison_showtitles_complexB.pdf f8b.pdf
+cp $resultsdir/magnetic_bstar_comparison/magnetic_bstar_comparison_showtitles_complexM.pdf f8c.pdf

@@ -3852,6 +3852,76 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
         optionalid = [None, 'HD 37776', None, 'HD 64740']
         showsectors = [38, 6, 3, 34]
         texts = [0.8, 7, 0.1, 7] # masses
+    elif selfn == 'all':
+        ticids = [
+            '11286209', '424048289', # simple B star field topplogies
+            '11400909', '268971806', # complex B star field topologies
+            '405754448', '201789285', # M dwarf matches
+        ]
+        optionalid = [
+            'σ Ori E', 'HD 345439',
+            #None, 'HD 37776',
+            #None, 'HD 64740'
+            'HD 37776', 'HD 64740',
+            None, None
+        ]
+        showsectors = [
+            32, 41,
+            #38, 6,
+            #3, 34
+            6, 34,
+            38, 3
+        ]
+        # sigmaOriE from Townsend2013
+        texts = [
+            8, 7,
+			7, 7,
+            0.8, 0.1
+        ] # masses
+    elif selfn == 'simpleB':
+        ticids = [
+            '11286209', '424048289' # simple B star field topplogies
+        ]
+        optionalid = [
+            'σ Ori E', 'HD 345439',
+        ]
+        showsectors = [
+            32, 41,
+        ]
+        # sigmaOriE from Townsend2013
+        texts = [
+            8, 7,
+        ] # masses
+    elif selfn == 'complexB':
+        ticids = [
+            '11400909', '268971806', # complex B star field topologies
+        ]
+        optionalid = [
+            'HD 37776', 'HD 64740',
+        ]
+        showsectors = [
+            6, 34,
+        ]
+        # sigmaOriE from Townsend2013
+        texts = [
+			7, 7,
+        ] # masses
+    elif selfn == 'complexM':
+        ticids = [
+            '405754448', '201789285', # M dwarf matches
+        ]
+        optionalid = [
+            None, None
+        ]
+        showsectors = [
+            38, 3
+        ]
+        # sigmaOriE from Townsend2013
+        texts = [
+            0.8, 0.1
+        ] # masses
+
+
     # sigma-ori
     elif selfn == 'sigmaoriE':
         msg = (
@@ -3873,9 +3943,11 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
     set_style("science")
     if len(ticids) == 2:
         factor = 1.4
-        fig, axs = plt.subplots(figsize=(factor*2,factor*1.5), ncols=2)
+        fig, axs = plt.subplots(figsize=(factor*2,factor*1.37), ncols=2)
     elif len(ticids) == 4:
         fig, axs = plt.subplots(figsize=(4,1.5), ncols=4)
+    elif len(ticids) == 6:
+        fig, axs = plt.subplots(figsize=(6,1.5), ncols=6)
 
     ix = 0
 
@@ -3900,6 +3972,22 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
         # get the relevant light curve data
         (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
          sector, starid) = prepare_cpv_light_curve(lcpath, cachedir)
+
+        if ticid == '424048289':
+            mask = (
+                (x_obs < 2423) |
+                ( (x_obs > 2433) & (x_obs < 2437) ) |
+                (x_obs > 2444) |
+                ( (x_obs > 2430) & (x_obs < 2435) )
+            )
+            sel = ~mask
+            x_obs = x_obs[sel]
+            y_flat = y_flat[sel]
+            #plt.close('all')
+            #plt.figure(figsize=(12,4))
+            #plt.scatter(x_obs, y_flat, s=1)
+            #plt.savefig('temp.png')
+            #assert 0
 
         if ticid == '11400909':
             sel = x_obs < 1487
@@ -4024,6 +4112,14 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
             ax.set_ylim([-0.2, 0.2])
             ax.set_yticks([-0.1, 0, 0.1])
             ax.set_yticklabels([-0.1, 0, 0.1])
+        if ticid == '11286209': # sigma ori E
+            ax.set_ylim([-6, 4])
+            ax.set_yticks([-5, 0, 3])
+            ax.set_yticklabels([-5, 0, 3])
+        if ticid == '424048289':
+            ax.set_ylim([-6, 6])
+            ax.set_yticks([-5, 0, 5])
+            ax.set_yticklabels([-5, 0, 5])
 
         labelsize = 'xx-small'
 

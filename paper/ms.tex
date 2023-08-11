@@ -1671,29 +1671,37 @@ important physical significance.
 
 
 
-\begin{figure}[!t]
+\begin{figure}[!th]
 	\begin{center}
 		\centering
-		%\includegraphics[width=0.9\textwidth]{f8.pdf}
 		\subfloat{
-			\includegraphics[width=0.49\textwidth]{f8a.pdf}
+			\includegraphics[width=0.48\textwidth]{f8a.pdf}
 		}
 			
 		\vspace{-0.4cm}
 		\subfloat{
-			\includegraphics[width=0.49\textwidth]{f8b.pdf}
+			\includegraphics[width=0.48\textwidth]{f8b.pdf}
 		}
+
+		\vspace{-0.4cm}
+		\subfloat{
+			\includegraphics[width=0.48\textwidth]{f8c.pdf}
+		}
+
 		\vspace{-0.1cm}
 		\caption{
-      {\bf The magnetic B star connection.}  HD~37776 and HD~64740 (left column) are
-      magnetic B stars with field geometries dominated by high order
-      multipoles.
-			Here, we compare their phased TESS light curves against the
-			``best-matching'' CQV light curves (right column), selected by eye from
-			Figure~\ref{fig:cqvs}.
-      Stellar masses rounded to one significant figure are given
-      in the lower right of each panel; the star, TESS sector, and
-      period are listed in the title.
+      {\bf The magnetic B star connection.}
+      $\sigma$~Ori~E and HD~345439 (top row) are magnetic B stars with
+      predominantly dipolar magnetic fields known to host
+      circumstellar plasma tori.  HD~37776 and HD~64740 (middle row)
+      are analogous magnetic B stars with field toplogies dominated
+      by high order multipoles.  The bottom row compares the latter
+      systems against the ``best-matching'' CQV light curves, selected
+      by eye from Figure~\ref{fig:cqvs}.  CQVs have light curves that are
+      visually similar to the topologically complex magnetic B stars.
+      Stellar masses rounded to one significant figure are given in
+      the lower right of each panel; the star, TESS sector, and period
+      are listed in each subtitle.
 		}
 		\label{fig:bstar}
 	\end{center}
@@ -1754,54 +1762,57 @@ corotation \citep{2005ApJ...630L..81T}.  The $\sigma$~Ori class is
 distinct from Be-star decretion disks, which do not have any obvious
 connection to the stellar magnetic field \citep{2013A&ARv..21...69R}.
 
-An argument against the connection between CQVs and the
-$\sigma$~Ori~E analogs is that the light curve of $\sigma$~Ori~E is
-much simpler than those in Figure~\ref{fig:cqvs}, with only two broad
-local minima, and one ``hump'' \citep{2005ApJ...630L..81T, 2022ApJ...924L..10J}.  
-Within the model proposed by Townsend et al., this is explained by the simplicity of 
-the star's magnetic field, which to first-order is a
+An argument against the connection between CQVs and the $\sigma$~Ori~E
+analogs is that the light curve of $\sigma$~Ori~E is much simpler than
+those in Figure~\ref{fig:cqvs}, with only two broad local minima, and
+one ``hump'' \citep{2005ApJ...630L..81T, 2022ApJ...924L..10J}.  Within
+the model proposed by Townsend et al., this is explained by the
+simplicity of the star's magnetic field, which to first-order is a
 dipole, similar to most other magnetic B stars
-\citep{2009ARA&A..47..333D}.  This approximation matches the qualitative
-behavior of both the broadband light curves, and the
-line-profile variations seen in hydrogen, helium, and carbon
+\citep{2007A&A...475.1053A,2009ARA&A..47..333D}.  This approximation
+matches the qualitative behavior of both the broadband light curves,
+and the line-profile variations seen in hydrogen, helium, and carbon
 \citep{2012MNRAS.419..959O}.
 
 Two exceptions to the rule of ``simple field topologies for magnetic
 B stars'' are HD~37776 and HD~64740, which are B stars that were
-previously known from spectropolarimetry in the 2000s-2010s to have
+previously known from spectropolarimetry to have
 field geometries dominated by high order multipoles
-\citep{2011ApJ...726...24K}.  In a review of the literature, we
+\citep{2011ApJ...726...24K}.  Reviewing the literature, we
 learned that recent TESS light curves of these two B stars appear
 surprisingly similar to the CQV light curves
-\citep{2020pase.conf...46M}.  Figure~\ref{fig:bstar} shows the phased
-TESS light curves for the two outlying magnetic B stars, with by-eye
-``best matching'' CQVs shown for comparison.  The number of dips per
-cycle, the shapes of the dips, and the dip depths relative to the
-sinusoidal envelope, all seem to be quite similar.  The
-implication of such a surprising connection would be that the
-highly-structured M dwarf light curves imply multipolar magnetic
+\citep{2020pase.conf...46M}.  The middle row of Figure~\ref{fig:bstar}
+shows the phased TESS light curves for these two outlying magnetic B
+stars, with by-eye ``best matching'' CQVs shown for comparison.  The
+number of dips per cycle, the shapes of the dips, and the dip depths
+relative to the sinusoidal envelope, all seem to be quite similar.
+The implication of this surprising connection is that the
+highly-structured M dwarf light curves may imply multipolar magnetic
 fields -- since it is the complex fields which are the defining
 characteristic of these two B stars, relative to other known magnetic
-B stars like $\sigma$~Ori~E.  
-This is consistent with the non-axisymmetric topologies that have been
-reported in a small number of M dwarfs for which Zeeman Doppler
-Imaging is technically feasible 
+B stars like $\sigma$~Ori~E.  This is consistent with the
+non-axisymmetric topologies that have been reported in a small number
+of M dwarfs for which Zeeman Doppler Imaging is technically feasible
 \citep[see the review by][]{2021A&ARv..29....1K}.
 
-The physical similarity between the B stars and the M dwarfs 
-presumably has its origin in the existence of a ``centrifugal magnetosphere'' \citep[see][]{2013MNRAS.429..398P}.
-In other
-words, both classes of objects probably satisfy the condition $R_{\rm A} > R_{\rm cr}$, for
-$R_{\rm A}$ the Alfv\'en radius.
-When this condition holds, stable points exist wherever the outward
-centrifugal force is balanced by magnetic tension of closed field loops.
-In the converse ``dynamical'' case, when  $R_{\rm A} < R_{\rm cr}$, any
-material launched by the star returns to its surface over the free-fall timescale.
-% While there are some qualitative connections to Jupiter-Io, it's not perfect.
-% In that system, R_A>R_cr...
-% But the plasma torus exists near Io's 42 hour orbit
-% ...and is nonetheless STILL FORCED into corotation at a 10hr period (presumably by Jupiter's B-field).
-% This type of structure is very different, because here we actually see the plasma at corotation!
+The physical similarity between the B stars and the M dwarfs
+presumably has its origin in the existence of a ``centrifugal
+magnetosphere'' \citep[see][]{2013MNRAS.429..398P}.  In other words,
+both classes of objects probably satisfy the condition $R_{\rm A} >
+R_{\rm cr}$, for $R_{\rm A}$ the Alfv\'en radius.  When this condition
+holds, stable points exist wherever the outward centrifugal force is
+balanced by magnetic tension of closed field loops.  In the converse
+``dynamical'' case, when  $R_{\rm A} < R_{\rm cr}$, any material
+launched by the star returns to its surface over the free-fall
+timescale.
+
+% While there are some qualitative connections to Jupiter-Io, it's not
+% perfect.  In that system, R_A>R_cr...  But the plasma torus exists
+% near Io's 42 hour orbit ...and is nonetheless STILL FORCED into
+% corotation at a 10hr period (presumably by Jupiter's B-field).  This
+% type of structure is very different, because here we actually see
+% the plasma at corotation!
+
 
 \section{Conclusions}
 \label{sec:conclusion}
@@ -1809,21 +1820,30 @@ material launched by the star returns to its surface over the free-fall timescal
 In this work, we searched 120-second cadence TESS data collected
 between July~2018 and Sep~2022 for complex quasiperiodic variables
 (CQVs).  The target stars were \nstarssearched\ K and M dwarfs
-within 150\,pc.  The selection function was $\gtrsim 80\%$ complete within 30\,pc,
-and $\lesssim 10\%$ complete at distances exceeding 100\,pc.
+within 150\,pc.  The selection function was $>$$80\%$ complete within 30\,pc,
+and $<$$10\%$ complete at distances exceeding 100\,pc.
 
-In this sample of stars, we found \ngoods\ objects that showed complex
-quasiperiodic behavior over at least one TESS sector.  Because the
-TESS 120-second stellar sample was rooted in a heterogeneous selection
-function that may have been biased in favor of young stars over field
-stars, we caution against interpreting our detection fraction in
-terms of broader population statistics.  The \ngoods\ bonafide
+In our target sample, we found \ngoods\ objects that showed complex
+quasiperiodic behavior over at least one TESS sector.  
+These \ngoods\ bonafide
 CQVs are listed in Table~\ref{tab:thetable}.  This table also includes
 an additional \nmaybes\ ambiguous CQVs, whose designation is less
 certain.
+We inferred ages for all but two of the \ncpvsfound\ objects based on association
+memberships; we also derived temperatures and radii using SED fitting,
+and then inferred stellar masses by
+interpolating against stellar evolutionary models.
+We caution that our selection function was not volume-limited:
+the
+TESS 120-second stellar sample had a heterogeneous selection
+function which may have been biased in favor of young stars over field
+stars.
+Previous work however has shown that $\approx$1-3\% of M dwarfs
+younger than $\approx$100\,Myr show the CQV phenomenon
+\citep{2016AJ....152..114R,2022AJ....163..144G}.
 
-Analyzing the TESS light curves and stellar properties of these
-objects, we draw the following conclusions.
+Analyzing the TESS light curves and stellar properties of our
+CQVs, we draw the following conclusions.
 
 \begin{enumerate}[leftmargin=*]
 	%
@@ -1838,11 +1858,13 @@ objects, we draw the following conclusions.
     (Figure~\ref{fig:lpriver0}).
   %
     \item CQVs evolve over timescales that are both secular
-    ($>$100\,cycles) and impulsive ($<$1 cycle).  ``State-switches''
-    can cause dips to collapse instantaneously, and are often but not
-    exclusively linked with observed optical flares.  Dip growth
-    however seems to happen over durations of at least ten cycles, and
-    slow dip decay can also occur.
+    ($>$100\,cycles) and impulsive ($<$1 cycle).  
+    Dip growth seems to happen over durations of at least ten cycles, and slow dip decay can also occur.
+    ``State-switches''
+    correspond to dips to collapsing instantaneously, and are almost always
+    linked with observed optical flares.
+    This suggests that the occulting material is responding to sudden changes
+    in the magnetic field.
   %
     \item The rate of dip evolution can be used to place a model-dependent
     constraint on how much material is either being accreted or ejected
@@ -1911,18 +1933,15 @@ question.  Given the observed evolutionary timescales, such data
 should be acquired simultaneously with photometric time-series
 observations to help clarify its interpretation.
 
-%TODO: nix this paragraph?  This edge on hypothesis only holds
-%TODO if the magnetic field is aligned with the stellar spin axis.
-{\bf todo: nix paragraph? technically this only works if B is aligned
-with stellar spin axis... which would be aligned w planetary system}
 In both the gas and dust scenarios, CQVs are preferentially viewed
 edge-on.  This implies that after correcting for the line-of-sight
-inclination, at least one third of low mass stars
-\citep{2022AJ....163..144G} trap circumstellar material in the same
-way.  This suggests that CQVs should preferentially show edge-on
-transiting planets, at larger distances from the star than the
-corotating material.  Given these points, important follow-up
-observations should include searching for outer transiting planets,
+inclination, roughly one third of low mass stars
+\citep{2022AJ....163..144G} could trap circumstellar material in the same
+way.  It also suggests that CQVs may preferentially show
+transiting planets at larger distances than the corotating material, though
+this may be dependent on whether the magnetic and stellar
+spin axes tend to be aligned.  Given these points, observational follow-up
+work should include searching for outer transiting planets,
 and measuring equatorial velocities in order to test whether the
 stellar inclination angles are indeed preferentially edge-on.
 
