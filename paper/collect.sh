@@ -24,3 +24,8 @@ cp $resultsdir/catalogscatter/catalogscatter_showmaybe.pdf f7.pdf
 cp $resultsdir/magnetic_bstar_comparison/magnetic_bstar_comparison_showtitles_simpleB.pdf f8a.pdf
 cp $resultsdir/magnetic_bstar_comparison/magnetic_bstar_comparison_showtitles_complexB.pdf f8b.pdf
 cp $resultsdir/magnetic_bstar_comparison/magnetic_bstar_comparison_showtitles_complexM.pdf f8c.pdf
+
+# appendix
+cp $resultsdir/phase_timegroups/TIC_300651846/cycle-1_to_630TIC_300651846_P8.2540_2min_phase_timegroups.pdf f11a.pdf
+cp $resultsdir/phase_timegroups/TIC_300651846/cycle2290_to_2680TIC_300651846_P8.2540_2min_phase_timegroups.pdf f11b.pdf
+

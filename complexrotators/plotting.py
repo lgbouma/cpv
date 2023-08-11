@@ -474,7 +474,9 @@ def plot_phase_timegroups(
     yoffset=5,
     showtitle=1,
     figsize_y=7,
-    do4029_resid=0
+    do4029_resid=0,
+    cyclewindow=None,
+    mingap=3/24  # days
     ):
     """
     As in plot_phase
@@ -540,7 +542,7 @@ def plot_phase_timegroups(
         fluxs = np.array(df.r_flux)
 
     from astrobase.lcmath import find_lc_timegroups
-    ngroups, groups = find_lc_timegroups(times, mingap=3/24)
+    ngroups, groups = find_lc_timegroups(times, mingap=mingap)
 
     # Make plots
     plt.close('all')
@@ -571,6 +573,12 @@ def plot_phase_timegroups(
         if len(gtime) < 100:
             continue
         #print(txt, N_cycles_in_group, len(gtime))
+
+        if isinstance(cyclewindow, (tuple, list)):
+            if e_start < cyclewindow[0]:
+                continue
+            if e_end > cyclewindow[1]:
+                continue
 
         plot_phased_light_curve(
             gtime, gflux, plot_t0, plot_period, None,
@@ -608,6 +616,9 @@ def plot_phase_timegroups(
     s = ''
     if do4029_resid:
         s += 'resid_'
+    if isinstance(cyclewindow, (tuple, list)):
+        s += f'cycle{cyclewindow[0]}_to_{cyclewindow[1]}'
+
     outpath = join(outdir, f"{s}{ticid}_P{plot_period*24:.4f}_{lc_cadences}_phase_timegroups.png")
     #fig.savefig(outpath, dpi=300)
     savefig(fig, outpath, dpi=450)
@@ -974,12 +985,12 @@ def plot_phased_light_curve(
                 ax.text(0.97+xtxtoffset,
                         np.nanmin(norm(orb_bd['binnedmags'][sel])-dy/5), txt,
                         transform=tform, ha='right',va='top', color='k',
-                        fontsize=fontsize, bbox=props)
+                        fontsize=fontsize, bbox=props, zorder=999999)
             else:
                 ax.text(0.97+xtxtoffset,
                         np.nanmin(norm(orb_bd['binnedmags'])-dy/5), txt,
                         transform=ax.transAxes, ha='right',va='top', color='k',
-                        fontsize=fontsize, bbox=props)
+                        fontsize=fontsize, bbox=props, zorder=999999)
 
         else:
             if isinstance(t0, float):
