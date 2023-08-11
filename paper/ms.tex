@@ -33,6 +33,8 @@
 \usepackage{color}
 \usepackage{enumitem}
 
+\newcommand{\red}{\color{red}}
+
 \newcommand{\rprs}{{$R_p/R_{\star}$}}
 \newcommand{\vsini}{{$V \sin i$}}
 \newcommand{\kms}{{km\,s$^{-1}$}}
@@ -82,7 +84,7 @@
 
 %\title{Pre-Main-Sequence M-Dwarfs With Complex Quasiperiodic Variability From Four Years of TESS}
 %\title{Complex Quasiperiodic Variables From Four Years of TESS}
-\title{Corotating Clumps Around Adolescent Low-Mass Stars: Four Years of TESS}
+\title{Corotating Clumps Around Adolescent Low-Mass Stars: Four Years of Complex Quasiperiodic Variables from TESS}
 
 \correspondingauthor{Luke G. Bouma}
 \email{luke@astro.caltech.edu}
@@ -92,7 +94,7 @@
 \accepted{---}
 \shorttitle{Four Years of CQVs} 
 
-\shortauthors{Bouma, Jayararaman, et al.}
+\shortauthors{Bouma, Jayaraman, et al.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -104,7 +106,7 @@
 \altaffiliation{51 Pegasi b Fellow}
 \affiliation{\caltech}
 
-\author[0000-0002-7778-3117]{Rahul~Jayararaman}
+\author[0000-0002-7778-3117]{Rahul~Jayaraman}
 \affiliation{\mitkavli}
 
 \author{Saul~Rappaport}
@@ -195,10 +197,10 @@ Data from K2 and TESS have yielded a new class of variable star whose
 root cause is only beginning to become clear: complex quasiperiodic
 variables (CQVs).  These objects are identified 
 from their optical light curves, which show nearly periodic troughs
-that can be either sharp or broad, often superposed on smooth
-spot-like modulation
+that are either sharp or broad; these troughs are often superposed on
+smooth spot-like modulation
 \citep{2017AJ....153..152S,2018AJ....155...63S,2019ApJ...876..127Z}.
-Some CQVs show up to eight local minima (dips) per cycle.  Most are
+Some CQVs show up to eight local minima (``dips'') per cycle.  Most are
 pre-main-sequence M dwarfs without near-infrared excesses, ages of
 $\approx$5-150 million years (Myr), and rotation periods of at most
 two days; they are observed to comprise $\approx$1-3\% of M dwarfs younger
@@ -263,7 +265,7 @@ The known CQVs are correspondingly faint; the initial K2 discoveries
 distances $\gtrsim$100\,pc, yielding optical brightnesses of
 $V$$\approx$15.5 to $V$$>$20.  This renders time-series spectroscopy
 at high resolution out of reach for current facilities, despite its
-potential utility in ruling between the models.
+potential utility in ruling out some of these models.
 
 In this work, we aim to find bright and nearby CQVs, since these
 objects will be the most amenable to detailed photometric and
@@ -277,7 +279,8 @@ deep-dive into LP 12-502.  We discuss a few implications in
 Section~\ref{sec:discussion}, and conclude in
 Section~\ref{sec:conclusion}.
 
-A point on nomenclature.  CQVs have been called ``transient flux
+A point on nomenclature. 
+CQVs have been called ``transient flux
 dips'', ``persistent flux dips'', ``scallop shells'', ``batwings'',
 \citep{2017AJ....153..152S} ``complex rotators'',
 \citep{2019ApJ...876..127Z,2022AJ....163..144G,2023ApJ...945..114P}
@@ -336,18 +339,18 @@ opt to refer to them by a single empirically descriptive name.
 
 We analyzed the ``short'' 120-second cadence data acquired by TESS
 between July~2018 and Sep~2022 (Sectors 1-55).  Specifically, we used
-the 120-second cadence light curve products produced by the 
-Science Processing and Operations Center at NASA Ames
-\citep{2016SPIE.9913E..3EJ}.  While the TESS data products also
-include full frame images with cadences of 200, 600, and 1800 seconds,
-we limited our scope in this work for the sake of simplicity in data
-handling.  In exchange, we lose in both completeness and homogeneity
-of the selection function.  While TESS cumulatively observed
-$\approx$90\% of the sky for at least one lunar month between
-July~2018 and Sep~2022, the 120-second cadence data were acquired for
-only a pre-selected set of stars over Sectors 1-26, and then a
-guest-investigator driven set of stars over Sectors 27-55
-\citep{2021PASP..133i5002F}.
+the 120-second cadence light curves produced by the Science
+Processing and Operations Center at NASA Ames
+\citep{2016SPIE.9913E..3EJ}.  While the TESS data products from these
+sectors also included full frame images with cadences of 600 and 1800
+seconds, we limited our scope in this study for the sake of simplicity
+in data handling.  In exchange, we sacrificed both completeness and
+homogeneity of the selection function.  While TESS cumulatively
+observed $\approx$90\% of the sky for at least one lunar month between
+July~2018 and Sep~2022, the 120-second cadence data were collected for
+only a subset of observable stars during this time due to telemetric
+constraints
+\citep[see][]{2021PASP..133i5002F}.
 
 To assess the completeness of the resulting 120-second cadence data
 that is the basis of this study, we cross-matched TIC8
@@ -460,10 +463,34 @@ algorithmically reported) in at least one observed TESS sector.
 
 \subsubsection{Fourier analysis}
 \label{subsec:fourier}
-For the Fourier analysis, we followed \citet{2019ApJ...876..127Z}.
 
-{\bf TODO for Rahul or Saul: explain the approach, in a few
-	paragraphs.  Was the SAP\_FLUX or PDCSAP used? etc. }
+We performed an independent search for strongly periodic phenomena
+using our Fourier pipeline, following \citet{2019ApJ...876..127Z} and
+\citet[][their Section~1.3]{2023MNRAS.524.4220P}.
+Starting with the PDC\_SAP light curves, we normalized each light
+curve, and then re-binned it into equal width bins {\bf LB: how long?} to
+account for the uneven spacing in the TESS data, as well as the data
+gap during each sector caused by satellite downlink.  We then padded
+the data to ensure that the light curve had a length that was a power
+of two, as described by \citeauthor{2019ApJ...876..127Z}.  We
+then took the Fourier transform of the corrected, padded light curve using 
+{\tt numpy.fft.fft} and searched for peaks with a significance of over 
+12-$\sigma$ within each set of 500 bins. 
+
+If a peak of such significance was found, we generated a ``summary
+sheet'' with information about the star, its full and folded light
+curves, Fourier transform, potential contaminating stars, and
+information about these contaminating stars.  
+In the sectors for which
+we performed this analysis, we found that ``summary'' sheets were
+generated for approximately 10\% of the 20\,000 120-second targets in
+a given sector.  
+We then manually reviewed each summary sheet, and
+visually labelled each star based on its morphology (including e.g.,
+eclipsing binary, CQV, RS CVn, or cataclysmic variable).  CQVs that
+were observed in multiple sectors had their light curves stitched
+together and analyzed for a more accurate period determination.
+
 
 \subsubsection{Manual vetting}
 
@@ -529,10 +556,23 @@ and dip-counting techniques were eclipsing binaries, spot-induced
 variability from rapid rotators, and variability from neighboring,
 off-target stars.  Typical false positive rates from our dip-counting
 pipeline were 5:1, with \nuniqdipflagged\ unique stars flagged, and
-about 20\% being labeled either ``good'' or ``possible'' CQVs; for
-the Fourier pipeline, {\bf the rate was X:Y, with ZZZZ unique stars
-flagged, and NN\% being labeled ``good'' or ``possible'' CQVs}.
+about 20\% being labeled either ``good'' or ``possible'' CQVs.
+The Fourier analysis was not amenable to calculating a similar
+false-positive probability, because it was implemented as a general
+variability search; its results are also being used for other types of
+variability analyses beyond CQVs.
 
+%TODO: include?
+%Between the targets identified as CQVs by both pipelines,
+% {\red 
+%\begin{itemize}
+%\item XX targets were found to overlap
+%\item YY targets were found via Fourier but not via dip counting
+%\end{itemize}
+%}
+%The difference in discovery rate between these techniques can be attributed to
+%low-amplitude peaks in the periodogram that were missed, some of which likely
+%arose from fainter CQVs. 
 
 \subsection{Stellar properties}
 \label{subsec:starprops}
@@ -1716,9 +1756,9 @@ connection to the stellar magnetic field \citep{2013A&ARv..21...69R}.
 An argument against the connection between CQVs and the
 $\sigma$~Ori~E analogs is that the light curve of $\sigma$~Ori~E is
 much simpler than those in Figure~\ref{fig:cqvs}, with only two broad
-local minima, and one ``hump'' \citep{2005ApJ...630L..81T}.  Within
-the model proposed by Townsend et al., this is explained by the simplicity of the star's
-magnetic field, which to first-order is a
+local minima, and one ``hump'' \citep{2005ApJ...630L..81T, 2022ApJ...924L..10J}.  
+Within the model proposed by Townsend et al., this is explained by the simplicity of 
+the star's magnetic field, which to first-order is a
 dipole, similar to most other magnetic B stars
 \citep{2009ARA&A..47..333D}.  This approximation matches the qualitative
 behavior of both the broadband light curves, and the
@@ -1736,8 +1776,8 @@ surprisingly similar to the CQV light curves
 TESS light curves for the two outlying magnetic B stars, with by-eye
 ``best matching'' CQVs shown for comparison.  The number of dips per
 cycle, the shapes of the dips, and the dip depths relative to the
-sinusoidal envelope, all seem to be quite similar.  If this connection
-is taken seriously, the implication would be that the
+sinusoidal envelope, all seem to be quite similar.  The
+implication of such a surprising connection would be that the
 highly-structured M dwarf light curves imply multipolar magnetic
 fields -- since it is the complex fields which are the defining
 characteristic of these two B stars, relative to other known magnetic
@@ -1934,6 +1974,8 @@ All authors assisted in manuscript revision.
 	%\texttt{AstroImageJ} \citep{collins_astroimagej_2017},
   %\texttt{astropy} \citep{astropy_2018},
  % \texttt{astroquery} \citep{astroquery_2018},
+  \texttt{astropy} \citep{astropy_2013,astropy_2018,astropy_2022},
+  %\texttt{astroquery} \citep{astroquery_2018},
   %\texttt{BATMAN} \citep{kreidberg_batman_2015},
   %\texttt{ceres} \citep{brahm_2017_ceres},
   %\texttt{cdips-pipeline} \citep{bhatti_cdips-pipeline_2019},
@@ -1949,7 +1991,7 @@ All authors assisted in manuscript revision.
 	\texttt{lightkurve} \citep{2018ascl.soft12013L},
   %\texttt{matplotlib} \citep{hunter_matplotlib_2007}, 
   %\texttt{MESA} \citep{paxton_modules_2011,paxton_modules_2013,paxton_modules_2015}
-  %\texttt{numpy} \citep{walt_numpy_2011}, 
+  \texttt{numpy} \citep{2020Natur.585..357H}, 
   %\texttt{pandas} \citep{mckinney-proc-scipy-2010},
   \texttt{pyGAM} \citep{daniel_serven_2018_1208723},
   %\texttt{PyMC3} \citep{salvatier_2016_PyMC3},
