@@ -638,11 +638,12 @@ extinction:
 for $\mathcal{N}$ the Gaussian and $\mathcal{U}$ the uniform
 distributions, and $\mathcal{T}(\mu, \sigma, a, b)$ a truncated normal
 distribution with mean $\mu$, standard deviation $\sigma$, and lower
-and upper bounds $a$ and $b$.  Using \texttt{Dynesty}
-\citep{2020MNRAS.493.3132S}, we statically sampled the posterior
-probability assuming the default Gaussian likelihood, and set a
-stopping threshold of ${\rm d}\log \mathcal{Z} < 0.01$, where
-$\mathcal{Z}$ denotes the evidence.
+and upper bounds $a$ and $b$.  We validated our chosen upper bound on
+$A_{\rm V}$ using a 2MASS color-color diagram.  Finally, using
+\texttt{Dynesty} \citep{2020MNRAS.493.3132S}, we statically sampled
+the posterior probability assuming the default Gaussian likelihood,
+and set a stopping threshold of ${\rm d}\log \mathcal{Z} < 0.01$,
+where $\mathcal{Z}$ denotes the evidence.
 
 With the effective temperatures and stellar radii from the SED fit, we
 then estimated the stellar masses by interpolating against the PARSEC
