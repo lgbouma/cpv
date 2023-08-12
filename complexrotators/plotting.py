@@ -188,6 +188,7 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
         assert ALGORITHM1 + ALGORITHM2 == 1
 
         if ALGORITHM1:
+            raise NotImplementedError("indexing by cycle_ind wrong")
             if len(flux[sel])/N_obs_per_cycle < 0.9:
                 # for significantly empty cycles, do all nan.  "significantly
                 # empty" here means any more than 5 cadences (10 minutes, out of a
@@ -214,16 +215,16 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
 
         if ALGORITHM2:
 
-            if len(time[sel])/N_obs_per_cycle < 0.1:
+            if len(time[sel])/N_obs_per_cycle < 0.2:
                 # for significantly empty cycles, do all nan.  "significantly
                 # empty" here means any more than 5 cadences (10 minutes, out of a
                 # ~1 day periods typically) off.
-                flux_arr[:, cycle_ind] = 0
+                flux_arr[:, ix] = np.nan
 
             else:
                 # select points slightly inside and outside of this cycle
                 out_sel = (
-                    (time > begin-0.05*period) & (time <= end+0.05*period)
+                    (time > begin-0.03*period) & (time <= end+0.03*period)
                 )
 
                 t_start_this_cycle = t0 + cycle_ind * period
@@ -242,32 +243,58 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
                 flux_this_cycle = fn(t_grid_this_cycle)
 
                 print(cycle_ind, N_obs_per_cycle)
-                try:
-                    flux_arr[:, ix] = flux_this_cycle
-                except IndexError:
-                    import IPython; IPython.embed()
+                N_uniq = len(np.unique(flux_this_cycle))
+                N_pt = len(flux_this_cycle)
+
+                if N_uniq / N_pt < 0.8:
+                    flux_arr[:, ix] = np.nan
+                else:
+                    try:
+                        flux_arr[:, ix] = flux_this_cycle
+                    except IndexError:
+                        import IPython; IPython.embed()
 
     if not isinstance(vmin, float):
         vmin = np.nanmedian(flux)-4*np.nanstd(flux)
     if not isinstance(vmax, float):
         vmax = np.nanmedian(flux)+4*np.nanstd(flux)
 
-    fig, ax = plt.subplots(figsize=(6,10))
+    fig, ax = plt.subplots(figsize=(6,6))
     c = ax.pcolor(np.arange(0, period, cadence)/period - 0.5,
                   list(range(cycle_min, cycle_max)),
-                  flux_arr.T,
+                  100*flux_arr.T,
                   cmap=cmap,
                   vmin=vmin, vmax=vmax,
                   #norm=colors.SymLogNorm(  # NOTE: tried this; looks bad
                   #    linthresh=0.003, linscale=1,
                   #     vmin=vmin, vmax=vmax, base=10
                   #),
-                  shading='auto')
+                  shading='auto', rasterized=True)
 
     divider0 = make_axes_locatable(ax)
-    cax0 = divider0.append_axes('right', size='5%', pad=0.05)
-    cb0 = fig.colorbar(c, ax=ax, cax=cax0, extend='both')
-    cb0.set_label("Relative flux", rotation=270, labelpad=10)
+    if isinstance(titlestr, str):
+        cax0 = divider0.append_axes('right', size='5%', pad=0.05)
+        cb0 = fig.colorbar(c, ax=ax, cax=cax0, extend='both')
+        cb0.set_label("Flux [%]", rotation=270, labelpad=10)
+    elif titlestr is None:
+        # sick inset colorbar
+        x0,y0,dx,dy = 0.02, -0.09, 0.3, 0.02
+        axins1 = inset_axes(ax, width="100%", height="100%",
+                            bbox_to_anchor=(x0,y0,dx,dy),
+                            loc='lower left',
+                            bbox_transform=ax.transAxes)
+
+        cb = fig.colorbar(c, cax=axins1, orientation="horizontal",
+                          extend="both")
+        cb.set_label("Flux [%]", rotation=0, labelpad=3)
+        #cb.set_ticks([min_cycle, max_cycle])
+        #cb.set_ticklabels([int(min_cycle), int(max_cycle)])
+        #cb.ax.tick_params(labelsize='x-small')
+        #cb.ax.tick_params(size=0, which='both') # remove the ticks
+        #cb.ax.yaxis.set_ticks_position('left')
+        #cb.ax.yaxis.set_label_position('left')
+
+
 
     if isinstance(titlestr, str):
         ax.set_title(titlestr.replace("_", " "))
@@ -284,6 +311,10 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
         s += f"_vmin{vmin:.5f}"
     if isinstance(vmax, float):
         s += f"_vmax{vmax:.5f}"
+    if isinstance(cmap, str):
+        cmapstr = cmap
+    else:
+        cmapstr = 'gist_stern_truncated'
 
     if isinstance(idstr, str):
         estr = ''
@@ -292,11 +323,12 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
                 "_"+repr(cyclewindow).
                 replace(', ','_').replace('(','').replace(')','')
             )
-        outpath = join(outdir, f'{idstr}_river_{cmap}{estr}{s}.png')
+        outpath = join(outdir, f'{idstr}_river_{cmapstr}{estr}{s}.png')
     else:
         raise NotImplementedError
 
-    savefig(fig, outpath, writepdf=0)
+    fig.tight_layout()
+    savefig(fig, outpath, writepdf=1)
 
 
 def _get_cpv_lclist(lc_cadences, ticid):

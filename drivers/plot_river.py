@@ -13,11 +13,12 @@ from os.path import join
 from complexrotators.lcprocessing import (
     prepare_cpv_light_curve
 )
+import matplotlib.colors as colors
+import matplotlib.pyplot as plt
 
-
-cmap = 'seismic'
+#cmap = 'seismic'
 #cmap = 'Paired'
-#cmap = 'gist_stern'
+cmap = 'gist_stern'
 #cmap = 'PiYG'
 
 def many_ticids():
@@ -47,29 +48,17 @@ def many_ticids():
                        idstr=idstr)
 
 
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+    new_cmap = colors.LinearSegmentedColormap.from_list(
+        'trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
+        cmap(np.linspace(minval, maxval, n)))
+    return new_cmap
+
+
 def single_ticid():
 
     ##########################################
     # change these
-
-    ##########
-    # TIC 4029 CONFIGURATION
-    ticid = '402980664'
-    cyclewindows = [(0,1481), (0,64), (248,315), (1233, 1265), (1233,1481), (1411, 1481)]
-    sample_id = '2023catalog_LGB_RJ_concat' # used for cacheing
-    manual_period = 18.5611 / 24
-    t0 = 1791.15 + manual_period/2  # can be None
-    # e.g. written by build_4029_mask.py
-    nterms = 2
-    model_id = f"manual_20230617_mask_v0_nterms{nterms}"
-    # specifies lc subtrxn model
-    manual_csvpath = f'/Users/luke/Dropbox/proj/cpv/results/4029_mask/lc_lsresid_{model_id}.csv'
-
-    savstr = model_id # can be None; used for cacheing
-
-    vmin, vmax = -0.03, 0.03 #  can be None
-    vmin, vmax = -0.04, 0.01 #  can be None
-    ##########
 
     ##########
     # TIC 405910546
@@ -88,18 +77,41 @@ def single_ticid():
     ##########
 
     ##########
+    # TIC 4029 CONFIGURATION
+    ticid = '402980664'
+    cyclewindows = [(0,1481), (-1,64), (248,315), (1233, 1265), (1233,1481), (1411, 1481)]
+    sample_id = '2023catalog_LGB_RJ_concat' # used for cacheing
+    manual_period = 18.5611 / 24
+    t0 = 1791.15 + manual_period/2  # can be None
+    # e.g. written by build_4029_mask.py
+    nterms = 2
+    model_id = f"manual_20230617_mask_v0_nterms{nterms}"
+    # specifies lc subtrxn model
+    manual_csvpath = f'/Users/luke/Dropbox/proj/cpv/results/4029_mask/lc_lsresid_{model_id}.csv'
+
+    savstr = model_id # can be None; used for cacheing
+
+    vmin, vmax = -0.03, 0.03 #  can be None
+    vmin, vmax = -4., 1. #  can be None
+    _cmap = plt.get_cmap("gist_stern")
+    cmap = truncate_colormap(_cmap, 0, 0.95)
+    ##########
+
+    ##########
     ticid = '300651846'
-    cyclewindows = [(0, 650), (2305, 2630)]
+    cyclewindows = [(-1, 630), (2290, 2680)]
     sample_id = '2023catalog_LGB_RJ_concat'
     manual_period =  8.2551/24
     manual_period =  8.254/24  #better
-    t0 = 2170. - 5*manual_period
+    t0 = 2170. + 11.5*manual_period
     nterms = None
     model_id = None
     # specifies lc subtrxn model
     manual_csvpath = None
     savstr = model_id # can be None; used for cacheing
-    vmin, vmax = -0.06, 0.06 #  can be None
+    vmin, vmax = -8., 8. #  can be None; must be float
+    cmap = 'seismic'
+
 
     ##########################################
 
@@ -135,7 +147,7 @@ def single_ticid():
 
 
     idstr = f'TIC{ticid}'
-    titlestr = f'TIC{ticid}. P = {manual_period*24:.4f}hr.'
+    titlestr = None #f'TIC{ticid}. P = {manual_period*24:.4f}hr.'
 
     # make the plots
     for cyclewindow in cyclewindows:
