@@ -277,19 +277,24 @@ dips'', ``persistent flux dips'', ``scallop shells'', ``batwings'',
 \citep{2019ApJ...876..127Z,2022AJ....163..144G,2023ApJ...945..114P}
 and ``complex periodic variables'' \citep{2023MNRAS.518.2921K}.  The
 CQVs should not be conflated with ``dippers'', which are classical T
-Tauri stars with infrared excesses, and large-amplitude variability
+Tauri stars with infrared excesses, and which show large-amplitude variability
 linked to obscuring inner disk structures and accretion hot spots
-\citep{2014AJ....147...82C,2021ApJ...908...16R}.  With that said, a
-few similarities between CQVs and dippers do exist (see
-Sections~\ref{subsec:irexcess} and~\ref{subsec:discdippers}).  At the
-risk of introducing yet another standard, we hope to introduce a
+\citep{2014AJ....147...82C,2021ApJ...908...16R}.  While a few
+similarities between CQVs and dippers do exist (see
+Sections~\ref{subsec:irexcess} and~\ref{subsec:discdippers}), their
+phenomenology and stellar properties are quite different.  At the
+risk of introducing yet another standard, we hope to use a
 nomenclature that reflects how, when observed over timescales of more
 than tens of cycles, CQVs are almost but not exactly periodic.  They
 are quasiperiodic.  While the three-type classification scheme
 proposed by \citet{2017AJ....153..152S} may indeed provide some
 helpful visual distinctions amongst the CQVs, it seems likely that
 they are all explained by a single underlying phenomenon, and so we
-opt to refer to them by a single empirically descriptive name.
+opt to refer to them by a single empirically descriptive name.  We
+also considered names that focused on the presence of transient
+corotating clumps, or more generally on circumstellar plasma tori;
+for the time being, ``CQV'' seems to more accurately mirror the state
+of our ignorance.
 
 
 \begin{figure*}[!t]
@@ -952,6 +957,58 @@ low-mass stellar population \citep[e.g.][]{2022AJ....163..144G}.
 	\end{center}
 \end{figure*}
 
+%\begin{figure*}[!t]
+%	\begin{center}
+%		\includegraphics[width=0.45\textwidth]{ANNOTATED_resid_TIC_402980664_P18.5611_2min_phase_timegroups.png}
+%	\end{center}
+%	\vspace{-0.4cm}
+%	\caption{
+%		{\bf Alternative view of the evolution of LP 12-502}
+%		(Figure~\ref{fig:lp}), arranged to emphasize changes in transit
+%		times.  There are 200 binned black points per $P$=18.5611\,hr cycle; a two-harmonic
+%		sinusoid has been subtracted from the PDC\_SAP light curve.
+%		Vertical gray lines are underplotted to help guide the eye to instances
+%		in which preferred dip phases synchronize over long baselines.
+%		The orange and green lines guide the eye to where dips
+%		change the positions of their local minima; orange
+%		lines have periods slightly less than $P$, the green line has
+%		a period greater than $P$.
+%	}
+%	\label{fig:lp2}
+%\end{figure*}
+
+
+\begin{figure*}[!t]
+	\begin{center}
+		\subfloat{
+			\includegraphics[width=0.48\textwidth]{f10a.pdf}
+			\includegraphics[width=0.48\textwidth]{f10b.pdf}
+		}
+	   \vspace{-0.1cm}
+		
+		\subfloat{
+			\includegraphics[width=0.48\textwidth]{f10d.pdf}
+			\includegraphics[width=0.48\textwidth]{f10c.pdf}
+		}
+	\end{center}
+	\vspace{-0.4cm}
+	\caption{
+		{\bf River plots of the LP 12-502 light curve}, showing (clockwise from top-left)
+		Sectors 18-19, 25-26, 53, and 58-59.  A two-harmonic sinusoid has
+		been subtracted to highlight the sharp dips.
+		In Sectors 25-26 (cycles 248-315), periods are visible at the fundamental
+		period of 18.5611\,hr, as well as at faster and slower relative periods (e.g. $\phi$$\approx$0.3 and $\phi$$\approx$0.1).
+		Similar instances of multiple simultaneous periods are also visible in
+		Sector 53 and 58-59.
+%		$P$=18.5611\,hr (gray vertical line); 18.5404\,hr (orange); 18.5683\,hr (green).
+%		For Sector 53, gray is identical, while cyan is 18.5145\,hr.
+%		For Sectors 58-59, the magenta line is 18.5473\,hr, and the green
+%		line is 18.5672\,hr.
+		White chunks denote missing data.
+	}
+	\label{fig:lpriver0}
+\end{figure*}
+
 Out of the \ngoods\ CQVs, a small fraction were in regions of sky with
 many sectors of adjacent TESS data.  Out of these objects, LP 12-502
 (TIC 402980664; $d$=21\,pc, $J$=9.4, $T$=11.1) stood out due to the
@@ -974,6 +1031,13 @@ measurement per bin.  Points more than 2.5$\sigma$ above the median
 are drawn in gray, also for visual clarity.  Missing data are not
 drawn.  Figure~\ref{fig:lp} then shows the same data, but stacked into
 successive TESS orbits spanning half a lunar month each.
+Finally, Figure~\ref{fig:lpriver0} shows ``river plots'' of the
+same data, split into similar intervals:
+the Sector 18-19 data, 25-26 data, 53 data, and 58-59 data.
+The river plots are slightly more processed:
+a maximum-likelihood two-harmonic sinusoid has been independently fitted and
+subtracted from the Sector 18-19 data, 25-26 data, and 53, 58, and 59
+data in order to accentuate any changes in the dip timing and structure.
 
 The average period, determined by measuring the PDM peak period over
 each sector independently, was $\langle P \rangle = 18.5560$\,hr.  The
@@ -1004,7 +1068,7 @@ cycles 248-264 represents an evolution of the initial complex seen
 during cycles 0-64, though with greatly reduced depth.  During cycles
 266-310, an additional local minimum develops between the two
 complexes; this feature is best visualized on the river plots
-(Appendix~\ref{app:lp}), and we discuss its (shorter) period below.
+(Figure~\ref{fig:lpriver0}), and we describe its (shorter) period below.
 
 The second dip complex during cycles 248-315 shows the most
 substructure.  During e.g.~cycles 283-298, this single complex shows
@@ -1013,7 +1077,7 @@ of 3.5\% over about 22 minutes (0.02\,$P$), which is the steepest
 slope exhibited anywhere in the LP~12-502 dataset.  After the sharp
 dip, there is a roughly exponential fall-off spanning about a quarter
 of a period, punctuated by coherent local minima and maxima which in
-detail (Appendix~\ref{app:lp}) have slightly longer periods than the
+detail (Figure~\ref{fig:lpriver0}) have slightly longer periods than the
 sharp dip.  The sharp leading dip only decreases in depth following a
 sudden state-switch at BTJD 2030.7 (cycles 299-315), which happens
 during a flare (Figure~\ref{fig:lplc}).  The trailing dips remain
@@ -1042,6 +1106,7 @@ independent} and {\it additive}.  For example, throughout cycles
 They all have identical ingress times.  The shape change during the
 transition implies that the leading dip that ``turned off'' (reduced
 its depth and duration), while the trailing two dips remained fixed.
+This is visible in Figure~\ref{fig:lp}.
 In other words, the structures producing these dips are independent to
 the degree that one can undergo a severe change while the others
 remain essentially identical.  The state switches during cycles
@@ -1078,7 +1143,7 @@ about six times slower.
 
 {\sc Dip periods}---Most of the LP 12-502 dips recur with a period of
 $P=18.5611 \pm 0.0001$\,hr.  However the river plots
-(Appendix~\ref{app:lp}) reveal multiple distinct periodicities in the
+(Figure~\ref{fig:lpriver0}) reveal multiple distinct periodicities in the
 light curve for specific dips.  For instance, in sectors 25-26, the
 local minimum that develops around cycle 262 has a period faster than
 the mean period by $\approx$0.1\%, while some of the trailing local
@@ -1087,8 +1152,8 @@ period, by $\approx$0.04\%.  In addition to the fundamental period, we
 were able to identify at least four distinct periods shown by specific
 dips over the full Sectors 18-59 dataset, including periods at
 18.5683, 18.5672, 18.5473, and 18.5145\,hr, with a typical measurement
-uncertainty of $\approx$0.0002\,hr.  If each period corresponds to a
-dust clump, then this implies that multiple distinct clumps can orbit
+uncertainty of $\approx$0.0002\,hr.  If each period corresponds to an
+individual dust or gas clump, then this implies that multiple distinct clumps can orbit
 the star simultaneously, at marginally different separations.
 
 
@@ -1127,14 +1192,14 @@ the star simultaneously, at marginally different separations.
 \subsection{Typical and extreme CQVs}
 \label{subsec:extreme}
 
-Figure~\ref{fig:catalogscatter} shows some of the derived properties
+Figure~\ref{fig:catalogscatter} shows some of the derived stellar properties
 for our CQV catalog, and compares them against both the target star
 sample (top panels), and against stars in the Pleiades
 \citep{2016AJ....152..114R}.  Typical CQV masses span
-0.1-0.4\,$M_\odot$, and typical ages span 2-150\,Myr.  This is a mass
-and age regime that includes fully convective stars
-($M_\star$$\lesssim$0.25\,$M_\odot$), as well as stars with radiative
-cores ($M_\star$$\gtrsim$0.25\,$M_\odot$;
+0.1-0.4\,$M_\odot$, and typical ages span 2-150\,Myr.  This is mass
+and age includes both fully convective stars
+($M_\star$$\lesssim$0.25\,$M_\odot$), and stars with a combination of radiative
+cores and convective envelopes ($M_\star$$\gtrsim$0.25\,$M_\odot$;
 \citealt{2018A&A...619A.177B}).  We found no obvious morphology
 differences between the two classes.  In terms of their rotation,
 relative to the Pleiades, the CQVs are among the more rapidly rotating
@@ -1164,7 +1229,7 @@ new regime, but both have ambiguities.  To date, the only stars
 reported to show the CQV phenomenon are M dwarfs, with typical stellar
 masses $\lesssim$0.3\,$M_\odot$
 \citep{2017AJ....153..152S,2022AJ....163..144G}.  TIC~405754448 and
-TIC~405910546 however appear to have masses of $\approx$0.82 and
+TIC~405910546 however appear to have masses of $\approx$0.82\,$M_\odot$ and
 $\approx$0.60\,$M_\odot$ respectively.  The next-highest masses in our
 sample are $\approx$0.40\,$M_\odot$.  The masses for the former two
 objects are consistent with their locations in the color--absolute
@@ -1194,8 +1259,8 @@ Figures~\ref{fig:cqvs} and~\ref{fig:evoln}, corresponding to signal
 with peak-to-peak amplitude of $\approx$8\%.  The latter signal is
 only visible after subtracting the primary period, and it has a
 sinusoidal envelope with a peak-to-peak amplitude of 2.5\%, and with
-three sharp dips super-posed over each cycle.  The Gaia DR3 RUWE for
-TIC~425937691 is 2.9.
+three sharp dips super-posed over each cycle.  For
+TIC~425937691, ${\rm RUWE}_{\rm DR3}=2.9$.
 
 The explanation that seems most likely for this source, given the two
 photometric signals and the elevated RUWE, is an unresolved binary
@@ -2065,71 +2130,6 @@ TIC & $T$ & $d$ & $\bprp$ & RUWE & $P$ & Assoc & Age & $T_{\rm eff}$ & $R_\star$
 %\end{figure*}
 
 
-\section{LP 12-502}
-\label{app:lp}
-
-{\it The light curve}---
-Figure~\ref{fig:lp2} shows another alternative view of
-Figure~\ref{fig:lp}, but arranged to enable easy visual appreciation
-of transit timing changes, rather than transit depth changes.  A
-best-fitting two-harmonic sinusoid has been independently fitted and
-subtracted from the Sector 18-19 data, 25-26 data, and 53, 58, and 59
-data.
-
-Finally, Figure~\ref{fig:lpriver0} shows ``river plots'' of the
-same data, split into similar intervals:
-the Sector 18-19 data, 25-26 data, 53 data, and 58-59 data.
-State changes are evident in these plots whenever there is a sudden
-change in color.
-{\bf todo: fix missing data to be different from the flare color} 
-
-
-\begin{figure*}[!t]
-	\begin{center}
-    \includegraphics[width=0.45\textwidth]{ANNOTATED_resid_TIC_402980664_P18.5611_2min_phase_timegroups.png}
-    	\end{center}
-    \vspace{-0.4cm}
-		\caption{
-	      {\bf Alternative view of the evolution of LP 12-502}
-	      (Figure~\ref{fig:lp}), arranged to emphasize changes in transit
-	      times.  There are 200 binned black points per $P$=18.5611\,hr cycle; a two-harmonic
-	      sinusoid has been subtracted from the PDC\_SAP light curve.
-	      Vertical gray lines are underplotted to help guide the eye to instances
-	      in which preferred dip phases synchronize over long baselines.
-	      The orange and green lines guide the eye to where dips
-	      change the positions of their local minima; orange
-        lines have periods slightly less than $P$, the green line has
-        a period greater than $P$.
-		}
-		\label{fig:lp2}
-\end{figure*}
-
-
-\begin{figure*}[!t]
-	\begin{center}
-		\subfloat{
-			\includegraphics[width=0.43\textwidth]{TIC402980664_river_gist_stern_0_64_manual_20230617_mask_v0_nterms2_vmin-0.04000_vmax0.01000.png}
-			\includegraphics[width=0.43\textwidth]{ANNOTATED_TIC402980664_river_gist_stern_248_315_manual_20230617_mask_v0_nterms2_vmin-0.04000_vmax0.01000.png}
-		}
-	\vspace{-1cm}
-			\subfloat{
-		\includegraphics[width=0.43\textwidth]{ANNOTATED_TIC402980664_river_gist_stern_1411_1481_manual_20230617_mask_v0_nterms2_vmin-0.04000_vmax0.01000.png}
-				\includegraphics[width=0.43\textwidth]{ANNOTATED_TIC402980664_river_gist_stern_1233_1265_manual_20230617_mask_v0_nterms2_vmin-0.04000_vmax0.01000.png}
-	}
-	\end{center}
-	\vspace{-0.4cm}
-	\caption{
-    {\bf River plots of LP 12-502}, showing (clockwise from top-left)
-    Sectors 18-19, 25-26, 53, and 58-59.  A two-harmonic sinusoid has
-    been subtracted over specific chunks in time ({\bf see text}).
-    For Sectors 25-26 (cycles 248-315), three periods are overplotted:
-    $P$=18.5611\,hr (gray vertical line); 18.5404\,hr (orange); 18.5683\,hr (green).
-    For Sector 53, gray is identical, while cyan is 18.5145\,hr.
-    For Sectors 58-59, the magenta line is 18.5473\,hr, and the green
-    line is 18.5672\,hr.
-	}
-	\label{fig:lpriver0}
-\end{figure*}
 
 \section{TIC~300651846}
 \label{app:tic3006}
@@ -2137,12 +2137,12 @@ change in color.
 Figures~\ref{fig:tic3006timegroups} and~\ref{fig:tic3006river} show
 120-second cadence data for TIC~300651846, a CQV in the TESS
 continuous viewing zone.  If it were not for the existence of
-TIC~402980664, this source would likely have been the subject of
-greater attention.  With the exception of a few sectors, TESS data
-will exist for TIC~300651846 over Sectors 1-12, 27-39, and 61-69.
-While most of the available data will exist in the full frame images,
-in Figures~\ref{fig:tic3006timegroups} and~\ref{fig:tic3006river}
-focus only on the 120-second cadence data.
+TIC~402980664, this source would probably have received greater
+attention.  With the exception of a few sectors, TESS data will exist
+for TIC~300651846 for at least Sectors 1-12, 27-39, and 61-69.  While most of
+the available data will exist in the full frame images, in
+Figures~\ref{fig:tic3006timegroups} and~\ref{fig:tic3006river} focus
+only on the currently available 120-second cadence data.
 
 During Sectors 32-39, the source shows between one and four local
 minima per cycle.  During the early portions of Sectors 61-65, it is
@@ -2152,18 +2152,21 @@ sharpness of one of the minima appears to increase.  We did not find
 evidence for any obvious ``state-switches'' analogous to those that we
 observed in LP 12-502; gradual evolution over timescales of
 $\approx$50-100 cycles seem to be the norm for TIC~300651846.
+Unlike the TIC~402980664 river plots (Figure~\ref{fig:lpriver0}), we
+did not subtract any ``continuum sinusoid'' for this source, because
+the continuum is not as obviously defined.
 
 \begin{figure*}[!t]
 	\begin{center}
 		\subfloat{
-			\includegraphics[width=0.43\textwidth]{f11a.pdf}
-			\includegraphics[width=0.43\textwidth]{f11b.pdf}
+			\includegraphics[width=0.48\textwidth]{f11a.pdf}
+			\includegraphics[width=0.48\textwidth]{f11b.pdf}
 		}
 	\end{center}
 	\vspace{-0.4cm}
 	\caption{
-		{\bf Long-term evolution of TIC 300651846}.
-    All available 120-second cadence data as of 11 August 2023 are shown.
+		{\bf Light curve evolution of TIC 300651846}.
+    All available 120-second cadence data as of 2023 Aug 11 are shown.
     Cycles 0 to 622 span TESS Sectors 32-39 (Nov 2020--June 2021);
     cycles 2296-2676 span Sectors 61-65 (Jan--June 2023).  We assumed
     a 8.254\,hr period and a fixed reference epoch (BTJD 2174.127) for
@@ -2179,17 +2182,20 @@ $\approx$50-100 cycles seem to be the norm for TIC~300651846.
 \begin{figure*}[!t]
 	\begin{center}
 		\subfloat{
-			\includegraphics[width=0.43\textwidth]{TIC300651846_river_seismic_0_650_vmin-0.06000_vmax0.06000.png}
-			\includegraphics[width=0.43\textwidth]{TIC300651846_river_seismic_2305_2630_vmin-0.06000_vmax0.06000.png}
+			\includegraphics[width=0.48\textwidth]{f12a.pdf}
+			\includegraphics[width=0.48\textwidth]{f12b.pdf}
 		}
 	\end{center}
 	\vspace{-0.4cm}
 	\caption{
 		{\bf River plots of TIC 300651846}.
-		The envelope has not been subtracted.
-		7 sectors of continuous 2-minute observations S32-S39.  (Thanks to DDT029)
-		Then a few in S60+ on the right.
-		Compare to Figure~\ref{fig:cqvs}.
+    This is an alternative visualization of the data in
+    Figure~\ref{fig:tic3006timegroups}.
+    All available 120-second cadence data as of 2023 Aug 11 are shown.
+    Cycles 0 to 622 span TESS Sectors 32-39 (Nov 2020--June 2021);
+    cycles 2296-2676 span Sectors 61-65 (Jan--June 2023).  We assumed
+    $P$$=$8.254\,hr and $t_0$=2174.127 [BTJD].
+    Note that the two panels have slightly different color scales.
 	}
 	\label{fig:tic3006river}
 \end{figure*}
@@ -2200,19 +2206,19 @@ $\approx$50-100 cycles seem to be the norm for TIC~300651846.
 
 TESS was the first instrument to show that CQV light curves contain
 power at timescales of a few minutes
-\citep{127Z,2020AJ....160...86B,2022AJ....163..144G}.  This advance
-was primarily enabled by the fifteen-fold faster cadence in the TESS
-2-minute data, relative to K2.
-
-A logical follow-up question to ask is whether the periodic components
-of the CQV light curves contain power at timescales below one minute.
-Between 2020 and 2021, we observed 10 CQVs at 20-second cadence with
-TESS in order to explore this question (TESS DDT029).  The stars were
-TICs 142173958, 146539195, 24518895, 276453848, 264599508, 363963079,
-144486786, 408188366, 300651846, 262400835.  The general conclusion
-derived from comparing the 20-second to 120-second data for these
-stars (available on MAST) was that CQVs do not contain appreciable
-power at this timescale.
+\citep{2019A&A...625L..13Z,2022AJ....163..144G}.  This advance was
+enabled by the fifteen-fold faster cadence in the TESS 2-minute data,
+relative to K2.  A logical follow-up is to ask whether the periodic
+components of the CQV light curves contain power at timescales below
+one minute.  Between 2020 and 2021, we observed 10 CQVs at 20-second
+cadence with TESS in order to explore this question (TESS DDT029).
+The stars were TICs 142173958, 146539195, 24518895, 276453848,
+264599508, 363963079, 144486786, 408188366, 300651846, 262400835.
+These sources were selected from CQVs known at the time to have short
+periods and sharp features when observed at 2-minute cadence.
+Comparing the 20-second to 120-second data for these stars (data
+available on MAST), we concluded that these CQVs did not contain
+appreciable power at timescales shorter than a few minutes.
 
 % \section{Chromaticity in TIC 262400835}
 % 

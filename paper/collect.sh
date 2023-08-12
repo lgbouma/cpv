@@ -1,4 +1,4 @@
-resultsdir="/Users/luke/Dropbox/proj/cpv/results/"
+resultsdir="/Users/luke/Dropbox/proj/cpv/results"
 addir="/Users/luke/Dropbox/Documents/proposals/2023_05_ADAP/latex/figs/"
 
 # fig1
@@ -26,6 +26,13 @@ cp $resultsdir/magnetic_bstar_comparison/magnetic_bstar_comparison_showtitles_co
 cp $resultsdir/magnetic_bstar_comparison/magnetic_bstar_comparison_showtitles_complexM.pdf f8c.pdf
 
 # appendix
+cp $resultsdir/river/TIC_402980664/TIC402980664_river_gist_stern_truncated_-1_64_manual_20230617_mask_v0_nterms2_vmin-4.00000_vmax1.00000.pdf f10a.pdf
+cp $resultsdir/river/TIC_402980664/TIC402980664_river_gist_stern_truncated_248_315_manual_20230617_mask_v0_nterms2_vmin-4.00000_vmax1.00000.pdf f10b.pdf
+cp $resultsdir/river/TIC_402980664/TIC402980664_river_gist_stern_truncated_1233_1265_manual_20230617_mask_v0_nterms2_vmin-4.00000_vmax1.00000.pdf f10c.pdf
+cp $resultsdir/river/TIC_402980664/TIC402980664_river_gist_stern_truncated_1411_1481_manual_20230617_mask_v0_nterms2_vmin-4.00000_vmax1.00000.pdf f10d.pdf
+
 cp $resultsdir/phase_timegroups/TIC_300651846/cycle-1_to_630TIC_300651846_P8.2540_2min_phase_timegroups.pdf f11a.pdf
 cp $resultsdir/phase_timegroups/TIC_300651846/cycle2290_to_2680TIC_300651846_P8.2540_2min_phase_timegroups.pdf f11b.pdf
 
+cp $resultsdir/river/tic_300651846/TIC300651846_river_seismic_-1_630_vmin-6.00000_vmax6.00000.pdf f12a.pdf
+cp $resultsdir/river/tic_300651846/TIC300651846_river_seismic_2290_2680_vmin-8.00000_vmax8.00000.pdf f12b.pdf
