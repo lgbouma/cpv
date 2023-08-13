@@ -48,6 +48,9 @@ def main(overwrite=0):
     csvpath = join(indir, "20230613_LGB_RJ_uticid_quality_label.csv")
     _df = pd.read_csv(csvpath, sep="|")
 
+    csvpath2 = join(DATADIR, "targetlists", "20230813_DEBUNKED_CQVs.txt")
+    debunked_df = pd.read_csv(csvpath2)
+
     rows = []
     for t in _df['ticid']:
         r = get_cpvtable_row(t, overwrite=overwrite)
@@ -100,20 +103,29 @@ def main(overwrite=0):
     sdf = df[sel]
 
     sdf['qual'] = ~pd.isnull(sdf.goodsectors)
+    sdf['quality'] = sdf['qual'].astype(int)
+
+    # if "debunked" gets quality -1
+    debunked_sel = sdf.ticid.isin(debunked_df.ticid)
+    sdf.loc[debunked_sel, 'quality'] = -1
+
 
     csvpath = join(indir, "20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied.csv")
     sdf.to_csv(csvpath, index=False, sep="|")
     print(f"Wrote {csvpath}")
 
     N_1 = len(sdf)
-    N_2 = len(sdf[~pd.isnull(sdf.goodsectors)])
-    N_3 = len(sdf[pd.isnull(sdf.goodsectors)])
+    N_2 = len(sdf[sdf.quality == 1])
+    N_3 = len(sdf[sdf.quality == 0])
+    N_debunked = len(sdf[sdf.quality == -1])
 
     # "good" CPVs
 
-    sgdf = sdf[~pd.isnull(sdf.goodsectors)]
+    sgdf = sdf[sdf.quality == 1]
     # "maybe" CPVs
-    smdf = sdf[pd.isnull(sdf.goodsectors)]
+    smdf = sdf[sdf.quality == 0]
+    # debunked CPVs
+    sddf = sdf[sdf.quality == -1]
 
     def num2word(num):
         units = [
@@ -156,6 +168,7 @@ def main(overwrite=0):
         r"\newcommand{\ncpvsfound}{"+str(N_1)+"}\n"
         r"\newcommand{\ngoods}{"+str(N_2)+"}\n"
         r"\newcommand{\nmaybes}{"+str(N_3)+"}\n"
+        r"\newcommand{\ndebunked}{"+str(N_debunked)+"}\n"
         r"\newcommand{\ngoodsfieldbanyan}{"+str(N_4)+"}\n"
         r"\newcommand{\nmaybesfieldbanyan}{"+str(N_5)+"}\n"
         r"\newcommand{\ngoodsnotfieldbanyan}{"+str(N_6)+"}\n"
@@ -175,7 +188,6 @@ def main(overwrite=0):
     sdf['age'] = sdf['banyan_adopted_age']
     sdf['assoc'] = sdf['banyan_adopted_assoc']
     sdf['p_assoc'] = sdf['banyan_adopted_prob']
-    sdf['quality'] = sdf['qual'].astype(int)
     shortcols = (
         "ticid "
         #"dr2_source_id ra dec "
