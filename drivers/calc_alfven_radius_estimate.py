@@ -2,22 +2,25 @@ from astropy import units as u, constants as c
 import numpy as np
 
 # way #1: set magnetic pressure B^2/8pi equal to 3/2 nkT
+R_cr_by_Rstar = 5.76 # tic 4029*
+print(f'r_CR/r_* = {R_cr_by_Rstar:.2f}')
 
-B_0 = 1e3*u.cm**(-1/2)*u.g**(1/2)*u.s**(-1)
+B_0 = 1e3 * u.cm**(-1/2)*u.g**(1/2)*u.s**(-1) # units: gauss
 
-T = 1e6*u.K
-n = 1e12/(u.cm**3)  # !!!! this is high!?   [seems super high!]
+T = 1e3*u.K
+n = 1e9/(u.cm**3)  # !!!! this is high!?   [seems super high!]
 m = n*c.m_p
 print(m.cgs)
 
 R_star = 0.4*u.Rsun
 
 r_A = R_star * (
-    B_0**2 / (3*np.pi) * (1/(n*c.k_B*T))
+    B_0**2 / (4*3*np.pi) * (1/(n*c.k_B*T))
 ).cgs**(1/4)
 
 print(f'r_A = {r_A:.4f}')
 print(f'r_A/r_* = {r_A/R_star:.4f}')
+print(f'r_A > r_CR (centrifugal magnetosphere) = {r_A/R_star > R_cr_by_Rstar}')
 
 # way #2: hartmann+2016
 B_3 = 1e4 / (1e3)
@@ -35,7 +38,6 @@ r_M = 18 * (
 print(f'r_M = {r_M:.2f}')
 print(f'r_M/r_* = {r_M/R_star:.2f}')
 
-R_cr_by_Rstar = 5.76 # tic 4029*
 print(f'r_CR/r_* = {R_cr_by_Rstar}')
 
 print(f'r_M > r_CR (centrifugal magnetosphere) = {r_M/R_star > R_cr_by_Rstar}')
