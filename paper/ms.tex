@@ -495,8 +495,8 @@ together and analyzed for a more accurate period determination.
 		\vspace{-0.3cm}
 		\caption{
 			{\bf Validation plots used to  label CQVs}.  The complete figure
-			set, with one image per sector for each of \ncpvsfound\ CQVs
-			and CQV candidates
+			set, with one image per sector for each of the \nallcands\
+      objects in Table~\ref{tab:thetable}
 			is available online {\bf For internal collaboration review:
 				\url{https://www.dropbox.com/scl/fo/zlj3txot4cvymfb22wewu/h?dl=0&rlkey=3ec5f9o5xewrixzfkhkdenopa}}.
 			Panels are as follows.
@@ -552,9 +552,9 @@ off-target stars.  Typical false positive rates from our dip-counting
 pipeline were 5:1, with \nuniqdipflagged\ unique stars flagged, and
 about 20\% being labeled either ``good'' or ``possible'' CQVs.  The
 Fourier analysis was not amenable to calculating a similar
-false-positive probability, because it was implemented as a general
-variability search; its results are also being used for other types of
-variability analyses beyond CQVs.
+false-positive rate, because it was implemented as a general
+variability search; its results are also being used for analyses
+on topics other than CQVs.
 
 
 \subsection{Stellar properties}
@@ -686,15 +686,21 @@ Table~\ref{tab:thetable}.
 \subsection{CQV catalog}
 \label{sec:catalog}
 
-Table~\ref{tab:thetable} lists the \ncpvsfound\ objects identified by
+Table~\ref{tab:thetable} lists the \nallcands\ objects identified by
 our search.  The ``high-quality sample'' includes \ngoods\ of these
 objects, which demonstrated what we viewed as unambiguous
 characteristics of the CQV phenomenon in at least one TESS sector.
-The classification of the remaining \nmaybes\ CQV candidates was
-ambiguous.  Additional data from TESS or other instruments could help
-resolve their classification.  The boolean \texttt{quality} column in
-the table divides the two classes.  In the following, we will restrict
-our discussion to the high-quality sample.
+The classification of \nmaybes\ CQV candidates was ambiguous, and the
+\ndebunked\ remaining objects were false positives that we discuss below.
+The \texttt{quality} column in the table divides the three classes;
+additional data from TESS or other instruments could help resolve the
+classification of the ambiguous cases.   Of the \ncqvsnodebunked\ CQVs
+and candidate CQVs, \nbothdipfourier\ were found using both the
+dip-counting and Fourier techniques, \nyesdipnofourier\ were found
+using only the dip-counting technique, and \nyesfouriernodip\ were
+found using only the Fourier technique.  In the following, we will
+restrict our discussion to the high-quality sample, irrespective of
+discovery method.
 
 The mosaic in Figure~\ref{fig:cqvs} shows phased light curves for the
 \ngoods\ CQVs.  The objects are sorted first in order of the number of
@@ -726,15 +732,16 @@ TIC~425933644, TIC~142173958).  Others show some mix between these two
 modes.
 
 A small number of objects at first glance seem reminiscent of
-eclipsing binaries, such as TIC~193831684 or TIC~5714469.  In these
-few cases, we believe that that are unlikely to be eclipsing binaries
-due to additional coherent variations in the light curves that are
-distinct from any binary phenomenology of which we are aware.
+eclipsing binaries, such as TIC~193831684 or TIC~5714469.  We 
+believe these cases are unlikely to be eclipsing binaries
+due to the additional coherent peaks and troughs in the light curves,
+which are
+distinct from any binary phenomena of which we are aware.
 
 
 \subsection{Ages}
 
-Of our \ncpvsfound\ confirmed and candidate CQVs, \nnotfieldbanyan\
+Of our \ncqvsnodebunked\ confirmed and candidate CQVs, \nnotfieldbanyan\
 were associated with a nearby moving group or open cluster using
 BANYAN\,$\Sigma$.  The relevant groups are listed in
 Table~\ref{tab:thetable}; their ages span $\approx$5-200\,Myr.  The
@@ -745,17 +752,17 @@ evidence supporting the reality, and youth, of that group.  The yield
 in Sco-Cen is not surprising, since Sco-Cen contains the majority of
 pre-main-sequence stars in the solar neighborhood.  However, given the
 $\lesssim$$10\%$ completeness of TESS beyond 100\,pc, there are
-probably many more CQVs that remain to be discovered in Sco-Cen.  
+probably many more CQVs in Sco-Cen that remain to be discovered.  
 
 Of the \ngoodsfieldbanyan\ stars for which BANYAN\,$\Sigma$ did not
 find any association, one (TIC~302160226) is a member of $\alpha$~Per
 ($t\approx 86\pm16$\,Myr;
 \citealt{2021A&A...645A..84M,2023AJ....166...14B}).  For the other two
 (TIC~58084670 and TIC~141146667), we were not able to confidently
-associate either star with any young groups.  However both do seem to
+associate either star with any young groups.  Both do seem to
 show the CQV signal over multiple TESS sectors, and both are
-photometrically elevated relative to the main sequence.  For instance,
-both were noted by \citet{2021ApJ...917...23K} as being in the
+photometrically elevated relative to the main sequence.  
+Both were also noted by \citet{2021ApJ...917...23K} as being in the
 ``diffuse'' population of $<$50\,Myr stars near the Sun.  
 
 Our search confirms that the CQV phenomenon persists for at least
@@ -791,7 +798,7 @@ could lend further credence in such an analysis.
 Most CQVs in our catalog did not show infrared excesses in the W1-W4
 bands, which is typical for this class of object
 \citep{2017AJ....153..152S}.  Visually inspecting the SEDs of our
-\ncpvsfound\ star sample, we labeled two objects as having ``good''
+\nallcands\ star sample, we labeled two objects as having ``good''
 infrared excesses (both W3 and W4 at $>$3$\sigma$ above the
 photospheric prediction), and three as ``possible'' infrared excess
 (only W3 at $>$3$\sigma$).
@@ -1002,10 +1009,10 @@ low-mass stellar population \citep[e.g.][]{2022AJ....163..144G}.
 	\label{fig:lpriver0}
 \end{figure*}
 
-Out of the \ngoods\ CQVs, a small fraction were in regions of sky with
-many sectors of adjacent TESS data.  Out of these objects, LP 12-502
+A small fraction of our objects were in regions of sky with
+many sectors of adjacent TESS data.  Out of this already small sample, LP 12-502
 (TIC 402980664; $d$=21\,pc, $J$=9.4, $T$=11.1) stood out due to the
-quality and content of its data.  We describe another interesting
+quality and content of its data.  We discuss another interesting
 source, TIC~300651846, in Appendix~\ref{app:tic3006}.  In this
 section, we first present the LP 12-502 observations
 (Section~\ref{subsec:lpobservations}), and then highlight their
@@ -1526,11 +1533,11 @@ stronger by a factor of $\approx$1{,}000.  However we emphasize that
 while this type of configuration seems {\it a priori} plausible, no
 direct evidence currently supports it.
 
-One challenge is perhaps that in systems like LP 12-502, the observed
-dip depth variations would necessarily drive one toward a picture of a
+In systems like LP 12-502, the observed
+variability would probably drive one toward a picture of a
 disintegrating planetesimal swarm, rather than just a single
-planetesimal.  The need for more than just one launching body would be
-driven by the observation that we see dips appear and disappear at
+planetesimal.  The need for more than just one launching body 
+is because we see dips appear and disappear at
 many different phases, but with roughly the same period.  The observed
 changing dip depths in response to flares would be understood through
 the planetesimal outflow rates being stalled by changes in the local
@@ -1541,8 +1548,8 @@ K2-22 \citep{2015ApJ...812..112S} or KOI-2700
 \citep{2014ApJ...784...40R}.  Typical sizes of bodies in the asteroid
 belt for instance span hundreds of meters to a few kilometers.
 
-There are at least three problems with this concept of a
-disintegrating planetesimal swarm.  First, the model would predict
+There are at least three problems with this 
+disintegrating planetesimal swarm concept.  First, the model would predict
 that certain orbital phases would produce recurrent dips if observed
 over sufficiently long baselines, because the launching planetesimal
 would be massive enough to remain in orbit, while stochastically
@@ -1796,7 +1803,7 @@ In our target sample, we found \ngoods\ objects that showed complex
 quasiperiodic behavior over at least one TESS sector.  These \ngoods\
 bonafide CQVs are listed in Table~\ref{tab:thetable}.  This table also
 includes an additional \nmaybes\ ambiguous CQVs, whose designation is
-less certain, and \ndebunked\ impostors.  We inferred ages for all but two of the \ncpvsfound\
+less certain, and \ndebunked\ impostors.  We inferred ages for all but two of the \nallcands\
 objects based on association memberships; we also derived temperatures
 and radii using SED fitting, and then inferred stellar masses by
 interpolating against stellar evolutionary models.  We caution that
