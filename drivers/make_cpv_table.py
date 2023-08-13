@@ -174,11 +174,11 @@ def main(overwrite=0):
     N_indip_notfourier = np.sum((indip) & (~infourier))
     N_infourier_notdip = np.sum((~indip) & (infourier))
 
-    ticid_both = _mdf[indip & infourier].ticid
+    ticid_both = np.array(_mdf[indip & infourier].ticid)
     print(f'ticid_both\n{ticid_both}')
-    ticid_indip_notfourier = _mdf[(indip) & (~infourier)].ticid
+    ticid_indip_notfourier = np.array(_mdf[(indip) & (~infourier)].ticid)
     print(f'ticid_indip_notfourier\n{ticid_indip_notfourier}')
-    ticid_infourier_notdip = _mdf[(~indip) & (infourier)].ticid
+    ticid_infourier_notdip = np.array(_mdf[(~indip) & (infourier)].ticid)
     print(f'ticid_infourier_notdip\n{ticid_infourier_notdip}')
 
     txt = (
