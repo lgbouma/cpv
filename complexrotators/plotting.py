@@ -2658,14 +2658,14 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
     """
 
     # load ticids
-    N_objects = 53 # fine if longer/shorter, just requires tweaking
+    N_objects = 50 # fine if longer/shorter, just requires tweaking
 
     tablepath = join(
         TABLEDIR, "2023_catalog_table",
         '20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied.csv'
     )
     df = pd.read_csv(tablepath, sep="|")
-    _df = df[~pd.isnull(df.goodsectors)]
+    _df = df[df.quality == 1]
     assert len(_df) == N_objects
 
     # get manually written sectors to plot
@@ -2705,7 +2705,8 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
     set_style('science')
 
     factor = 0.8
-    fig, axs = plt.subplots(nrows=9, ncols=6,
+    ncols = 5
+    fig, axs = plt.subplots(nrows=10, ncols=ncols,
                             figsize=(factor*7,factor*8.7),
                             constrained_layout=True)
     axs = axs.flatten()
@@ -2851,9 +2852,9 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
 
         ix += 1
 
-    for ax in axs[-6:]:
+    for ax in axs[-ncols:]:
         ax.set_xticklabels(['-0.5','0','0.5'])
-    axs[-1].set_axis_off()
+    #axs[-1].set_axis_off()
 
     fs = 'medium'
     fig.text(0.5,0.0, r"Phase, φ", fontsize=fs)
@@ -2867,9 +2868,9 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
         s += f'_{sortby}'
 
     # height/width
-    fig.tight_layout(h_pad=0.1, w_pad=0.)
+    fig.tight_layout(h_pad=0.02, w_pad=0.)
 
-    axs[-1].set_axis_off()
+    #axs[-1].set_axis_off()
 
     outpath = join(outdir, f'full_lcmosaic{s}.png')
     savefig(fig, outpath, dpi=400)

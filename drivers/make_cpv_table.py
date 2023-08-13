@@ -100,9 +100,12 @@ def main(overwrite=0):
     sel_max55 = (
         (min_goodsector <= 55) | (min_maybesector <= 55)
     )
+
+    sel &= sel_max55
+
     selcols = "ticid goodsectors maybesectors".split()
     print(f"\n...\n")
-    print(f"WRN! including\n{df[~sel_max55][selcols]}\n, bc alpha per")
+    print(f"WRN! dropping {df[~sel_max55][selcols]}\n")
     print(f"\n...\n")
 
     N_0 = len(df)
@@ -143,10 +146,10 @@ def main(overwrite=0):
         assert num <= 10
         return units[num]
 
-    N_4 = num2word(len(sgdf[sgdf.banyan_assoc == 'FIELD']) + 1)
+    N_4 = num2word(len(sgdf[sgdf.banyan_assoc == 'FIELD']))
     N_5 = len(smdf[smdf.banyan_assoc == 'FIELD'])
 
-    N_6 = len(sgdf[sgdf.banyan_assoc != 'FIELD']) - 1
+    N_6 = len(sgdf[sgdf.banyan_assoc != 'FIELD'])
     N_7 = len(smdf[smdf.banyan_assoc != 'FIELD'])
 
     N_8 = len(sgdf[sgdf.ruwe > 2])
