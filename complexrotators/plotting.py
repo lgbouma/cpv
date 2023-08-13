@@ -259,6 +259,7 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
     if not isinstance(vmax, float):
         vmax = np.nanmedian(flux)+4*np.nanstd(flux)
 
+    set_style('science')
     fig, ax = plt.subplots(figsize=(6,6))
     c = ax.pcolor(np.arange(0, period, cadence)/period - 0.5,
                   list(range(cycle_min, cycle_max)),
@@ -3547,10 +3548,10 @@ def plot_tic4029_segments(outdir):
                 fontsize=fontsize, bbox=props)
 
     x, y, dx, dy = 7.52, -44, 0, 2
-    ax.vlines(x, y, y+dy, colors='red', zorder=30, linewidths=0.5)
+    ax.vlines(x, y, y+dy, colors='red', zorder=30, linewidths=1.2)
 
     x, y, dx, dy = 5.98, -51, 0, 2
-    ax.vlines(x, y, y+dy, colors='red', zorder=30, linewidths=0.5)
+    ax.vlines(x, y, y+dy, colors='red', zorder=30, linewidths=1.2)
 
     ax.text(0.97, 0.98, 'Cycle #', va='top', ha='right', fontsize=7,
             bbox=props, transform=ax.transAxes)

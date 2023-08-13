@@ -97,6 +97,7 @@ def single_ticid():
     cmap = truncate_colormap(_cmap, 0, 0.95)
     ##########
 
+
     ##########
     ticid = '300651846'
     cyclewindows = [(-1, 630), (2290, 2680)]
@@ -109,8 +110,9 @@ def single_ticid():
     # specifies lc subtrxn model
     manual_csvpath = None
     savstr = model_id # can be None; used for cacheing
-    vmin, vmax = -8., 8. #  can be None; must be float
+    vmin, vmax = -6., 6. #  can be None; must be float
     cmap = 'seismic'
+
 
 
     ##########################################
