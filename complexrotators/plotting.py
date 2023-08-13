@@ -3577,9 +3577,10 @@ def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None, emphruwe=1):
         '20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied.csv'
     )
     df = pd.read_csv(tablepath, sep="|")
-    maybe_df = df[pd.isnull(df.goodsectors)]
-    ruwe_df = df[df.ruwe > 2]
-    df = df[~pd.isnull(df.goodsectors)]
+    # drop "debunked" CQVs
+    maybe_df = df[df.quality == 0]
+    df = df[df.quality == 1]
+    ruwe_df = pd.concat(( df[df.ruwe > 2], maybe_df[maybe_df.ruwe > 2]))
 
     #y, x, ylabel, xlabel, yscale, xscale
     if plotsubset is None:
