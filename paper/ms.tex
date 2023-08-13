@@ -715,7 +715,7 @@ fastest five have periods spanning 3.6\,hr$<$$P$$<$6.2\,hr, and the
 slowest five span 27\,hr$<$$P$$<$38\,hr.  Regarding likely astrometric
 or visual binaries, \ngoodhighruwe/\ngoods\ high-quality CQVs have a
 Gaia DR2 RUWE$>$2; \nmaybehighruwe/\nmaybes\ of the ambiguous sample
-share this characteristic.
+share this characteristic.\footnote{For an explanation of the renormalized unit weight error (RUWE), see the GAIA DPAC technical note \url{http://www.rssd.esa.int/doc_fetch.php? id=3757412}.  Elevated RUWEs imply elevated noise relative to a single-source astrometric model, which can be caused by marginally resolved point sources, astrophysical photometric variability, or astrophysical astrometric motion.}
 
 % This is consistent with Rappaport2014's visual binary fraction
 % determined from 30/100 rapidly rotating Kepler stars having multiple
@@ -732,11 +732,11 @@ TIC~425933644, TIC~142173958).  Others show some mix between these two
 modes.
 
 A small number of objects at first glance seem reminiscent of
-eclipsing binaries, such as TIC~193831684 or TIC~5714469.  We 
-believe these cases are unlikely to be eclipsing binaries
-due to the additional coherent peaks and troughs in the light curves,
-which are
-distinct from any binary phenomena of which we are aware.
+eclipsing binaries, such as TIC~193831684, TIC~59836633, or
+TIC~5714469.  We believe these cases are unlikely to be eclipsing
+binaries due to the additional coherent peaks and troughs in the light
+curves, which are distinct from any binary phenomena of which we are
+aware.
 
 
 \subsection{Ages}
@@ -748,11 +748,13 @@ Table~\ref{tab:thetable}; their ages span $\approx$5-200\,Myr.  The
 most prodigious groups were Sco-Cen, Tuc-Hor, and Columba.  Six CQVs
 were also identified in the Argus association
 \citep{2019ApJ...870...27Z}, which serves as an indirect line of
-evidence supporting the reality, and youth, of that group.  The yield
+evidence supporting the reality and youth of that group.  The yield
 in Sco-Cen is not surprising, since Sco-Cen contains the majority of
-pre-main-sequence stars in the solar neighborhood.  However, given the
-$\lesssim$$10\%$ completeness of TESS beyond 100\,pc, there are
-probably many more CQVs in Sco-Cen that remain to be discovered.  
+pre-main-sequence stars in the solar neighborhood, any many of its stars
+were selected for TESS 120-second cadence observations by various
+guest investigators.  Given the
+$\lesssim$$10\%$ completeness of TESS beyond 100\,pc, there may
+be many more CQVs in Sco-Cen that remain to be discovered.  
 
 For the \ngoodsfieldbanyan\ stars for which BANYAN\,$\Sigma$ did not
 find any association, we were not able to confidently associate either
@@ -857,6 +859,27 @@ star or binary companion.
 	\end{center}
 \end{figure*}
 
+\begin{figure*}[!tp]
+	\begin{center}
+		\centering
+		\includegraphics[width=0.98\textwidth]{f5.pdf}
+		\vspace{-0.35cm}
+		\caption{
+			{\bf LP 12-502 (TIC~402980664) light curve}, where each time
+			chunk represents one TESS orbit.  Data were acquired in Sectors
+			18-19, 25-26, 53, and 57-58.  Flares are drawn in gray.  The red
+			vertical lines highlight apparently instantaneous state changes
+			in the shape of the dip pattern.  The light curve is binned to
+			15-minute intervals so that there are 96 points per day, and
+			each point is connected by a line.  Data gaps longer than
+			15-minutes are not interpolated; if data are missing, nothing is
+			plotted.
+		}
+		\label{fig:lplc}
+	\end{center}
+\end{figure*}
+
+
 
 \section{CQV evolution}
 \label{sec:evoln}
@@ -913,45 +936,22 @@ low-mass stellar population \citep[e.g.][]{2022AJ....163..144G}.
 
 
 
-\subsection{Evolution over adjacent sectors, \& LP 12-502}
-
-\begin{figure*}[!tp]
-	\begin{center}
-		\centering
-		\includegraphics[width=0.98\textwidth]{f5.pdf}
-		\vspace{-0.35cm}
-		\caption{
-      {\bf LP 12-502 (TIC~402980664) light curve}, where each time
-      chunk represents one TESS orbit.  Data were acquired in Sectors
-      18-19, 25-26, 53, and 57-58.  Flares are drawn in gray.  The red
-      vertical lines highlight apparently instantaneous state changes
-      in the shape of the dip pattern.  The light curve is binned to
-      15-minute intervals so that there are 96 points per day, and
-      each point is connected by a line.  Data gaps longer than
-      15-minutes are not interpolated; if data are missing, nothing is
-      plotted.
-		}
-		\label{fig:lplc}
-	\end{center}
-\end{figure*}
-
-
 \begin{figure*}[!t]
 	\begin{center}
 		\centering
-		\includegraphics[width=\textwidth]{f6.pdf}
-		\vspace{-0.6cm}
+		\includegraphics[width=0.98\textwidth]{f6.pdf}
+		\vspace{-0.3cm}
 		\caption{
-      {\bf Evolution of LP 12-502} ($P$=18.6\,h) at fixed period and
-      epoch over three years.  Each panel shows one (stacked) TESS
-      orbit; small text denotes relative cycle number.  There are 200
-      binned black points per cycle.  The TESS pointing law dictates
-      the large time gaps between Cycles 64-248, 315-1233, and
-      1264-1410; larger gaps tend to yield larger shape changes.  The
-      dips usually evolve over tens to hundreds of cycles.  However
-      cycles 1233-1264 show a dip that ``switched'' from a depth and
-      duration of 3\% and 3\,hr to 0.3\% and 1\,hr over less than one
-      cycle (cf.~Figure~\ref{fig:lplc}).
+			{\bf Evolution of LP 12-502} ($P$=18.6\,h) at fixed period and
+			epoch over three years.  Each panel shows one (stacked) TESS
+			orbit; small text denotes relative cycle number.  There are 200
+			binned black points per cycle.  The TESS pointing law dictates
+			the large time gaps between Cycles 64-248, 315-1233, and
+			1264-1410; larger gaps tend to yield larger shape changes.  The
+			dips usually evolve over tens to hundreds of cycles.  However
+			cycles 1233-1264 show a dip that ``switched'' from a depth and
+			duration of 3\% and 3\,hr to 0.3\% and 1\,hr over less than one
+			cycle (cf.~Figure~\ref{fig:lplc}).
 		}
 		\label{fig:lp}
 	\end{center}
@@ -978,33 +978,39 @@ low-mass stellar population \citep[e.g.][]{2022AJ....163..144G}.
 %\end{figure*}
 
 
-\begin{figure*}[!tp]
+\begin{figure*}[!t]
 	\begin{center}
 		\subfloat{
-			\includegraphics[width=0.48\textwidth]{f7a.pdf}
-			\includegraphics[width=0.48\textwidth]{f7b.pdf}
+			\includegraphics[width=0.46\textwidth]{f7a.pdf}
+			\includegraphics[width=0.46\textwidth]{f7b.pdf}
 		}
-	   \vspace{-0.1cm}
+		\vspace{-0.2cm}
 		
 		\subfloat{
-			\includegraphics[width=0.48\textwidth]{f7d.pdf}
-			\includegraphics[width=0.48\textwidth]{f7c.pdf}
+			\includegraphics[width=0.46\textwidth]{f7d.pdf}
+			\includegraphics[width=0.46\textwidth]{f7c.pdf}
 		}
 	\end{center}
 	\vspace{-0.4cm}
 	\caption{
-    {\bf River plots of the LP 12-502 light curve}, showing (clockwise
-    from top-left) Sectors 18-19, 25-26, 53, and 58-59.  A
-    two-harmonic sinusoid has been subtracted to highlight the sharp
-    dips.  In Sectors 25-26 (cycles 248-315), periods are visible at
-    the fundamental period of 18.5611\,hr, as well as at faster and
-    slower relative periods (e.g. $\phi$$\approx$0.3 and
-    $\phi$$\approx$0.1).  Similar instances of multiple simultaneous
-    periods are also visible in Sector 53 and 58-59.  White chunks
-    denote missing data.
+		{\bf River plots of the LP 12-502 light curve}, showing (clockwise
+		from top-left) Sectors 18-19, 25-26, 53, and 58-59.  A
+		two-harmonic sinusoid has been subtracted to highlight the sharp
+		dips.  In Sectors 25-26 (cycles 248-315), periods are visible at
+		the fundamental period of 18.5611\,hr, as well as at faster and
+		slower relative periods (e.g. $\phi$$\approx$0.3 and
+		$\phi$$\approx$0.1).  Similar instances of multiple simultaneous
+		periods are also visible in Sector 53 and 58-59.  White chunks
+		denote missing data.
 	}
 	\label{fig:lpriver0}
 \end{figure*}
+
+
+\subsection{Evolution over adjacent sectors, \& LP 12-502}
+
+
+
 
 A small fraction of our objects were in regions of sky with
 many sectors of adjacent TESS data.  Out of this already small sample, LP 12-502
@@ -1139,10 +1145,10 @@ eff} \ll R_\star$.  This implies $a/R_\star \approx 5.8$ for this
 material; the analogous timescale at the stellar surface is
 about six times slower.
 
-{\sc Dip periods}---Most of the LP 12-502 dips recur with a period of
+{\sc Dip periods}---Most of the LP 12-502 dips repeat with a period of
 $P=18.5611 \pm 0.0001$\,hr.  However the river plots
-(Figure~\ref{fig:lpriver0}) reveal multiple distinct periodicities in the
-light curve for specific dips.  For instance, in sectors 25-26, the
+(Figure~\ref{fig:lpriver0}) reveal that the
+light curve has specific dips with simultaneous but distinct periods.  For instance, in sectors 25-26, the
 local minimum that develops around cycle 262 has a period faster than
 the mean period by $\approx$0.1\%, while some of the trailing local
 minima in the main dip complex have periods slower than the mean
@@ -1645,12 +1651,12 @@ important physical significance.
 			\includegraphics[width=0.48\textwidth]{f9a.pdf}
 		}
 			
-		\vspace{-0.4cm}
+		\vspace{-0.35cm}
 		\subfloat{
 			\includegraphics[width=0.48\textwidth]{f9b.pdf}
 		}
 
-		\vspace{-0.4cm}
+		\vspace{-0.35cm}
 		\subfloat{
 			\includegraphics[width=0.48\textwidth]{f9c.pdf}
 		}
@@ -1931,10 +1937,11 @@ the effort.
 
 \acknowledgments
 LGB gratefully acknowledges support from the Heising-Simons
-51~Pegasi~b Fellowship.  While many conversations helped encourage
-this work, a few thank-yous in particular (from LGB) are owed to
-G.~Laughlin, A.~Mann, and J.~Spake for clarifications and ideas.  This
-paper relies on data collected by the TESS mission, which are publicly
+51~Pegasi~b Fellowship.  
+A few thank-yous in particular (from LGB) are owed to
+G.~Laughlin, A.~Mann, and J.~Spake for clarifications and ideas, and to E.~Schaller
+and the 51 Peg science team for encouraging lightning talks at the annual summits.
+In addition, this paper relied on data collected by the TESS mission, which are publicly
 available from the Mikulski Archive for Space Telescopes (MAST).
 Funding for the TESS mission is provided by NASA’s Science Mission
 Directorate.  TIC 402980664 in particular was observed at 120-second
@@ -1943,18 +1950,19 @@ J.~Schlieder; Sectors 18, 19, 25, 26) and G04168 (PI: R.~Jayaraman;
 Sector 53).
 
 
-{\bf AUTHOR CONTRIBUTION STATEMENTS: PLEASE REVISE IF APPROPRIATE)}
-LGB~and RJ conceived the project and executed the dip-based and
-Fourier-based analyses, respectively.
-SR and RJ vetted the results from the Fourier search.
-LGB performed the cluster membership, SED, and variability analyses.
-LR contributed an independent SED analysis, and cross-checked the
-variability analyses.
+%{\bf AUTHOR CONTRIBUTION STATEMENTS: PLEASE REVISE IF APPROPRIATE)}
+LGB conceived the project and performed the
+dip-counting search,
+light curve classification,
+cluster membership, SED, and variability analyses.
+RJ and SR performed the Fourier-based analysis and contributed
+to light curve classification.
+LR cross-examined the light curve classification, and contributed an independent SED analysis.
 AD identified the magnetic B star connection.
 LAH contributed to data analysis and interpretation.
-G\'AB acquired and maintained the servers used to run the dip-finding
-pipeline.
+G\'AB acquired and maintained the servers used to run the dip-finding pipeline.
 GRR is an architect of the TESS mission.
+{\bf JNW?  MNG?}
 All authors assisted in manuscript writing and revision.
 
 %\clearpage
@@ -2079,9 +2087,11 @@ TIC & $T$ & $d$ & $\bprp$ & RUWE & $P$ & Assoc & Age & $T_{\rm eff}$ & $R_\star$
   10\%$, but can be asymmetric.  {\bf The median temperature, radius, and
   mass uncertainties are $\pm XXX$\,K, $\pm XX$\%, and $\pm YY$\%
   respectively}.  $N_{\rm sector}$ denotes the number of TESS sectors
-  for which data are expected to be acquired between July~2018 and
-  Oct~2024.   Association names and provenance follow conventions
-  adopted by \citet{2018ApJ...856...23G}: 
+  for which {\it any} data are expected to be acquired between July~2018 and
+  Oct~2024.  This number is generally greater than the number of
+  sectors for which 120-second cadence data exist.   Association names
+  and provenance follow conventions adopted by
+  \citet{2018ApJ...856...23G}: 
 	ABDMG: AB~Doradus moving group \citep{2015MNRAS.454..593B}.
 	ARG: Argus \citep{2019ApJ...870...27Z}.
 	%APER: $\alpha$~Persei open cluster \citep{2023AJ....166...14B}.
