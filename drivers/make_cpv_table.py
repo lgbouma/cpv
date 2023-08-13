@@ -20,7 +20,7 @@ Utilities:
 
 from glob import glob
 from os.path import join
-import pandas as pd, numpy as np
+import pandas as pd, numpy as np, matplotlib.pyplot as plt
 import os, time
 from complexrotators.paths import (
     DATADIR, RESULTSDIR, TABLEDIR, LITDIR, LOCALDIR, PAPERDIR
@@ -50,6 +50,12 @@ def main(overwrite=0):
 
     csvpath2 = join(DATADIR, "targetlists", "20230813_DEBUNKED_CQVs.txt")
     debunked_df = pd.read_csv(csvpath2)
+
+    csvpath3 = join(DATADIR, "targetlists", "20230411_goodandmaybe_CPV_ticids_d_lt_150pc.csv")
+    dipcount_df = pd.read_csv(csvpath3)
+
+    csvpath4 = join(DATADIR, "targetlists", "20230501_RAHUL_FULL_LIST_NO_DUPLICATES.csv")
+    fourier_df = pd.read_csv(csvpath4)
 
     rows = []
     for t in _df['ticid']:
@@ -114,7 +120,9 @@ def main(overwrite=0):
     sdf.to_csv(csvpath, index=False, sep="|")
     print(f"Wrote {csvpath}")
 
-    N_1 = len(sdf)
+    N_allcands = len(sdf)
+    N_cqvs_nodebunked = len(sdf[(sdf.quality == 1) | (sdf.quality == 0)])
+
     N_2 = len(sdf[sdf.quality == 1])
     N_3 = len(sdf[sdf.quality == 0])
     N_debunked = len(sdf[sdf.quality == -1])
@@ -144,11 +152,40 @@ def main(overwrite=0):
     N_8 = len(sgdf[sgdf.ruwe > 2])
     N_9 = len(smdf[smdf.ruwe > 2])
 
+    _mdf = pd.concat((sgdf, smdf))
+    dipcount_ticid = set(np.array(dipcount_df[dipcount_df.ticid.isin(_mdf.ticid)].ticid))
+    fourier_ticid = set(np.array(fourier_df[fourier_df.ticid.isin(_mdf.ticid)].ticid))
+    from gyrojo import venn
+    plt.close("all")
+    labels = venn.get_labels([dipcount_ticid, fourier_ticid],
+                             fill=['number','logic'])
+    fig,ax = venn.venn2(labels, names=['dipcount','fourier'])
+    _outdir = join(RESULTSDIR, 'venn')
+    if not os.path.exists(_outdir): os.mkdir(_outdir)
+    _outpath = join(_outdir, 'dipcount_fourier_venn.png')
+    fig.savefig(_outpath, bbox_inches='tight')
+    print(f'wrote {_outpath}')
+    plt.close("all")
+
+    indip = _mdf.ticid.isin(dipcount_df.ticid)
+    infourier = _mdf.ticid.isin(fourier_df.ticid)
+
+    N_both = np.sum(indip & infourier)
+    N_indip_notfourier = np.sum((indip) & (~infourier))
+    N_infourier_notdip = np.sum((~indip) & (infourier))
+
+    ticid_both = _mdf[indip & infourier].ticid
+    print(f'ticid_both\n{ticid_both}')
+    ticid_indip_notfourier = _mdf[(indip) & (~infourier)].ticid
+    print(f'ticid_indip_notfourier\n{ticid_indip_notfourier}')
+    ticid_infourier_notdip = _mdf[(~indip) & (infourier)].ticid
+    print(f'ticid_infourier_notdip\n{ticid_infourier_notdip}')
+
     txt = (
         f"\n...\n"
         f"N={N_0} unique TICID's labelled 'good' or 'maybe' CPVs before selection fn"
         f"\n...\n"
-        f"N={N_1} unique TICID's labelled 'good' or 'maybe' CPVs after selection fn"
+        f"N={N_cqvs_nodebunked} unique TICID's labelled 'good' or 'maybe' CPVs after selection fn"
         f"\n...\n"
         f"N={N_2} unique TICID's labelled 'good' CPVs after selection fn"
         f"\n...\n"
@@ -165,7 +202,8 @@ def main(overwrite=0):
     print(txt)
 
     latex_txt = (
-        r"\newcommand{\ncpvsfound}{"+str(N_1)+"}\n"
+        r"\newcommand{\nallcands}{"+str(N_allcands)+"}\n"
+        r"\newcommand{\ncqvsnodebunked}{"+str(N_cqvs_nodebunked)+"}\n"
         r"\newcommand{\ngoods}{"+str(N_2)+"}\n"
         r"\newcommand{\nmaybes}{"+str(N_3)+"}\n"
         r"\newcommand{\ndebunked}{"+str(N_debunked)+"}\n"
@@ -176,6 +214,9 @@ def main(overwrite=0):
         r"\newcommand{\nnotfieldbanyan}{"+str(N_6+N_7)+"}\n"
         r"\newcommand{\ngoodhighruwe}{"+str(N_8)+"}\n"
         r"\newcommand{\nmaybehighruwe}{"+str(N_9)+"}\n"
+        r"\newcommand{\nbothdipfourier}{"+str(N_both)+"}\n"
+        r"\newcommand{\nyesdipnofourier}{"+str(N_indip_notfourier)+"}\n"
+        r"\newcommand{\nyesfouriernodip}{"+str(N_infourier_notdip)+"}\n"
     )
 
     outpath = join(PAPERDIR, 'vals_cqv_table_statistics.tex')
