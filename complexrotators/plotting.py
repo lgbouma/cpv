@@ -3569,7 +3569,7 @@ def plot_tic4029_segments(outdir):
     savefig(fig, outpath, dpi=500)
 
 
-def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None):
+def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None, emphruwe=1):
 
     # get data
     tablepath = join(
@@ -3578,6 +3578,7 @@ def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None):
     )
     df = pd.read_csv(tablepath, sep="|")
     maybe_df = df[pd.isnull(df.goodsectors)]
+    ruwe_df = df[df.ruwe > 2]
     df = df[~pd.isnull(df.goodsectors)]
 
     #y, x, ylabel, xlabel, yscale, xscale
@@ -3684,6 +3685,9 @@ def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None):
                 ax.text(0.97,0.87, 'Searched TESS targets', transform=ax.transAxes,
                         ha='right',va='top', color='darkgray', fontsize='small',
                         alpha=0.9)
+                ax.text(0.97,0.82, 'RUWE > 2', transform=ax.transAxes,
+                        ha='right',va='top', color='salmon', fontsize='small',
+                        alpha=1)
 
 
         if ykey == 'tlc_mean_period' and xkey == 'bp_rp':
@@ -3697,10 +3701,13 @@ def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None):
             ax.text(0.97,0.97, 'CQVs', transform=ax.transAxes,
                     ha='right',va='top', color='C0', fontsize='small')
             ax.text(0.97,0.92, 'Candidates', transform=ax.transAxes,
-                    ha='right',va='top', color='C0', fontsize='small',
-                    alpha=0.5)
+                    ha='right',va='top', color='lightblue', fontsize='small',
+                    alpha=1)
             ax.text(0.97,0.87, 'Pleiades (R+16)', transform=ax.transAxes,
                     ha='right',va='top', color='darkgray', fontsize='small')
+            ax.text(0.97,0.82, 'RUWE > 2', transform=ax.transAxes,
+                    ha='right',va='top', color='salmon', fontsize='small',
+                    alpha=1)
 
 
         fx = 1
@@ -3708,25 +3715,35 @@ def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None):
             fx = 24
 
         elif ykey == 'banyan_adopted_age':
-            np.random.seed(42)
-            ferr = np.random.normal(1, 0.02, size=len(df))
-            f0 = ferr*1.
-            print(f0)
-            np.random.seed(42)
-            ferr = np.random.normal(1, 0.02, size=len(maybe_df))
-            f1 = ferr*1.
-            print(f1)
+            f0, f1, f2 = 1,1,1
+            #np.random.seed(42)
+            #ferr = np.random.normal(1, 0.02, size=len(df))
+            #f0 = ferr*1.
+            #print(f0)
+            #np.random.seed(42)
+            #ferr = np.random.normal(1, 0.02, size=len(maybe_df))
+            #f1 = ferr*1.
+            #print(f1)
+            #np.random.seed(42)
+            #ferr = np.random.normal(1, 0.02, size=len(ruwe_df))
+            #f2 = ferr*1.
+            #print(f2)
 
         else:
             f0 = 1
             f1 = 1
+            f2 = 1
 
         ax.scatter(
             fx*df[xkey], f0*df[ykey], c='C0', s=6, linewidths=0, zorder=10
         )
         if showmaybe:
             ax.scatter(
-                fx*maybe_df[xkey], f1*maybe_df[ykey], c='C0', s=4.5, linewidths=0, alpha=0.5, zorder=9
+                fx*maybe_df[xkey], f1*maybe_df[ykey], c='lightblue', s=6, linewidths=0, alpha=1, zorder=9
+            )
+        if emphruwe:
+            ax.scatter(
+                fx*ruwe_df[xkey], f2*ruwe_df[ykey], c='salmon', s=12, linewidths=0, alpha=1, zorder=8
             )
 
         ax.set_xscale(xscale)
@@ -3831,6 +3848,8 @@ def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None):
         s += '_showmaybe'
     if isinstance(plotsubset, str):
         s += f'_{plotsubset}'
+    if emphruwe:
+        s += '_emphruwe'
 
     bn = 'catalogscatter'
     outpath = join(outdir, f'{bn}{s}.png')
