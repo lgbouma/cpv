@@ -7,7 +7,7 @@ sample_id=="2023catalog_LGB_RJ_concat" first (see HOWTO.md)
 Utilities:
 
 | get_cpvtable_row(ticid)
-| gdr2_df = get_gaia_rows(ticid)
+| gdr2_df = get_gaia_dr2_rows(ticid)
 | tdf = assess_tess_holdings(ticid)
 | ftdf = flatten_tdf(tdf, ticid)
 | bdf = get_banyan_result(gdr2_df)
@@ -30,11 +30,13 @@ from os.path import join
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
+from astropy import constants as const, units as u
+
 from astroquery.mast import Catalogs
 from astroquery.exceptions import ResolverError
 
 from complexrotators.observability import (
-    get_gaia_rows, assess_tess_holdings
+    get_gaia_dr2_rows, assess_tess_holdings, get_gaia_dr3_rows
 )
 from complexrotators.isochroneinterp import get_PARSEC
 from complexrotators import pipeline_utils as pu
@@ -120,6 +122,10 @@ def main(overwrite=0):
 
 
     csvpath = join(indir, "20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied.csv")
+    sdf = sdf.sort_values(by=['quality','tic8_Tmag'], ascending=[False,True])
+
+    #sdf['banyan_adopted_lowprob'] = sdf['banyan_adopted_prob'] < 0.01
+
     sdf.to_csv(csvpath, index=False, sep="|")
     print(f"Wrote {csvpath}")
 
@@ -393,6 +399,21 @@ def get_banyan_result(gdr2_df):
         adopted_age_float = 86
         age_refs = 'BoyleBouma2023'
         adopted_age_ref = 'BoyleBouma2023'
+
+    # TIC 397791443: BANYAN assigned LCC prob 0.0008, is in IC2602 from CantatGaudin2020
+    if dr2_source_id == '5239135492911437568':
+        assocs = 'IC2602'
+        adopted_assoc = 'IC2602'
+        banyan_prob = 0
+        adopted_prob = 1
+        ages = '$46 \pm 6$'
+        adopted_age_float = 46
+        age_refs = 'Dobbie2010'
+        adopted_age_ref = 'Dobbie2010'
+
+    # MANUAL CASES WITH UNLIKELY MEMBERSHIPS (<1% and couldn't manually verify)
+    if dr2_source_id in ['3311867153305660288', '5295268619510973056']:
+        adopted_assoc = adopted_assoc + "(?)"
 
     bdf = pd.DataFrame({
         'banyan_assoc': assocs,
@@ -704,7 +725,9 @@ def get_cpvtable_row(ticid, overwrite=0):
     if os.path.exists(cachecsv) and not overwrite:
         return pd.read_csv(cachecsv, sep="|")
 
-    gdr2_df = get_gaia_rows(ticid, allcols=1)
+    gdr2_df = get_gaia_dr2_rows(ticid, allcols=1)
+
+    gdr3_df = get_gaia_dr3_rows(ticid)
 
     tdf = assess_tess_holdings(ticid, outdir=indir)
 
@@ -722,9 +745,8 @@ def get_cpvtable_row(ticid, overwrite=0):
 
     pd.options.display.max_rows = 5000
 
-    row = pd.concat((ftdf, gdr2_df, bdf, t8_df, tlc_df, sed_df, iso_df), axis='columns')
+    row = pd.concat((ftdf, gdr2_df, gdr3_df, bdf, t8_df, tlc_df, sed_df, iso_df), axis='columns')
 
-    from astropy import constants as const, units as u
     omega = 2*np.pi / (float(row['tlc_mean_period'])*u.day)
     row['Rcr'] = (
         (const.G * float(row['mstar_parsec'])*u.Msun / omega**2)**(1/3)

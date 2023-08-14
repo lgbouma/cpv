@@ -5,7 +5,8 @@ follow-up priorities.
 
 In order of perceived reusability:
 
-| get_gaia_rows
+| get_gaia_dr2_rows
+| get_gaia_dr3_rows
 
 | assess_tess_holdings
 | check_tesspoint
@@ -36,13 +37,15 @@ from scipy.optimize import curve_fit
 
 from cdips.utils.gaiaqueries import (
     given_source_ids_get_gaia_data,
-    parallax_to_distance_highsn
+    parallax_to_distance_highsn,
+    given_dr2_sourceids_get_edr3_xmatch
 )
+from gyrointerp.helpers import given_dr2_get_dr3_dataframes, prepend_colstr
 
 from complexrotators.paths import RESULTSDIR, TARGETSDIR, TABLEDIR
 from complexrotators import pipeline_utils as pu
 
-def get_gaia_rows(ticid, allcols=0):
+def get_gaia_dr2_rows(ticid, allcols=0):
     """
     Given the TIC ID, get basic Gaia DR2 information, including the
     dr2_source_id, positions, proper motions, parallaxes, photometry,
@@ -95,6 +98,39 @@ def get_gaia_rows(ticid, allcols=0):
                          axis="columns")
 
     return outdf
+
+
+def get_gaia_dr3_rows(ticid):
+    """
+    Given the TIC ID, get basic Gaia DR3 information, including the
+    dr2_source_id, positions, proper motions, parallaxes, photometry,
+    and distance.  Return as a dataframe.
+
+    tic_id : str
+        The TIC ID to look for, e.g., "260265964".
+    """
+
+    dr2_source_id = tic_to_gaiadr2(ticid)
+
+    dr2_source_ids = np.array([dr2_source_id]).astype(np.int64)
+    runid_dr2 = f"dr2{dr2_source_id}"
+    runid_dr3 = f"dr3_dr2{dr2_source_id}"
+
+    gdf, s_dr3 = given_dr2_get_dr3_dataframes(
+        dr2_source_ids, runid_dr2, runid_dr3, overwrite=False
+    )
+
+    gdf = gdf.rename({k:"dr3_"+k for k in gdf.columns if k != 'dr3_source_id'},
+                     axis='columns')
+    selcols = 'angular_distance magnitude_difference'.split()
+    gdr3_df = pd.concat(
+        (gdf.reset_index(drop=True), s_dr3[selcols].reset_index(drop=True)),
+        axis='columns'
+    )
+
+    assert len(gdr3_df) == 1
+
+    return gdr3_df
 
 
 def assess_tess_holdings(ticid, outdir=None):
