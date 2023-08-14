@@ -69,7 +69,8 @@ def get_ticids(sample_id):
         #"353927317" # EPIC 211070495, Rebull2016
         #"220433363" # tess blend; gaia multipeaked; wanna see s32
         #"268971806" # HD 64740 has lots of data!
-        "254612758"  # rahul...
+        #"254612758"  # rahul...
+        "435903839"
         ]
 
         N_stars_to_search = len(ticids)
@@ -134,7 +135,7 @@ def get_ticids(sample_id):
         df = pd.read_csv(
             join(
                 TABLEDIR, '2023_catalog_table',
-                '20230613_LGB_RJ_uticid_quality_label.csv'
+                '20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied_BACKUP.csv'
             ), sep="|"
         )
         ticids = np.unique(df.ticid.astype(str))
@@ -364,8 +365,8 @@ def find_CPV(ticid, sample_id, forcepdf=0):
 def main():
 
     sample_ids = [
-        'debug'
-        #'2023catalog_LGB_RJ_concat'
+        #'debug'
+        '2023catalog_LGB_RJ_concat'
         #'30pc_mkdwarf',
         #'30to50pc_mkdwarf',
         #'50to60pc_mkdwarf',
