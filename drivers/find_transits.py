@@ -125,15 +125,15 @@ def find_transits(ticid, sample_id):
         cachepath = join(cachedir, f'{starid}_quasiperiodicremoval_{method}.pkl')
         r = remove_quasiperiodic_signal(
             d['times'], d['fluxs'], d['t0'], d['period'], cachepath,
-            method=method
+            starid, method=method, pgdict=d
         )
 
         # TODO FIXME: now find planets in the residual
 
 
 def remove_quasiperiodic_signal(
-    time, flux, t0, period, cachepath,
-    method=None, make_diagnostic_plot=1
+    time, flux, t0, period, cachepath, starid,
+    method=None, make_diagnostic_plot=1, pgdict=None
 ):
     """
     Given np.ndarray time/flux, the period and phase, and a `cachepath` to
@@ -246,7 +246,16 @@ def remove_quasiperiodic_signal(
     x_nw_model = np.linspace(0,1,1000)
     y_nw_model = fn(x_nw_model)
 
+    assert len(time) == len(y_resid_nsnw)
+    cachedir = os.path.dirname(cachepath)
+    resid_pgdict = cpv_periodsearch(
+        time, y_resid_nsnw, starid+"_resid0", cachedir, t0='binmin',
+        periodogram_method='pdm'
+    )
+
     out_dict = {
+        'pgdict': pgdict, # nominal periodogram dictionary
+        'resid_pgdict': resid_pgdict, # periodogram on the RESIDUAL dictionary
         'period': period,
         'best_interp_key': best_interp_key,
         'mad_resid_1hr': mad_resid_1hr,
@@ -296,7 +305,8 @@ def main():
 
     sample_id = '20230613_LGB_RJ_selfnapplied'
     csvpath = join(
-        TABLEDIR, "2023_catalog_table", "20230613_LGB_RJ_CPV_TABLE_selfnapplied_rounded.csv"
+        TABLEDIR, "2023_catalog_table",
+        "20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied_BACKUP.csv"
     )
     df = pd.read_csv(csvpath, sep="|")
     ticids = np.array(df.ticid).astype(str)

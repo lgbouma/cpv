@@ -2162,6 +2162,9 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
 
     # d = {
     #    'best_interp_key': best_interp_key,
+    #    'pgdict': pgdict, # nominal periodogram dictionary
+    #    'resid_pgdict': resid_pgdict, # periodogram on the RESIDUAL dictionary
+    #    'period': period,
     #    'fn': fn,
     #    'time': time, # input time
     #    'flux': flux, # input flux
@@ -2186,11 +2189,13 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     # NOTE: populate the namespace using all keys in the passed dictionary.
     from types import SimpleNamespace
     ns = SimpleNamespace(**d)
+    pgdict = ns.pgdict
+    resid_pgdict = ns.resid_pgdict
 
     plt.close('all')
     set_style('clean')
 
-    fig = plt.figure(figsize=(6,2.4), layout='constrained')
+    fig = plt.figure(figsize=(9,6), layout='constrained')
     axd = fig.subplot_mosaic(
         #"""
         #AABBEE
@@ -2199,12 +2204,16 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
         #DDDDDD
         #"""
         """
-        AACCCCCC
-        AACCCCCC
-        BBCCCCCC
-        BBDDDDDD
-        EEDDDDDD
-        EEDDDDDD
+        AAACCCCCC
+        AAACCCCCC
+        BBBCCCCCC
+        BBBDDDDDD
+        EEEDDDDDD
+        EEEDDDDDD
+        FFFGGGHHH
+        FFFGGGHHH
+        IIIJJJKKK
+        IIIJJJKKK
         """
     )
 
@@ -2218,7 +2227,9 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     ylim = get_ylimguess(n(ns.y_sw_b))
     ax.set_ylim(ylim)
     ax.update({#'xlabel': 'φ',
-               'ylabel': 'Flux [%]', 'xlim':[-0.6,0.6]})
+               'ylabel': 'Flux [%]', 'xlim':[-0.6,0.6],
+               'title': f"P = {pgdict['period']*24:.2f} hr"
+              })
     ax.set_xticklabels([])
 
     # resid flux vs phase
@@ -2232,7 +2243,8 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     ylim = factor*np.array(get_ylimguess(n(ns.y_resid_sw_b)))
     ax.set_ylim(ylim)
     ax.update({#'xlabel': 'φ',
-               'ylabel': 'Resid [%]', 'xlim':[-0.6,0.6]})
+               'ylabel': 'Resid [%]', 'xlim':[-0.6,0.6],
+              })
     ax.set_xticklabels([])
 
     # resid flux vs phase colored and binned by time
@@ -2285,7 +2297,6 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     ax.hlines(0.9, t_lo, t_hi, colors='red', alpha=1,
               linestyles='-', zorder=5, linewidths=2, transform=tform)
 
-
     fig.tight_layout(h_pad=0)
 
     # colorbar insanity
@@ -2310,6 +2321,141 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     cb.ax.tick_params(size=0, which='both') # remove the ticks
     cb.ax.yaxis.set_ticks_position('left')
     cb.ax.yaxis.set_label_position('left')
+
+    # initial periodogram
+    ax = axd['F']
+    d = deepcopy(pgdict)
+
+    ax.plot(d['lsp']['periods'], d['lsp']['lspvals'], c='k', lw=1)
+    ax.scatter(d['lsp']['nbestperiods'][:7],
+               d['lsp']['nbestlspvals'][:7],
+               marker='v', s=5, linewidths=0, edgecolors='none',
+               color='k', alpha=0.5, zorder=1000)
+    ymin, ymax = ax.get_ylim()
+    ax.vlines(d['period'], ymin, ymax, colors='darkgray', alpha=1,
+              linestyles='-', zorder=-2, linewidths=1)
+    P_harmonics = []
+    for ix in range(1,11):
+        P_harmonics.append(ix*d['period'])
+        P_harmonics.append(d['period']/ix)
+
+    sel = (
+        (P_harmonics > np.nanmin(d['lsp']['periods']))
+        &
+        (P_harmonics < np.nanmax(d['lsp']['periods']))
+    )
+    ax.vlines(nparr(P_harmonics)[sel], ymin, ymax, colors='darkgray',
+              alpha=0.5, linestyles=':', zorder=-2, linewidths=0.5)
+    ax.set_ylim([ymin, ymax])
+    ax.update({'xlabel': 'Period [d]', 'ylabel': 'PDM Θ', 'xscale': 'log'})
+
+    # initial periodogram text
+    ax = axd['I']
+    ax.set_axis_off()
+    txt = 'Raw periods, $P$\n'
+    raw_period = d['lsp']['nbestperiods'][0]
+    for _P in d['lsp']['nbestperiods'][:7]:
+        txt += f"{_P:.4f} d = {_P*24:.3f} h\n"
+    txt_x = 0.
+    txt_y = 0.5
+    ax.text(txt_x, txt_y, txt, ha='left', va='center', fontsize='x-small', zorder=2,
+            transform=ax.transAxes)
+    del d
+
+    # residual periodogram
+    ax = axd['G']
+    d = deepcopy(resid_pgdict)
+
+    ax.plot(d['lsp']['periods'], d['lsp']['lspvals'], c='k', lw=1)
+    ax.scatter(d['lsp']['nbestperiods'][:7],
+               d['lsp']['nbestlspvals'][:7],
+               marker='v', s=5, linewidths=0, edgecolors='none',
+               color='k', alpha=0.5, zorder=1000)
+    ymin, ymax = ax.get_ylim()
+    ax.vlines(d['period'], ymin, ymax, colors='darkgray', alpha=1,
+              linestyles='-', zorder=-2, linewidths=1)
+    P_harmonics = []
+    for ix in range(1,11):
+        P_harmonics.append(ix*d['period'])
+        P_harmonics.append(d['period']/ix)
+
+    sel = (
+        (P_harmonics > np.nanmin(d['lsp']['periods']))
+        &
+        (P_harmonics < np.nanmax(d['lsp']['periods']))
+    )
+    ax.vlines(nparr(P_harmonics)[sel], ymin, ymax, colors='darkgray',
+              alpha=0.5, linestyles=':', zorder=-2, linewidths=0.5)
+    ax.set_ylim([ymin, ymax])
+    ax.update({'xlabel': 'Period [d]', 'ylabel': 'Resid PDM Θ', 'xscale': 'log'})
+
+    # residual periodogram text
+    ax = axd['J']
+    ax.set_axis_off()
+    txt = 'Resid periods:\n'
+    for _P in d['lsp']['nbestperiods'][:7]:
+        txt += f"{_P:.4f} d = {_P*24:.3f} h = {_P/raw_period:.3f} "+"$P$\n"
+    txt_x = 0.
+    txt_y = 0.5
+    ax.text(txt_x, txt_y, txt, ha='left', va='center', fontsize='x-small', zorder=2,
+            transform=ax.transAxes)
+
+    #
+    # residual phase at next period
+    #
+    x, y = ns.time, ns.y_resid_nsnw
+    period = resid_pgdict['period']
+    period2 = resid_pgdict['lsp']['nbestperiods'][1]
+    t0 = resid_pgdict['t0']
+
+    binsize_minutes = 10
+    bs_days = (binsize_minutes / (60*24))
+
+    _pd_sw = phase_magseries(x, y, period, t0, wrap=1, sort=True)
+    r_x_sw = _pd_sw['phase']
+    r_y_sw = _pd_sw['mags']
+    bd = phase_bin_magseries(r_x_sw, r_y_sw, binsize=bs_days, minbinelems=3)
+    r_x_sw_b = bd['binnedphases']
+    r_y_sw_b = bd['binnedmags']
+
+    _pd_sw = phase_magseries(x, y, period2, t0, wrap=1, sort=True)
+    r_x_sw_2 = _pd_sw['phase']
+    r_y_sw_2 = _pd_sw['mags']
+    bd = phase_bin_magseries(r_x_sw_2, r_y_sw_2, binsize=bs_days, minbinelems=3)
+    r_x_sw_b_2 = bd['binnedphases']
+    r_y_sw_b_2 = bd['binnedmags']
+
+
+    # resid flux vs phase (at best *residual* period)
+    ax = axd['H']
+    ax.scatter(r_x_sw, n(r_y_sw), zorder=1, s=0.2, c='lightgray',
+               linewidths=0)
+    ax.scatter(r_x_sw_b, n(r_y_sw_b), zorder=3, s=1, c='k',
+               linewidths=0)
+
+    factor = 2
+    ylim = factor*np.array(get_ylimguess(n(r_y_sw_b)))
+    ax.set_ylim(ylim)
+    ax.update({#'xlabel': 'φ',
+               'ylabel': 'Resid [%]', 'xlim':[-0.6,0.6],
+               'title': f"P$_2$ = {resid_pgdict['period']*24:.3f} hr (best)"
+              })
+
+    # resid flux vs phase (at best *residual* period)
+    ax = axd['K']
+
+    ax.scatter(r_x_sw_2, n(r_y_sw_2), zorder=1, s=0.2, c='lightgray',
+               linewidths=0)
+    ax.scatter(r_x_sw_b_2, n(r_y_sw_b_2), zorder=3, s=1, c='k',
+               linewidths=0)
+
+    factor = 2
+    ylim = factor*np.array(get_ylimguess(n(r_y_sw_b_2)))
+    ax.set_ylim(ylim)
+    ax.update({#'xlabel': 'φ',
+               'ylabel': 'Resid [%]', 'xlim':[-0.6,0.6],
+               'title': f"P$_2$ = {period2*24:.3f} hr (2nd)"
+              })
 
     savefig(fig, pngpath, dpi=400, writepdf=0)
 
