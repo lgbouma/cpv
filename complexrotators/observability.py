@@ -128,6 +128,20 @@ def get_gaia_dr3_rows(ticid):
         axis='columns'
     )
 
+    d_pc, upper_unc, lower_unc  = parallax_to_distance_highsn(
+        float(gdr3_df['dr3_parallax']),
+        e_parallax_mas=float(gdr3_df['dr3_parallax_error']),
+        gaia_datarelease='gaia_dr3'
+    )
+
+    gdr3_df['dr3_dist_pc'] = d_pc
+    gdr3_df['dr3_dist_pc_upper_unc'] = upper_unc
+    gdr3_df['dr3_dist_pc_lower_unc'] = lower_unc
+
+    gdr3_df['M_G'] = np.array(
+            gdr3_df['dr3_phot_g_mean_mag'] + 5*np.log10(gdr3_df['dr3_parallax']/1e3) + 5
+    )
+
     assert len(gdr3_df) == 1
 
     return gdr3_df
