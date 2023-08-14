@@ -464,14 +464,15 @@ We performed an independent search for strongly periodic phenomena
 using a Fourier-based approach, following \citet{2019ApJ...876..127Z}
 and \citet[][their Section~1.3]{2023MNRAS.524.4220P}.  Starting with
 the PDC\_SAP light curves, we normalized each light curve, and then
-re-binned it into equal width bins {\bf LB: how long?} to account for
-the uneven spacing in the TESS data, as well as the data gap during
-each sector caused by satellite downlink.  We then padded the data to
+re-binned it into equal width 120-second bins to account for the
+uneven spacing in the TESS data, as well as the data gap caused by
+satellite downlink during each sector.  We then padded the data to
 ensure that the light curve had a length that was a power of two, as
-described by \citeauthor{2019ApJ...876..127Z}.  We then took the
-Fourier transform of the corrected, padded light curve using {\tt
-numpy.fft.fft} and searched for peaks with a significance of over
-12-$\sigma$ within each set of 500 bins. 
+described by \citeauthor{2019ApJ...876..127Z}.  Taking the Fourier
+transform of the corrected, padded light curve using {\tt
+numpy.fft.fft}, we then searched for peaks with a significance of over
+12-$\sigma$ within a set of 500 bins. 
+{\bf LB: by the latter ``bins'', does this mean frequencies?}
 
 If a peak of such significance was found, we generated a ``summary
 sheet'' with information about the star, its full and folded light
@@ -715,7 +716,7 @@ fastest five have periods spanning 3.6\,hr$<$$P$$<$6.2\,hr, and the
 slowest five span 27\,hr$<$$P$$<$38\,hr.  Regarding likely astrometric
 or visual binaries, \ngoodhighruwe/\ngoods\ high-quality CQVs have a
 Gaia DR2 RUWE$>$2; \nmaybehighruwe/\nmaybes\ of the ambiguous sample
-share this characteristic.\footnote{For an explanation of the renormalized unit weight error (RUWE), see the GAIA DPAC technical note \url{http://www.rssd.esa.int/doc_fetch.php? id=3757412}.  Elevated RUWEs imply elevated noise relative to a single-source astrometric model, which can be caused by marginally resolved point sources, astrophysical photometric variability, or astrophysical astrometric motion.}
+share this characteristic.\footnote{For an explanation of the renormalized unit weight error (RUWE), see the GAIA DPAC technical note \url{http://www.rssd.esa.int/doc_fetch.php? id=3757412}.  Elevated RUWEs imply elevated noise relative to a single-source astrometric model. This can be caused by marginally resolved point sources, photometric variability, or astrometric motion.}
 
 % This is consistent with Rappaport2014's visual binary fraction
 % determined from 30/100 rapidly rotating Kepler stars having multiple
@@ -742,9 +743,16 @@ aware.
 \subsection{Ages}
 
 Of our \ncqvsnodebunked\ confirmed and candidate CQVs, \nnotfieldbanyan\
-were associated with a nearby moving group or open cluster using
-BANYAN\,$\Sigma$.  The relevant groups are listed in
-Table~\ref{tab:thetable}; their ages span $\approx$5-200\,Myr.  The
+were associated with a nearby moving group or open cluster, primarily using
+BANYAN\,$\Sigma$.\footnote{Two of the
+	\nnotfieldbanyan\ memberships were made with low confidence and are flagged
+	in Table~\ref{tab:thetable}.
+	One membership, of TIC~397791443 in IC\,2602, was made manually
+	from a literature search
+	\citep[e.g.][]{2020A&A...633A..99C}.}  
+The relevant groups are listed in
+Table~\ref{tab:thetable}; their ages span $\approx$5-200\,Myr.  
+The
 most prodigious groups were Sco-Cen, Tuc-Hor, and Columba.  Six CQVs
 were also identified in the Argus association
 \citep{2019ApJ...870...27Z}, which serves as an indirect line of
@@ -2106,6 +2114,7 @@ TIC & $T$ & $d$ & $\bprp$ & RUWE & $P$ & Assoc & Age & $T_{\rm eff}$ & $R_\star$
 	TWA: TW Hydrae assocation \citep{2015MNRAS.454..593B}.
 	UCL: Upper Centaurus Lupus \citep{2016MNRAS.461..794P}.
 	USCO: Upper Scorpius \citep{2016MNRAS.461..794P}.
+	The ``(?)'' string denotes low-confidence membership.
 }
 \end{deluxetable}
 \clearpage
