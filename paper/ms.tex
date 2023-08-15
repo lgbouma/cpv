@@ -933,10 +933,11 @@ that seem to be binary in Section~\ref{subsec:discbinary}.
 \label{subsec:planet_constraints}
 We searched for evidence of a transiting exoplanet for 10 of the brightest
 CQVs {\red (RJ: was this the selection function?)} using the transit least
-squares algorithm from \citet{2019A&A...623A..39H}. We first fit for 40
-harmonics of the CQV period and subtracted these from the light curve,
-along with two sidebands at frequencies of $1/T$, where $T$ was the
-length of the TESS data for the sector whose data we used. We found
+squares algorithm from \citet{2019A&A...623A..39H}. We first fit simultaneously
+for 30 harmonics of the CQV period, along with $\pm$\,3 sidebands of each
+harmonic spaced by $1/T$, where $T$ was the duration of the TESS
+data for the sector we used. This fit, using 420 frequencies, was then subtracted 
+from the TESS light curve, and we then analyzed the residual. We found
 no evidence for a planet with $R > 2-3 R_\oplus$ and a period less
 than 12\,d (FAP > 0.05) in most cases. The three false positive cases
 could be explained by residual signals from the CQV that were not
