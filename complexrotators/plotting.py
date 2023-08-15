@@ -3728,7 +3728,18 @@ def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None, emphruwe=1):
     # drop "debunked" CQVs
     maybe_df = df[df.quality == 0]
     df = df[df.quality == 1]
-    ruwe_df = pd.concat(( df[df.ruwe > 2], maybe_df[maybe_df.ruwe > 2]))
+    binary_df = pd.concat((
+        df[
+            ( (df.dr3_ruwe > 2) & (df.multipleperiodflag.astype(int)==1) )
+            |
+            (df.rvscatterflag.astype(int)==1)
+        ],
+        maybe_df[
+            ((maybe_df.dr3_ruwe > 2) & (maybe_df.multipleperiodflag.astype(int)==1))
+            |
+            (maybe_df.rvscatterflag.astype(int)==1)
+        ]
+    ))
 
     #y, x, ylabel, xlabel, yscale, xscale
     if plotsubset is None:
@@ -3763,7 +3774,7 @@ def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None, emphruwe=1):
             ('dist_metric_parsec', 'rstar_sedfit', 'dist_metric_parsec', 'rstar_sedfit', 'linear', 'linear'),
             ('dist_metric_parsec', 'mstar_parsec', 'dist_metric_parsec', 'mstar_parsec', 'linear', 'linear'),
             ('banyan_adopted_age', 'age_parsec', 'banyan_adopted_age', 'age_parsec', 'linear', 'linear'),
-            ('ruwe', 'bp_rp', 'RUWE', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'log', 'linear'),
+            ('dr3_ruwe', 'bp_rp', 'DR3 RUWE', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'log', 'linear'),
         ]
     else:
         raise NotImplementedError
@@ -3834,8 +3845,8 @@ def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None, emphruwe=1):
                 ax.text(0.97,0.87, 'Searched TESS targets', transform=ax.transAxes,
                         ha='right',va='top', color='darkgray', fontsize='small',
                         alpha=0.9)
-                ax.text(0.97,0.82, 'RUWE > 2', transform=ax.transAxes,
-                        ha='right',va='top', color='salmon', fontsize='small',
+                ax.text(0.97,0.82, 'Unres. binaries', transform=ax.transAxes,
+                        ha='right',va='top', color='orangered', fontsize='small',
                         alpha=1)
 
 
@@ -3854,8 +3865,8 @@ def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None, emphruwe=1):
                     alpha=1)
             ax.text(0.97,0.87, 'Pleiades (R+16)', transform=ax.transAxes,
                     ha='right',va='top', color='darkgray', fontsize='small')
-            ax.text(0.97,0.82, 'RUWE > 2', transform=ax.transAxes,
-                    ha='right',va='top', color='salmon', fontsize='small',
+            ax.text(0.97,0.82, 'Unres. binaries', transform=ax.transAxes,
+                    ha='right',va='top', color='orangered', fontsize='small',
                     alpha=1)
 
 
@@ -3874,7 +3885,7 @@ def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None, emphruwe=1):
             #f1 = ferr*1.
             #print(f1)
             #np.random.seed(42)
-            #ferr = np.random.normal(1, 0.02, size=len(ruwe_df))
+            #ferr = np.random.normal(1, 0.02, size=len(binary_df))
             #f2 = ferr*1.
             #print(f2)
 
@@ -3892,7 +3903,7 @@ def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None, emphruwe=1):
             )
         if emphruwe:
             ax.scatter(
-                fx*ruwe_df[xkey], f2*ruwe_df[ykey], c='salmon', s=12, linewidths=0, alpha=1, zorder=8
+                fx*binary_df[xkey], f2*binary_df[ykey], c='orangered', s=12, linewidths=0, alpha=1, zorder=8
             )
 
         ax.set_xscale(xscale)
