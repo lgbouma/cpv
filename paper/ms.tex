@@ -202,7 +202,7 @@ and its half-harmonic, $0.5\,P_{\rm rot}$.  If one fine-tunes the
 viewing geometry, starspots can produce dips with durations as short
 as $\approx$$0.2\,P_{\rm rot}$, and the dip amplitudes quickly
 decrease due to limb-darkening (see \citealt{2017AJ....153..152S},
-Figures 37-41).  The observed dips can happen over durations as
+Figures 37-41).  The observed dips, however, happen over durations as
 short as $0.05\,P_{\rm rot}$ with characteristic depths of a few
 percent; a ``starspot-only'' scenario can be discarded for any object
 with dips that are sufficiently deep and short in duration
@@ -263,7 +263,7 @@ potential utility in ruling out some of these models.
 In this work, we aim to find bright and nearby CQVs, since these
 objects will be the most amenable to detailed photometric and
 spectroscopic analyses.  To do this, we use 120-second cadence data
-acquired by TESS between July~2018 and Sep~2022 (Sectors 1-55; Cycles
+acquired by TESS between 2018 July and 2022 September (Sectors 1-55; Cycles
 1-4).  We present our search methods in Section~\ref{sec:methods}, and
 the properties of the resulting CQV catalog in
 Section~\ref{sec:results}.  The evolution of many CQVs over a two-year
@@ -275,7 +275,7 @@ Section~\ref{sec:conclusion}.
 A point on nomenclature.  CQVs have been called ``transient flux
 dips'', ``persistent flux dips'', ``scallop shells'', ``batwings'',
 \citep{2017AJ....153..152S} ``complex rotators'',
-\citep{2019ApJ...876..127Z,2022AJ....163..144G,2023ApJ...945..114P}
+\citep{2019ApJ...876..127Z,2022AJ....163..144G,2023ApJ...945..114P},
 and ``complex periodic variables'' \citep{2023MNRAS.518.2921K}.  The
 CQVs should not be conflated with ``dippers'', which are classical T
 Tauri stars with infrared excesses, and which show large-amplitude variability
@@ -294,9 +294,7 @@ they are all explained by a single underlying phenomenon, and so we
 opt to refer to them by a single empirically descriptive name.  We
 also considered names that focused on the presence of transient
 corotating clumps, or more generally on circumstellar plasma tori;
-for the time being, ``CQV'' seems to more accurately mirror the state
-of our ignorance.
-
+for the time being, ``CQV'' is agnostic to the true underlying phenomenon.
 
 \begin{figure*}[!t]
 	\begin{center}
@@ -334,16 +332,17 @@ of our ignorance.
 \subsection{Stellar selection function}
 \label{subsec:selectionfn}
 
-We analyzed the ``short'' 120-second cadence data acquired by TESS
-between July~2018 and Sep~2022 (Sectors 1-55).  Specifically, we used
+To construct our sample, we analyzed the short-cadence data acquired by TESS
+between 2018 July 25 and 2022 September 1 (Sectors 1-55).  Specifically, we used
 the 120-second cadence light curves produced by the Science Processing
 and Operations Center at NASA Ames \citep{2016SPIE.9913E..3EJ}.  While
 the TESS data products from these sectors also included full frame
 images with cadences of 600 and 1800 seconds, we limited our scope in
-this study for the sake of simplicity in data handling.  In exchange,
+this study for the sake of simplicity in data handling and some degree of 
+uniformity in the properties of the data itself.  In exchange,
 we sacrificed both completeness and homogeneity of the selection
 function.  While TESS cumulatively observed $\approx$90\% of the sky
-for at least one lunar month between July~2018 and Sep~2022, the
+for at least one lunar month between 2018 July and 2022 September, the
 120-second cadence data were collected for only a subset of observable
 stars during this time due to telemetric constraints
 \citep[see][]{2021PASP..133i5002F}.
@@ -361,22 +360,19 @@ data; at $>$100\,pc, $\lesssim$10\% of such M dwarfs have at least one
 sector of short-cadence data.  Armed with this understanding, we then
 used our cross-match between Gaia DR2 and TIC8 to select our stars of
 interest, which we defined as stars with 120-second cadence TESS light
-curves that satisfied
+curves satisfying these four conditions:
 \begin{align}
   T &< 16 \quad&(\mathrm{Bright\ for\ TESS})\\
-  \bprp &> 1.5 \quad&(\mathrm{Red\ stars\ only}) \\
-  M_{\rm G} &> 4 \quad&(\mathrm{Dwarf\ stars\ only})  \\
-  d &< 150\,{\rm pc} \quad&(\mathrm{Close\ stars\ only}),
+  \bprp &> 1.5 \quad&(\mathrm{Red\ stars\ only})\\
+  M_{\rm G} &> 4 \quad&(\mathrm{Dwarf\ stars\ only})\\
+  d &< 150\,{\rm pc} \quad&(\mathrm{Close\ stars\ only}).
 \end{align}
-for $M_{\rm G} = G + 5\log(\varpi_{\rm as}) + 5$ the Gaia $G$-band
-absolute magnitude, $\varpi_{\rm as}$ the parallax in units of
-arcseconds, and a geometric distance $d$ defined by inverting the
+Here, $M_{\rm G} = G + 5\log(\varpi_{\rm as}) + 5$ is the Gaia $G$-band
+absolute magnitude, $\varpi_{\rm as}$ is the parallax in units of
+arcseconds, and $d$ is a geometric distance defined by inverting the
 parallax and ignoring any zero-point correction.  The target sample
 therefore includes \nstarssearched\ M dwarfs and late-K dwarfs, down
 to $T$$<$16 and out to $d$$<$150\,pc.
-
-
-
 
 \subsection{CQV discovery}
 \label{subsec:discoverymethods}
@@ -403,7 +399,7 @@ phase-folded light curves.  CQVs will preferably have at least three
 such minima in order to be distinct from false positives such as
 synchronized and spotted binaries (``RS CVn'' stars). 
 
-For our dip-counting pipeline, we began with the PDC\_SAP flux for
+For our dip-counting pipeline, we began with the {\tt PDC\_SAP} flux for
 each sector, removed non-zero quality flags, and normalized the light
 curve to one by dividing out its median value.  We then flattened the
 light curve using a 5-day sliding median filter, as implemented in
@@ -412,20 +408,20 @@ and flattened light curve, we ran a periodogram search, opting for the
 \citet{1978ApJ...224..953S} phase dispersion minimization (PDM)
 algorithm implemented in \texttt{astrobase}
 \citep{2021zndo...1011188B} due to its shape agnosticism.  If a period
-below 2 days was identified, we reran the periodogram at a finer grid
+$P$ below 2 days was identified, we reran the periodogram at a finer grid
 to improve the accuracy of the period determination.
 
-Once a star's period $P$ was identified, we binned the phased light
+Once a star's period was identified, we binned the phased light
 curve to 100 points per cycle.  To separate ``sharp'' local minima
-from smooth spot-induced variability, we then iteratively fit robust
-penalized splines to the wrapped phase-folded light curve, excluding
-points more than two standard deviations away from the local continuum
-\citep{2019AJ....158..143H}.  The maximum number of equidistant spline
-knots per cycle is the parameter in this framework that controlled the
-meaning of ``sharp'' --- we allowed at most 10 such knots per cycle,
-though for most stars fewer knots were preferred based on
-cross-validation using an $\ell^2$-norm penalty.  An example fit is
-shown in panel {\it (e)} of Figure~\ref{fig:vet}.
+from smooth but double-dipped spot variability, we then iteratively
+fit robust penalized splines to the wrapped phase-folded light curve,
+excluding points more than two standard deviations away from the local
+continuum \citep{2019AJ....158..143H}.  The maximum number of
+equidistant spline knots per cycle is the parameter in this framework
+that controlled the meaning of ``sharp'' --- we allowed at most 10
+such knots per cycle, though for most stars fewer knots were preferred
+based on cross-validation using an $\ell^2$-norm penalty.  An example
+fit is shown in panel {\it (e)} of Figure~\ref{fig:vet}.
 
 We then identified local minima in the resulting residual light curve
 using the SciPy \texttt{find\_peaks} utility
@@ -463,7 +459,7 @@ least one observed TESS sector.
 We performed an independent search for strongly periodic phenomena
 using a Fourier-based approach, following \citet{2019ApJ...876..127Z}
 and \citet[][their Section~1.3]{2023MNRAS.524.4220P}.  Starting with
-the PDC\_SAP light curves, we normalized each light curve, and then
+the {\tt PDC\_SAP} light curves, we normalized each light curve, and then
 re-binned it into equal width 120-second bins to account for the
 uneven spacing in the TESS data, as well as the data gap caused by
 satellite downlink during each sector.  We then padded the data to
@@ -471,8 +467,7 @@ ensure that the light curve had a length that was a power of two, as
 described by \citeauthor{2019ApJ...876..127Z}.  Taking the Fourier
 transform of the corrected, padded light curve using {\tt
 numpy.fft.fft}, we then searched for peaks with a significance of over
-12-$\sigma$ within a set of 500 bins. 
-{\bf LB: by the latter ``bins'', does this mean frequencies?}
+12-$\sigma$ within a set of 500 frequency bins. 
 
 If a peak of such significance was found, we generated a ``summary
 sheet'' with information about the star, its full and folded light
@@ -498,7 +493,7 @@ together and analyzed for a more accurate period determination.
 			{\bf Validation plots used to  label CQVs}.  The complete figure
 			set, with one image per sector for each of the \nallcands\
       objects in Table~\ref{tab:thetable}
-			is available online {\bf For internal collaboration review:
+			is available in the online journal. {\bf For internal collaboration review:
 				\url{https://www.dropbox.com/sh/khtwk5a6z0zgrif/AABRG21Ire7VS4BUnaD1hOR8a?dl=0}}.
 			Panels are as follows.
 			{\it a)}: Phase-folded light curve; gray points are raw 2-minute
@@ -582,7 +577,7 @@ e.g.][Figure~10]{2021ApJ...917...23K}.
 
 For a few cases where BANYAN\,$\Sigma$ yielded ambiguous results, we
 consulted the meta-catalog of young, age-dated, and age-dateable stars
-within a kiloparsec from \citet{2022AJ....163..121B}, and also
+within from \citet{2022AJ....163..121B}, and also
 searched the local volume around each star for co-moving
 companions.\footnote{\url{https://github.com/adamkraus/Comove}, git
 commit \texttt{278b372}}
@@ -593,7 +588,7 @@ commit \texttt{278b372}}
 We determined the stellar effective temperature and radii by fitting
 the broadband spectral energy distributions (SEDs); we then estimated
 the masses by interpolating against the sizes, temperatures, and ages
-against the PARSEC v1.2S models
+of the PARSEC v1.2S models
 \citep{2012MNRAS.427..127B,2014MNRAS.444.2525C}.
 
 For the SED fitting, we used \texttt{astroARIADNE}
@@ -603,9 +598,9 @@ atmosphere models \citep{Allard2012} assuming the
 \citet{2006MNRAS.368.1087B} water line lists.  The broadband
 magnitudes we considered included $GG_{\rm BP}G_{\rm RP}$ from Gaia
 DR2, $Vgri$ from APASS, $JHK_{\rm S}$ from 2MASS, SDSS $riz$, and the
-WISE 1-2 passbands.  We omitted UV flux measurements from
+WISE $W1$ and $W2$ passbands.  We omitted UV flux measurements from
 our SED fit to avoid any possible bias induced by chromospheric UV
-excess; we similarly omitted WISE 3-4, but due to reliability
+excess; we similarly omitted WISE bands $W3$ and $W4$, but due to reliability
 concerns.  \texttt{astroARIADNE} compares the measured broadband flux
 measurements against pre-computed model grids, and by default fits for
 six parameters: $\{ T_{\rm eff}, R_\star, A_{\rm V}, \log g, [{\rm
@@ -760,8 +755,8 @@ most prodigious groups were Sco-Cen, Tuc-Hor, and Columba.  Six CQVs
 were also identified in the Argus association
 \citep{2019ApJ...870...27Z}, which serves as an indirect line of
 evidence supporting the reality and youth of that group.  The yield
-in Sco-Cen is not surprising, since Sco-Cen contains the majority of
-pre-main-sequence stars in the solar neighborhood, any many of its stars
+in Sco-Cen is not surprising since Sco-Cen contains the majority of
+pre-main-sequence stars in the solar neighborhood, and many of its stars
 were selected for TESS 120-second cadence observations by various
 guest investigators.  Given the
 $\lesssim$$10\%$ completeness of TESS beyond 100\,pc, there may
@@ -773,14 +768,14 @@ star with any young groups.  Both do seem to show the CQV signal over
 multiple TESS sectors, and both are photometrically elevated relative
 to the main sequence.  Both were also noted by
 \citet{2021ApJ...917...23K} as being in the ``diffuse'' population of
-$<$50\,Myr stars near the Sun.  
+$<$50\,Myr stars near the Sun.
 
 Our search confirms that the CQV phenomenon persists for at least
 $\approx$150\,Myr.  Table~\ref{tab:thetable} includes three
 $\approx$150\,Myr CQVs in AB~Dor \citep{2015MNRAS.454..593B}, a
 $\approx$112\,Myr old Pleiades CQV \citep{2015ApJ...813..108D}, and a
 similarly-aged Psc-Eri member \citep{2020A&A...639A..64R}.  To our
-knowledge, TIC~332517282 in AB~Dor was the previous record-holder for
+knowledge, TIC~332517282 in AB~Dor was the previous record-holder for the
 oldest-known CQV \citep{2019ApJ...876..127Z,2022AJ....163..144G}; at
 least one unambiguous CQV (EPIC~211070495) and a few other candidates
 were also previously known in the Pleiades
@@ -793,10 +788,10 @@ candidate membership of TIC~294328887 in the Carina Near moving group
 \citep{2006ApJ...649L.115Z}.  This group's $200 \pm 50$\,Myr age
 is based on the lithium sequence of its G-dwarfs
 \citep{2006ApJ...649L.115Z}, which shows a coeval population of stars
-older than the Pleiades and younger than the 400\,Myr Ursa Major
+older than the Pleiades but younger than the 400\,Myr Ursa Major
 moving group.  The formal BANYAN-$\Sigma$ membership probability is
 however somewhat low, perhaps due to the missing radial velocity.
-This could be resolved by acquiring even a
+This lack of information could be resolved by acquiring even a
 medium-resolution spectrum.  An independent assessment of the group's
 kinematics using Gaia data, and its rotation sequence using TESS,
 could lend further credence in such an analysis.
@@ -805,14 +800,14 @@ could lend further credence in such an analysis.
 \subsection{Infrared excesses}
 \label{subsec:irexcess}
 
-Most CQVs in our catalog did not show infrared excesses in the W1-W4
+Most CQVs in our catalog did not show infrared excesses in the $W1$-$W4$
 bands, which is typical for this class of object
 \citep{2017AJ....153..152S}.  Visually inspecting the SEDs of our
 \nallcands\ star sample and the WISE images available through IRSA, we
-labeled two objects as having reliable infrared excesses (both W3 and
-W4 at $>$3$\sigma$ above the photospheric prediction).
+labeled two objects as having reliable infrared excesses (both $W3$ and
+$W4$ at $>$3$\sigma$ above the photospheric prediction).
 
-The two IR excess sources were TIC~193136669 (TWA~34) and TIC~57830249
+The two sources exhibiting an IR excess were TIC~193136669 (TWA~34) and TIC~57830249
 (TWA~33).  Both are in the TW Hydrae association ($\approx$10\,Myr),
 and have relatively long periods of 38\,hr and 44\,hr respectively.
 In our initial labeling, we labeled both as ``ambiguous'' CQVs because
@@ -914,16 +909,16 @@ measurements,  intrinsic photometric variability, or intrinsic
 astrometric motion.  Based on this exercise, we adopted a threshold of
 RUWE$_{\rm DR3}$ $>$ 2 to flag sources with excess astrometric noise.
 This threshold was met for \ngoodhighruwe/\ngoods\ high-quality CQVs;
-\nmaybehighruwe/\nmaybes\ of the ambiguous sample
-had this characteristic.
-There is some subjectivity in where to set the threshold, since the RUWE distribution has
-an extended tail \citep[e.g.][]{2022MNRAS.513.5270P}.
-If we had instead required RUWE$_{\rm DR3}$ $>$ 1.4,
-\ngoodweakruwe/\ngoods\ high-quality CQVs and \nmaybeweakruwe/\nmaybes\ of the ambiguous sample
-would have been flagged.
+\nmaybehighruwe/\nmaybes\ of the ambiguous ones had this
+characteristic.  There is some subjectivity in where to set the
+threshold, since the RUWE distribution has an extended tail
+\citep[e.g.][]{2022MNRAS.513.5270P}.  If we had instead required
+RUWE$_{\rm DR3}$ $>$ 1.4, \ngoodweakruwe/\ngoods\ high-quality CQVs
+and \nmaybeweakruwe/\nmaybes\ of the ambiguous sample would have been
+flagged.
 
 {\it Gaia DR3 non-single stars}---Gaia DR3 included a
-``non\_single\_star'' column that flagged known or suspected
+{\tt non\_single\_star} column that flagged known or suspected
 eclipsing, astrometric, and spectroscopic binaries.  None of the stars
 in our CQV sample were identified as possible binaries in this column.
 
@@ -934,21 +929,19 @@ showed multiple periods.  We also attempted to disentangle the two
 signals by subtracting the mean CQV signal over each sector, and then
 repeating the phase-dispersion minization analysis.  The results of
 this effort are summarized in the secondary periods, $P_{\rm sec}$,
-listed in Table~\ref{tab:thetable}.  This process yielded \ngoodmultperiodflag/\ngoods\ high-quality CQVs
-with secondary periods; \nmaybemultperiodflag/\nmaybes\ of the ambiguous
-sample met the same criterion.
-Of the \ngoodhighruwe\ good CQVs with RUWE$_{\rm DR3}$ $>$ 2,
-\ngoodruweandmultperiod\ also showed secondary periods in the TESS
-light curves.
-Considering the weaker threshold of 
-RUWE$_{\rm DR3}$ $>$ 1.4,
-\ngoodweakruweandmultperiod/\ngoodweakruwe\ such CQVs showed secondary TESS periods.
+listed in Table~\ref{tab:thetable}.  This process yielded
+\ngoodmultperiodflag/\ngoods\ high-quality CQVs with secondary
+periods; \nmaybemultperiodflag/\nmaybes\ of the ambiguous sample met
+the same criterion.  Of the \ngoodhighruwe\ good CQVs with RUWE$_{\rm
+DR3}$ $>$ 2, \ngoodruweandmultperiod\ also showed secondary periods in
+the TESS light curves.  Considering the weaker threshold of RUWE$_{\rm
+DR3}$ $>$ 1.4, \ngoodweakruweandmultperiod/\ngoodweakruwe\ such CQVs
+showed secondary TESS periods.
 
-Table~\ref{tab:thetable} summarizes
-each of the above sources of information into a single
-bitwise column.
-We discuss possible connections between binarity and the CQV phenomenon
-in Section~\ref{subsec:discbinary}.
+Table~\ref{tab:thetable} summarizes each of the above sources of
+information into a single bitwise column.  We discuss possible
+connections between binarity and the CQV phenomenon in
+Section~\ref{subsec:discbinary}.
 
 
 \section{CQV evolution}
@@ -1123,14 +1116,13 @@ low-mass stellar population \citep[e.g.][]{2022AJ....163..144G}.
 
 \subsection{Evolution over adjacent sectors, \& LP 12-502}
 
-A small fraction of our objects were in regions of sky with
-many sectors of adjacent TESS data.  Out of this already small sample, LP 12-502
-(TIC 402980664; $d$=21\,pc, $J$=9.4, $T$=11.1) stood out due to the
-quality and content of its data.  We discuss another interesting
+A small fraction of our objects were in regions of sky with many
+sectors of adjacent TESS data.  Out of this already small sample, LP
+12-502 (TIC 402980664; $d$=21\,pc, $J$=9.4, $T$=11.1) stood out due to
+the quality and content of its data.  We discuss another interesting
 source, TIC~300651846, in Appendix~\ref{app:tic3006}.  In this
-section, we first present the LP 12-502 observations
-(Section~\ref{subsec:lpobservations}), and then highlight their
-implications (Section~\ref{subsec:lplessons}).
+section, we first present the LP 12-502 observations and then
+highlight their implications.
 
 
 \subsubsection{LP 12-502 observations}
@@ -1301,7 +1293,7 @@ more rapidly rotating half of M dwarfs.
 %sensitivity.
 
 The closest CQV in our catalog is DG~CVn (TIC~368129164;
-$d$$=$18\,pc), a member of AB Dor.  To our knowledge, this manuscript
+$d$$=$18\,pc), a member of AB Dor.  To our knowledge, this work
 is the first time that it has been noted as a CQV.  The three
 brightest CQVs are DG~CVn ($T$=9.3), TIC~405754448 ($T$=9.6), and
 TIC~167664935 ($T$=10.3).  The shortest period belongs to
@@ -1424,25 +1416,26 @@ A periodic signal repeats exactly; the CQVs do not
 (Figure~\ref{fig:evoln}).  While their periods appear to remain
 constant to within measurement precision over thousands of cycles, the
 light curve shapes evolve over 10 to 1{,}000 cycles.  They are
-therefore {\it quasi}periodic.  This observation is consistent studies
-by \citet{2022AJ....163..144G} and \citet{2023ApJ...945..114P}.
-However it marks a qualitative departure from the ``persistent'' {\it
-vs.} ``transient'' flux dip distinction described by
-\citet{2017AJ....153..152S};  since all CQV dips seem to be transient
-over timescales of more than 1{,}000 cycles (Figure~\ref{fig:evoln}).
+therefore {\it quasi}periodic.  While this observation is consistent
+with the analyses by \citet{2022AJ....163..144G} and
+\citet{2023ApJ...945..114P}, it marks a qualitative departure from the
+``persistent'' {\it vs.} ``transient'' flux dip distinction described
+by \citet{2017AJ....153..152S}, since all CQV dips seem to be
+transient over timescales of more than 1{,}000 cycles
+(Figure~\ref{fig:evoln}).
 
 With that said, one might expect a truly quasiperiodic process to be
 able to explore all phase angles with equal weight.  LP 12-502, and
 perhaps other CQVs, seem to have preferred phases.  For LP 12-502, all
 of the dips happen over phases corresponding to only two thirds of the
 period (Figure~\ref{fig:lp}).  The remaining third seems to be ``out
-of limits'' for any dipping material.  This could be evidence that
-the stellar magnetic field is strongly asymmetric, such that it can
-hold extrinsic material at corotation, but only over two
-thirds of the equatorial circle.  Alternatively, the source of the
-material (e.g. a planetesimal swarm) might be distributed over an arc
-of the same angular extent (240$^\circ$).  We favor the former
-explanation, for reasons discussed below.
+of limits'' for any dipping material.  This could be evidence that the
+stellar magnetic field is strongly asymmetric, and can hold extrinsic
+material at corotation, but only over two thirds of the equatorial
+circle.  Alternatively, the source of the material (e.g. a
+planetesimal swarm) might be distributed over an arc of the same
+angular extent (240$^\circ$).  We favor the former explanation, for
+reasons discussed below.
 
 
 
@@ -1541,8 +1534,8 @@ might be reproduced.  While bound-free absorption of
 ${\rm H}^{-}$ seems like it should be important at such cool temperatures, in
 detail this opacity source has the {\it opposite sign} from
 what is required to produce deeper dips in the blue than in the red.
-Thompson scattering is similarly ruled out, because it is gray.
-The final plausible alternative opacity
+Thomson scattering is similarly ruled out as a relevant opacity
+source, because it is gray.  The final plausible alternative opacity
 source is dust, which has the requisite larger absorption
 cross-section in the blue than the red \citep{1989ApJ...345..245C}.
 
@@ -1588,7 +1581,7 @@ the prominence scenario, because pre-main-sequence M dwarfs spin up
 over the first $\approx$$10^8$\,yr; prominences might even be expected
 to be {\it more} common at the age of the Pleiades than for younger
 stars.  This broadly assumes that any star that can support
-prominences will, and that the magnetic topology of rapidly rotating M
+prominences will do so, and that the magnetic topology of rapidly rotating M
 dwarfs at 100\,Myr is similar to that of rapidly rotating M dwarfs at
 say, 10\,Myr.  Based on the degree to which M dwarfs remain rapid
 rotators over the first few gigayears of their lives
@@ -1608,7 +1601,7 @@ sizes between 1-4\,$R_\oplus$ and orbital periods within 3 days
 planets per star considering planets out to $P$$<$10\,days.
 Extrapolating to all small close-in planets with say 0.1-4\,$R_\oplus$
 and within 10 days, it is reasonable to expect on average one close-in
-planet per M dwarf.  
+planet per M dwarf.
 
 %TRAPPIST-1b ($P$=1.5\,days) is an
 %example of this type of planet, orbiting around a 0.08\,$M_\odot$ star
@@ -1688,7 +1681,7 @@ suggests that there could be overlap between CQVs and dippers.  It is
 also worth emphasizing that our labeling of e.g.~TIC~57830249 was
 based on a single sector of TESS data (Sector~36) when its behavior was
 relatively periodic and it showed dip depths of a few percent.
-However in other TESS sectors (e.g. Sector~10), this source looks
+However, in other TESS sectors (e.g. Sector~10), this source looks
 completely different, varying in apparent flux by a factor of two,
 with no discernible periodicity at all.
 
@@ -1747,8 +1740,6 @@ range of variability that for seemingly any regularity one might
 posit, it is easy to come up with counter-example objects which do not
 follow the trend.  In other words, these half-cycle CQVs could simply
 be a product of the human tendency to pattern match.
-
-
 
 \begin{figure}[!th]
 	\begin{center}
@@ -1844,14 +1835,15 @@ An argument against the connection between CQVs and the $\sigma$~Ori~E
 analogs is that the light curve of $\sigma$~Ori~E is much simpler than
 those in Figure~\ref{fig:cqvs}, with only two broad local minima, and
 one ``hump'' (Figure~\ref{fig:bstar}; see also
-\citealt{2022ApJ...924L..10J}).  Within the model proposed by Townsend
-et al., this is explained by the simplicity of the star's magnetic
-field, which is well-approximated by a dipole, similar to most other
-magnetic B stars \citep{2007A&A...475.1053A,2009ARA&A..47..333D}.
-The magnetic axis needs to be tilted relative to the stellar spin
-axis in order to match the qualitative behavior of both the
-broadband light curves, and the line-profile variations seen in
-hydrogen, helium, and carbon \citep{2012MNRAS.419..959O}.
+\citealt{2022ApJ...924L..10J}).  Within the model proposed by
+\citeauthor{2005ApJ...630L..81T}, this is explained by the simplicity
+of the star's magnetic field, which is well-approximated by a dipole,
+similar to most other magnetic B stars
+\citep{2007A&A...475.1053A,2009ARA&A..47..333D}.  The magnetic axis
+needs to be tilted relative to the stellar spin axis in order to match
+the qualitative behavior of both the broadband light curves, and the
+line-profile variations seen in hydrogen, helium, and carbon
+\citep{2012MNRAS.419..959O}.
 
 Two exceptions to the rule of ``simple field topologies for magnetic
 B stars'' are HD~37776 and HD~64740, which are B stars that were
@@ -1886,10 +1878,13 @@ closed field loops \citep{1985Ap&SS.116..285N}.  In the converse
 launched by the star returns to its surface over the free-fall
 timescale.
 A simple order of magnitude estimate assuming a dipole field with
-$B_0\approx1\,{\rm kG}$ at the star's surface, a local plasma
-number density $n\approx10^9\,{\rm cm^{-3}}$, and a plasma temperature
-$10^6\,{\rm K}$ gives Alfv\'en radii of order a few times
-the corotation radii, $R_{\rm cr}$.
+$B_0\approx1\,{\rm kG}$ at the star's surface, a local plasma number
+density $n\approx10^9\,{\rm cm^{-3}}$, and a plasma temperature
+$10^6\,{\rm K}$ gives Alfv\'en radii of order a few times the
+corotation radii, $R_{\rm cr}$.  This suggests that the existence of a
+centrifugal magnetosphere is plausible in young, rapidly rotating M
+dwarfs.
+
 
 % While there are some qualitative connections to Jupiter-Io, it's not
 % perfect.  In that system, R_A>R_cr...  But the plasma torus exists
@@ -1903,7 +1898,7 @@ the corotation radii, $R_{\rm cr}$.
 \label{sec:conclusion}
 
 In this work, we searched 120-second cadence TESS data collected
-between July~2018 and Sep~2022 for complex quasiperiodic variables
+from 2018 July to 2022 September for complex quasiperiodic variables
 (CQVs).  The target stars were \nstarssearched\ K and M dwarfs within
 150\,pc.  The selection function was $>$$80\%$ complete within 30\,pc,
 and $<$$10\%$ complete at distances exceeding 100\,pc.
@@ -2056,7 +2051,6 @@ provided by NASA’s Science Mission Directorate.  TIC 402980664 in
 particular was observed at 120-second cadence thanks to the TESS Guest
 Investigator programs G022252 (PI: J.~Schlieder; Sectors 18, 19, 25,
 26) and G04168 (PI: R.~Jayaraman; Sector 53).
-
 
 %{\bf AUTHOR CONTRIBUTION STATEMENTS: PLEASE REVISE IF APPROPRIATE)}
 LGB conceived the project and performed the dip-counting search, light
