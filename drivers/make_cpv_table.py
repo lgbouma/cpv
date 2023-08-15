@@ -59,6 +59,11 @@ def main(overwrite=0):
     csvpath4 = join(DATADIR, "targetlists", "20230501_RAHUL_FULL_LIST_NO_DUPLICATES.csv")
     fourier_df = pd.read_csv(csvpath4)
 
+    csvpath5 = join(TABLEDIR, "multiple_period_20230613_LGB_RJ_CPV", "20230814_multiperiod_MANUAL.csv")
+    multperiod_df = pd.read_csv(csvpath5)
+    selcols = 'ticid P2_hr P2class'
+    multperiod_df = multperiod_df[selcols.split()]
+
     rows = []
     for t in _df['ticid']:
         r = get_cpvtable_row(t, overwrite=overwrite)
@@ -120,12 +125,42 @@ def main(overwrite=0):
     debunked_sel = sdf.ticid.isin(debunked_df.ticid)
     sdf.loc[debunked_sel, 'quality'] = -1
 
-
-    csvpath = join(indir, "20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied.csv")
+    # sort
     sdf = sdf.sort_values(by=['quality','tic8_Tmag'], ascending=[False,True])
 
-    #sdf['banyan_adopted_lowprob'] = sdf['banyan_adopted_prob'] < 0.01
+    # assert no obvious binaries
+    assert sdf.dr3_non_single_star.sum() == 0
 
+    # merge for secondary periods
+    N_before = len(sdf)
+    sdf = sdf.merge(multperiod_df, how='inner', on='ticid')
+    N_after = len(sdf)
+    sdf = sdf.reset_index(drop=True)
+
+    msg = 'every ticid should have a P2 entry, even if nan'
+    assert N_before == N_after, msg
+
+
+    # construct the binarity indicator
+    rvscatterflag = (sdf.dr3_radial_velocity_error > 20)
+    ruweflag = (sdf.dr3_ruwe > 2)
+    weakruweflag = (sdf.dr3_ruwe > 1.4)
+    multipleperiodflag = (
+        sdf.ticid.isin(multperiod_df[multperiod_df.P2_hr != '-'].ticid)
+    )
+
+    binaryflag_strs = []
+    sdf['rvscatterflag'] = rvscatterflag.astype(int).astype(str)
+    sdf['ruweflag'] = ruweflag.astype(int).astype(str)
+    sdf['weakruweflag'] = weakruweflag.astype(int).astype(str)
+    sdf['multipleperiodflag'] = multipleperiodflag.astype(int).astype(str)
+
+    # rv scatter, RUWE, multiple period
+    sdf['binarityflag'] = (
+        sdf['rvscatterflag'] + sdf['ruweflag']  + sdf['multipleperiodflag']
+    )
+
+    csvpath = join(indir, "20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied.csv")
     sdf.to_csv(csvpath, index=False, sep="|")
     print(f"Wrote {csvpath}")
 
@@ -158,8 +193,8 @@ def main(overwrite=0):
     N_6 = len(sgdf[sgdf.banyan_assoc != 'FIELD'])
     N_7 = len(smdf[smdf.banyan_assoc != 'FIELD'])
 
-    N_8 = len(sgdf[sgdf.ruwe > 2])
-    N_9 = len(smdf[smdf.ruwe > 2])
+    N_8 = len(sgdf[sgdf.dr3_ruwe > 2])
+    N_9 = len(smdf[smdf.dr3_ruwe > 2])
 
     _mdf = pd.concat((sgdf, smdf))
     dipcount_ticid = set(np.array(dipcount_df[dipcount_df.ticid.isin(_mdf.ticid)].ticid))
@@ -189,6 +224,65 @@ def main(overwrite=0):
     print(f'ticid_indip_notfourier\n{ticid_indip_notfourier}')
     ticid_infourier_notdip = np.array(_mdf[(~indip) & (infourier)].ticid)
     print(f'ticid_infourier_notdip\n{ticid_infourier_notdip}')
+
+    #
+    # binarity counts
+    #
+    N_rv_scatter = len(_mdf[_mdf.rvscatterflag.astype(int) == 1])
+    N_ruwe = len(_mdf[_mdf.ruweflag.astype(int) == 1])
+    N_weakruwe = len(_mdf[_mdf.weakruweflag.astype(int) == 1])
+    N_multperiod = len(_mdf[_mdf.multipleperiodflag.astype(int) == 1])
+
+    N_goodruweandmultperiod = len(_mdf[
+        (_mdf.multipleperiodflag.astype(int) == 1)
+        &
+        (_mdf.ruweflag.astype(int) == 1)
+        &
+        (_mdf.quality == 1)
+    ])
+    N_mayberuweandmultperiod = len(_mdf[
+        (_mdf.multipleperiodflag.astype(int) == 1)
+        &
+        (_mdf.ruweflag.astype(int) == 1)
+        &
+        (_mdf.quality == 0)
+    ])
+    N_goodweakruwe = len(_mdf[
+        (_mdf.weakruweflag.astype(int) == 1)
+        &
+        (_mdf.quality == 1)
+    ])
+    N_maybeweakruwe = len(_mdf[
+        (_mdf.weakruweflag.astype(int) == 1)
+        &
+        (_mdf.quality == 0)
+    ])
+    N_goodweakruweandmultperiod = len(_mdf[
+        (_mdf.multipleperiodflag.astype(int) == 1)
+        &
+        (_mdf.weakruweflag.astype(int) == 1)
+        &
+        (_mdf.quality == 1)
+    ])
+    N_maybeweakruweandmultperiod = len(_mdf[
+        (_mdf.multipleperiodflag.astype(int) == 1)
+        &
+        (_mdf.weakruweflag.astype(int) == 1)
+        &
+        (_mdf.quality == 0)
+    ])
+
+    N_goodmultperiod = len(_mdf[
+        (_mdf.multipleperiodflag.astype(int) == 1)
+        &
+        (_mdf.quality == 1)
+    ])
+    N_maybemultperiod = len(_mdf[
+        (_mdf.multipleperiodflag.astype(int) == 1)
+        &
+        (_mdf.quality == 0)
+    ])
+
 
     txt = (
         f"\n...\n"
@@ -223,9 +317,21 @@ def main(overwrite=0):
         r"\newcommand{\nnotfieldbanyan}{"+str(N_6+N_7)+"}\n"
         r"\newcommand{\ngoodhighruwe}{"+str(N_8)+"}\n"
         r"\newcommand{\nmaybehighruwe}{"+str(N_9)+"}\n"
+        r"\newcommand{\ngoodweakruwe}{"+str(N_goodweakruwe)+"}\n"
+        r"\newcommand{\nmaybeweakruwe}{"+str(N_maybeweakruwe)+"}\n"
         r"\newcommand{\nbothdipfourier}{"+str(N_both)+"}\n"
         r"\newcommand{\nyesdipnofourier}{"+str(N_indip_notfourier)+"}\n"
         r"\newcommand{\nyesfouriernodip}{"+str(N_infourier_notdip)+"}\n"
+        r"\newcommand{\nrvscatterflag}{"+str(num2word(N_rv_scatter))+"}\n"
+        r"\newcommand{\nruweflag}{"+str(N_ruwe)+"}\n"
+        r"\newcommand{\nweakruweflag}{"+str(N_weakruwe)+"}\n"
+        r"\newcommand{\nmultperiodflag}{"+str(N_multperiod)+"}\n"
+        r"\newcommand{\ngoodmultperiodflag}{"+str(N_goodmultperiod)+"}\n"
+        r"\newcommand{\nmaybemultperiodflag}{"+str(N_maybemultperiod)+"}\n"
+        r"\newcommand{\ngoodruweandmultperiod}{"+str(N_goodruweandmultperiod)+"}\n"
+        r"\newcommand{\nmayberuweandmultperiod}{"+str(N_mayberuweandmultperiod)+"}\n"
+        r"\newcommand{\ngoodweakruweandmultperiod}{"+str(N_goodweakruweandmultperiod)+"}\n"
+        r"\newcommand{\nmaybeweakruweandmultperiod}{"+str(N_maybeweakruweandmultperiod)+"}\n"
     )
 
     outpath = join(PAPERDIR, 'vals_cqv_table_statistics.tex')
@@ -241,24 +347,26 @@ def main(overwrite=0):
     shortcols = (
         "ticid "
         #"dr2_source_id ra dec "
-        "tic8_Tmag dist_pc "
-        "bp_rp ruwe period assoc "
+        "tic8_Tmag dr3_dist_pc "
+        "dr3_bp_rp dr3_ruwe period assoc "
         #"banyan_prob"
         "age teff_sedfit "
         "rstar_sedfit mstar_parsec Rcr_over_Rstar  "
-        "quality N_sectors".split()
+        "P2_hr "
+        "quality binarityflag N_sectors".split()
     )
     longcols = (
         "ticid "
-        "dr2_source_id ra dec "
-        "tic8_Tmag dist_pc "
-        "bp_rp ruwe period assoc "
+        "dr2_source_id dr3_source_id angular_distance magnitude_difference dr3_ra dr3_dec "
+        "tic8_Tmag dr3_dist_pc "
+        "dr3_bp_rp dr3_ruwe period assoc "
         #"banyan_prob "
         "age "
         "teff_sedfit teff_sedfit_perr teff_sedfit_merr "
         "rstar_sedfit rstar_sedfit_perr rstar_sedfit_merr "
         "mstar_parsec Rcr_over_Rstar  "
-        "quality N_sectors".split()
+        "P2_hr "
+        "quality binarityflag N_sectors".split()
     )
     pcols = shortcols + ['dist_metric_parsec']
 
@@ -271,12 +379,12 @@ def main(overwrite=0):
     pdf = pdf.sort_values(by=['quality','tic8_Tmag'], ascending=[False,True])
 
     rounddict = {
-        'ra': 5,
-        'dec': 5,
+        'dr3_ra': 5,
+        'dr3_dec': 5,
         'tic8_Tmag': 2,
-        'ruwe': 2,
-        'bp_rp': 3,
-        'dist_pc': 1,
+        'dr3_ruwe': 2,
+        'dr3_bp_rp': 3,
+        'dr3_dist_pc': 1,
         'period': 2,
         'rstar_sedfit': 2,
         'mstar_parsec': 2,
