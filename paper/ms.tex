@@ -499,7 +499,7 @@ together and analyzed for a more accurate period determination.
 			set, with one image per sector for each of the \nallcands\
       objects in Table~\ref{tab:thetable}
 			is available online {\bf For internal collaboration review:
-				\url{https://www.dropbox.com/scl/fo/zlj3txot4cvymfb22wewu/h?dl=0&rlkey=3ec5f9o5xewrixzfkhkdenopa}}.
+				\url{https://www.dropbox.com/sh/khtwk5a6z0zgrif/AABRG21Ire7VS4BUnaD1hOR8a?dl=0}}.
 			Panels are as follows.
 			{\it a)}: Phase-folded light curve; gray points are raw 2-minute
 			data and black points are binned to 200 points per cycle.
@@ -662,6 +662,7 @@ Table~\ref{tab:thetable}.
 {\bf lgb todo: real interpolation, rather than nearest neighbor}
 
 
+
 \begin{figure*}[!tp]
 	\begin{center}
 		\centering
@@ -677,6 +678,35 @@ Table~\ref{tab:thetable}.
       data available are on top (see Section~\ref{sec:catalog}).
 		}
 		\label{fig:cqvs}
+	\end{center}
+\end{figure*}
+
+\begin{figure*}[!t]
+	\begin{center}
+		\centering
+		\includegraphics[width=0.95\textwidth]{f8.pdf}
+		\vspace{-0.1cm}
+		\caption{
+      {\bf Properties of CQVs identified by our search}.
+      CQVs are mostly pre-main-sequence M dwarfs, younger than
+      $\approx$150 Myr, with rotation periods faster than
+      $\approx$1\,day.  The \ngoods\ bonafide CQVs in
+      Table~\ref{tab:thetable} are the dark blue circles; \nmaybes\
+      ambiguous CQV candidates are light blue circles.  Cases with
+      elevated Gaia DR2 RUWE values are highlighted.
+      The top panels show the \nstarssearched\ target stars with
+      120-second cadence TESS data as the shaded gray background;
+      darker regions correspond to a larger relative number of
+      searched stars.  The lower-left panel compares the
+      rotation--color distribution of CQVs against the rotation
+      periods of K and M dwarfs in the Pleiades from
+      \citet{2016AJ....152..114R}.  The lower-middle panel plots the
+      derived corotation radii $R_{\rm cr} = (GM/\Omega^2)^{1/3}$ in
+      units of stellar radii against the measured CQV periods, in
+      units of hours.  Ages in the final panel are known from cluster
+      membership.
+		}
+		\label{fig:catalogscatter}
 	\end{center}
 \end{figure*}
 
@@ -713,10 +743,7 @@ sectors); TIC~402980664 ($T$$=$11.1, 7 sectors); TIC~89463560
 TIC~294328887 ($T$$=$14.2, 4 sectors).  The brightest five CQVs span
 9.3$<$$T$$<$11.1; the faintest five span 14.5$<$$T$$<$15.0.  The
 fastest five have periods spanning 3.6\,hr$<$$P$$<$6.2\,hr, and the
-slowest five span 27\,hr$<$$P$$<$38\,hr.  Regarding likely astrometric
-or visual binaries, \ngoodhighruwe/\ngoods\ high-quality CQVs have a
-Gaia DR2 RUWE$>$2; \nmaybehighruwe/\nmaybes\ of the ambiguous sample
-share this characteristic.\footnote{For an explanation of the renormalized unit weight error (RUWE), see the GAIA DPAC technical note \url{http://www.rssd.esa.int/doc_fetch.php? id=3757412}.  Elevated RUWEs imply elevated noise relative to a single-source astrometric model. This can be caused by marginally resolved point sources, photometric variability, or astrometric motion.}
+slowest five span 27\,hr$<$$P$$<$38\,hr.
 
 % This is consistent with Rappaport2014's visual binary fraction
 % determined from 30/100 rapidly rotating Kepler stars having multiple
@@ -843,6 +870,71 @@ in light of these ``misclassifications'' .
 % 8.39\,hr sinusoidal signal, probably from an unresolved neighboring
 % star or binary companion.
 
+
+\subsection{Binarity}
+\label{subsec:binarity}
+
+The main types of binarity of interest in this work were those that
+could confuse our understanding of CQVs.  For instance, within the
+21$''$ TESS pixels, binary companions can produce multiple photometric
+signals and hinder our ability to correctly identify the star hosting
+the CQV signal.  Binary companions can also bias photometric magnitude
+and color measurements, thereby biasing our stellar parameter
+estimates.  To attempt to identify binaries, we considered the
+following lines of information.
+%
+\paragraph{Radial velocity scatter}---We examined diagrams of the Gaia
+DR3 ``radial velocity error'' as a function of stellar color for all
+\ncqvsnodebunked\ CQVs and candidate CQVs.  Since this quantity
+represents the standard deviation of the non-published Gaia RV time
+series, outliers can suggest single-lined spectroscopic binarity.
+These plots showed two clusters of stars, at $\lesssim$10\,\kms and
+20-25\,\kms.  We there adopted a threshold of $20$\,km\,s$^{-1}$
+to flag possible single-lined spectroscopic binaries, which selected
+\nrvscatter\ stars: TIC~405910546, TIC~224283342, and TIC~280945693.
+%
+\paragraph{RUWE}---We examined plots of Gaia DR3 renormalized unit
+weight error (RUWE) as a function of brightness as color.\footnote{For
+an explanation of the renormalized unit weight error (RUWE), see the
+GAIA DPAC technical note \url{http://www.rssd.esa.int/doc_fetch.php?
+id=3757412}.}  Elevated RUWEs imply elevated noise relative to a
+single-source astrometric model.  This can be caused by marginally
+resolved point sources skewing the single-transit centroid
+measurements,  intrinsic photometric variability, or intrinsic
+astrometric motion.  Based on this exercise, we adopted a threshold of
+RUWE$_{\rm DR3}$ $>$ 2 to flag sources with excess astrometric noise.
+This threshold yielded \ngoodhighruwe/\ngoods\ high-quality CQVs with
+a Gaia DR2 RUWE$>$2; \nmaybehighruwe/\nmaybes\ of the ambiguous sample
+share this characteristic.
+%
+\paragraph{Gaia DR3 non-single stars}---Gaia DR3 included a
+``non\_single\_star'' column that flagged known or suspected
+eclipsing, astrometric, and spectroscopic binaries.  None of the stars
+in our CQV sample were identified as possible binaries in this column.
+%
+\paragraph{Multiple periodic TESS signals}---During our visual
+analysis of the TESS light curves and PDM periodograms, we flagged
+sources with beating light curves, and with PDM periodograms that
+showed multiple periods.  We also attempted to disentangle the two
+signals by subtracting the mean CQV signal over each sector, and then
+repeating the phase-dispersion minization analysis.  The results of
+this effort are summarized in the secondary periods, $P_{\rm sec}$,
+listed in Table~\ref{tab:thetable}.  {\bf We found additional periods
+in XX of the CQVs, of which YY also had elevated RUWEs}.
+
+%FIXME FIXME FIXME:
+% Need to actually incorporate into the table!
+
+We incorporated each of these sources of information into a column in
+Table~\ref{tab:thetable} that expresses whether any given source
+passed each of the binarity indicators.
+We discuss some important--and complicated--aspects of the systems
+that seem to be binary in Section~\ref{subsec:discbinary}.
+
+
+\section{CQV evolution}
+\label{sec:evoln}
+
 \begin{figure*}[!tp]
 	\begin{center}
 		\centering
@@ -886,10 +978,6 @@ in light of these ``misclassifications'' .
 	\end{center}
 \end{figure*}
 
-
-
-\section{CQV evolution}
-\label{sec:evoln}
 
 \subsection{Evolution over two year baseline}
 
@@ -1015,9 +1103,6 @@ low-mass stellar population \citep[e.g.][]{2022AJ....163..144G}.
 
 
 \subsection{Evolution over adjacent sectors, \& LP 12-502}
-
-
-
 
 A small fraction of our objects were in regions of sky with
 many sectors of adjacent TESS data.  Out of this already small sample, LP 12-502
@@ -1172,35 +1257,6 @@ the star simultaneously, at marginally different separations.
 \section{Discussion}
 \label{sec:discussion}
 
-\begin{figure*}[!t]
-	\begin{center}
-		\centering
-		\includegraphics[width=0.95\textwidth]{f8.pdf}
-		\vspace{-0.1cm}
-		\caption{
-      {\bf Properties of CQVs identified by our search}.
-      CQVs are mostly pre-main-sequence M dwarfs, younger than
-      $\approx$150 Myr, with rotation periods faster than
-      $\approx$1\,day.  The \ngoods\ bonafide CQVs in
-      Table~\ref{tab:thetable} are the dark blue circles; \nmaybes\
-      ambiguous CQV candidates are light blue circles.  Cases with
-      elevated Gaia DR2 RUWE values are highlighted.
-      The top panels show the \nstarssearched\ target stars with
-      120-second cadence TESS data as the shaded gray background;
-      darker regions correspond to a larger relative number of
-      searched stars.  The lower-left panel compares the
-      rotation--color distribution of CQVs against the rotation
-      periods of K and M dwarfs in the Pleiades from
-      \citet{2016AJ....152..114R}.  The lower-middle panel plots the
-      derived corotation radii $R_{\rm cr} = (GM/\Omega^2)^{1/3}$ in
-      units of stellar radii against the measured CQV periods, in
-      units of hours.  Ages in the final panel are known from cluster
-      membership.
-		}
-		\label{fig:catalogscatter}
-	\end{center}
-\end{figure*}
-
 
 \subsection{Typical and extreme CQVs}
 \label{subsec:extreme}
@@ -1243,40 +1299,48 @@ surface features such as clouds and latitudinal bands
 
 
 \subsection{Binaries, massive CQVs, and a new class of false positive}
+\label{subsec:discbinary}
+
+%FIXME FIXME FIXME
+%TODO: update to give some flavor for how many sources show second periods!
 
 The high-RUWE objects in Figure~\ref{fig:catalogscatter} tend to be
-among the more massive half of the CQV sample.  This suggests that either
-that the RUWE indicator is not sensitive to binarity among lower mass
-stars, or that these ``high-mass CQVs'' may be unresolved blends in
-which the lower mass companion is produces the CQV signal.
+among the more massive half of the CQV sample.  This suggests that
+some of the ``high-mass CQVs'' may be unresolved blends in which the
+lower mass companion produces the CQV signal.
 
 \subsubsection{Do K dwarf CQVs exist?}
 \label{subsec:massive}
 
-The two most massive CQVs in our sample present a relevant case study.
-To date, the only stars reported to show the CQV phenomenon are M
-dwarfs, with typical stellar masses $\lesssim$0.3\,$M_\odot$
+The two most massive CQVs in our sample, nominally in the K dwarf mass
+regime, present a relevant case study.  To date, the only stars
+reported to show the CQV phenomenon are M dwarfs, with typical stellar
+masses $\lesssim$0.3\,$M_\odot$
 \citep{2017AJ....153..152S,2022AJ....163..144G}.  TIC~405754448 and
-TIC~405910546 however appear to have masses of
-$\approx$0.82\,$M_\odot$ and $\approx$0.60\,$M_\odot$ respectively.
-The next-highest masses in our sample are $\approx$0.40\,$M_\odot$.
-The masses for the former two objects are consistent with their
-locations in the color--absolute magnitude diagram, and with their
-membership in LCC.  However the light curve morphology of
-TIC~405910546 is unique among the CQV sample, and suggestive of an
-eclipsing binary; it should be studied further to clarify its
-classification.  For TIC~405754448, we expect that this source {\it
+TIC~405910546 appear to have masses of $\approx$0.82\,$M_\odot$ and
+$\approx$0.60\,$M_\odot$ respectively.  The next-highest masses in our
+sample are $\approx$0.40\,$M_\odot$.
+
+Based on their locations locations in the color--absolute magnitude
+diagram and membership in LCC, both of the K dwarfs do indeed appear
+to be high mass.  However in detail, both are subject to ambiguities
+in interpretation.  The light curve morphology of TIC~405910546 is
+unique in the CQV sample, and suggestive of an eclipsing binary.
+Independently, TIC~405910546 was one of the \nrvscatter\ CQVs flagged
+with a Gaia DR3 radial velocity scatter exceeding 20\,\kms.  Combined,
+these factors suggest that TIC~405910546 might be a pre-main-sequence
+eclipsing binary; it should be studied further to clarify this
+classification.  For TIC~405754448, we believe that this source {\it
 is} an unresolved binary, because RUWE$_{\rm DR2}$=4.7, and because
-the raw light curves in Sectors 11, 37, and 38 show an
-additional $\approx$6.5\,day, $\approx$0.3\% amplitude sinusoidal
-signal suggestive of an unresolved photometric companion.  If
-TIC~405754448 is a K+M binary, then the flux ratio between the primary
-and secondary would be expected to be $\approx$10:1.  It would be
-challenging for the M dwarf to produce the observed 12.9\,hr signal
-with such a flux deficit, but not impossible.  While both of
-these objects suggest that the CQV phenomenon may extend up in mass to
-pre-main-sequence K dwarfs, more data are needed to fully substantiate
-this claim.
+the raw light curves in Sectors 11, 37, and 38 show an additional
+$\approx$6.5\,day, $\approx$0.3\% amplitude sinusoidal signal
+suggestive of an unresolved photometric companion.  If TIC~405754448
+is a K+M binary, then the flux ratio between the primary and secondary
+would be expected to be $\approx$10:1.  It would be challenging for
+the M dwarf to produce the observed 12.9\,hr signal with such a flux
+deficit, but not impossible.  While both of these objects suggest that
+the CQV phenomenon may extend up in mass to pre-main-sequence K
+dwarfs, more data are needed to fully substantiate this claim.
 
 \subsubsection{Systems near the 3:2 commensurability}
 
@@ -1640,14 +1704,20 @@ after large dips; it is tempting to label the small dips secondary
 eclipses.  Such sources include TIC~402980664 (Sector 25; relative to
 the sharpest, deepest minimum), TIC~89463560 (Sector 36),
 TIC~224283342 (Sector 2), and TIC~442571495 (Sector 12).
+For the particular case of TIC~224283342, this observation, coupled
+with Gaia DR3 radial velocities suggesting a radial
+velocity scatter exceeding 20\,\kms, suggests that the system could be
+a low-mass eclipsing binary transiting a giant polar spot, analogous to
+TOI-3884 \citep{2022A&A...667L..11A}.
 
-It is challenging to interpret the significance of such apparent
-regularities;  the objects exhibit such a wide range of variability
-that for seemingly any ``regularity'' one might posit, it is easy to
-come up with counter-example objects which do not follow the trend.
-In other words, these half-cycle CQVs could simply be a product of the
-human tendency to pattern match; alternatively, they might yield some
-important physical significance.
+In general however, it is challenging to interpret the significance of
+the potential regularities listed above;  the CQVs exhibit such a wide
+range of variability that for seemingly any ``regularity'' one might
+posit, it is easy to come up with counter-example objects which do not
+follow the trend.  In other words, these half-cycle CQVs could simply
+be a product of the human tendency to pattern match.  The alternative
+is that some subset of these pattern could  have real physical
+significance.
 
 
 
@@ -1869,13 +1939,12 @@ draw the following conclusions.
       off during TESS re-observations, two years after the initial
       observation.
   %
-    \item While the majority of detected CQVs have masses of
-      0.1-0.5\,$M_\odot$, the upper mass limit for the CQV phenomenon
-      might extend into the K dwarf regime ($<$$0.8$\,$M_\odot$).
-      TIC~405754448 and TIC~405910546, with masses of $\approx$0.8 and
-      $\approx$0.6\,$M_\odot$, are the two massive outliers.
-      However both have peculiarities (Section~\ref{subsec:massive}), and 
-      we encourage additional
+    \item The majority of detected CQVs have masses of
+      0.1-0.5\,$M_\odot$.  Two sources, TIC~405754448 and
+      TIC~405910546, have masses that appear to exceed the M dwarf
+      limit.  However both are potentially binaries, and this may
+      confuse our ability to accurate identify the source of the CQV
+      signal (Section~\ref{subsec:massive}).  We encourage additional
       scrutiny of these objects in future work.
   %
     \item Surprising analogs to the CQVs exist in magnetic B stars,
