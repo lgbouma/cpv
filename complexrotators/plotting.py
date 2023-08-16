@@ -2798,7 +2798,7 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0,
 
 
 def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
-                       sortby=None):
+                       sortby=None, binarytitle=0):
     """
     the one that makes the publication
     (on mico, assuming that find_CPVs.py has been run using sample_id=="2023catalog_LGB_RJ_concat")
@@ -2839,6 +2839,11 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
             )
         else:
             raise NotImplementedError
+
+    if binarytitle:
+        csvpath = join(TABLEDIR, "2023_catalog_table",
+                       "20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied.csv")
+        tabdf = pd.read_csv(csvpath, sep="|", dtype={'binarityflag':str})
 
     # prepare to get lc data
     from complexrotators.lcprocessing import (
@@ -2901,6 +2906,11 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
 
         if showtitles:
             titlestr = f'TIC{ticid}, S{sector}, {d["period"]*24:.1f}h'
+            if binarytitle:
+                binflag = tabdf.loc[
+                    tabdf.ticid.astype(str)==str(ticid), 'binarityflag'
+                ]
+                titlestr += f", {binflag.iloc[0]}"
         else:
             titlestr = None
 
@@ -3011,6 +3021,8 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
     s = ''
     if showtitles:
         s += '_showtitles'
+    if binarytitle:
+        s += '_binarytitle'
     if isinstance(sortby, str):
         s += f'_{sortby}'
 
