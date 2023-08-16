@@ -64,7 +64,7 @@
 
 \begin{document}
 
-\title{Corotating Clumps Around Adolescent Low-Mass Stars: Four Years of Complex Quasiperiodic Variables from TESS}
+\title{Transient Corotating Clumps Around Adolescent Low-Mass Stars: Four Years of Complex Quasiperiodic Variables from TESS}
 
 \correspondingauthor{Luke G. Bouma}
 \email{luke@astro.caltech.edu}
@@ -125,10 +125,10 @@
 \begin{abstract}
   Complex quasiperiodic variables (CQVs) are low-mass
   pre-main-sequence stars with nearly periodic optical modulation.
-  The modulation is likely induced by dust or gas clumps in orbit at
+  The modulation is probably caused by eclipses of dust or gas clumps orbiting at
   the Keplerian corotation radius.  Here, we report new CQVs
-  discovered in TESS short-cadence data collected between July~2018
-  and Sep~2022.  Our search of \nstarssearched\ K and M dwarfs with
+  discovered in TESS short-cadence data collected between 2018~July
+  and 2022~September.  Our search of \nstarssearched\ K and M dwarfs with
   $T$$<$16 and $d$$<$150\,pc yielded \ngoods\ high-quality CQVs.  Most
   of these discoveries are new, and they include the brightest
   ($T$$\approx$9.5), closest ($d$$\approx$20\,pc), and oldest
@@ -651,8 +651,9 @@ t \}$ as
 \end{equation}
 in order to assign equal importance to each dimension.  The preferred
 model mass is then one that minimizes this distance, and is quoted in
-Table~\ref{tab:thetable}.
-{\bf lgb todo: real interpolation, rather than nearest neighbor}
+Table~\ref{tab:thetable}.  Uncertainties in the masses are propagated
+forward from the statistical uncertainties in the radii, temperatures,
+and ages.
 
 
 
@@ -1096,9 +1097,10 @@ low-mass stellar population \citep[e.g.][]{2022AJ....163..144G}.
 		two-harmonic sinusoid has been subtracted to highlight the sharp
 		dips.  In Sectors 25-26 (cycles 248-315), periods are visible at
 		the fundamental period of 18.5611\,hr, as well as at faster and
-		slower relative periods (e.g. $\phi$$\approx$0.3 and
-		$\phi$$\approx$0.1).  Similar instances of multiple simultaneous
-		periods are also visible in Sector 53 and 58-59.  White chunks
+		slower relative periods.  For example, at $\phi$$\approx$0.05 and
+		$\phi$$\approx$0.3, the various blue ``dips'' have distinct slopes, rather than being
+		exactly vertical.  Multiple simultaneous
+		periods are also visible in Sectors 53 and 58-59.  White chunks
 		denote missing data.
 	}
 	\label{fig:lpriver0}
@@ -2172,14 +2174,15 @@ All authors assisted in manuscript writing and revision.
   (bit 3).  The machine-readable version, available online, includes
   additional columns for the Gaia DR2 and DR3 source identifiers, as
   well as the stellar parameter uncertainties.  The age uncertainties
-  are typically $\approx \pm 10\%$, but can be asymmetric.  {\bf The
-  median temperature, radius, and mass uncertainties are $\pm XXX$\,K,
-  $\pm XX$\%, and $\pm YY$\% respectively}.  $N_{\rm sector}$ denotes
-  the number of TESS sectors for which {\it any} data are expected to
-  be acquired between July~2018 and Oct~2024.  This number is
-  generally greater than the number of sectors for which 120-second
-  cadence data exist.   Association names and provenance follow
-  conventions adopted by \citet{2018ApJ...856...23G}: 
+  are typically $\approx \pm 10\%$, but can be asymmetric.  The median
+  statistical uncertainties on the temperature, radius, and mass are
+  $\pm$50\,K, $\pm$4\% and $\pm$9\% respectively.
+  $N_{\rm sector}$ denotes the number of TESS sectors for which {\it
+  any} data are expected to be acquired between July~2018 and
+  Oct~2024.  This number is generally greater than the number of
+  sectors for which 120-second cadence data exist.   Association names
+  and provenance follow conventions adopted by
+  \citet{2018ApJ...856...23G}: 
 	ABDMG: AB~Doradus moving group \citep{2015MNRAS.454..593B}.
 	ARG: Argus \citep{2019ApJ...870...27Z}.
 	%APER: $\alpha$~Persei open cluster \citep{2023AJ....166...14B}.
