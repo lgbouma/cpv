@@ -38,7 +38,6 @@ from astroquery.exceptions import ResolverError
 from complexrotators.observability import (
     get_gaia_dr2_rows, assess_tess_holdings, get_gaia_dr3_rows
 )
-from complexrotators.isochroneinterp import get_PARSEC
 from complexrotators import pipeline_utils as pu
 
 vetdir = join(RESULTSDIR, "cpvvetter")
@@ -53,13 +52,16 @@ def main(overwrite=0):
     csvpath2 = join(DATADIR, "targetlists", "20230813_DEBUNKED_CQVs.txt")
     debunked_df = pd.read_csv(csvpath2)
 
-    csvpath3 = join(DATADIR, "targetlists", "20230411_goodandmaybe_CPV_ticids_d_lt_150pc.csv")
+    csvpath3 = join(DATADIR, "targetlists",
+                    "20230411_goodandmaybe_CPV_ticids_d_lt_150pc.csv")
     dipcount_df = pd.read_csv(csvpath3)
 
-    csvpath4 = join(DATADIR, "targetlists", "20230501_RAHUL_FULL_LIST_NO_DUPLICATES.csv")
+    csvpath4 = join(DATADIR, "targetlists",
+                    "20230501_RAHUL_FULL_LIST_NO_DUPLICATES.csv")
     fourier_df = pd.read_csv(csvpath4)
 
-    csvpath5 = join(TABLEDIR, "multiple_period_20230613_LGB_RJ_CPV", "20230814_multiperiod_MANUAL.csv")
+    csvpath5 = join(TABLEDIR, "multiple_period_20230613_LGB_RJ_CPV",
+                    "20230814_multiperiod_MANUAL.csv")
     multperiod_df = pd.read_csv(csvpath5)
     selcols = 'ticid P2_hr P2class'
     multperiod_df = multperiod_df[selcols.split()]
@@ -167,6 +169,11 @@ def main(overwrite=0):
     sdf['binarityflag'] = (
         sdf['rvscatterflag'] + sdf['ruweflag']  + sdf['multipleperiodflag']
     )
+
+    # manual string casting
+    strcols = 'dr2_source_id dr3_source_id'.split()
+    for strcol in strcols:
+        sdf[strcol] = '"' + sdf[strcol].astype(str) + '"'
 
     csvpath = join(indir, "20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied.csv")
     sdf.to_csv(csvpath, index=False, sep="|")
@@ -359,7 +366,7 @@ def main(overwrite=0):
         "dr3_bp_rp dr3_ruwe period assoc "
         #"banyan_prob"
         "age teff_sedfit "
-        "rstar_sedfit mstar_parsec Rcr_over_Rstar  "
+        "rstar_sedfit mass_parsec Rcr_over_Rstar  "
         "P2_hr "
         "quality binarityflag N_sectors".split()
     )
@@ -372,11 +379,12 @@ def main(overwrite=0):
         "age "
         "teff_sedfit teff_sedfit_perr teff_sedfit_merr "
         "rstar_sedfit rstar_sedfit_perr rstar_sedfit_merr "
-        "mstar_parsec Rcr_over_Rstar  "
+        "mass_parsec mass_parsec_perr mass_parsec_merr "
+        "Rcr_over_Rstar "
         "P2_hr "
         "quality binarityflag N_sectors".split()
     )
-    pcols = shortcols + ['dist_metric_parsec']
+    pcols = shortcols + ['dist_median_parsec']
 
     wdf = sdf[shortcols]
     wldf = sdf[longcols]
@@ -396,7 +404,11 @@ def main(overwrite=0):
         'dr3_dist_pc': 1,
         'period': 2,
         'rstar_sedfit': 2,
-        'mstar_parsec': 2,
+        'rstar_sedfit_perr': 2,
+        'rstar_sedfit_merr': 2,
+        'mass_parsec': 2,
+        'mass_parsec_perr': 2,
+        'mass_parsec_merr': 2,
         'Rcr_over_Rstar': 2
     }
     formatters = {}
@@ -427,6 +439,39 @@ def main(overwrite=0):
 
     pd.options.display.max_rows = 5000
     print(pdf)
+
+    selcols = (
+        'ticid rstar_sedfit rstar_sedfit_perr rstar_sedfit_merr '
+        'teff_sedfit teff_sedfit_perr teff_sedfit_merr '
+        'mass_parsec mass_parsec_perr mass_parsec_merr '
+    ).split()
+    print(42*'-')
+    print(wldf[selcols])
+
+    teff_err = np.nanmean(np.vstack([
+        np.array(wldf['teff_sedfit_perr']),
+        np.array(wldf['teff_sedfit_merr'])
+    ]), axis=0)
+    teff_err_rel = np.median( 100 * teff_err / np.array(wldf['teff_sedfit']) )
+
+    rstar_err = np.nanmean(np.vstack([
+        np.array(wldf['rstar_sedfit_perr']),
+        np.array(wldf['rstar_sedfit_merr'])
+    ]), axis=0)
+    rstar_err_rel = np.median( 100 * rstar_err / np.array(wldf['rstar_sedfit']))
+
+    mass_err = np.nanmean(np.vstack([
+        np.array(wldf['mass_parsec_perr']),
+        np.array(wldf['mass_parsec_merr'])
+    ]), axis=0)
+    mass_err_rel = np.nanmedian( 100 * mass_err / np.array(wldf['mass_parsec']) )
+
+    print(f'median teff err abs: {np.median(teff_err):.2f} K%')
+    print(f'median teff err: {teff_err_rel:.2f} %')
+    print(f'median rstar err: {rstar_err_rel:.2f} %')
+    print(f'median mass err: {mass_err_rel:.2f} %')
+
+
 
 
 def flatten_tdf(tdf, ticid):
@@ -620,7 +665,7 @@ def identify_outliers(array, threshold=0.8):
 
 def get_tess_cpv_lc_properties(ticid):
 
-    sample_id = "2023catalog_LGB_RJ_concat"
+    sample_id = "2023catalog_LGB_RJ_concat_BACKUP"
     cachedir = join(LOCALDIR, "cpv_finding")
     cachedir = join(cachedir, sample_id)
 
@@ -774,12 +819,12 @@ def get_isochrone_mass(sed_df, bdf):
     )
     if CONDITIONS:
         iso_df = pd.DataFrame({
-            'mstar_parsec': np.nan,
+            'mass_parsec': np.nan,
             'logg_parsec': np.nan,
             'rstar_parsec': np.nan,
             'age_parsec': np.nan,
             'teff_parsec': np.nan,
-            'dist_metric_parsec': np.nan,
+            'dist_median_parsec': np.nan,
         }, index=[0])
         return iso_df
 
@@ -802,33 +847,18 @@ def get_isochrone_mass(sed_df, bdf):
     # require age uncertainty of 10% or +/-5 myr, whichever is bigger
     age_err = np.max([age*0.1, 5])
 
-    df = get_PARSEC()
+    from complexrotators.isochroneinterp import nn_PARSEC_interpolator
 
-    dist = np.sqrt(
-        np.array( ( (df['Rstar'] - rstar) / rstar_err )**2 )
-        +
-        np.array( ( (df['Teff'] - teff) / teff_err )**2 )
-        +
-        np.array( ( (df['age'] - age) / age_err )**2 )
+    paramdict = nn_PARSEC_interpolator(
+        rstar, teff, age, rstar_err, teff_err, age_err
     )
 
-    df['dist'] = dist
-
-    mstar_parsec = float(df.sort_values(by='dist').head(n=1)['Mass'])
-    logg_parsec = float(df.sort_values(by='dist').head(n=1)['logg'])
-    rstar_parsec = float(df.sort_values(by='dist').head(n=1)['Rstar'])
-    age_parsec = float(df.sort_values(by='dist').head(n=1)['age'])
-    teff_parsec = float(df.sort_values(by='dist').head(n=1)['Teff'])
-    dist_metric = float(df.sort_values(by='dist').head(n=1)['dist'])
-
-    iso_df = pd.DataFrame({
-        'mstar_parsec': mstar_parsec,
-        'logg_parsec': logg_parsec,
-        'rstar_parsec': rstar_parsec,
-        'age_parsec': age_parsec,
-        'teff_parsec': teff_parsec,
-        'dist_metric_parsec': dist_metric,
-    }, index=[0])
+    iso_df = pd.DataFrame({}, index=[0])
+    params = 'Mass logg Rstar age Teff dist_median'.split()
+    for p in params:
+        iso_df[f'{p.lower()}_parsec'] = paramdict[p][0]
+        iso_df[f'{p.lower()}_parsec_perr'] = paramdict[p][1]
+        iso_df[f'{p.lower()}_parsec_merr'] = paramdict[p][2]
 
     return iso_df
 
@@ -866,7 +896,7 @@ def get_cpvtable_row(ticid, overwrite=0):
 
     omega = 2*np.pi / (float(row['tlc_mean_period'])*u.day)
     row['Rcr'] = (
-        (const.G * float(row['mstar_parsec'])*u.Msun / omega**2)**(1/3)
+        (const.G * float(row['mass_parsec'])*u.Msun / omega**2)**(1/3)
     ).to(u.Rsun).value
     row['Rcr_over_Rstar'] = row['Rcr'] / row['rstar_sedfit']
 
