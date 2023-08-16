@@ -81,7 +81,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % primary authors
-\author{---AUTHOR LIST \& ORDER NOT FINAL}
 \author[0000-0002-0514-5538]{Luke~G.~Bouma}
 \altaffiliation{51 Pegasi b Fellow}
 \affiliation{\caltech}
@@ -195,20 +194,22 @@ gradually, over tens to hundreds of cycles
 
 The CQV light curves cannot be explained by pure starspots.  Although
 all young M dwarfs are spotted, this tends to produce flux variations
-over characteristic timescales of the rotation period, $P_{\rm rot}$,
-and its half-harmonic, $0.5\,P_{\rm rot}$.  If one fine-tunes the
-viewing geometry, starspots can produce dips with durations as short
-as $\approx$$0.2\,P_{\rm rot}$, and the dip amplitudes quickly
-decrease due to limb-darkening (see \citealt{2017AJ....153..152S},
-Figures 37-41).  The observed dips, however, happen over durations as
+over timescales of the rotation period, $P_{\rm rot}$,
+and its half-harmonic, $0.5\,P_{\rm rot}$.  With fine-tuned
+viewing geometries, starspots can produce dip durations as short
+as $\approx$$0.2\,P_{\rm rot}$, and the dip amplitudes in such
+geometries are small
+due to limb-darkening (see \citealt{2017AJ....153..152S},
+Figures 37-41).  The observed dips occur over durations as
 short as $0.05\,P_{\rm rot}$ with characteristic depths of a few
 percent; a ``starspot-only'' scenario can be discarded for any object
-with dips that are sufficiently deep and short in duration
-\citep{2017AJ....153..152S,2021MNRAS.500.1366K}.   The timescales and
-amplitudes of the flux variations in such objects instead require
+with dips that are sufficiently large in depth and short in duration
+\citep{2017AJ....153..152S,2021MNRAS.500.1366K}.   The dip durations and
+amplitudes instead require
 sharp geometries with material extrinsic to the stellar surface
-\citep[e.g.][]{2017AJ....153..152S,2022AJ....163..144G}.  Since the
-CQVs are probably all explained by the same phenomenon, we therefore
+\citep[e.g.][]{2017AJ....153..152S,2022AJ....163..144G}.  Since some CQVs require
+such geometries, and the
+CQVs probably all have a single explanation, we therefore
 discard the ``spot-only'' scenario.
 
 A few competing explanations for what causes the complex quasiperiodic
@@ -345,8 +346,8 @@ collected for only a subset of observable stars during this time due
 to telemetric constraints \citep[see][]{2021PASP..133i5002F}.
 
 To assess the completeness of the resulting 120-second cadence data
-that is the basis of this study, we cross-matched TIC8
-\citep{2018AJ....156..102S} against the Gaia DR2 point-source catalog
+that is the basis of this study, we cross-matched TIC8.2
+\citep{2019AJ....158..138S,2021arXiv210804778P} against the Gaia DR2 point-source catalog
 \citep{2018A&A...616A...1G}.  We opted for Gaia DR2 rather than DR3
 because the base catalog for TIC8 was Gaia DR2, which facilitated a
 one-to-one crossmatch using the Gaia source identifiers.  This
@@ -664,13 +665,15 @@ Table~\ref{tab:thetable}.
       {\bf CQVs found in the TESS 2-minute data.}
       Phased TESS light curves over one month are shown for \ngoods\
       CQVs in the high quality sample.  Gray are raw 2-minute data;
-      black bins to 300 points per cycle.  Each panel is labeled by
-      the TIC identifier, the TESS sector number, and the period in
-      hours.  Objects are ordered such that sources with the most TESS
-      data available are on top (see Section~\ref{sec:catalog}).
-      Sources with large apparent scatter in gray typically show
-      secondary periods from unresolved binaries, which are enumerated
-      in Table~\ref{tab:thetable}.
+      black bins to 300 points per cycle.  Objects are ordered such
+      that sources with the most TESS data available are on top (see
+      Section~\ref{sec:catalog}).  
+      Each panel is labeled by
+      the TIC identifier, the TESS sector number, the period in
+      hours, and the three-bit binarity flag from Table~\ref{tab:thetable},
+      which denotes Gaia DR3 \texttt{radial\_velocity\_error} outliers
+      (bit 1), Gaia DR3 \texttt{ruwe} outliers (bit 2), and stars with
+      secondary TESS periods (bit 3). 
 		}
 		\label{fig:cqvs}
 	\end{center}
@@ -867,11 +870,11 @@ in light of these ``misclassifications'' .
 \subsection{Binarity}
 \label{subsec:binarity}
 
-The main types of binarity of interest in this work were those that
-could confuse our understanding of CQVs.  For instance, within the
-21$''$ TESS pixels, binary companions can produce multiple photometric
+The main types of binaries of interest in this work were those that
+were unresolved, because they could confuse our understanding of CQVs.
+For instance, unresolved binaries might produce multiple photometric
 signals and hinder our ability to correctly identify the star hosting
-the CQV signal.  Binary companions can also bias photometric magnitude
+the CQV signal.  Unresolved binaries could also bias photometric magnitude
 and color measurements, which would affect our stellar parameter
 estimates.  To attempt to identify binaries, we considered the
 following lines of information.
@@ -1006,7 +1009,8 @@ seem to be any significant ($>$3$\sigma$) period changes.  This
 implies an absolute period stability of $\lesssim$0.1\% over the
 two-year baseline.
 
-Of the 27 CQVs in Figure~\ref{fig:evoln}, a few show clear signs of
+A few objects in Figure~\ref{fig:evoln}
+show clear signs of
 the CQV phenomenon in one sector, and marginal or non-existent signs
 in the other.  While there is subjectivity in this assessment, to our
 eyes cases for which at least one sector would be flagged as
@@ -1020,7 +1024,7 @@ and
 TIC~38820496 (Sector 28 might be an RS CVn).
 TIC~193831684, assessed on a single-sector basis, would probably be
 labeled an eclipsing binary---in fact, \citet{2021ApJ...912..123J}
-implicitly have already given this source such a label.  However,
+already gave this source such a label.  However,
 based on the the shape evolution between Sectors 13 and 39, it is a
 CQV.  Based on the fraction of sources overall that ``turned off'',
 the observed shape evolution implies that CQVs have a duty cycle of
@@ -2040,7 +2044,7 @@ RJ and SR performed the Fourier-based analysis and contributed
 to light curve classification.
 LR cross-examined the light curve classification, and contributed an independent SED analysis.
 AD identified the magnetic B star connection.
-LAH contributed to data analysis and interpretation.
+LAH contributed to project design and to the interpretation of the light curves.
 G\'AB acquired and maintained the servers used to run the dip-finding pipeline.
 GRR is an architect of the TESS mission.
 {\bf JNW?  MNG?}
@@ -2134,7 +2138,7 @@ All authors assisted in manuscript writing and revision.
     WISE \citep{2010AJ....140.1868W}.
 }
 
-%\clearpage
+\clearpage
 
 \bibliographystyle{yahapj}                            
 \bibliography{bibliography} 
