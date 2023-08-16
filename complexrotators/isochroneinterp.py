@@ -3,13 +3,17 @@ Tools when interpolating against isochrones.
 
 | get_Feiden2016
 | get_PARSEC
+| nn_PARSEC_interpolator
+| PARSEC_interpolator
 """
 import os
 from os.path import join
 from glob import glob
 from complexrotators.paths import DATADIR
-import pandas as pd, numpy as np
+import pandas as pd, numpy as np, matplotlib.pyplot as plt
 from astropy import units as u, constants as c
+
+from scipy.interpolate import LinearNDInterpolator
 
 def get_Feiden2016(subtype='mag'):
     """
@@ -80,3 +84,176 @@ def get_PARSEC():
     df['age'] = 10**(df.logAge) / (1e6)
 
     return df
+
+
+def nn_PARSEC_interpolator(rstar, teff, age, rstar_err, teff_err, age_err):
+    # age: myr
+
+    # 1 to 200 myr, linearly spaced by 1 myr; all available masses.  solar metallicity.
+    # get and clean 
+    df = get_PARSEC()
+    sel = (
+        (df.Mass < 1.5)
+        &
+        (df.logRstar > -4)
+    )
+    df = df[sel] # < 2 solar
+
+    # calculate distance!
+    dist = np.sqrt(
+    np.array( ( (df['Rstar'] - rstar) / rstar_err )**2 )
+    +
+    np.array( ( (df['Teff'] - teff) / teff_err )**2 )
+    +
+    np.array( ( (df['age'] - age) / age_err )**2 )
+    )
+    df['dist_median'] = dist
+
+    varyparams = 'Rstar Teff age '
+    varyvals = [rstar_err, teff_err, age_err]
+
+    for varyparam, val in zip(varyparams.split(), varyvals):
+        if varyparam == 'Rstar':
+            _rstar = rstar + rstar_err
+            _teff = teff
+            _age_myr = age
+        elif varyparam == 'Teff':
+            _rstar = rstar
+            _teff = teff + teff_err
+            _age_myr = age
+        elif varyparam == 'age':
+            _rstar = rstar
+            _teff = teff
+            _age_myr = age + age_err
+        dist = np.sqrt(
+             np.array( ( (df['Rstar'] - _rstar) / rstar_err )**2 )
+             +
+             np.array( ( (df['Teff'] - _teff) / teff_err )**2 )
+             +
+             np.array( ( (df['age'] - _age_myr) / age_err )**2 )
+        )
+        df[f'dist_p1sig_{varyparam}'] = dist
+
+    for varyparam, val in zip(varyparams.split(), varyvals):
+        if varyparam == 'Rstar':
+            _rstar = rstar - rstar_err
+            _teff = teff
+            _age_myr = age
+        elif varyparam == 'Teff':
+            _rstar = rstar
+            _teff = teff - teff_err
+            _age_myr = age
+        elif varyparam == 'age':
+            _rstar = rstar
+            _teff = teff
+            _age_myr = age - age_err
+        dist = np.sqrt(
+             np.array( ( (df['Rstar'] - _rstar) / rstar_err )**2 )
+             +
+             np.array( ( (df['Teff'] - _teff) / teff_err )**2 )
+             +
+             np.array( ( (df['age'] - _age_myr) / age_err )**2 )
+        )
+        df[f'dist_m1sig_{varyparam}'] = dist
+
+
+    outparams = 'Mass logg Rstar age Teff dist_median'.split()
+
+    bestdict = {
+        v: float(df.sort_values(by='dist_median').head(n=1)[v]) for v in outparams
+    }
+    bestdict_p1sig = {
+        v+"_p1sig_"+vp: float(df.sort_values(by=f'dist_p1sig_{vp}').head(n=1)[v]) for v in
+        outparams for vp in varyparams.split()
+    }
+    bestdict_m1sig = {
+        v+"_m1sig_"+vp: float(df.sort_values(by=f'dist_m1sig_{vp}').head(n=1)[v]) for v in
+        outparams for vp in varyparams.split()
+    }
+
+    outdict = {}
+
+    rfn = lambda x : np.round(x, 3)
+
+    for k, v in bestdict.items():
+
+        # get the perr statistical uncertainty on the parameter k
+        p1sig_options, m1sig_options = [], []
+        for vp in varyparams.split():
+            p1sig_options.append(bestdict_p1sig[k+"_p1sig_"+vp])
+            m1sig_options.append(bestdict_m1sig[k+"_m1sig_"+vp])
+
+        p1sig = np.max(np.abs(np.array(p1sig_options) - v))
+        m1sig = np.max(np.abs(np.array(m1sig_options) - v))
+
+        if k == 'Mass':
+            if p1sig / v < 0.05:
+                p1sig = 0.05*v
+            if p1sig / v > 0.3333:
+                p1sig = 0.3333*v
+            if m1sig / v < 0.05:
+                m1sig = 0.05*v
+            if m1sig / v > 0.3333:
+                m1sig = 0.3333*v
+
+        outdict[k] = (rfn(v), rfn(p1sig), rfn(m1sig))
+
+    return outdict
+
+
+
+def PARSEC_interpolator(rstar, teff, age_myr):
+    """
+    Interpolate against the PARSEC models.
+
+    Given a star's Rstar, Teff, and age, return Mstar, logg, rstar, age, teff,
+    and dist_metric through linear (N-D) interpolation.
+
+    (Optional: incorporate uncertainties by repeating the calsl, but on +1sigma
+    rstar, +1sigma Teff, +1sigma age, etc.)
+    """
+
+    raise NotImplementedError("preliminary tests below did not finish!")
+
+    in_logRstar = np.log10(rstar) # solar
+    in_logTe = np.log10(teff) # K
+    in_logAge = np.log10(age_myr*1e6) # age given in myr
+
+    df = get_PARSEC()
+    sel = (
+        (df.Mass < 1.5)
+        &
+        (df.logRstar > -4)
+    )
+    df = df[sel] # < 2 solar
+
+    knowncols = 'logAge logTe logRstar'.split()
+    targetcol = 'Mass'
+
+    # given model "m_" logAge, logTe, logRstar, want model Mass.
+    m_logAge = np.array(df['logAge'])
+    m_logTe = np.array(df['logTe'])
+    m_logRstar = np.array(df['logRstar'])
+
+    m_Mass = np.array(df['Mass'])
+
+    # define a separate linearly spaced Model "M_" grid
+    M_logAge = np.linspace(min(m_logAge), max(m_logAge), 10)
+    M_logTe = np.linspace(min(m_logTe), max(m_logTe), 11)
+    M_logRstar = np.linspace(min(m_logRstar), max(m_logRstar), 12)
+
+    M_logAge, M_logTe, M_logRstar = np.meshgrid(M_logAge, M_logTe, M_logRstar)
+
+    interp = LinearNDInterpolator(
+        list(zip(m_logAge, m_logTe, m_logRstar)), m_Mass
+    )
+
+    #FIXME TODO need to meshgrid somehwere!!
+    M_Mass = interp(M_logAge, M_logTe, M_logRstar)
+
+    import IPython; IPython.embed()
+    plt.pcolormesh(M_logAge, M_logRstar, M_Mass, shading='auto')
+    plt.plot(m_logAge, m_logRstar, m_Mass, label='input points')
+    plt.legend()
+    plt.colorbar()
+    plt.savefig('temp.png', dpi=350)
