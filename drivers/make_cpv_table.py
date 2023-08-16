@@ -128,6 +128,14 @@ def main(overwrite=0):
     # sort
     sdf = sdf.sort_values(by=['quality','tic8_Tmag'], ascending=[False,True])
 
+    # update dr3 distance and RUWE for TIC 368129164 manually
+    sdf.loc[sdf.ticid == 368129164, 'dr3_dist_pc'] = (
+        sdf.loc[sdf.ticid == 368129164, 'dist_pc']
+    )
+    sdf.loc[sdf.ticid == 368129164, 'dr3_ruwe'] = (
+        sdf.loc[sdf.ticid == 368129164, 'ruwe']
+    )
+
     # assert no obvious binaries
     assert sdf.dr3_non_single_star.sum() == 0
 
@@ -384,6 +392,7 @@ def main(overwrite=0):
         'tic8_Tmag': 2,
         'dr3_ruwe': 2,
         'dr3_bp_rp': 3,
+        'dist_pc': 1,
         'dr3_dist_pc': 1,
         'period': 2,
         'rstar_sedfit': 2,
