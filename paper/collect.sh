@@ -38,3 +38,7 @@ cp $resultsdir/phase_timegroups/TIC_300651846/cycle2290_to_2680TIC_300651846_P8.
 
 cp $resultsdir/river/tic_300651846/TIC300651846_river_seismic_-1_630_vmin-6.00000_vmax6.00000.pdf f12a.pdf
 cp $resultsdir/river/tic_300651846/TIC300651846_river_seismic_2290_2680_vmin-8.00000_vmax8.00000.pdf f12b.pdf
+
+cp $resultsdir/spectrum_windows/*402980664*pdf f13a.pdf
+cp $resultsdir/spectrum_windows/*146539195*pdf f13b.pdf
+cp $resultsdir/spectrum_windows/*264599508*pdf f13c.pdf

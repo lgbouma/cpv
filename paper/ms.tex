@@ -411,7 +411,7 @@ grid to improve the accuracy of the period determination.
 
 Once a star's period was identified, we binned the phased light curve
 to 100 points per cycle.  To separate ``sharp'' local minima from
-smooth but double-dipped spot variability, we then iteratively fit
+smooth spot-induced variability, we then iteratively fit
 robust penalized splines to the wrapped phase-folded light curve,
 excluding points more than two standard deviations away from the local
 continuum \citep{2019AJ....158..143H}.  The maximum number of
@@ -439,7 +439,7 @@ light curve.  The free parameters we adopted throughout this analysis
 procedure, for instance the maximum number of spline knots per cycle,
 and how large and wide of a local minimum to consider a ``true dip'',
 were chosen during testing based on their ability to correctly
-re-identify a large fraction ($>$90\%) of known CQVs, while also being
+re-identify a large fraction ($>$90\%) of previously known CQVs, while also being
 able to consistently reject common false positives such as rapidly
 rotating spot-induced variability and typical eclipsing binaries.
 
@@ -462,18 +462,18 @@ uneven spacing in the TESS data, as well as the data gap caused by
 satellite downlink during each sector.  We then padded the data to
 ensure that the light curve had a length that was a power of two, as
 described by \citeauthor{2019ApJ...876..127Z}.  Taking the Fourier
-transform of the corrected, padded light curve using {\tt
-numpy.fft.fft}, we then searched for peaks with a significance of over
-12-$\sigma$ within a set of 500 frequency bins. 
+transform of the corrected, padded light curve using {\tt numpy.fft},
+we then searched for peaks with a significance of over 12-$\sigma$
+within a set of 500 frequency bins. 
 
 If a peak of such significance was found, we generated a ``summary
 sheet'' with information about the star, its full and folded light
 curves, Fourier transform, potential contaminating stars, and
 information about these contaminating stars.  In the sectors for which
 we performed this analysis, we found that ``summary'' sheets were
-generated for $\approx$10\% of the 20\,000 120-second targets in a
+generated for $\approx$10\% of the 20{,}000 120-second targets in a
 given sector.  We then manually reviewed each summary sheet, and
-visually labelled each star based on its morphology (including e.g.,
+visually labeled each star based on its morphology (including e.g.
 eclipsing binary, CQV, RS CVn, or cataclysmic variable).  CQVs that
 were observed in multiple sectors had their light curves stitched
 together and analyzed for a more accurate period determination.
@@ -539,7 +539,7 @@ oddly-shaped dips; relative stability over a timescale of 30\,days).
 We independently noted stars that we thought could be CQVs, but that
 were more ambiguous.
 
-Broadly speaking, the most common false positives for both the Fourier
+Broadly speaking, the most common false positive triggers for both the Fourier
 and dip-counting techniques were eclipsing binaries, spot-induced
 variability from rapid rotators, and variability from neighboring,
 off-target stars.  Typical false positive rates from our dip-counting
@@ -562,7 +562,7 @@ BANYAN\,$\Sigma$
 \citep{2018ApJ...856...23G}.\footnote{\url{https://github.com/jgagneastro/banyan_sigma},
 git commit \texttt{394b486}} This algorithm calculates the probability
 that a given star belongs to one of 27 young clusters (or
-``assocations'') within 150\,pc of the Sun, by modeling the clusters
+``associations'') within 150\,pc of the Sun, by modeling the clusters
 as multivariate Gaussians in 3-D position and 3-D velocity space.  We
 used the Gaia DR2 sky positions, proper motions, and distances to
 calculate the membership probabilities.  BANYAN\,$\Sigma$ in turn
@@ -633,7 +633,7 @@ to model predictions include starspot coverage
 lists \citep[e.g.][]{2013A&A...556A..15R}.  In the PARSEC models,
 \citet{2014MNRAS.444.2525C} performed an empirical correction to the
 temperature--opacity relation drawn from the BT-Settl model
-atmospheres, in order to match observed masses and radii of younq
+atmospheres, in order to match observed masses and radii of young
 eclipsing binaries.  This is sufficient for our goal of estimating
 stellar masses.  Given our observed $\{ \tilde{T}_{\rm eff},
 \tilde{M}_\star, \tilde{t} \}$, and approximating their uncertainties
@@ -920,7 +920,7 @@ the TESS light curves and PDM periodograms, we flagged sources with
 beating light curves, and with PDM periodograms that showed multiple
 periods.  We also attempted to disentangle the two signals by
 subtracting the mean CQV signal over each sector, and then repeating
-the phase-dispersion minization analysis.  The results of this effort
+the phase-dispersion minimization analysis.  The results of this effort
 are summarized in the secondary periods, $P_{\rm sec}$, listed in
 Table~\ref{tab:thetable}.  This process yielded
 \ngoodmultperiodflag/\ngoods\ high-quality CQVs with secondary
@@ -1161,7 +1161,7 @@ be emerging, in the main ``large'' dip group.
 There is then a 6-month (184 cycle) gap to Cycles 248-315, which show
 two highly structured dip complexes, plus a small leading dip.  The
 single leading dip is present at the same phase as in cycles 0-64, and
-is therefore likely to be the same struture.  Along a similar line of
+is therefore likely to be the same structure.  Along a similar line of
 logic, it seems plausible that the first ``dip complex'' during cycles
 248-264 represents an evolution of the initial complex seen during
 cycles 0-64, though with reduced depth.  During cycles 266-310, an
@@ -1566,7 +1566,7 @@ the star, or whether it is a byproduct of the protoplanetary disk.
 
 Independent of the microphysical basis for gas absorption, the
 observed lifetime of the CQV phenomenon could provide another
-dimension to discern between the gas {\it vs.} dust clump scenarios.
+dimension to discern between the gas vs.~dust clump scenarios.
 Based on the available statistics from e.g.
 \citet{2022AJ....164...80R} and references therein, it seems plausible
 that CQV occurrence decreases in time, bottoming to zero well before
@@ -1618,7 +1618,7 @@ undergoing significant outgassing and atmospheric escape.  The system
 would then be analogous to the Jupiter-Io plasma torus
 \citep[e.g.][]{1980JGR....85.1171N}, although with magnetic fields
 stronger by a factor of $\approx$1{,}000.  However we emphasize that
-while this type of configuration seems {\it a priori} plausible, no
+while this type of configuration seems a priori plausible, no
 direct evidence currently supports it.
 
 In systems like LP 12-502, the observed variability would perhaps
@@ -1753,7 +1753,7 @@ be a product of the human tendency to pattern match.
       $\sigma$~Ori~E and HD~345439 (top row) are magnetic B stars with
       predominantly dipolar magnetic fields known to host
       circumstellar plasma tori.  HD~37776 and HD~64740 (middle row)
-      are analogous magnetic B stars with field toplogies dominated by
+      are analogous magnetic B stars with field topologies dominated by
       high order multipoles.  The bottom row compares the latter
       systems against the ``best-matching'' CQV light curves, selected
       by eye from Figure~\ref{fig:cqvs}.  CQVs have light curves that
@@ -2156,7 +2156,6 @@ All authors assisted in manuscript writing and revision.
   review, full versions are available here
   \url{https://www.dropbox.com/scl/fo/twn4s9ckbevf75jqhtoy1/h?rlkey=t5cn8cx2uoc2ptdm9e570kp1b&dl=0}} \label{tab:thetable}}
 %\toprule
-%TIC & $T$ & $d$ & BP-RP & RUWE & $P$ & assoc & age & teff & rstar & mstar & rcr & qual & Nsectors \\
 %\midrule
 %\endhead
 \startdata
@@ -2201,64 +2200,10 @@ All authors assisted in manuscript writing and revision.
 	The ``(?)'' string denotes low-confidence membership.
 }
 \end{deluxetable}
-\clearpage
+
+%\clearpage
 
 \appendix
-
-%\section{Validation plots}
-%\label{app:vetting}
-%
-%Figure~\ref{fig:vet} shows the type of plot used to visually assess
-%whether a source was likely to be a CQV, eclipsing binary, or simply a
-%rapidly rotating star.
-%
-%\begin{figure*}[!t]
-%	\begin{center}
-%    \centering
-%    \includegraphics[width=0.96\textwidth]{annotated_402980664_S0018_120sec_cpvvetter.pdf}
-%		\vspace{-0.45cm}
-%		\caption{
-%      {\bf Validation plots used to manually label CQVs}.  The complete figure
-%      set, with one image per sector for each of \ncpvsfound\ CQVs
-%      and candidate CQVs
-%      is available online {\bf For internal collaboration review:
-%      \url{https://www.dropbox.com/scl/fo/zlj3txot4cvymfb22wewu/h?dl=0&rlkey=3ec5f9o5xewrixzfkhkdenopa}}.
-%      Panels are as follows.
-%      {\it a)}: Phase-folded light curve; gray points are raw 2-minute
-%      data and black points are binned to 200 points per cycle.
-%      {\it b)}: Phase-dispersion minimization (PDM) periodogram.
-%      Dotted lines show up to the 10$^{\rm th}$ harmonic and
-%      subharmonic.
-%      {\it c)}: DSS finder chart, with 1- and 2-TESS pixel radius
-%      circles displayed for scale.
-%      {\it d)}: Cleaned light curve, binned to 20-minute cadence, in
-%      Barycentric TESS Julian Date (BTJD).
-%      {\it e)}: Phase-folded light curve, binned to 100 points per
-%      cycle.  The gray line denotes the automated spline-fit to the
-%      wrapped phase-folded light curve, and small gray triangles
-%      denote automatically identified local minima.
-%      {\it f)}: Phase-folded light curve at twice the peak period.
-%      {\it g)}: Phase-folded light curve at half the peak period.
-%      {\it h)}: Phase-folded time-series within the ``background''
-%      aperture defined in the SPOC light curves.
-%      {\it i)}: Phase-folded flux-weighted centroid in the column
-%      direction.
-%      {\it j)}: Phase-folded flux-weighted centroid in the row
-%      direction.
-%      {\it k)}: Gaia DR2 color--absolute magnitude diagram.     
-%      The gray background denotes stars within 100\,pc.
-%      {\it l)}: Information from Gaia DR2, TIC8, and the automated
-%      dip-counting search pipeline.  ``Neighbors'', abbreviated
-%      ``nbhr'', are listed within apparent distances of 2 TESS pixels
-%      if $\Delta T$$<$2.5.
-%      {\it m)}: BANYAN-$\Sigma$ v1.2 association probabilities, calculated
-%      using positions, proper motions, and the parallax.
-%      }
-%		\label{fig:vet}
-%	\end{center}
-%\end{figure*}
-
-
 
 \section{TIC~300651846}
 \label{app:tic3006}
@@ -2347,6 +2292,67 @@ periods and sharp features when observed at 2-minute cadence.
 Comparing the 20-second to 120-second data for these stars (data
 available on MAST), we concluded that these CQVs did not contain
 appreciable power at timescales shorter than a few minutes.
+
+
+\section{The CQVs are not obviously accreting}
+
+We acquired iodine-free reconnaissance spectra using Keck/HIRES for
+three CQVs.  The goals were to determine the chromospheric activity
+levels, and to check for indications of either accretion or
+spectroscopic binarity.  We acquired a 15 minute exposure of
+TIC~146539195 on 2023 January 3, a 15 minute exposure of TIC~264599508
+on 2023 January 9, and a 30 minute exposure of TIC~402980664 on 2023
+July 10.  The acquisition and analysis followed the usual techniques
+of the California Planet Survey \citep{2010ApJ...721.1467H}.
+Figure~\ref{fig:speccutouts} shows cutouts from the resulting spectra,
+centered on the \ion{Ca}{2} HK windows, H$\alpha$, and the \ion{Li}{1}
+6708\,\AA\ doublet.  The \ion{Ca}{2} H emission line is blended with
+H$\epsilon$.  While a more detailed analysis will be left for future
+work, these spectra confirm previous understanding established by
+\citet{2017AJ....153..152S} that the stars are chromospherically
+active M dwarfs in the ``weak-lined'' T Tauri regime
+\citep[e.g.][Figure~15]{2019AJ....157...85B}.  Their H$\alpha$
+equivalent widths, at $\approx$14\,\AA, $\approx$8\,\AA, and
+$\approx$3\AA, are consistent with purely chromospheric emission.
+The blue excess in TIC~264599508 could be explained by a second
+unresolved star; the TESS light curve for this source shows both the
+7.90\,hr CQV signal, and a 9.00\,hr rotation signal with comparable
+amplitude.
+
+\begin{figure*}[!t]
+	\begin{center}
+	\subfloat{
+			\includegraphics[width=0.9\textwidth]{f13a.pdf}
+    }
+
+	\vspace{-1.1cm}
+	\subfloat{
+			\includegraphics[width=0.9\textwidth]{f13b.pdf}
+    }
+
+	\vspace{-1.1cm}
+	\subfloat{
+			\includegraphics[width=0.9\textwidth]{f13c.pdf}
+    }
+	\end{center}
+	\vspace{-0.4cm}
+	\caption{
+		{\bf Activity and age diagnostics for three CQVs}.
+		Wavelengths are in air;
+		the continuum normalization is relative to the entire order.
+		The H$\alpha$ emission strength classifies the stars as weak-lined
+		T Tauris.
+		The lithium detection for TIC~146539195 is consistent with its
+		mass and $\beta$~Pic membership;
+		the non-detections for TIC~402980664 and TIC~264599508
+		are consistent with the $\sim$42\,Myr age implied by their membership
+		in the Columba moving group.
+	}
+	\label{fig:tic3006timegroups}
+\end{figure*}
+
+
+
 
 % \section{Chromaticity in TIC 262400835}
 % 
