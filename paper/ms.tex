@@ -462,7 +462,7 @@ uneven spacing in the TESS data, as well as the data gap caused by
 satellite downlink during each sector.  We then padded the data to
 ensure that the light curve had a length that was a power of two, as
 described by \citeauthor{2019ApJ...876..127Z}.  Taking the Fourier
-transform of the corrected, padded light curve using {\tt numpy.fft},
+transform of the padded light curve using {\tt numpy.fft},
 we then searched for peaks with a significance of over 12-$\sigma$
 within a set of 500 frequency bins. 
 
@@ -2337,7 +2337,7 @@ amplitude.
 	\end{center}
 	\vspace{-0.4cm}
 	\caption{
-		{\bf Activity and age diagnostics for three CQVs}.
+		{\bf Spectral age and activity diagnostics for three CQVs}.
 		Wavelengths are in air;
 		the continuum normalization is relative to the entire order.
 		The H$\alpha$ emission strength classifies the stars as weak-lined
@@ -2345,7 +2345,7 @@ amplitude.
 		The lithium detection for TIC~146539195 is consistent with its
 		mass and $\beta$~Pic membership;
 		the non-detections for TIC~402980664 and TIC~264599508
-		are consistent with the $\sim$42\,Myr age implied by their membership
+		are consistent with the $\approx$42\,Myr age implied by their membership
 		in the Columba moving group.
 	}
 	\label{fig:tic3006timegroups}
