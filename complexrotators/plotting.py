@@ -1873,7 +1873,7 @@ def get_flx_wav_given_2d_and_target(flx_2d, wav_2d, target_wav):
     return flx, wav
 
 
-def plot_spectrum_windows(outdir, starid, inst='HIRES'):
+def plot_spectrum_windows(outdir, starid, inst='HIRES', ylims=None):
 
     # note: could add in K 7699..
     #lines = ['Ca K', 'Ca H & Hε', 'He', 'Hα', 'Li', 'K']
@@ -1889,14 +1889,15 @@ def plot_spectrum_windows(outdir, starid, inst='HIRES'):
         [6707.8-deltawav, 6707.8+deltawav], # li6708
         #[7699.-deltawav, 7699+deltawav], # K
     ]
-    ylims = [
-        [-1, 35],
-        [-1, 35],
-        #[0.8, 1.95],
-        None,
-        None,
-        #None,
-    ]
+    if ylims is None:
+        ylims = [
+            None,#[-1, 35],
+            None,#[-1, 35],
+            #[0.8, 1.95],
+            None,
+            None,
+            #None,
+        ]
     xticks = [
         [3930, 3940],
         [3965, 3975],
@@ -1919,9 +1920,10 @@ def plot_spectrum_windows(outdir, starid, inst='HIRES'):
     # make plot
     #
     plt.close('all')
-    set_style('clean')
+    set_style('science')
 
-    fig, axs = plt.subplots(ncols=len(lines), figsize=(3.3,1.15))
+    f = 1.5
+    fig, axs = plt.subplots(ncols=len(lines), figsize=(f*3.5,f*1.15))
     #fig, axs = plt.subplots(ncols=2, nrows=2, figsize=(2.5,2.5))
     axs = axs.flatten()
 
@@ -1934,6 +1936,13 @@ def plot_spectrum_windows(outdir, starid, inst='HIRES'):
         fitspaths = glob(join(DATADIR, 'spectra', inst, starid, _glob))
         assert len(fitspaths) == 1
         spectrum_path = fitspaths[0]
+
+        hdul = fits.open(spectrum_path)
+        dateobs = hdul[0].header['DATE-OBS']
+        exptime = hdul[0].header['EXPTIME']
+        utc = hdul[0].header['UTC'][:5]
+        timestr = f"{dateobs} {utc}UT"
+        hdul.close()
 
         flx_2d, wav_2d = read_hires(
             spectrum_path, is_registered=0, return_err=0
@@ -1949,14 +1958,23 @@ def plot_spectrum_windows(outdir, starid, inst='HIRES'):
         )
 
         sel = ((xlim[0]-20) < wav) & (wav < xlim[1]+20)
+        xv = wav[sel]
+        yv = fn(norm(flx[sel]))
         ax.plot(
-            wav[sel], fn(norm(flx[sel])), c='k', zorder=3, lw=0.2
+            xv, yv, c='k', zorder=3, lw=0.2
         )
 
-        ax.set_title(line)
+        sel0 = ((xlim[0]-0) < wav) & (wav < xlim[1]+0)
+        max_y = 1.5*np.nanmax(fn(norm(flx[sel0])))
+
+        ax.set_title(line, fontsize='small', pad=0)
         ax.set_xlim(xlim)
+
         if ylim is not None:
             ax.set_ylim(ylim)
+        else:
+            ax.set_ylim([0, max_y])
+
         if xtick is not None:
             ax.set_xticks(xtick)
             ax.set_xticklabels([str(x) for x in xtick])
@@ -1964,9 +1982,16 @@ def plot_spectrum_windows(outdir, starid, inst='HIRES'):
         if line == 'K':
             ax.yaxis.set_major_locator(MultipleLocator(0.5))
         if line == 'Li':
-            ax.yaxis.set_major_locator(MultipleLocator(0.3))
+            ax.yaxis.set_major_locator(MultipleLocator(0.5))
+        if line == 'Hα':
+            ax.yaxis.set_major_locator(MultipleLocator(2))
+
+
 
     #axs[0].set_ylabel("Relative flux")
+    stitle = f'{starid.replace("TIC","TIC ")} {timestr}'
+    print(stitle + ' ' + str(exptime))
+    fig.text(0.5, 1.01, stitle, va='top', ha='center', rotation=0)
     fig.text(-0.01,0.5, r'Relative flux', va='center', ha='center',
              rotation=90)
     fig.text(0.5,-0.01, r'Wavelength [$\AA$]', va='center', ha='center',

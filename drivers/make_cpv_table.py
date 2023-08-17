@@ -170,10 +170,10 @@ def main(overwrite=0):
         sdf['rvscatterflag'] + sdf['ruweflag']  + sdf['multipleperiodflag']
     )
 
-    # manual string casting
-    strcols = 'dr2_source_id dr3_source_id'.split()
-    for strcol in strcols:
-        sdf[strcol] = '"' + sdf[strcol].astype(str) + '"'
+    ## manual string casting
+    #strcols = 'dr2_source_id dr3_source_id'.split()
+    #for strcol in strcols:
+    #    sdf[strcol] = '"' + sdf[strcol].astype(str) + '"'
 
     csvpath = join(indir, "20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied.csv")
     sdf.to_csv(csvpath, index=False, sep="|")
