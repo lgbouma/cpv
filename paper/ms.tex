@@ -125,25 +125,26 @@
 \begin{abstract}
   Complex quasiperiodic variables (CQVs) are low-mass
   pre-main-sequence stars with nearly periodic optical modulation.
-  The modulation is probably caused by eclipses of dust or gas clumps orbiting at
-  the Keplerian corotation radius.  Here, we report new CQVs
-  discovered in TESS short-cadence data collected between 2018~July
-  and 2022~September.  Our search of \nstarssearched\ K and M dwarfs with
-  $T$$<$16 and $d$$<$150\,pc yielded \ngoods\ high-quality CQVs.  Most
-  of these discoveries are new, and they include the brightest
-  ($T$$\approx$9.5), closest ($d$$\approx$20\,pc), and oldest
-  ($\approx$200\,Myr) examples of this class of object currently
-  known.  A few objects are outliers: LP 12-502 for instance showed a
-  ``dip complex'' with a period and duration that were fixed over
-  1,500 cycles, but in detail, this system exhibited between four and
-  eight local minima per cycle, and at times also displayed multiple
-  periods simultaneously.  We demonstrate that transient corotating
-  material is the most viable explanation for this class of object,
-  and present evidence supporting the hypothesis that this material is
-  sculpted by stellar magnetic fields dominated by high order
-  multipoles.  We expect that our sample will facilitate future
-  efforts aimed at connecting CQVs to the broader contexts of star,
-  disk, and perhaps even exoplanet evolution. 	
+  The modulation is probably caused by eclipsing clumps of dust or gas
+  in orbit at the Keplerian corotation radius.  Here, we
+  report new CQVs discovered in TESS short-cadence data collected
+  between 2018~July and 2022~September.  Our search of
+  \nstarssearched\ K and M dwarfs with $T$$<$16 and $d$$<$150\,pc
+  yielded \ngoods\ high-quality CQVs.  Most of these discoveries are
+  new, and they include the brightest ($T$$\approx$9.5), closest
+  ($d$$\approx$20\,pc), and oldest ($\approx$200\,Myr) examples of
+  this class of object currently known.  A few objects are outliers:
+  LP 12-502 for instance showed a ``dip complex'' with a period and
+  duration that were fixed over 1,500 cycles, but in detail, this
+  system exhibited between four and eight local minima per cycle, and
+  at times also displayed multiple periods simultaneously.  We
+  demonstrate that transient corotating material is the most viable
+  explanation for this class of object, and present evidence
+  supporting the hypothesis that this material is sculpted by stellar
+  magnetic fields dominated by high order multipoles.  We expect that
+  our sample will facilitate future efforts aimed at connecting CQVs
+  to the broader contexts of star, disk, and perhaps even exoplanet
+  evolution. 	
 \end{abstract}
 
 
@@ -286,7 +287,7 @@ of introducing yet another standard, we hope to use a nomenclature
 that reflects how, when observed over timescales of more than tens of
 cycles, CQVs are almost but not exactly periodic.  They are
 quasiperiodic.  While the three-type classification scheme proposed by
-\citet{2017AJ....153..152S} may indeed provide some helpful visual
+\citet{2017AJ....153..152S} may provide helpful visual
 distinctions amongst the CQVs, it seems likely that they are all
 explained by a single underlying phenomenon, and so we opt to refer to
 them by a single empirically descriptive name.  We also considered
@@ -337,16 +338,16 @@ the Science Processing and Operations Center at NASA Ames
 \citep{2016SPIE.9913E..3EJ}.  While the TESS data products from these
 sectors also included full frame images with cadences of 600 and 1800
 seconds, we limited our scope in this study for the sake of simplicity
-in data handling and some degree of uniformity in the properties of
-the data itself.  In exchange, we sacrificed both completeness and
-homogeneity of the selection function.  While TESS cumulatively
-observed $\approx$90\% of the sky for at least one lunar month between
-2018 July and 2022 September, the 120-second cadence data were
-collected for only a subset of observable stars during this time due
-to telemetric constraints \citep[see][]{2021PASP..133i5002F}.
+in data handling and uniformity in the data.  In exchange, we
+sacrificed both completeness and homogeneity of the selection
+function.  While TESS cumulatively observed $\approx$90\% of the sky
+for at least one lunar month between 2018 July and 2022 September, the
+120-second cadence data were collected for only a subset of observable
+stars during this time due to telemetric constraints
+\citep[see][]{2021PASP..133i5002F}.
 
 To assess the completeness of the resulting 120-second cadence data
-that is the basis of this study, we cross-matched TIC8.2
+that are the basis of this study, we cross-matched TIC8.2
 \citep{2019AJ....158..138S,2021arXiv210804778P} against the Gaia DR2 point-source catalog
 \citep{2018A&A...616A...1G}.  We opted for Gaia DR2 rather than DR3
 because the base catalog for TIC8 was Gaia DR2, which facilitated a
@@ -376,16 +377,16 @@ dwarfs, down to $T$$<$16 and out to $d$$<$150\,pc.
 \label{subsec:discoverymethods}
 
 Previous methods for finding CQVs have included visually examining
-stars known to be in young clusters
-\citep{2016AJ....152..114R,2017AJ....153..152S}, and automatically
+stars in young clusters
+\citep{2016AJ....152..114R,2017AJ....153..152S} and automatically
 flagging rapid rotators with a large number of strong Fourier
 harmonics \citep{2019ApJ...876..127Z}.  The latter approach still
-requires visual vetting, since ``stars with many Fourier harmonics''
+requires visual vetting, since ``stars with strong Fourier harmonics''
 is a designation that includes objects such as eclipsing binaries or
 multiple stars blended into a single photometric aperture.  In this
 work, we implemented a new search approach based on counting the
 number of sharp local minima in phase-folded light curves, while also
-using the previously tested Fourier approach.  We applied these two
+using the Fourier approach.  We applied these two
 search techniques independently.   
 
 
@@ -2312,12 +2313,12 @@ work, these spectra confirm previous understanding established by
 \citet{2017AJ....153..152S} that the stars are chromospherically
 active M dwarfs in the ``weak-lined'' T Tauri regime
 \citep[e.g.][Figure~15]{2019AJ....157...85B}.  Their H$\alpha$
-equivalent widths, at $\approx$14\,\AA, $\approx$8\,\AA, and
-$\approx$3\AA, are consistent with purely chromospheric emission.
-The blue excess in TIC~264599508 could be explained by a second
-unresolved star; the TESS light curve for this source shows both the
-7.90\,hr CQV signal, and a 9.00\,hr rotation signal with comparable
-amplitude.
+equivalent widths, at $\approx$14\,\AA, $\approx$3\AA, and
+$\approx$8\,\AA (for TIC~264599508, 146539195, and 402980664
+respectively) are consistent with purely chromospheric emission.  The
+blue excess in TIC~264599508 could be explained by a second unresolved
+star; the TESS light curve for this source shows both the 7.90\,hr CQV
+signal, and a 9.00\,hr rotation signal with comparable amplitude.
 
 \begin{figure*}[!t]
 	\begin{center}
