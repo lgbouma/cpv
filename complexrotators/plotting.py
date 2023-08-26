@@ -1683,7 +1683,7 @@ def plot_cpvvetter(
     bp_rp = get_xval_no_corr(gdf)
     M_G = get_yval_no_corr(gdf)
     ax.scatter(bp_rp, M_G, zorder=9000,
-               c='lime', s=30, marker='X', edgecolors='k', linewidths=0.5)
+               c='lime', s=60, marker='X', edgecolors='k', linewidths=0.5)
 
     xmin, xmax = 0.9, 3.6
     if bp_rp > xmax:
@@ -2906,7 +2906,7 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
 
         lcpath = lcpaths[0]
 
-        cachedir = '/Users/luke/local/complexrotators/cpv_finding/2023catalog_LGB_RJ_concat'
+        cachedir = '/Users/luke/local/complexrotators/cpv_finding/2023catalog_LGB_RJ_concat_BACKUP'
 
         # get the relevant light curve data
         (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
@@ -3052,7 +3052,7 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
         s += f'_{sortby}'
 
     # height/width
-    fig.tight_layout(h_pad=0.02, w_pad=0.)
+    fig.tight_layout(h_pad=0.06, w_pad=0.)
 
     #axs[-1].set_axis_off()
 
@@ -3743,7 +3743,7 @@ def plot_tic4029_segments(outdir):
     ax.text(0.97, 0.98, 'Cycle #', va='top', ha='right', fontsize=7,
             bbox=props, transform=ax.transAxes)
 
-    ax.set_xlabel('Days since chunk began')
+    ax.set_xlabel('Days since segment began')
     ax.set_ylabel('Flux [%]')
 
     ax.tick_params(axis='both', which='major', labelsize='small')
