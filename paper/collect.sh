@@ -8,6 +8,9 @@ cp $artdir/twomodels.pdf f1b.pdf
 
 # fig2 is annotated_lp12502.key exported
 
+# fig2 completeness
+cp $resultsdir/fraction_coverage/fraction_coverage.pdf f2completeness.pdf
+
 # fig3
 cp $resultsdir/full_lcmosaic/full_lcmosaic_showtitles_binarytitle_Ngoodsectors_tic8_Tmag.pdf f3.pdf
 

@@ -72,7 +72,7 @@
 \received{---}
 \revised{---}
 \accepted{---}
-\shorttitle{Four Years of CRs} 
+\shorttitle{Four Years of Complex Rotators} 
 
 \shortauthors{Bouma, Jayaraman, et al.}
 
@@ -133,29 +133,6 @@
 
 % 250 word max!
 \begin{abstract}
-  %Complex rotators (CRs) are low-mass
-  %pre-main-sequence stars with nearly periodic optical modulation.
-  %The modulation is probably caused by eclipsing clumps of dust or gas
-  %in orbit at the Keplerian corotation radius.  Here, we report new
-  %CRs discovered in TESS short-cadence data collected between
-  %2018~July and 2022~September.  Our search of \nstarssearched\ K and
-  %M dwarfs with $T$$<$16 and $d$$<$150\,pc yielded \ngoods\
-  %high-quality CRs.  Most of these discoveries are new, and they
-  %include the brightest ($T$$\approx$9.5), closest
-  %($d$$\approx$20\,pc), and oldest ($\approx$200\,Myr) examples of
-  %this class of object currently known.  A few objects are outliers:
-  %LP 12-502 for instance showed a ``dip complex'' with a period and
-  %duration that were fixed over 1,500 cycles, but in detail, this
-  %system exhibited between four and eight local minima per cycle, and
-  %at times also displayed multiple periods simultaneously.  We
-  %demonstrate that transient corotating material is the most viable
-  %explanation for this class of object, and present evidence
-  %supporting the hypothesis that this material is sculpted by stellar
-  %magnetic fields dominated by high order multipoles.  We expect that
-  %our sample will facilitate future efforts aimed at connecting CRs
-  %to the broader contexts of star, disk, and perhaps even exoplanet
-  %evolution. 	
-  % % JNW alternate:
   Complex rotators (CRs) are low-mass pre-main-sequence stars with
   light curves characterized by periods of 0.2--2 days, amplitudes of
   a few percent, and slowly-evolving sharp features.  The sharp
@@ -248,7 +225,7 @@ stellar surface that is spatially confined with sharp boundaries
 
 Figure~\ref{fig:f1} illustrates two proposed models for the extrinsic
 material.  The first scenario invokes opaque dust ``clumps'' that
-orbit near the Keplerian corotation radius [$R_{\rm cr} =
+orbit near the Keplerian corotation radius [$R_{\rm c} =
 (GM/\Omega^2)^{1/3}$, where $\Omega = 2\pi/P_{\rm rot}$] and
 periodically transit the star
 \citep{2017AJ....153..152S,2023MNRAS.518.4734S}.  The second scenario
@@ -339,17 +316,16 @@ starspots.
 		\vspace{-0.3cm}
 	\caption{
 		{\bf Complex rotators (CRs)}:
-    {\it Top:} Phase-folded TESS light curves of three CRs.  Each panel shows
-    the average of the data accumulated over one month.
-    Gray circles are raw 2-minute data; black
-    circles are binned to 300 points per cycle.  The period in hours
-    is printed in the
-    bottom right corner.  Left-to-right, the objects are LP
-    12-502 (TIC 402980664; Sector~19), TIC 94088626 (Sector 10), and
-    TIC 425933644 (Sector~28).
+    {\it Top:} Phase-folded TESS light curves of three CRs.  Each
+    panel shows the average of the data accumulated over one month.
+    Gray circles are raw 2-minute data; black circles are binned to
+    300 points per cycle.  The period in hours is printed in the
+    bottom right corner.  Left-to-right, the objects are LP 12-502
+    (TIC 402980664; Sector~19), TIC 94088626 (Sector 10), and TIC
+    425933644 (Sector~28).
     {\it Bottom:} Cartoon explanations for the phenomenon.  The dust
     clump scenario (left) and prominence scenario (right) both invoke
-    magnetically-confined corotating material.
+    magnetically-entrained corotating material.
 	}
 	\label{fig:f1}
 \end{figure*}
@@ -365,44 +341,90 @@ starspots.
 To construct our sample, we analyzed the short-cadence data acquired
 by TESS between 2018 July 25 and 2022 September 1 (Sectors 1-55).
 Specifically, we used the 120-second cadence light curves produced by
-the Science Processing and Operations Center at NASA Ames
-\citep{2016SPIE.9913E..3EJ}.  While the TESS data products from these
-sectors also included full frame images with cadences of 600 and 1800
-seconds, we limited our scope in this study for the sake of simplicity
-in data handling and uniformity in the data.  In exchange, we
-sacrificed both completeness and homogeneity of the selection
-function.  While TESS cumulatively observed $\approx$90\% of the sky
-for at least one lunar month between 2018 July and 2022 September, the
-120-second cadence data were collected for only a subset of observable
-stars during this time due to telemetric constraints
-\citep[see][]{2021PASP..133i5002F}.
+the Science Processing and Operations Center at the NASA Ames Research
+Center \citep{2016SPIE.9913E..3EJ}.  While the TESS data products from
+these sectors also included full frame images with cadences of 600 and
+1800 seconds for a larger number of sources, we restricted our
+attention to the 120-second data for the sake of uniformity and
+simplicity in data handling.  In exchange, we sacrificed both
+completeness and homogeneity of the selection function.  While TESS
+cumulatively observed $\approx$90\% of the sky for at least one lunar
+month between 2018 July and 2022 September, the 120-second cadence
+data were collected for only a subset of observable stars that were
+preferentially nearby and bright \citep[see][]{2021PASP..133i5002F}.
+The total 120-second data volume
+from Sectors 1-55 included 1{,}087{,}475 short-cadence light curves, which were
+available for 428{,}121 unique stars.
+% latter stats from MERGED_spoc2min_sector1_to_sector58.csv
 
-To assess the completeness of the resulting 120-second cadence data
-that are the basis of this study, we cross-matched TIC8.2
-\citep{2019AJ....158..138S,2021arXiv210804778P} against the Gaia DR2 point-source catalog
-\citep{2018A&A...616A...1G}.  We opted for Gaia DR2 rather than DR3
-because the base catalog for TIC8 was Gaia DR2, which facilitated a
-one-to-one crossmatch using the Gaia source identifiers.  This
-exercise showed that for $T$$<$16 M dwarfs, the TESS 2-minute data are
-$\approx$50\% complete at $\approx$50\,pc.  At $<$20\,pc,
-$\gtrsim$80\% of the $T$$<$16 M dwarfs have at least one sector of
-short-cadence data; at $>$100\,pc, $\lesssim$10\% of such M dwarfs
-have at least one sector of short-cadence data.  Armed with this
-understanding, we then used our cross-match between Gaia DR2 and TIC8
-to select our stars of interest, which we defined as stars with
-120-second cadence TESS light curves satisfying these four conditions:
+To further simplify our search, we defined our target sample as
+stars with 120-second cadence TESS light curves satisfying the
+following four conditions:
 \begin{align}
-  T &< 16 \quad&(\mathrm{Amenable\ with\ TESS})\\
+  T &< 16 \quad&(\mathrm{Amenable\ with\ TESS}) \label{eq:one}\\
   \bprp &> 1.5 \quad&(\mathrm{Red\ stars\ only})\\
   M_{\rm G} &> 4 \quad&(\mathrm{Dwarf\ stars\ only})\\
-  d &< 150\,{\rm pc} \quad&(\mathrm{Close\ stars\ only}).
+  d &< 150\,{\rm pc} \quad&(\mathrm{Close\ stars\ only}) \label{eq:four}.
 \end{align}
 Here, $M_{\rm G} = G + 5\log(\varpi_{\rm as}) + 5$ is the Gaia
 $G$-band absolute magnitude, $\varpi_{\rm as}$ is the parallax in
 units of arcseconds, and $d$ is a geometric distance defined by
-inverting the parallax and ignoring any zero-point correction.  The
-target sample therefore includes \nstarssearched\ M dwarfs and late-K
-dwarfs, down to $T$$<$16 and out to $d$$<$150\,pc.
+inverting the parallax and ignoring any zero-point correction.  We
+performed this selection by cross-matching TIC8.2
+\citep{2019AJ....158..138S,2021arXiv210804778P} against the Gaia DR2
+point-source catalog \citep{2018A&A...616A...1G}.  We opted for Gaia
+DR2 rather than DR3 because the base catalog for TIC8 was Gaia DR2,
+which facilitated a one-to-one crossmatch using the Gaia source
+identifiers.  The target sample ultimately included \nstarssearched\ M
+dwarfs and late-K dwarfs, down to $T$$<$16 and out to $d$$<$150\,pc.
+For stars with multiple sectors of TESS data available, we searched
+for CR signals independently.
+In total, our \nstarssearched\ star target list included \nlcssearched\ month-long light
+curves.
+
+We assessed the completeness of our selection function by comparing
+the number of stars with TESS Sector 1-55 short-cadence data against
+the number of Gaia DR2 point sources.
+We required all stars to meet conditions~\ref{eq:one}--\ref{eq:four}.
+The results are shown in Figure~\ref{fig:completeness}.
+TESS 2-minute data exist for $\approx$50\%
+of $T$$<$16 M and late-K dwarfs at $\approx$50\,pc.
+Within 20\,pc, $\gtrsim$80\% of the $T$$<$16 M and late-K dwarfs have
+at least one sector of short-cadence data.
+Beyond 100\,pc, $\lesssim$10\% of such stars have any short-cadence
+data available.
+This can be translated into our sensitivity for the lowest mass stars
+by considering that the spectral type of a $T$=16 star at $d$=50\,pc
+is $\approx$M5.5V, corresponding to a main-sequence mass of
+$\approx$0.12\,$M_\odot$.
+
+\begin{figure}[!tp]
+	\begin{center}
+		\centering
+		\includegraphics[width=0.48\textwidth]{f2completeness.pdf}
+		\vspace{-0.5cm}
+		\caption{
+			{\bf Completeness of the TESS 2-minute cadence data for late-K
+      and early M dwarfs near the Sun, from Sectors 1-55.}  
+      The orange dotted curve shows the number of stars in successive
+      radial shells, each with a width of 10\,pc.  To be counted, these stars must meet
+      the listed conditions: they must
+      be red ($\bprp$>$1.5$)
+      dwarf stars ($M_{\rm G}$>4) amenable for TESS observations ($T$<16).
+      The blue solid curve shows the
+      fraction of such stars with at least one sector of TESS
+      2-minute cadence data acquired between Sectors 1-55.  The
+      latter data comprise the selection function for our complex
+      rotator search.
+		}
+			\vspace{-0.5cm}
+		\label{fig:completeness}
+	\end{center}
+\end{figure}
+
+
+
+
 
 \subsection{CR discovery}
 \label{subsec:discoverymethods}
