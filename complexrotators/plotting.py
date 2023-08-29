@@ -276,7 +276,7 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
     if isinstance(titlestr, str):
         cax0 = divider0.append_axes('right', size='5%', pad=0.05)
         cb0 = fig.colorbar(c, ax=ax, cax=cax0, extend='both')
-        cb0.set_label("Flux [%]", rotation=270, labelpad=10)
+        cb0.set_label("$\Delta$ Flux [%]", rotation=270, labelpad=10)
     elif titlestr is None:
         # sick inset colorbar
         x0,y0,dx,dy = 0.02, -0.09, 0.3, 0.02
@@ -287,7 +287,7 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
 
         cb = fig.colorbar(c, cax=axins1, orientation="horizontal",
                           extend="both")
-        cb.set_label("Flux [%]", rotation=0, labelpad=3)
+        cb.set_label("$\Delta$ Flux [%]", rotation=0, labelpad=3)
         #cb.set_ticks([min_cycle, max_cycle])
         #cb.set_ticklabels([int(min_cycle), int(max_cycle)])
         #cb.ax.tick_params(labelsize='x-small')
@@ -635,7 +635,7 @@ def plot_phase_timegroups(
             f"P={plot_period*24:.4f}$\pm${plot_period_std*24:.3f}hr"
         )
 
-    fig.text(-0.01,0.5, r"Flux [%]", va='center',
+    fig.text(-0.01,0.5, r"$\Delta$ Flux [%]", va='center',
              rotation=90)
 
     if isinstance(ylim, list):
@@ -822,7 +822,7 @@ def plot_phase_timegroups_mosaic(
             va='center',
         )
 
-    fig.text(-0.01,0.5, r"Flux [%]", va='center', rotation=90, fontsize='large')
+    fig.text(-0.01,0.5, r"$\Delta$ Flux [%]", va='center', rotation=90, fontsize='large')
     fig.text(0.5,-0.01, r"Phase, φ", ha='center', fontsize='large')
 
     format_ax(ax)
@@ -872,7 +872,7 @@ def plot_quicklook_cr(x_obs, y_obs, x_trend, y_trend, x_flat, y_flat, outpath,
         ax.scatter(x_flat, 1e2*(y_flat - 1), c="k", s=0.5, rasterized=True,
                    linewidths=0, zorder=42)
 
-    fig.text(-0.01,0.5, r"Relative flux [%]", va='center',
+    fig.text(-0.01,0.5, "$\Delta$ Flux [%]", va='center',
              rotation=90)
 
     ax.set_xlabel('Time [TJD]')
@@ -1045,7 +1045,7 @@ def plot_phased_light_curve(
         ax.set_title(titlestr.replace("_"," "), fontsize=titlefontsize, pad=titlepad)
 
     if savethefigure:
-        ax.set_ylabel(r"Flux [%]")
+        ax.set_ylabel("$\Delta$ Flux [%]")
         ax.set_xlabel("Phase")
 
     ax.set_xlim(xlim)
@@ -1461,7 +1461,7 @@ def plot_cpvvetter(
         fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
         showxticklabels=True
     )
-    ax.set_ylabel("Flux [%]")
+    ax.set_ylabel("$\Delta$ Flux [%]")
     ax.set_xlabel("Phase, φ")
 
     # phased LC at 2x period
@@ -2252,7 +2252,7 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     ylim = get_ylimguess(n(ns.y_sw_b))
     ax.set_ylim(ylim)
     ax.update({#'xlabel': 'φ',
-               'ylabel': 'Flux [%]', 'xlim':[-0.6,0.6],
+               'ylabel': '$\Delta$ Flux [%]', 'xlim':[-0.6,0.6],
                'title': f"P = {pgdict['period']*24:.2f} hr"
               })
     ax.set_xticklabels([])
@@ -2304,7 +2304,7 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     ylim = get_ylimguess(bd['binnedmags'])
     #ylim = get_ylimguess(n(ns.flux))
     ax.set_ylim(ylim)
-    ax.update({'xlabel': '', 'ylabel': 'Flux [%]'})
+    ax.update({'xlabel': '', 'ylabel': '$\Delta$ Flux [%]'})
     ax.set_xticklabels([])
 
     # flux vs time resid
@@ -2577,7 +2577,8 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0,
     ix = 0
     for ticid, sector, ax in zip(df.ticid, df.sector, axs):
 
-        lcdir = f'/nfs/phtess2/ar0/TESS/SPOCLC/sector-{sector}'
+        #lcdir = f'/nfs/phtess2/ar0/TESS/SPOCLC/sector-{sector}'
+        lcdir = '/Users/luke/local/complexrotators/fav3/'
         lcpaths = glob(join(lcdir, f"*{ticid}*_lc.fits"))
         if not len(lcpaths) == 1:
             print('bad lcpaths')
@@ -2587,37 +2588,7 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0,
             assert 0
         lcpath = lcpaths[0]
 
-        # need to re-find the cachedir;  this is faster than loading the large
-        # csv file
-        res = bash_grep(ticid, csvpath)
-        plxs = np.array([l.split(',')[4] for l in res[::2]]).astype(float)
-        dist_pc = np.nanmean(1/(plxs * 1e-3))
-
-        if dist_pc <= 30:
-            cachesubdir = '30pc_mkdwarf'
-        elif 30 < dist_pc <= 50:
-            cachesubdir = '30to50pc_mkdwarf'
-        elif 50 < dist_pc <= 60:
-            cachesubdir = '50to60pc_mkdwarf'
-        elif 60 < dist_pc <= 70:
-            cachesubdir = '60to70pc_mkdwarf'
-        elif 70 < dist_pc <= 85:
-            cachesubdir = '70to85pc_mkdwarf'
-        elif 85 < dist_pc <= 95:
-            cachesubdir = '85to95pc_mkdwarf'
-        elif 95 < dist_pc <= 105:
-            cachesubdir = '95to105pc_mkdwarf'
-        elif 105 < dist_pc <= 115:
-            cachesubdir = '105to115pc_mkdwarf'
-        elif dist_pc >= 115:
-            cachesubdir = '115to150pc_mkdwarf'
-        else:
-            print(ticid, sector)
-            print(lcpaths)
-            print(dist_pc)
-            raise NotImplementedError
-        cdbase = join(LOCALDIR, "cpv_finding")
-        cachedir = join(cdbase, cachesubdir)
+        cachedir = '/Users/luke/local/complexrotators/cpv_finding/2023catalog_LGB_RJ_concat'
 
         # get the relevant light curve data
         (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
@@ -2806,9 +2777,9 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0,
 
     if subset_id != 'fav3':
         fig.text(0.5,-0.01, r"Phase, φ", fontsize=fs)
-        fig.text(-0.02,0.5, r"Flux [%]", va='center', rotation=90, fontsize=fs)
+        fig.text(-0.02,0.5, "$\Delta$ Flux [%]", va='center', rotation=90, fontsize=fs)
     else:
-        axs[0].set_ylabel(r"Flux [%]", fontsize=fs)
+        axs[0].set_ylabel("$\Delta$ Flux [%]", fontsize=fs)
         axs[1].set_xlabel(r"Phase, φ", fontsize=fs)
 
     # set naming options
@@ -3040,7 +3011,7 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
 
     fs = 'medium'
     fig.text(0.5,0.0, r"Phase, φ", fontsize=fs)
-    fig.text(-0.01,0.5, r"Flux [%]", va='center', rotation=90, fontsize=fs)
+    fig.text(-0.01,0.5, "$\Delta$ Flux [%]", va='center', rotation=90, fontsize=fs)
 
     # set naming options
     s = ''
@@ -3069,7 +3040,7 @@ def plot_beforeafter_mosaic(outdir, showtitles=1, titlefontsize=3.75,
     """
 
     # load ticids
-    N_objects = 53 # fine if longer/shorter, just requires tweaking
+    N_objects = 50 # fine if longer/shorter, just requires tweaking
 
     tablepath = join(
         TABLEDIR, "2023_catalog_table",
@@ -3083,7 +3054,7 @@ def plot_beforeafter_mosaic(outdir, showtitles=1, titlefontsize=3.75,
     sectorpath = join(
         DATADIR, 'targetlists', '20230613_LGB_RJ_changerspref.csv'
     )
-    tdf = pd.read_csv(sectorpath)
+    tdf = pd.read_csv(sectorpath, comment='#')
 
     # merge to same dataframe
     df = _df.merge(tdf, on='ticid', how='inner')
@@ -3500,10 +3471,10 @@ def plot_beforeafter_mosaic(outdir, showtitles=1, titlefontsize=3.75,
     fs = 'medium'
     if SIMPLEGRID:
         fig.text(0.5,0.0, r"Phase, φ", fontsize=fs)
-        fig.text(-0.01,0.5, r"Flux [%]", va='center', rotation=90, fontsize=fs)
+        fig.text(-0.01,0.5, "$\Delta$ Flux [%]", va='center', rotation=90, fontsize=fs)
     else:
         fig.text(0.5,0.07, r"Phase, φ", fontsize=fs, va='bottom', ha='center')
-        fig.text(-0.01,0.5, r"Flux [%]", va='center', ha='center', rotation=90, fontsize=fs)
+        fig.text(-0.01,0.5, "$\Delta$ Flux [%]", va='center', ha='center', rotation=90, fontsize=fs)
 
 
     # set naming options
@@ -3604,7 +3575,7 @@ def plot_cadence_comparison(outdir, ticid: str = None, sector: int = None):
         savethefigure=False, dy=-5, xtxtoffset=-0.24
     )
     ax.set_xlabel('Phase, φ')
-    ax.set_ylabel('Flux [%]')
+    ax.set_ylabel('$\Delta$ Flux [%]')
     ax.set_ylim([-9,28])
 
     ax.set_yticks([-5, 5, 15, 25])
@@ -3744,7 +3715,7 @@ def plot_tic4029_segments(outdir):
             bbox=props, transform=ax.transAxes)
 
     ax.set_xlabel('Days since segment began')
-    ax.set_ylabel('Flux [%]')
+    ax.set_ylabel('$\Delta$ Flux [%]')
 
     ax.tick_params(axis='both', which='major', labelsize='small')
 
@@ -4398,7 +4369,7 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
 
     fs = 'small'
     fig.text(0.5, 0, r"Phase, φ", fontsize=fs, va='bottom', ha='center')
-    fig.text(-0.01,0.5, r"Flux [%]", va='center', rotation=90, fontsize=fs)
+    fig.text(-0.01,0.5, "$\Delta$ Flux [%]", va='center', rotation=90, fontsize=fs)
 
     # set naming options
     s = ''

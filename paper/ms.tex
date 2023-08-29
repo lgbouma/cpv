@@ -308,16 +308,17 @@ starspots.
 			\includegraphics[width=0.8\textwidth]{f1a.pdf}
 		}
 		
-		\vspace{-0.6cm}
+		\vspace{-0.65cm}
 		\subfloat{
 			\includegraphics[width=0.66\textwidth]{f1b.pdf}
 		}
 	\end{center}
-		\vspace{-0.3cm}
+		\vspace{-0.5cm}
 	\caption{
 		{\bf Complex rotators (CRs)}:
-    {\it Top:} Phase-folded TESS light curves of three CRs.  Each
-    panel shows the average of the data accumulated over one month.
+    {\it Top:} Phase-folded TESS light curves for three CRs.  Each
+    panel shows the average of the data accumulated over one month,
+    relative to the mean stellar brightness.
     Gray circles are raw 2-minute data; black circles are binned to
     300 points per cycle.  The period in hours is printed in the
     bottom right corner.  Left-to-right, the objects are LP 12-502
@@ -407,15 +408,13 @@ $\approx$0.12\,$M_\odot$.
 			{\bf Completeness of the TESS 2-minute cadence data for late-K
       and early M dwarfs near the Sun, from Sectors 1-55.}  
       The orange dotted curve shows the number of stars in successive
-      radial shells, each with a width of 10\,pc.  To be counted, these stars must meet
-      the listed conditions: they must
-      be red ($\bprp$>$1.5$)
-      dwarf stars ($M_{\rm G}$>4) amenable for TESS observations ($T$<16).
-      The blue solid curve shows the
-      fraction of such stars with at least one sector of TESS
-      2-minute cadence data acquired between Sectors 1-55.  The
-      latter data comprise the selection function for our complex
-      rotator search.
+      radial shells, each with a width of 10\,pc.  To be counted,
+      these stars must meet the listed conditions: they must be red
+      ($\bprp$>$1.5$) dwarf stars ($M_{\rm G}$>4) amenable for TESS
+      observations ($T$<16).  The blue solid curve shows the fraction
+      of such stars with at least one sector of TESS 2-minute cadence
+      data acquired between Sectors 1-55.  The latter data comprise
+      the selection function for our complex rotator search.
 		}
 			\vspace{-0.5cm}
 		\label{fig:completeness}
@@ -424,116 +423,120 @@ $\approx$0.12\,$M_\odot$.
 
 
 
-
-
 \subsection{CR discovery}
 \label{subsec:discoverymethods}
 
-Previous methods for finding CRs have included visually examining
-stars in young clusters
-\citep{2016AJ....152..114R,2017AJ....153..152S} and automatically
-flagging rapid rotators with a large number of strong Fourier
-harmonics \citep{2019ApJ...876..127Z}.  The latter approach still
-requires visual vetting, since ``stars with strong Fourier harmonics''
-is a designation that includes objects such as eclipsing binaries or
-multiple stars blended into a single photometric aperture.  In this
-work, we implemented a new search approach based on counting the
-number of sharp local minima in phase-folded light curves, while also
-using the Fourier approach.  We applied these two
-search techniques independently.   
+Prior to this study, most CRs have been found by visually examining
+all the light curves of stars in young clusters
+\citep{2016AJ....152..114R,2017AJ....153..152S,2023ApJ...945..114P},
+or by flagging light curves with short periods and a large number of
+strong Fourier harmonics for visual inspection
+\citep{2019ApJ...876..127Z}.  In this work, we implemented a new
+search approach based on counting the number of sharp local minima in
+phase-folded light curves, while also using the Fourier approach.  We
+applied these two search techniques independently.
 
 
+%FIXME TODO LEFT OFF HERE
 \subsubsection{Counting dips}
 \label{subsec:counting}
 
 The dip counting technique aims to count sharp local minima in
-phase-folded light curves.  CRs will preferably have at least three
-such minima in order to be distinct from false positives such as
-synchronized and spotted binaries (``RS CVn'' stars). 
+phase-folded light curves.  The most remarkable CRs often show three
+or more dips per cycle, which distinguishes them from other types of
+variables such as synchronized and spotted binaries (RS CVn stars).
 
-For our dip-counting pipeline, we began with the {\tt PDC\_SAP} flux
-for each sector, removed non-zero quality flags, and normalized the
-light curve to one by dividing out its median value.  We then
-flattened the light curve using a 5-day sliding median filter, as
-implemented in \texttt{wotan} \citep{2019AJ....158..143H}.  On the
-resulting cleaned and flattened light curve, we ran a periodogram
-search, opting for the \citet{1978ApJ...224..953S} phase dispersion
-minimization (PDM) algorithm implemented in \texttt{astrobase}
+For our dip-counting pipeline, we began with the {\tt PDC\_SAP} light
+curves for each sector, removed non-zero quality flags, and normalized
+the light curve by dividing out its median value.  We then flattened
+the light curve using a 5-day sliding median filter, as implemented in
+\texttt{wotan} \citep{2019AJ....158..143H}.  We computed a periodogram
+of the resulting cleaned and flattened light curve, opting for the
+\citet{1978ApJ...224..953S} phase dispersion minimization (PDM)
+algorithm implemented in \texttt{astrobase}
 \citep{2021zndo...1011188B} due to its shape agnosticism.  If a period
 $P$ below 2 days was identified, we reran the periodogram at a finer
 grid to improve the accuracy of the period determination.
 
 Once a star's period was identified, we binned the phased light curve
-to 100 points per cycle.  To separate ``sharp'' local minima from
-smooth spot-induced variability, we then iteratively fit
-robust penalized splines to the wrapped phase-folded light curve,
-excluding points more than two standard deviations away from the local
-continuum \citep{2019AJ....158..143H}.  The maximum number of
-equidistant spline knots per cycle is the parameter in this framework
-that controlled the meaning of ``sharp'' --- we allowed at most 10
-such knots per cycle, though for most stars fewer knots were preferred
-based on cross-validation using an $\ell^2$-norm penalty.  An example
-fit is shown in panel {\it (e)} of Figure~\ref{fig:vet}.
+to 100 points per cycle.  To separate sharp local minima from smooth
+spot-induced variability, we then iteratively fit robust penalized
+splines to the wrapped phase-folded light curve, excluding points more
+than two standard deviations away from the local continuum
+\citep{2019AJ....158..143H}.  The wrapping procedure is discussed
+below.  In this fitting framework, the maximum number of equidistant
+spline knots per cycle is the parameter that controlled the meaning of
+``sharp'' --- we allowed at most 10 such knots per cycle, though for
+most stars fewer knots were preferred based on cross-validation using
+an $\ell^2$-norm penalty.  An example fit is shown in panel {\it (e)}
+of Figure~\ref{fig:vet}.
 
 We then identified local minima in the resulting residual light curve
 using the SciPy \texttt{find\_peaks} utility
 \citep{2020NatMe..17..261V}, which is based on comparing adjacent
 values in an array.  For a peak to be flagged as significant, we
 required it to have a width of at least $0.02\,P$, and a height of at
-least twice the point-to-point RMS.  This latter quantity is defined
+least twice the noise level.  The noise level was defined
 as the 68$^{\rm th}$ percentile of the distribution of the residuals
 from the median value of $\delta f_i \equiv f_i - f_{i+1}$, where $f$
 is the flux and $i$ is an index over time.
+In panel {\it (e)} of Figure~\ref{fig:vet}, automatically-identified
+local minima are shown with the gray triangles.
 
-To identify local minima near the edges of the phased light curve,
-which usually would cover phases $\phi \in [ 0,1 ]$, we performed the
-entire procedure over a phase-folded light curve spanning $\phi \in
-[-1,2 ]$, by duplicating and concatenating the ordinary phase-folded
-light curve.  The free parameters we adopted throughout this analysis
-procedure, for instance the maximum number of spline knots per cycle,
-and how large and wide of a local minimum to consider a ``true dip'',
-were chosen during testing based on their ability to correctly
-re-identify a large fraction ($>$90\%) of previously known CRs, while also being
-able to consistently reject common false positives such as rapidly
-rotating spot-induced variability and typical eclipsing binaries.
+Wrapping is necessary to eliminate edge
+effects when fitting the light curve and when identifying local minima
+in the residuals.  A phased light curve would usually cover phases
+$\phi \in [ 0,1 ]$.  We instead performed the entire preceding
+procedure over a phase-folded light curve spanning $\phi \in [-1,2 ]$,
+which was created by duplicating and concatenating the ordinary
+phase-folded light curve.  The free parameters we adopted throughout
+this analysis -- for instance the maximum number of spline knots per
+cycle, and the height and depth criteria for dips -- were chosen
+during testing based on the desire to correctly re-identify a large
+fraction ($>$90\%) of previously known CRs, while also being able to
+consistently reject common false positives such as rapidly rotating
+spot-induced variability and typical eclipsing binaries.
 
-Overall, for a star to proceed to manual examination, we required that
-it have a peak PDM period below two days, and that it exhibited at
-least three sharp local minima (as algorithmically reported) in at
-least one observed TESS sector.
+In short, CR candidates were identified by requiring a peak PDM period
+below two days and the presence of at least three sharp local minima,
+based on at least one sector of the TESS 120-second data. Candidates
+were then inspected visually as described in
+Section~\ref{subsec:visual}.
 
 
 
 \subsubsection{Fourier analysis}
 \label{subsec:fourier}
 
-We performed an independent search for strongly periodic phenomena
-using a Fourier-based approach, following \citet{2019ApJ...876..127Z}
-and \citet[][their Section~1.3]{2023MNRAS.524.4220P}.  Starting with
-the {\tt PDC\_SAP} light curves, we normalized each light curve, and
-then re-binned it into equal width 120-second bins to account for the
-uneven spacing in the TESS data, as well as the data gap caused by
-satellite downlink during each sector.  We then padded the data to
-ensure that the light curve had a length that was a power of two, as
-described by \citeauthor{2019ApJ...876..127Z}.  Taking the Fourier
-transform of the padded light curve using {\tt numpy.fft},
-we then searched for peaks with a significance of over 12-$\sigma$
-within a set of 500 frequency bins. 
+We performed an independent search using a Fourier-based approach,
+following \citet{2019ApJ...876..127Z} and \citet[][their
+Section~1.3]{2023MNRAS.524.4220P}.  Starting with the {\tt PDC\_SAP}
+light curves, we normalized each light curve, and then re-binned it
+into equal width 120-second bins to account for the uneven spacing in
+the TESS data, as well as the data gap caused by satellite downlink
+during each sector.  We then padded the data to ensure that the light
+curve had a length that was a power of two, as described by
+\citeauthor{2019ApJ...876..127Z}.  After taking the Fourier transform
+of the padded light curve using {\tt numpy.fft}, we searched for peaks
+with a significance exceeding 12-$\sigma$ within a set of 500
+frequency bins.
 
 If a peak of such significance was found, we generated a ``summary
 sheet'' with information about the star, its full and folded light
 curves, Fourier transform, potential contaminating stars, and
-information about these contaminating stars.  In the sectors for which
-we performed this analysis, we found that ``summary'' sheets were
-generated for $\approx$10\% of the 20{,}000 120-second targets in a
-given sector.  We then manually reviewed each summary sheet, and
-visually labeled each star based on its morphology (including e.g.
-eclipsing binary, CR, RS CVn, or cataclysmic variable).  CRs that
-were observed in multiple sectors had their light curves stitched
-together and analyzed for a more accurate period determination.
+information about these contaminating stars.  Summary sheets were
+generated for $\approx$10\% of the 20{,}000 120-second targets in each
+sector.  We reviewed each summary sheet and tried to classify each
+light curve based on visual inspection of its morphology (with
+categories including eclipsing binary, CR, RS CVn, and cataclysmic
+variable). Whenever a CR was identified, the light curves from
+multiple sectors were stitched together and analyzed jointly, for a
+more accurate period determination.
+
 
 
 \subsubsection{Manual vetting}
+\label{subsec:visual}
 
 \begin{figure*}[!tp]
 	\begin{center}
@@ -553,12 +556,13 @@ together and analyzed for a more accurate period determination.
 			{\it b)}: Phase-dispersion minimization (PDM) periodogram.
 			Dotted lines show up to the 10$^{\rm th}$ harmonic and
 			subharmonic.
-			{\it c)}: DSS finder chart, with 1- and 2-TESS pixel radius
-			circles displayed for scale.
+      {\it c)}: DSS finder chart, with 21$''$ and 42$''$ radius
+      circles for scale.  One TESS pixel has a full side length of
+      21$''$.
 			{\it d)}: Cleaned light curve, binned to 20-minute cadence, in
 			Barycentric TESS Julian Date (BTJD).
 			{\it e)}: Phase-folded light curve, binned to 100 points per
-			cycle.  The gray line denotes the automated spline-fit to the
+			cycle.  The gray line denotes the spline-fit to the
 			wrapped phase-folded light curve, and small gray triangles
 			denote automatically identified local minima.
 			{\it f)}: Phase-folded light curve at twice the peak period.
@@ -569,14 +573,15 @@ together and analyzed for a more accurate period determination.
 			direction.
 			{\it j)}: Phase-folded flux-weighted centroid in the row
 			direction.
-			{\it k)}: Gaia DR2 color--absolute magnitude diagram.     
-			The gray background denotes stars within 100\,pc from \citet{2021A&A...649A...6G}.
-			{\it l)}: Information from Gaia DR2, TIC8, and the automated
-			dip-counting search pipeline.  ``Neighbors'', abbreviated
-			``nbhr'', are listed within apparent distances of 2 TESS pixels
-			if $\Delta T$$<$2.5.
-			{\it m)}: BANYAN-$\Sigma$ v1.2 association probabilities, calculated
-			using positions, proper motions, and the parallax.
+      {\it k)}: Gaia DR2 color--absolute magnitude diagram. The gray
+      background denotes stars within 100\,pc from
+      \citet{2021A&A...649A...6G}.
+      {\it l)}: Information from Gaia DR2, TIC8, and the automated
+      dip-counting search pipeline.  ``Neighbors'', abbreviated
+      ``nbhr'', are listed within apparent distances of 2 TESS pixels
+      if $\Delta T$$<$2.5.
+      {\it m)}: BANYAN-$\Sigma$ v1.2 association probabilities,
+      calculated using positions, proper motions, and the parallax.
 		}
 		\label{fig:vet}
 	\end{center}
@@ -586,23 +591,32 @@ We assessed whether the objects found using the dip-counting
 (Section~\ref{subsec:counting}) and Fourier
 (Section~\ref{subsec:fourier}) techniques were consistent with
 expectations for CRs by assembling the data shown in
-Figure~\ref{fig:vet}.  We labeled a star as a ``good'' CR if at least
-one TESS sector showed what we viewed as the unambiguous signatures of
-the class (short period; at least three dips or else otherwise
-oddly-shaped dips; relative stability over a timescale of 30\,days).
-We independently noted stars that we thought could be CRs, but that
-were more ambiguous.
+Figure~\ref{fig:vet}.  We labeled a star as a ``good'' CR if it met
+all of the following criteria for at least one TESS sector:
+\vspace{-2pt}
+\begin{itemize}[leftmargin=*]
+  \setlength\itemsep{-2pt}
+  \item $P<2$\,days.
+  %
+  \item At least three dips per cycle, or else otherwise
+    oddly-shaped dips.
+  %
+  \item Dip phases (mostly) repeat over $\approx$30\,day sector duration.
+\end{itemize}
+\vspace{-2pt}
+We also noted ''possible'' CRs for which the classification was more
+ambiguous, and ``false positives'' that are definitely not CRs.  The
+most common false positives for both the Fourier and dip-counting
+techniques were eclipsing binaries, ordinary spotted rapid rotators,
+and complex light curves due to multiple stars contributing to the
+photometric aperture.  Our dip-counting pipeline flagged
+\nuniqdipflagged\ unique stars for visual inspection; about 20\% were
+subsequently labeled either good or possible CRs.  From the Fourier
+pipeline, $\approx$0.5\% of stars that passed the 12-$\sigma$ peak
+threshold were eventually classified as CRs.  This is because the
+Fourier pipeline was implemented as a general variability search; its
+results are also being used for analyses on topics other than CRs.
 
-Broadly speaking, the most common false positive triggers for both the Fourier
-and dip-counting techniques were eclipsing binaries, spot-induced
-variability from rapid rotators, and variability from neighboring,
-off-target stars.  Typical false positive rates from our dip-counting
-pipeline were 5:1, with \nuniqdipflagged\ unique stars flagged, and
-about 20\% being labeled either ``good'' or ``possible'' CRs.  The
-Fourier analysis was not amenable to calculating a similar
-false-positive rate, because it was implemented as a general
-variability search; its results are also being used for analyses on
-topics other than CRs.
 
 
 \subsection{Stellar properties}
@@ -610,25 +624,26 @@ topics other than CRs.
 
 \paragraph{Ages}
 We estimated the stellar ages by making probabilistic spatial and
-kinematic associations between the CRs and known clusters in the
-solar neighborhood.  For most stars in our sample, we did this using
+kinematic associations between the CRs and known clusters in the solar
+neighborhood.  For most stars in our sample, we did this using
 BANYAN\,$\Sigma$
 \citep{2018ApJ...856...23G}.\footnote{\url{https://github.com/jgagneastro/banyan_sigma},
 git commit \texttt{394b486}} This algorithm calculates the probability
 that a given star belongs to one of 27 young clusters (or
 ``associations'') within 150\,pc of the Sun, by modeling the clusters
-as multivariate Gaussians in 3-D position and 3-D velocity space.  We
-used the Gaia DR2 sky positions, proper motions, and distances to
-calculate the membership probabilities.  BANYAN\,$\Sigma$ in turn
-analytically marginalizes over the radial velocity dimension.  The
-probabilities returned by this procedure are qualitatively useful, but
-should be assessed with caution due to the non-Gaussian nature of most
+as multivariate Gaussian distributions in 3-D position and 3-D
+velocity space.  We used the Gaia DR2 sky positions, proper motions,
+and distances to calculate the membership probabilities.
+BANYAN\,$\Sigma$ in turn analytically marginalizes over the radial
+velocity dimension.  The probabilities returned by this procedure are
+qualitatively useful, but should be interpreted with caution because
+the assumption of Gaussian distributions is questionable for most
 groups within the solar neighborhood \citep[see
 e.g.][Figure~10]{2021ApJ...917...23K}.
 
 For a few cases where BANYAN\,$\Sigma$ yielded ambiguous results, we
 consulted the meta-catalog of young, age-dated, and age-dateable stars
-within from \citet{2022AJ....163..121B}, and also searched the local
+provided by \citet{2022AJ....163..121B}, and also searched the local
 volume around each star for co-moving
 companions.\footnote{\url{https://github.com/adamkraus/Comove}, git
 commit \texttt{278b372}}
@@ -651,13 +666,13 @@ magnitudes we considered included $GG_{\rm BP}G_{\rm RP}$ from Gaia
 DR2, $Vgri$ from APASS, $JHK_{\rm S}$ from 2MASS, SDSS $riz$, and the
 WISE $W1$ and $W2$ passbands.  We omitted UV flux measurements from
 our SED fit to avoid any possible bias induced by chromospheric UV
-excess; we similarly omitted WISE bands $W3$ and $W4$, but due to
-reliability concerns.  \texttt{astroARIADNE} compares the measured
-broadband flux measurements against pre-computed model grids, and by
-default fits for six parameters: $\{ T_{\rm eff}, R_\star, A_{\rm V},
-\log g, [{\rm Fe/H}], d \}$.  The distance  prior is drawn from
+excess.  We omitted WISE bands $W3$ and $W4$ due to reliability
+concerns.  \texttt{astroARIADNE} compares the measured broadband flux
+measurements against pre-computed model grids, and by default fits for
+six parameters: $\{ T_{\rm eff}, R_\star, A_{\rm V}, \log g, [{\rm
+Fe/H}], d \}$.  The distance  prior is drawn from
 \citet{2021AJ....161..147B}.  The surface gravity and metallicity are
-generally unconstrained.  And finally, given our particular use-case,
+generally unconstrained.  Given our selection criteria for the stars,
 we assumed the following priors for the temperature, stellar size, and
 extinction:
 \begin{align}
@@ -676,39 +691,38 @@ and set a stopping threshold of ${\rm d}\log \mathcal{Z} < 0.01$,
 where $\mathcal{Z}$ denotes the evidence.
 
 With the effective temperatures and stellar radii from the SED fit, we
-then estimated the stellar masses by interpolating against the PARSEC
+estimated the stellar masses by interpolating against the PARSEC
 isochrones \citep[v1.2S][]{2014MNRAS.444.2525C}.  The need for models
 that incorporate some form of correction for young, active M dwarfs is
 well-documented
 \citep[e.g.][]{2012ApJ...756...47S,2015ApJ...804..146D,2016A&A...593A..99F,2020ApJ...891...29S}.
-Plausible explanations for anomalous M dwarf colors and sizes relative
-to model predictions include starspot coverage
-\citep[e.g.][]{2017ApJ...836..200G}, and potentially incomplete line
+Plausible explanations for the disagreement between observed and
+theoretical M dwarf colors and sizes include starspot coverage
+\citep[e.g.][]{2017ApJ...836..200G} and potentially incomplete line
 lists \citep[e.g.][]{2013A&A...556A..15R}.  In the PARSEC models,
 \citet{2014MNRAS.444.2525C} performed an empirical correction to the
 temperature--opacity relation drawn from the BT-Settl model
 atmospheres, in order to match observed masses and radii of young
 eclipsing binaries.  This is sufficient for our goal of estimating
-stellar masses.  Given our observed $\{ \tilde{T}_{\rm eff},
+stellar masses.  Given our estimates of $\{ \tilde{T}_{\rm eff},
 \tilde{M}_\star, \tilde{t} \}$, and approximating their uncertainties
 as Gaussian $\sigma_{\tilde{T}_{\rm eff}}$, $\sigma_{\tilde{M}_\star}$
-and $\sigma_{\tilde{t}}$, we evaluate a distance $d$ between our
-observations and any model PARSEC grid-point $\{ T_{\rm eff}, M_\star,
-t \}$ as
+and $\sigma_{\tilde{t}}$, we define a distance metric $\Delta$ to each
+model PARSEC grid-point $\{ T_{\rm eff}, M_\star, t \}$ via
 \begin{equation}
-  d^2 = 
+  \Delta^2 = 
   \left( \frac{\tilde{T}_{\rm eff} - T_{\rm eff}}{\sigma_{\tilde{T}_{\rm eff}}} \right)^2
   +
   \left( \frac{\tilde{M}_{\star} - M_{\star}}{\sigma_{\tilde{M}_{\star}}} \right)^2
   +
   \left( \frac{\tilde{t} - t}{\sigma_{\tilde{t}}} \right)^2,
 \end{equation}
-in order to assign equal importance to each dimension.  The preferred
-model mass is then one that minimizes this distance, and is quoted in
-Table~\ref{tab:thetable}.  Uncertainties in the masses are propagated
-forward from the statistical uncertainties in the radii, temperatures,
+where the division by the uncertainties helps to assign equal
+importance to each dimension.  The mass reported in
+Table~\ref{tab:thetable} is the model mass that minimizes the
+distance.  The reported uncertainties in the masses are based on
+propagating the statistical uncertainties in the radii, temperatures,
 and ages.
-
 
 
 \begin{figure*}[!tp]
@@ -722,13 +736,13 @@ and ages.
       CRs in the high quality sample.  Gray are raw 2-minute data;
       black bins to 300 points per cycle.  Objects are ordered such
       that sources with the most TESS data available are on top (see
-      Section~\ref{sec:catalog}).  
-      Each panel is labeled by
-      the TIC identifier, the TESS sector number, the period in
-      hours, and the three-bit binarity flag from Table~\ref{tab:thetable},
-      which denotes Gaia DR3 \texttt{radial\_velocity\_error} outliers
-      (bit 1), Gaia DR3 \texttt{ruwe} outliers (bit 2), and stars with
-      secondary TESS periods (bit 3). 
+      Section~\ref{sec:catalog}).  Zero phase is chosen to correspond
+      to minimum light.  Each panel is labeled by the TIC identifier,
+      the TESS sector number, the period in hours, and the three-bit
+      binarity flag from Table~\ref{tab:thetable}, which denotes Gaia
+      DR3 \texttt{radial\_velocity\_error} outliers (bit 1), Gaia DR3
+      \texttt{ruwe} outliers (bit 2), and stars with secondary TESS
+      periods (bit 3). 
 		}
 		\label{fig:cqvs}
 	\end{center}
