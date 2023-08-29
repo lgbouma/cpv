@@ -1,9 +1,10 @@
 resultsdir="/Users/luke/Dropbox/proj/cpv/results"
+artdir="/Users/luke/Dropbox/proj/cpv/art"
 addir="/Users/luke/Dropbox/Documents/proposals/2023_05_ADAP/latex/figs/"
 
 # fig1
 cp $resultsdir/lc_mosaic/lc_mosaic_fav3.pdf f1a.pdf
-cp $addir/models.pdf f1b.pdf
+cp $artdir/twomodels.pdf f1b.pdf
 
 # fig2 is annotated_lp12502.key exported
 

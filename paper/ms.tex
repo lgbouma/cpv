@@ -101,6 +101,9 @@
 \author{Lynne~A.~Hillenbrand}
 \affiliation{\caltech}
 
+\author[0000-0002-4265-047X]{Joshua N. Winn}
+\affiliation{\princeton}
+
 \author[0000-0001-7204-6727]{G\'asp\'ar \'A. Bakos}
 \affiliation{\princeton}
 
@@ -113,8 +116,7 @@
 \author[0000-0003-2058-6662]{George~R.~Ricker}
 \affiliation{\mitkavli}
 
-\author[0000-0002-4265-047X]{Joshua N. Winn}
-\affiliation{\princeton}
+
 
 % PENDING DISCUSSION!
 %\author[0000-0002-0531-1073]{H. Isaacson}
@@ -167,141 +169,140 @@ Stellar rotation (1629)}
 \section{Introduction}
 \label{sec:intro}
 
-All pre-main-sequence stars vary in optical brightness, and the origin
-of such variability is, in most cases, understood.  Well-explored
-sources of optical variability include inhomogeneities on stellar
-surfaces such as starspots and faculae
-\citep[e.g.][]{2021isma.book.....B}, occultations by gas-rich
-circumstellar disks \citep[e.g.][]{2017MNRAS.470..202B}, and, in
-geometrically favorable circumstances, eclipses by stars and planets
-\citep[e.g.][]{2010exop.book...55W}.  More exotic forms of optical
-variability relevant to this work include transiting exocomets
-(e.g.~$\beta$~Pic; \citealt{2019A&A...625L..13Z}) and disintegrating
-rocky bodies around both M dwarfs (e.g. KOI-2700;
-\citealt{2014ApJ...784...40R}) and white dwarfs (e.g. WD~1145;
-\citealt{2015Natur.526..546V}).
+All young stars vary in optical brightness, and the origin of such
+variability is, in most cases, understood.  Well-explored sources of
+optical variability include inhomogeneities on stellar surfaces such
+as starspots and faculae \citep[e.g.][]{2021isma.book.....B},
+occultations by circumstellar disks
+\citep[e.g.][]{2017MNRAS.470..202B}, and, in geometrically favorable
+circumstances, eclipses by stars and planets
+\citep[e.g.][]{2020AJ....160...33R}.  More exotic sources of optical
+variability that are potentially relevant to this work include
+transiting exocomets (e.g.~$\beta$~Pic;
+\citealt{2019A&A...625L..13Z}), disintegrating rocky bodies (e.g.
+KOI-2700; \citealt{2014ApJ...784...40R}), and occultations by
+circumstellar plasma clumps (e.g.~$\sigma$~Ori~E;
+\citealt{2005ApJ...630L..81T,2005MNRAS.357..251T}).
 
-Data from K2 and TESS have yielded a new class of variable star whose
-root cause is only beginning to become clear: complex quasiperiodic
-variables (CQVs).  These objects are identified from their optical
-light curves, which show nearly periodic troughs that are either sharp
-or broad; these troughs are often superposed on smooth spot-like
-modulation
+Data from K2 \citep{2014PASP..126..398H} and TESS
+\citep{2015JATIS...1a4003R} have revealed a new class of variable
+star for which the root cause of variability is only beginning to
+become clear: complex quasiperiodic variables (CQVs).  These objects
+are identified from their optical light curves, which show nearly
+periodic troughs that are either sharp or broad; these troughs are
+often superposed on quasi-sinusoidal spot-like modulation
 \citep{2017AJ....153..152S,2018AJ....155...63S,2019ApJ...876..127Z}.
-Some CQVs show up to eight local minima (``dips'') per cycle.  Most
-are pre-main-sequence M dwarfs without near-infrared excesses, ages of
-$\approx$5-150 million years (Myr), and rotation periods of at most
-two days; they are observed to comprise $\approx$1-3\% of M dwarfs
-younger than 100 Myr \citep{2016AJ....152..114R,2022AJ....163..144G}.
-The dips can be chromatic, with a reddening law plausibly consistent
-with dust
+Some CQVs show up to eight dips per cycle.  Most CQVs are
+pre-main-sequence M dwarfs with ages of $\approx$5-150 million years
+(Myr), and rotation periods of 0.2--2 days.  They are observed to
+comprise $\approx$1-3\% of M dwarfs younger than 100 Myr
+\citep{2016AJ....152..114R,2022AJ....163..144G}.  They generally do
+not show near-infrared excesses indicative of dusty disks, but the
+wavelength-dependent dip amplitudes of some CQVs is consistent with
+reddening by dust
 \citep{2017PASJ...69L...2O,2020AJ....160...86B,2022AJ....163..144G,2023MNRAS.518.2921K}.
-And finally, while the dip shapes can ``jump'' between different
-depths and durations over less than one cycle, they more often evolve
-gradually, over tens to hundreds of cycles
+The dip amplitudes and phases usually evolve gradually over tens to
+hundreds of cycles, although they have occasionally been observed to
+change abruptly within one cycle
 \citep[e.g.][]{2017AJ....153..152S,2022ApJ...925...75P,2023ApJ...945..114P}.
 
-The CQV light curves cannot be explained by pure starspots.  Although
-all young M dwarfs are spotted, this tends to produce flux variations
-over timescales of the rotation period, $P_{\rm rot}$,
-and its half-harmonic, $0.5\,P_{\rm rot}$.  With fine-tuned
-viewing geometries, starspots can produce dip durations as short
-as $\approx$$0.2\,P_{\rm rot}$, and the dip amplitudes in such
-geometries are small
-due to limb-darkening (see \citealt{2017AJ....153..152S},
-Figures 37-41).  The observed dips occur over durations as
-short as $0.05\,P_{\rm rot}$ with characteristic depths of a few
-percent; a ``starspot-only'' scenario can be discarded for any object
-with dips that are sufficiently large in depth and short in duration
-\citep{2017AJ....153..152S,2019ApJ...876..127Z,2021MNRAS.500.1366K}.   The dip durations and
-amplitudes instead require
-sharp geometries with material extrinsic to the stellar surface
-\citep[e.g.][]{2017AJ....153..152S,2022AJ....163..144G}.  Since some CQVs require
-such geometries, and the
-CQVs probably all have a single explanation, we therefore
-discard the ``spot-only'' scenario.
+The sharp features of CQV light curves can have durations as short as
+5\% of the rotation period ($P_{\rm rot}$), which is too short to be
+caused by starspots rotating into and out of view.  Starspots produce
+flux variations with characteristic timescales of $P_{\rm rot}$ and
+$0.5\,P_{\rm rot}$.  With finely-tuned viewing geometries, starspots
+can produce dip durations as short as $\approx$$0.2\,P_{\rm rot}$, but
+in such cases, limb darkening causes the dip amplitudes to be smaller
+than the observed amplitudes of $\sim$1\% (see
+\citealt{2017AJ....153..152S}, Figures 37-41).  Thus, a
+``starspot-only'' scenario can be ruled out for many CQVs
+\citep{2017AJ....153..152S,2019ApJ...876..127Z,2021MNRAS.500.1366K}.
+Given that many CQVs cannot be explained by starspots alone, and
+working under the assumption that all CQVs share the same basic
+physical scenario, we discard the ``starspot-only'' scenario.
+Instead, the correct explanation probably involves material above the
+stellar surface that is spatially confined with sharp boundaries
+\citep[e.g.][]{2017AJ....153..152S,2022AJ....163..144G}.
 
-A few competing explanations for what causes the complex quasiperiodic
-variability are shown in Figure~\ref{fig:f1}.  The ``clump'' scenario
-invokes opaque dust clumps periodically transiting the star near the
-Keplerian corotation radius, $R_{\rm cr} = (GM/\Omega^2)^{1/3}$
-\citep{2017AJ....153..152S,2023MNRAS.518.4734S}.  The ``prominence''
-scenario invokes long-lived condensations of cool and dense
-marginally-ionized gas, embedded within the hotter corona, that would
-be centrifugally supported to also be near corotation
+Figure~\ref{fig:f1} illustrates two proposed models for the extrinsic
+material.  The first scenario invokes opaque dust ``clumps'' that
+orbit near the Keplerian corotation radius [$R_{\rm cr} =
+(GM/\Omega^2)^{1/3}$, where $\Omega = 2\pi/P_{\rm rot}$] and
+periodically transit the star
+\citep{2017AJ....153..152S,2023MNRAS.518.4734S}.  The second scenario
+invokes ``prominences'', long-lived condensations of cool, dense,
+marginally-ionized gas that are embedded within the hotter corona and
+corotate with the star
 \citep{1989MNRAS.238..657C,2019MNRAS.482.2853J,2022MNRAS.514.5465W}.
-Such structures are analogous to quiescent prominences and filaments
-seen in the solar corona \citep[see e.g.][]{2015ASSL..415.....V},
-though at much larger relative distances from the stellar surface.  A
-final possibility is one of a ``screen'', in which the inner wall of a
-quiescent circumstellar disk blocks a portion of the stellar surface
-to produce sudden dips whenever spots come into view
-\citep{2019ApJ...876..127Z}.  
+These hypothetical structures are analogous to quiescent prominences
+and filaments seen in the solar corona \citep[see
+e.g.][]{2015ASSL..415.....V}, though rather than existing at a
+fraction of the stellar radius as in the solar case, they would exist
+at distances of a few stellar radii.  A final possibility is that a thin
+optically-thick ring obscures a small portion of the stellar
+photosphere \citep{2019ApJ...876..127Z}.  Hot spots passing behind such a structure could produce
+sudden dips.  We do not favor this scenario due to the issues
+discussed in Appendix~\ref{app:ring}.
 
-The dust clump and prominence hypotheses seem most plausible.  They
-are qualitatively similar, except that one invokes opacity from dust,
-while the other invokes opacity from gas, likely bound-free
-transitions in hydrogen or perhaps a molecular opacity.  The screen
-scenario seems inconsistent with the sharpness of the observed dips,
-the lack of infrared excess, and the observed lifetime of CQVs
-extending an order of magnitude longer than the $\approx$$10^7$ year
-timescale often quoted for primordial disk dispersal.  However,
-unambiguous evidence in support of any one scenario has yet to be
-acquired.  Such evidence might include a spectroscopic detection of
-silicate 10\,$\mu$m dust absorption during a dip, or perhaps detection
-of transient Balmer-line excesses as a function of cycle phase,
-similar to observations made in systems such as AB~Dor
-\citep[see][]{1999ASPC..158..146C} or PTFO 8-8695
+The dust clump and prominence hypotheses are qualitatively similar,
+except that one invokes opacity from dust, while the other invokes
+opacity from gas, likely bound-free transitions in hydrogen or perhaps
+a molecular opacity.  However unambiguous evidence in support of any particular
+scenario has yet to be acquired.  Such evidence might include a
+spectroscopic detection of silicate 10\,$\mu$m dust absorption during
+a dip, or perhaps detection of transient Balmer-line excesses as a
+function of cycle phase, similar to observations made in systems such
+as AB~Dor \citep[see][]{1999ASPC..158..146C} or PTFO 8-8695
 \citep{2016ApJ...830...15J}.
 
 CQVs remain mysterious because they have been both hard to discover
-and hard to characterize.   Discoverability is tied to rarity: CQVs
-comprise $\approx$1\% of the youngest $\approx$1\% of M dwarfs
-\citep{2018AJ....155..196R}.  Out of the millions of stars monitored
-by K2 and TESS, about 50 CQVs have been reported to date
+and hard to characterize.   They are hard to discover because they are
+rare: CQVs comprise $\approx$1\% of the youngest $\approx$1\% of M
+dwarfs \citep{2018AJ....155..196R}.  Out of the millions of stars
+monitored by K2 and TESS, about 50 CQVs have been reported to date
 \citep{2016AJ....152..114R,2017AJ....153..152S,2018AJ....155...63S,2019ApJ...876..127Z,2020AJ....160...86B,2022AJ....163..144G,2023ApJ...945..114P}.
-The known CQVs are correspondingly faint; the initial K2 discoveries
+They have been hard to characterize because many of the known CQVs are
+relatively faint; the initial K2 discoveries
 \citep{2016AJ....152..114R,2017AJ....153..152S} were M2-M6 dwarfs at
 distances $\gtrsim$100\,pc, yielding optical brightnesses of
-$V$$\approx$15.5 to $V$$>$20.  This renders time-series spectroscopy
-at high resolution out of reach for current facilities, despite its
-potential utility in ruling out some of these models.
+$V$$\approx$15.5 to $V$$>$20.  At such magnitudes, high-resolution
+time-series spectroscopy is out of reach with current facilities,
+despite the potential utility of such observations.
 
 In this work, we aim to find bright and nearby CQVs, since these
 objects will be the most amenable to detailed photometric and
 spectroscopic analyses.  To do this, we use 120-second cadence data
 acquired by TESS between 2018 July and 2022 September (Sectors 1-55;
 Cycles 1-4).  We present our search methods in
-Section~\ref{sec:methods}, and the properties of the resulting CQV
-catalog in Section~\ref{sec:results}.  The evolution of many CQVs over
-a two-year baseline is described in Section~\ref{sec:evoln}, including
-a deep-dive into LP 12-502.  We discuss a few implications in
+Section~\ref{sec:methods}, and the resulting CQV catalog in
+Section~\ref{sec:results}.  The observed evolution of many CQVs over a
+two-year baseline is described in Section~\ref{sec:evoln}, including a
+deep-dive into the behavior of an especially interesting object, LP
+12-502.  We discuss a few implications in
 Section~\ref{sec:discussion}, and conclude in
 Section~\ref{sec:conclusion}.
 
-A point on nomenclature.  CQVs have been called ``transient flux
-dips'', ``persistent flux dips'', ``scallop shells'', ``batwings'',
-\citep{2017AJ....153..152S} ``complex rotators'',
+Some comments on nomenclature are needed.  What we are calling CQVs
+have also been called ``transient flux dips'', ``persistent flux
+dips'', ``scallop shells'', ``batwings'', \citep{2017AJ....153..152S}
+``complex rotators'',
 \citep{2019ApJ...876..127Z,2022AJ....163..144G,2023ApJ...945..114P},
 and ``complex periodic variables'' \citep{2023MNRAS.518.2921K}.  The
 CQVs should not be conflated with ``dippers'', which are classical T
 Tauri stars with infrared excesses, and which show large-amplitude
 variability linked to obscuring inner disk structures and accretion
-hot spots \citep{2014AJ....147...82C,2021ApJ...908...16R}.  While a
-few similarities between CQVs and dippers do exist (see
-Sections~\ref{subsec:irexcess} and~\ref{subsec:discdippers}), their
-phenomenology and stellar properties are quite different.  At the risk
-of introducing yet another standard, we hope to use a nomenclature
-that reflects how, when observed over timescales of more than tens of
-cycles, CQVs are almost but not exactly periodic.  They are
-quasiperiodic.  While the three-type classification scheme proposed by
-\citet{2017AJ....153..152S} may provide helpful visual
-distinctions amongst the CQVs, it seems likely that they are all
-explained by a single underlying phenomenon, and so we opt to refer to
-them by a single empirically descriptive name.  We also considered
-names that focused on the presence of transient corotating clumps, or
-more generally on circumstellar plasma tori; for the time being,
-``CQV'' is agnostic to the true underlying phenomenon.
+hot spots \citep{2014AJ....147...82C,2021ApJ...908...16R}.  The
+phenomenology and stellar properties of CQVs and dippers are
+quite different (though see Sections~\ref{subsec:irexcess}
+and~\ref{subsec:discdippers}).  Despite the cost of introducing yet
+another naming standard, we prefer to use a single empirically
+descriptive name that highlights these objects as variable stars, and
+not ``rotators''.  We also prefer a nomenclature that reflects how the
+dips and peaks of these stars always appear to be transient 
+when observed over timescales exceeding hundreds of cycles.  ``Complex
+quasiperiodic variable'' meets these requirements, for the time being.
+
+
 
 \begin{figure*}[!t]
 	\begin{center}
@@ -311,22 +312,23 @@ more generally on circumstellar plasma tori; for the time being,
 		
 		\vspace{-0.6cm}
 		\subfloat{
-			\includegraphics[width=0.8\textwidth]{f1b.pdf}
+			\includegraphics[width=0.66\textwidth]{f1b.pdf}
 		}
 	\end{center}
 		\vspace{-0.3cm}
 	\caption{
 		{\bf Complex quasiperiodic variables (CQVs)}:
-    {\it Top:} Phase-folded TESS light curves of three CQVs.  Each is
-    phase-folded over one month.  Gray circles are raw 2-minute data; black
-    circles bin to 300 points per cycle.  Periods in hours are in the
-    bottom right of each panel.  Left-to-right, the objects are LP
+    {\it Top:} Phase-folded TESS light curves of three CQVs.  Each panel shows
+    the average of the data accumulated over one month.
+    Gray circles are raw 2-minute data; black
+    circles are binned to 300 points per cycle.  The periods in hours
+    is printed in the
+    bottom right corner.  Left-to-right, the objects are LP
     12-502 (TIC 402980664; Sector~19), TIC 94088626 (Sector 10), and
     TIC 425933644 (Sector~28).
-    {\it Bottom:} Cartoon explanations for the phenomenon.  The dust clump
-    scenario (lower left) and prominence scenario (lower center) both
-    invoke centrifugally-supported material at the corotation radius.
-    We disfavor the screen scenario (see Section~\ref{sec:intro}).
+    {\it Bottom:} Cartoon explanations for the phenomenon.  The dust
+    clump scenario (left) and prominence scenario (right) both invoke
+    magnetically-confined corotating material.
 	}
 	\label{fig:f1}
 \end{figure*}
@@ -779,7 +781,7 @@ $\approx$112\,Myr old Pleiades CQV \citep{2015ApJ...813..108D}, and a
 similarly-aged Psc-Eri member \citep{2020A&A...639A..64R}.  To our
 knowledge, TIC~332517282 in AB~Dor ($t$$=$$149^{51}_{-19}$\,Myr;
 \citealt{2015MNRAS.454..593B}) was the previous record-holder for the
-oldest-known CQV \citealt{2019ApJ...876..127Z,2022AJ....163..144G}; at
+oldest-known CQV \citep{2019ApJ...876..127Z,2022AJ....163..144G}; at
 least one unambiguous CQV (EPIC~211070495) and a few other candidates
 were also previously known in the Pleiades
 \citep{2016AJ....152..114R}.  
@@ -1639,7 +1641,7 @@ fields stronger by a factor of $\approx$1{,}000.  We emphasize that
 while this type of configuration seems a priori plausible, no direct
 evidence currently supports it.
 
-At their core, the planetesimals would primarily serve as the source
+The main logical function of the planetesimals is to serve as a source
 for the occulting gas or dust; they would not necessarily need to
 explain the observed phases of the observed dips.  The azimuth angle
 of the eventual confinement could be entirely determined by the
@@ -2258,6 +2260,47 @@ All authors assisted in manuscript writing and revision.
 %\clearpage
 
 \appendix
+
+\section{The ring hypothesis}
+\label{app:ring}
+
+One hypothesis for the CQVs, presented by \citet{2019ApJ...876..127Z},
+is that the star might be ``{\it orbited by one or more rings composed of
+dust-size or somewhat larger particles\ldots The ring particles would
+move in Keplerian orbits at relatively large distances from the star,
+and therefore the sublimation lifetime would not be an issue even if
+the particles are dust-like in size.}'' A sketch of this scenario is
+presented by \citet{2019ApJ...876..127Z}, in their Figure~11.
+An example set of proposed parameters involved a ring inclined with
+respect to the stellar spin axis by a few degrees, and with inner and
+outer radii of 10 and 15 stellar radii.
+
+One concern with the ring hypothesis is that if a cool spot were to
+transit behind the ring, it would produce a brightening, rather than a
+dimming.   Most CQVs show dimmings.   The ring scenario would
+therefore imply that large hot spots are common in the photospheres of
+pre-main-sequence M dwarfs.  Empirical evidence however suggests that
+the optical variability of disk-free pre-main-sequence stars is
+dominated by cool spots.  This evidence includes flux excursions
+caused by spot-crossings during planetary transits
+\citep[e.g.][]{2020AJ....160...33R,2022AJ....163..147G}, correlations
+between simultaneous photometric and chromospheric time-series
+\citep{2019A&A...621A..21R}, and stellar spectra that show molecules
+that only form at cool temperatures
+\citep[e.g.][]{2017ApJ...836..200G,2023ApJ...946...10P}.
+
+A stronger concern with the ring hypothesis is that it is fine-tuned.
+The model requires specific locations for the inner edge and the outer
+edge of the ring, an inclination that yields a band with a particular
+apparent size, and for material in the ring to be optically thick
+while also being homogeneous enough to not induce any apparent
+photometric variability.
+While it is challenging to ascribe specific probabilities to any one
+of these factors, 
+the requirement that they all be simultaneously met seems sufficiently
+severe to disfavor this scenario.
+
+
 
 \section{TIC~300651846}
 \label{app:tic3006}
