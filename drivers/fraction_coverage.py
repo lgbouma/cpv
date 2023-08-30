@@ -135,18 +135,18 @@ from aesthetic.plot import set_style, savefig
 
 plt.close("all")
 set_style("science")
-f = 1.4
+f = 2
 fig, ax = plt.subplots(figsize=(f*2, f*2))
 ax.spines['top'].set_visible(True)
 ax.spines['right'].set_visible(True)
 
 ax2 = ax.twinx()
-ax2.plot(outdf.dist_mids_pc, outdf.N_Gaia, c='C1', marker='+', lw=1, zorder=-3,
-         ms=f*3, ls=':')
+ax2.plot(outdf.dist_mids_pc, outdf.N_Gaia, c='C1', marker='o', lw=2, zorder=-3,
+         ms=f*4.5, ls=':')
 ax2.set_yscale('log')
 
-ax.plot(outdf.dist_mids_pc, outdf.frac, c='C0', marker='o', lw=1, zorder=4,
-        ms=f*3)
+ax.plot(outdf.dist_mids_pc, outdf.frac, c='C0', marker='P', lw=2, zorder=4,
+        ms=f*4.5)
 
 ax.update({
     'xlabel': 'Distance [pc]',

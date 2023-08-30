@@ -108,15 +108,15 @@
 
 \author[0000-0001-7204-6727]{G\'asp\'ar \'A. Bakos}
 \affiliation{\princeton}
-
-\author{-----SUGGESTED CONTRIBUTORS, PENDING DISCUSSION, COMMENTS, ANALYSES, ETC-----}
 %
-
-\author[0000-0002-3164-9086]{Maximilian N. G\"unther}
-\affiliation{\esa}
-
-\author[0000-0003-2058-6662]{George~R.~Ricker}
-\affiliation{\mitkavli}
+%\author{-----SUGGESTED CONTRIBUTORS, PENDING DISCUSSION, COMMENTS, ANALYSES, ETC-----}
+%%
+%
+%\author[0000-0002-3164-9086]{Maximilian N. G\"unther}
+%\affiliation{\esa}
+%
+%\author[0000-0003-2058-6662]{George~R.~Ricker}
+%\affiliation{\mitkavli}
 
 
 
@@ -135,19 +135,12 @@
 
 % 250 word max!
 \begin{abstract}
-%  This work focuses on a subset of low-mass pre-main-sequence stars
-%  with rotation periods of 0.2--2 days, optical variability amplitudes
-%  of a few percent, and sharp recurring light curve features that last for
-%  hundreds of cycles.  The sharp features are probably caused by
-%  eclipsing clumps of dust or gas orbiting at the corotation radius.
-%  We therefore refer to the objects as ``transient corotating clumps''
-%  (TCCs).
-%
-  Complex rotators (CRs) are low-mass pre-main-sequence stars with light
-  curves characterized by periods of 0.2--2 days, amplitudes of a few
-  percent, and slowly-evolving sharp features.  The sharp features
-  might be caused by eclipsing clumps of dust or gas orbiting at the
-  corotation radius.
+  We study a set of sub-solar mass pre-main-sequence stars
+  with rotation periods of 0.2--2 days, optical variability amplitudes
+  of a few percent, and sharp recurring light curve features that last for
+  hundreds of cycles.  The sharp features are probably caused by
+  eclipsing clumps of dust or gas orbiting at the corotation radius.
+  We refer to this class of variable star as ``complex rotators'' (CRs).
   To improve our understanding of these
   enigmatic stars, we conducted a survey for CRs using TESS
   short-cadence data collected between 2018~July and 2022~September.
@@ -163,7 +156,7 @@
   most viable explanation for CRs. The gas or dust is probably
   entrained by the star's magnetic field, and the sharp features may
   result from a multipolar field topology, a hypothesis supported by
-  correspondences between the light curves of CRs and of two B stars
+  correspondences between the light curves of CRs and of B stars
   known to have strong multipolar magnetic fields.
 \end{abstract}
 
@@ -178,6 +171,35 @@ Stellar rotation (1629)}
 
 \section{Introduction}
 \label{sec:intro}
+
+\begin{figure*}[!t]
+	\begin{center}
+		\subfloat{
+			\includegraphics[width=0.8\textwidth]{f1a.pdf}
+		}
+		
+		\vspace{-0.65cm}
+		\subfloat{
+			\includegraphics[width=0.66\textwidth]{f1b.pdf}
+		}
+	\end{center}
+	\vspace{-0.5cm}
+	\caption{
+		{\bf Complex rotators (CRs)}:
+		{\it Top:} Phase-folded TESS light curves for three CRs.  Each
+		panel shows the average of the data accumulated over one month,
+		relative to the mean stellar brightness.
+		Gray circles are raw 2-minute data; black circles are binned to
+		300 points per cycle.  The period in hours is printed in the
+		bottom right corner.  Left-to-right, the objects are LP 12-502
+		(TIC 402980664; Sector~19), TIC 94088626 (Sector 10), and TIC
+		425933644 (Sector~28).
+		{\it Bottom:} Cartoon explanations for the phenomenon.  The dust
+		clump scenario (left) and prominence scenario (right) both invoke
+		magnetically-entrained corotating material.
+	}
+	\label{fig:f1}
+\end{figure*}
 
 All young stars vary in optical brightness, and the origin of such
 variability is, in most cases, understood.  Well-explored sources of
@@ -255,7 +277,7 @@ such a ring could produce sudden dips.  We do not favor this scenario
 (see Appendix~\ref{app:ring}).
 
 The dust clump and gas prominence hypotheses are geometrically
-indistinguishable; one could imagine dust or gas accumulating in
+similar; one could imagine dust or gas accumulating in
 either of the geometries shown in Figure~\ref{fig:f1}.  The main
 distinguishing factor between the two models is the composition of the
 occulting material.   ``Dust clumps'' invoke opacity from dust, which
@@ -271,27 +293,29 @@ similar to observations made in systems such as AB~Dor
 \citep{2016ApJ...830...15J}.
 
 In both models, the corotation radius is the location at which matter
-concentrates.  This is empirically justified by the observation that
+concentrates.  The empirical basis for this is that
 the sharp CR features are superposed over smooth, quasi-sinusoidal
 starspot profiles.  The theoretical importance of the corotation
-radius has been discussed in studies of rapid magnetic rotators,
-including neutron stars \citep[e.g.]{1973ApJ...184..271L}, magnetic
-massive stars \citep[e.g.][]{1985Ap&SS.116..285N}, and accreting T
-Tauri stars \citep[e.g.][]{2005ApJ...634.1214L}.  In regions where the
-magnetic field dominates the flow (i.e.  $B^2/8\pi > \rho v^2 /2$),
-matter is dragged along with the field lines.  Assuming a dipolar
-magnetic field geometry, then the tendency of both gas and dust to
-become trapped at corotation is tied to how of the four relevant
+radius has been discussed in studies of rapid magnetic rotators
+\citep[e.g.][]{1973ApJ...184..271L,1985Ap&SS.116..285N,2005ApJ...634.1214L}.
+%including neutron stars \citep[e.g.]{1973ApJ...184..271L}, magnetic
+%massive stars \citep[e.g.][]{1985Ap&SS.116..285N}, and accreting T
+%Tauri stars \citep[e.g.][]{2005ApJ...634.1214L}.  
+In regions where the
+magnetic field dominates the flow (i.e.~$B^2/8\pi > \rho v^2 /2$),
+matter is dragged along with the field lines.  
+The tendency of both gas and dust to
+become trapped at corotation is then tied to how of the four relevant
 forces -- gravity, Lorentz, inertial Coriolis, and inertial
 centrifugal -- the Lorentz and Coriolis only act perpendicular to
 field lines, while gravity and the centrifugal force are in balance at
-$R_{\rm c}$ \citep[e.g.][Sec.~2]{2005MNRAS.357..251T}.  Another way to
+$R_{\rm c}$ \citep[e.g.][their Section~2]{2005MNRAS.357..251T}.  Another way to
 phrase this statement is that there is a local minimum in the
 effective potential of the corotating frame; given a flow from the
 either the star or from a tenuous accretion disk, this local potential
 minimum enables material to build up \citep{2005MNRAS.357..251T}.
 
-While theoretical heritage for understanding rapid magnetic
+Although theoretical heritage for understanding rapid magnetic
 rotators exists, CRs have remained mysterious because they have been both
 hard to discover and hard to characterize.   They are hard to discover
 because they are rare: CRs comprise $\approx$1\% of the youngest
@@ -340,35 +364,6 @@ that their key defining feature is the complexity of their optical
 light curves relative to the quasi-sinusoidal modulations of
 starspots.
 
-
-\begin{figure*}[!t]
-	\begin{center}
-		\subfloat{
-			\includegraphics[width=0.8\textwidth]{f1a.pdf}
-		}
-		
-		\vspace{-0.65cm}
-		\subfloat{
-			\includegraphics[width=0.66\textwidth]{f1b.pdf}
-		}
-	\end{center}
-		\vspace{-0.5cm}
-	\caption{
-		{\bf Complex rotators (CRs)}:
-    {\it Top:} Phase-folded TESS light curves for three CRs.  Each
-    panel shows the average of the data accumulated over one month,
-    relative to the mean stellar brightness.
-    Gray circles are raw 2-minute data; black circles are binned to
-    300 points per cycle.  The period in hours is printed in the
-    bottom right corner.  Left-to-right, the objects are LP 12-502
-    (TIC 402980664; Sector~19), TIC 94088626 (Sector 10), and TIC
-    425933644 (Sector~28).
-    {\it Bottom:} Cartoon explanations for the phenomenon.  The dust
-    clump scenario (left) and prominence scenario (right) both invoke
-    magnetically-entrained corotating material.
-	}
-	\label{fig:f1}
-\end{figure*}
 
 
 
@@ -438,22 +433,22 @@ by considering that the spectral type of a $T$=16 star at $d$=50\,pc
 is $\approx$M5.5V, corresponding to a main-sequence mass of
 $\approx$0.12\,$M_\odot$.
 
-\begin{figure}[!tp]
+\begin{figure}[!t]
 	\begin{center}
 		\centering
-		\includegraphics[width=0.48\textwidth]{f2completeness.pdf}
-		\vspace{-0.5cm}
+		\includegraphics[width=0.46\textwidth]{f2completeness.pdf}
+		\vspace{-0.2cm}
 		\caption{
-			{\bf Completeness of the TESS 2-minute cadence data for late-K
+			{\bf Completeness of the TESS 2-minute data for late-K
       and early M dwarfs near the Sun, from Sectors 1-55.}  
       The orange dotted curve shows the number of stars in successive
       radial shells, each with a width of 10\,pc.  To be counted,
-      these stars must meet the listed conditions: they must be red
-      ($\bprp$>$1.5$) dwarf stars ($M_{\rm G}$>4) amenable for TESS
+      these stars must meet the listed conditions: they must be red dwarf
+      stars
+      ($\bprp$>$1.5$; $M_{\rm G}$>4) amenable for TESS
       observations ($T$<16).  The blue solid curve shows the fraction
       of such stars with at least one sector of TESS 2-minute cadence
-      data acquired between Sectors 1-55.  The latter data comprise
-      the selection function for our complex rotator search.
+      data acquired between Sectors 1-55.
 		}
 			\vspace{-0.5cm}
 		\label{fig:completeness}
@@ -1343,8 +1338,7 @@ the trailing dips unchanged in its wake.
 
 {\sc Slow growth; rapid death}---LP 12-502 shows at least three
 instances in which dips switch off over less than one cycle; we did
-not see any such instances of dips switching on.  Dip growth instead
-seems to happen more slowly.  For instance, the dip at phase 0-0.1
+not see any such instances of dips switching on.  Dip growth seems to happen more slowly.  For instance, the dip at phase 0-0.1
 between cycles 258-290 begins to become detectable during cycle 258,
 and growths in depth by about 2\% over the next eight cycles.  The
 evolution of this particular dip is most clear in the river plots.
@@ -1718,14 +1712,14 @@ nearly all M dwarfs to have at least one planet.
 
 In the context of disk-driven planet migration, the stopping location
 for the innermost planet is set by the location of the protoplanetary
-disk's truncation radius \citep{2018haex.bookE.142I}.  The disk
+disk's truncation radius \citep{2018haex.bookE.142I}.  The 
 truncation radius is traditionally calculated by equating the magnetic
 pressure from the stellar magnetosphere with the ram pressure of the
 inflowing gas.  As it happens, the truncation radius is close to the
 corotation radius for low accretion rates
 \citep{2016ARA&A..54..135H,2022MNRAS.510.5246L}.  These considerations
 invite us to imagine one or more planets migrating inward due to gas
-drag, and the innermost planets arriving at $\approx$5-10 stellar
+drag, and arriving at $\approx$5-10 stellar
 radii before the disk is depleted.
 
 With this picture in mind, it is tempting to attribute features of the
@@ -2148,8 +2142,7 @@ Fellowship, and for helpful conversations with G.~Laughlin, A.~Mann,
 and J.~Spake.  This paper relied on data collected by the TESS
 mission, which are publicly available from the Mikulski Archive for
 Space Telescopes (MAST).  The specific 120-second cadence observations
-can be accessed via
-\dataset[DOI]{https://doi.org/10.17909/t9-nmc8-f686}.  Funding for the
+can be accessed via DOI\!\!\!~\dataset[10.17909/t9-nmc8-f686]{https://doi.org/10.17909/t9-nmc8-f686}.  Funding for the
 TESS mission is provided by NASA’s Science Mission Directorate.  TIC
 402980664 in particular was observed at 120-second cadence thanks to
 the TESS Guest Investigator programs G022252 (PI: J.~Schlieder;
@@ -2162,9 +2155,10 @@ RJ and SR performed the Fourier-based analysis and contributed to light curve cl
 LR cross-examined the light curve classification, and contributed an independent SED analysis.
 AD identified the magnetic B star connection.
 LAH contributed to project design and to the interpretation of the light curves.
+JNW significantly improved the clarity of the manuscript.
 G\'AB acquired and maintained the servers used to run the dip-finding pipeline.
------
-{\bf JNW, MNG, GRR to confirm coauthorship \&/or to help out on interpretation!}
+%-----
+%{\bf JNW, MNG, GRR to confirm coauthorship \&/or to help out on interpretation!}
 % Pending!
 %HI and AH designed and maintain the architecture used to acquire and process the HIRES spectra.
 All authors assisted in manuscript writing and revision.
