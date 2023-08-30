@@ -437,7 +437,6 @@ phase-folded light curves, while also using the Fourier approach.  We
 applied these two search techniques independently.
 
 
-%FIXME TODO LEFT OFF HERE
 \subsubsection{Counting dips}
 \label{subsec:counting}
 
@@ -483,19 +482,19 @@ is the flux and $i$ is an index over time.
 In panel {\it (e)} of Figure~\ref{fig:vet}, automatically-identified
 local minima are shown with the gray triangles.
 
-Wrapping is necessary to eliminate edge
-effects when fitting the light curve and when identifying local minima
-in the residuals.  A phased light curve would usually cover phases
-$\phi \in [ 0,1 ]$.  We instead performed the entire preceding
-procedure over a phase-folded light curve spanning $\phi \in [-1,2 ]$,
-which was created by duplicating and concatenating the ordinary
-phase-folded light curve.  The free parameters we adopted throughout
-this analysis -- for instance the maximum number of spline knots per
-cycle, and the height and depth criteria for dips -- were chosen
-during testing based on the desire to correctly re-identify a large
-fraction ($>$90\%) of previously known CRs, while also being able to
-consistently reject common false positives such as rapidly rotating
-spot-induced variability and typical eclipsing binaries.
+Wrapping is necessary to eliminate edge effects when fitting the light
+curve and when identifying local minima in the residuals.  A phased
+light curve would usually cover phases $\phi \in [ 0,1 ]$.  We instead
+performed the analysis described above using a phase-folded light
+curve spanning $\phi \in [-1,2 ]$, which was created by duplicating
+and concatenating the ordinary phase-folded light curve.  The free
+parameters we adopted throughout the analysis -- for instance the
+maximum number of spline knots per cycle, and the height and depth
+criteria for dips -- were chosen during testing based on the desire to
+correctly re-identify a large fraction ($>$90\%) of previously known
+CRs, while also being able to consistently reject common false
+positives such as rapidly rotating spot-induced variability and
+typical eclipsing binaries.
 
 In short, CR candidates were identified by requiring a peak PDM period
 below two days and the presence of at least three sharp local minima,
@@ -544,12 +543,12 @@ more accurate period determination.
 		\includegraphics[width=0.96\textwidth]{f2.pdf}
 		\vspace{-0.3cm}
 		\caption{
-			{\bf Validation plots used to  label CRs}.  The complete figure
-			set, with one image per sector for each of the \nallcands\
-      objects in Table~\ref{tab:thetable}
-			is available in the online journal. {\bf For internal collaboration review:
-				\url{https://www.dropbox.com/sh/khtwk5a6z0zgrif/AABRG21Ire7VS4BUnaD1hOR8a?dl=0}}.
-			Panels are as follows.
+      {\bf Validation plots used to  label CRs}.  The complete figure
+      set, with one image per sector for each of the \nallcands\
+      objects in Table~\ref{tab:thetable} is available in the online
+      journal. {\bf For internal collaboration review:
+      \url{https://www.dropbox.com/sh/khtwk5a6z0zgrif/AABRG21Ire7VS4BUnaD1hOR8a?dl=0}}.
+      Panels are as follows.
 			{\it a)}: Phase-folded light curve; gray points are raw 2-minute
 			data and black points are binned to 200 points per cycle.
       The adopted period is given in the lower-right corner.
@@ -757,22 +756,24 @@ and ages.
 \label{sec:catalog}
 
 Table~\ref{tab:thetable} lists the \nallcands\ objects identified by
-our search.  The ``high-quality sample'' includes \ngoods\ objects,
-which demonstrated what we viewed as unambiguous characteristics of
-the CR phenomenon in at least one TESS sector.  The classification of
-\nmaybes\ CR candidates was ambiguous, and the \ndebunked\ remaining
-objects were false positives that we discuss below.  The
-\texttt{quality} column in the table divides the three classes;
-additional data from TESS or other instruments could help resolve the
-classification of the ambiguous cases.   Of the \ncqvsnodebunked\ CRs
-and candidate CRs, \nbothdipfourier\ were found using both the
-dip-counting and Fourier techniques, \nyesdipnofourier\ were found
-using only the dip-counting technique, and \nyesfouriernodip\ were
-found using only the Fourier technique.  In the following, we will
-restrict our discussion to the high-quality sample, irrespective of
-discovery method.
+our search.  The \ngoods\ stars in the ``good'' sample demonstrated
+what we deemed to be the key characteristics of the CR phenomenon in
+at least one TESS sector.  The classification of \nmaybes\ CR
+candidates was ambiguous, and the \ndebunked\ remaining objects were
+notable false positives that we discuss below.  The \texttt{quality}
+column in the table divides the three classes; additional data from
+TESS or other instruments could help resolve the classification of the
+ambiguous cases.   Of the \ncqvsnodebunked\ CRs and candidate CRs,
+\nbothdipfourier\ were found using both the dip-counting and Fourier
+techniques, \nyesdipnofourier\ were found using only the dip-counting
+technique, and \nyesfouriernodip\ were found using only the Fourier
+technique.  In the following, we will focus our discussion on the good
+sample, irrespective of discovery method.  We will often refer to
+stars by their TIC identifiers; the easiest way to reference these
+against the figures in most document readers is to use a
+``find'' ({\tt Ctrl+F}) utility.
 
-The mosaic in Figure~\ref{fig:cqvs} shows phased light curves for the
+Figure~\ref{fig:cqvs} is a mosaic of phased light curves for the
 \ngoods\ CRs.  The objects are sorted first in order of the number of
 TESS 120-second cadence sectors in which they clearly demonstrated the
 CR phenomenon, and secondarily by descending brightness.  The top
@@ -784,14 +785,13 @@ TIC~294328887 ($T$$=$14.2, 4 sectors).  The brightest five CRs span
 fastest five have periods spanning 3.6\,hr$<$$P$$<$6.2\,hr, and the
 slowest five span 27\,hr$<$$P$$<$38\,hr.
 
-In terms of the light curve shapes, Figure~\ref{fig:cqvs} shows a
-broad range of variability, with anywhere from two to eight local
-minima per cycle.  Some stars show relatively ordinary modulation
-during one portion of the phased light curve, and highly structured
-modulation in the remainder of the cycle (e.g.  TIC~206544316,
-TIC~224283342, TIC~402980664).  Others show structured modulation over
-the entire span of a cycle (e.g. TIC~2234692, TIC~425933644,
-TIC~142173958).  Others show some mix between these two modes.
+The light curves show between two and eight local minima per cycle.
+Some stars show ordinary sinusoidal modulation during one portion of
+the phased light curve, and highly structured modulation in the
+remainder of the cycle (e.g. TIC~206544316, TIC~224283342,
+TIC~402980664).  Others show structured modulation over the entire
+span of a cycle (e.g. TIC~2234692, TIC~425933644, TIC~142173958).
+Others show some mix between these two modes.
 
 A small number of objects at first glance seem reminiscent of
 eclipsing binaries, such as TIC~193831684, TIC~59836633, or
@@ -808,28 +808,27 @@ Of our \ncqvsnodebunked\ confirmed and candidate CRs,
 \nnotfieldbanyan\ were associated with a nearby moving group or open
 cluster, primarily using BANYAN\,$\Sigma$.\footnote{Two of the
 \nnotfieldbanyan\ memberships were made with low confidence and are
-flagged in Table~\ref{tab:thetable}.  One membership, of TIC~397791443
-in IC\,2602, was made manually from a literature search
-\citep[e.g.][]{2020A&A...633A..99C}.}  The relevant groups are listed
-in Table~\ref{tab:thetable}; their ages span $\approx$5-200\,Myr.  The
-most prodigious groups were Sco-Cen, Tuc-Hor, and Columba.  Six CRs
-were also identified in the Argus association
-\citep{2019ApJ...870...27Z}, which serves as an indirect line of
-evidence supporting the reality and youth of that group.  The yield in
-Sco-Cen is not surprising since Sco-Cen contains the majority of
-pre-main-sequence stars in the solar neighborhood, and many of its
-stars were selected for TESS 120-second cadence observations by
-various guest investigators.  Given the $\lesssim$$10\%$ completeness
-of TESS beyond 100\,pc, there may be many more CRs in Sco-Cen that
-remain to be discovered.  
+flagged in Table~\ref{tab:thetable}.  The assignment of TIC~397791443
+to IC\,2602 was based not on BANYAN\,$\Sigma$ but instead on a
+literature search \citep[e.g.][]{2020A&A...633A..99C}.}  The relevant
+groups are listed in Table~\ref{tab:thetable}; their ages span
+$\approx$5-200\,Myr.  The groups that contain the largest number of
+CRs in our catalog are Sco-Cen, Tuc-Hor, and Columba.  Six CRs were
+also identified in the Argus association \citep{2019ApJ...870...27Z},
+which serves as an indirect line of evidence supporting the reality
+and youth of that group.  The large contribution from Sco-Cen is not
+surprising since Sco-Cen contains the majority of pre-main-sequence
+stars in the solar neighborhood, and many of its stars were selected
+for TESS 120-second cadence observations by guest investigators.
+Given the $\lesssim$$10\%$ completeness of TESS beyond 100\,pc, there
+may be many more CRs in Sco-Cen that remain to be discovered.
 
-For the two stars for which BANYAN\,$\Sigma$ did not find any
-association, we were not able to confidently associate either star
-with any young groups.  Both do seem to show the CR signal over
-multiple TESS sectors, and both are photometrically elevated relative
-to the main sequence.  Both were also noted by
-\citet{2021ApJ...917...23K} as being in the ``diffuse'' population of
-$<$50\,Myr stars near the Sun.
+There were two stars for which neither BANYAN\,$\Sigma$ nor a
+literature search led to a confident association with any young group.
+Both stars display CR signals over multiple TESS sectors. Both are
+photometrically elevated relative to the main sequence, an indication
+of youth.  Both were also noted by \citet{2021ApJ...917...23K} as
+being in the ``diffuse'' population of $<$50\,Myr stars near the Sun.
 
 Our search confirms that the CR phenomenon persists for at least
 $\approx$150\,Myr.  Table~\ref{tab:thetable} includes three
@@ -843,18 +842,19 @@ least one unambiguous CR (EPIC~211070495) and a few other candidates
 were also previously known in the Pleiades
 \citep{2016AJ....152..114R}.  
 
-The upper age limit for CRs may even pass 200\,Myr, based on the
+The maximum age of CRs might even exceed 200\,Myr, based on the
 candidate membership of TIC~294328887 in the Carina Near moving group
-\citep{2006ApJ...649L.115Z}.  This group's $200 \pm 50$\,Myr age is
-based on the lithium sequence of its G-dwarfs
+\citep{2006ApJ...649L.115Z}.  The estimated age of this group, $200
+\pm 50$\,Myr, is based on the lithium sequence of its G-dwarfs
 \citep{2006ApJ...649L.115Z}, which shows a coeval population of stars
-older than the Pleiades but younger than the 400\,Myr Ursa Major
-moving group.  The formal BANYAN-$\Sigma$ membership probability is
-however somewhat low, perhaps due to the missing radial velocity.
-This lack of information could be resolved by acquiring even a
-medium-resolution spectrum.  An independent assessment of the group's
-kinematics using Gaia data, and its rotation sequence using TESS,
-could lend further credence in such an analysis.
+older than the Pleiades and younger than the 400\,Myr Ursa Major
+moving group.  However, the formal BANYAN-$\Sigma$ membership
+probability is somewhat low (only 6\%), perhaps due to the missing
+radial velocity.  This lack of information could be rectified by
+acquiring even a medium-resolution spectrum.  An independent
+assessment of the group's kinematics using Gaia data, and its rotation
+sequence using TESS, could also bear on the question of whether
+TIC~294328887 is a member.
 
 
 \subsection{Infrared excesses}
@@ -865,27 +865,35 @@ $W1$-$W4$ bands, which is typical for this class of object
 \citep{2017AJ....153..152S}.  Visually inspecting the SEDs of our
 \nallcands\ star sample and the WISE images available through IRSA, we
 labeled two objects as having reliable infrared excesses (both $W3$
-and $W4$ at $>$3$\sigma$ above the photospheric prediction).
+and $W4$ fluxes are more than 3$\sigma$ above the photospheric
+prediction): TIC~193136669 (TWA~34) and TIC~57830249 (TWA~33).
 
-The two sources exhibiting an IR excess were TIC~193136669 (TWA~34)
-and TIC~57830249 (TWA~33).  Both are in the TW Hydrae association
-($\approx$10\,Myr), and have relatively long periods of 38\,hr and
-44\,hr respectively.  In our initial labeling, we labeled both as
-``ambiguous'' CRs because the dips in their light curves did not show
-the rigid periodicity typical of CRs;  their periods were also
-relatively long.  However, inspection of further sectors clarified
-that both sources are dippers (see online plots in
-Figure~\ref{fig:vet}).  Independently, TIC 193136669 has a cold
-molecular disk based on observed 1.3\,mm continuum emission and
-resolved Keplerian $^{12}{\rm CO}(2-1)$ emission
-\citep{2015A&A...582L...5R}.  It was also labeled a dipper by
+Both of these stars with IR exceses are in the TW Hydrae association
+($\approx$10\,Myr).  They have periods of 38\,hr and 44\,hr,
+respectively.  In our initial labeling, we labeled both as
+``ambiguous'' CRs because the dips in their Sector~36 light curves
+seemed to stochastically evolve over only one or a few cycles, which
+is not typical of CRs; their periods were also long in comparison with
+most of the other CRs.  Inspection of additional sectors clarified
+that both sources are dippers, not CRs (see the online plots in
+Figure~\ref{fig:vet}).  For TIC~57830249, the Sector~10 light curve of
+shows completely different behavior from Sector~36, with variability
+amplitudes of $\pm 50\%$ and no obvious periodicity.  TIC 57830249
+also shows continuum emission at 1.3\,mm \citep{2015A&A...582L...5R},
+which suggests that cold dust grains are present.
+
+The dipper classification of TIC~193136669 is less obvious; the main
+indication that it is a dipper is that Sectors 62 and 63 show its dips
+appearing and disappearing within the span of one cycle.  None of the
+CRs in our sample exhibit this property.  Independently, TIC~193136669
+is known to have a cold disk of dust and molecular gas, based on
+1.3\,mm continuum emission and resolved $^{12}{\rm CO}(2-1)$ emission
+\citep{2015A&A...582L...5R}.  It was labeled a dipper by
 \citet{2022ApJS..263...14C}; we agree with their designation, and
-label it an ``impostor'' CR in Table~\ref{tab:thetable}.  TIC
-57830249 (TWA~33) also has previously detected 1.3\,mm continuum
-emission \citep{2015A&A...582L...5R}, suggestive of cold dust grains
-being present.  It is also a dipper.  Section~\ref{subsec:discdippers}
-highlights plausible evolutionary connections between CRs and dippers
-in light of these ``misclassifications'' .
+label it an ``impostor'' CR in Table~\ref{tab:thetable}.
+Section~\ref{subsec:discdippers} highlights plausible evolutionary
+connections between CRs and dippers in light of these
+``misclassifications''.
 
 % Our three ``possible'' infrared excesses were TIC~405910546,
 % 289840926, and 244161191.  After a literature search, we concluded
@@ -916,7 +924,7 @@ in light of these ``misclassifications'' .
       $\approx$1\,day.  The \ngoods\ bona fide CRs in
       Table~\ref{tab:thetable} are the dark blue circles; \nmaybes\
       ambiguous CR candidates are light blue circles.  Unresolved
-      binaries are flagged either if the Gaia DR3 radial velocity
+      binaries (red circles) are objects for which the Gaia DR3 radial velocity
       scatter exceeded 20\,\kms, or if Gaia ${\rm RUWE}_{\rm DR3}$$>$2
       and multiple photometric signals were present in the TESS light
       curve.  The top panels show the \nstarssearched\ target stars
@@ -941,13 +949,14 @@ in light of these ``misclassifications'' .
 \label{subsec:binarity}
 
 The main types of binaries of interest in this work were those that
-were unresolved, because they could confuse our understanding of CRs.
+were unresolved, because they can lead to misinterpretations of the data.
 For instance, unresolved binaries might produce multiple photometric
 signals and hinder our ability to correctly identify the star hosting
 the CR signal.  Unresolved binaries could also bias photometric magnitude
 and color measurements, which would affect our stellar parameter
 estimates.  To attempt to identify binaries, we considered the
 following lines of information.
+
 
 {\it Radial velocity scatter}---We examined diagrams of the Gaia DR3
 ``radial velocity error'' as a function of stellar color for all
@@ -964,16 +973,14 @@ TIC~280945693.
 color.\footnote{For an explanation of the renormalized unit weight
 error (RUWE), see the GAIA DPAC technical note
 \url{http://www.rssd.esa.int/doc_fetch.php?  id=3757412}.}  Elevated
-RUWEs imply excess noise relative to a single-source astrometric
-model.  This can be caused by marginally resolved point sources
-skewing the single-transit centroid measurements,  intrinsic
+RUWEs imply excess astrometric noise relative to a single-source
+model.  This can be caused by marginally resolved binaries,  intrinsic
 photometric variability, or intrinsic astrometric motion.  Based on
 this exercise, we adopted a threshold of RUWE$_{\rm DR3}$ $>$ 2 to
 flag sources with excess astrometric noise.  This threshold was met
-for \ngoodhighruwe/\ngoods\ high-quality CRs;
-\nmaybehighruwe/\nmaybes\ of the ambiguous ones had this
-characteristic.  There is some subjectivity in where to set the
-threshold, since the RUWE distribution has an extended tail
+by \ngoodhighruwe/\ngoods\ high-quality CRs and by
+\nmaybehighruwe/\nmaybes\ of the ambiguous CRs.  The choice of the threshold RUWE
+is somewhat subjective, since the RUWE distribution has an extended tail
 \citep[e.g.][]{2022MNRAS.513.5270P}.  If we had instead required
 RUWE$_{\rm DR3}$ $>$ 1.4, \ngoodweakruwe/\ngoods\ high-quality CRs
 and \nmaybeweakruwe/\nmaybes\ of the ambiguous sample would have been
@@ -2278,7 +2285,7 @@ All authors assisted in manuscript writing and revision.
 \hline
 \input{20230613_LGB_RJ_CPV_TABLE_selfnapplied_rounded_data}
 \enddata
-\tablecomments{This table includes \ngoods\ CRs (\texttt{Quality}
+\tablecomments{This table includes \ngoods\ good CRs (\texttt{Quality}
   flag 1), \nmaybes\ ambiguous CRs (\texttt{Quality} flag 0), and
   \ndebunked\ impostors (\texttt{Quality} flag -1).  The three-bit
   binarity flag ``Bin'' is for Gaia DR3
