@@ -3764,8 +3764,8 @@ def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None, emphruwe=1):
             #('rstar_sedfit', 'teff_sedfit', '$R_{\! \star}$ [$R_\odot$]', '$T_\mathrm{eff}$ [K]', 'linear', 'linear'),
             #('ruwe', 'bp_rp', 'RUWE', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'log', 'linear'),
             #('tlc_mean_period', 'Rcr_over_Rstar', '$P$ [hours]', '$R_{\mathrm{cr}}/R_{\! \star}$', 'log', 'linear'),
-            ('Rcr_over_Rstar', 'tlc_mean_period',  '$R_{\mathrm{cr}}/R_{\! \star}$', '$P$ [hours]', 'linear', 'log'),
-            ('banyan_adopted_age', 'mstar_parsec', 'Age [Myr]', '$M_{\! \star}$ [$M_\odot$]', 'log', 'linear'),
+            ('Rcr_over_Rstar', 'tlc_mean_period',  '$R_{\mathrm{c}}/R_{\! \star}$', '$P$ [hours]', 'linear', 'log'),
+            ('banyan_adopted_age', 'mass_parsec', 'Age [Myr]', '$M_{\! \star}$ [$M_\odot$]', 'log', 'linear'),
             #('rstar_sedfit', 'banyan_singleagefloat', '$R_{\! \star}$ [$R_\odot$]', 'Age [Myr]', 'linear', 'log'),
         ]
     elif plotsubset == 'sanitychecks':
@@ -3780,11 +3780,11 @@ def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None, emphruwe=1):
             #('Rcr_over_Rstar', 'tlc_mean_period',  '$R_{\mathrm{cr}}/R_{\! \star}$', '$P$ [hours]', 'linear', 'log'),
             #('rstar_sedfit', 'banyan_singleagefloat', '$R_{\! \star}$ [$R_\odot$]', 'Age [Myr]', 'linear', 'log'),
             ('bp_rp', 'teff_sedfit', 'bp_rp', 'teff_sedfit', 'linear', 'linear'),
-            ('banyan_adopted_age', 'mstar_parsec', 'Age [Myr]', '$M_{\! \star}$ [$M_\odot$]', 'log', 'linear'),
+            ('banyan_adopted_age', 'mass_parsec', 'Age [Myr]', '$M_{\! \star}$ [$M_\odot$]', 'log', 'linear'),
             ('teff_sedfit', 'teff_parsec', 'teff_sedfit', 'teff_parsec', 'linear', 'linear'),
             ('rstar_sedfit', 'rstar_parsec', 'rstar_sedfit', 'rstar_parsec', 'linear', 'linear'),
             ('dist_metric_parsec', 'rstar_sedfit', 'dist_metric_parsec', 'rstar_sedfit', 'linear', 'linear'),
-            ('dist_metric_parsec', 'mstar_parsec', 'dist_metric_parsec', 'mstar_parsec', 'linear', 'linear'),
+            ('dist_metric_parsec', 'mass_parsec', 'dist_metric_parsec', 'mass_parsec', 'linear', 'linear'),
             ('banyan_adopted_age', 'age_parsec', 'banyan_adopted_age', 'age_parsec', 'linear', 'linear'),
             ('dr3_ruwe', 'bp_rp', 'DR3 RUWE', '$G_{\mathrm{BP}}-G_{\mathrm{RP}}$ [mag]', 'log', 'linear'),
         ]

@@ -64,7 +64,9 @@
 
 \begin{document}
 
-\title{Transient Corotating Clumps Around Adolescent Low-Mass Stars: Four Years of Complex Rotators from TESS}
+%\title{Transient Corotating Clumps Around Adolescent Low-Mass Stars: Four Years of Complex Rotators from TESS}
+\title{Transient Corotating Clumps Around Adolescent Low-Mass Stars From Four Years of TESS}
+
 
 \correspondingauthor{Luke G. Bouma}
 \email{luke@astro.caltech.edu}
@@ -133,11 +135,20 @@
 
 % 250 word max!
 \begin{abstract}
-  Complex rotators (CRs) are low-mass pre-main-sequence stars with
-  light curves characterized by periods of 0.2--2 days, amplitudes of
-  a few percent, and slowly-evolving sharp features.  The sharp
-  features might be caused by eclipsing clumps of dust or gas orbiting
-  at the corotation radius.  To improve our understanding of these
+%  This work focuses on a subset of low-mass pre-main-sequence stars
+%  with rotation periods of 0.2--2 days, optical variability amplitudes
+%  of a few percent, and sharp recurring light curve features that last for
+%  hundreds of cycles.  The sharp features are probably caused by
+%  eclipsing clumps of dust or gas orbiting at the corotation radius.
+%  We therefore refer to the objects as ``transient corotating clumps''
+%  (TCCs).
+%
+  Complex rotators (CRs) are low-mass pre-main-sequence stars with light
+  curves characterized by periods of 0.2--2 days, amplitudes of a few
+  percent, and slowly-evolving sharp features.  The sharp features
+  might be caused by eclipsing clumps of dust or gas orbiting at the
+  corotation radius.
+  To improve our understanding of these
   enigmatic stars, we conducted a survey for CRs using TESS
   short-cadence data collected between 2018~July and 2022~September.
   Our search of \nstarssearched\ K and M dwarfs with $T$$<$16 and
@@ -184,12 +195,12 @@ circumstellar plasma clumps (e.g.~$\sigma$~Ori~E;
 \citealt{2005ApJ...630L..81T,2005MNRAS.357..251T}).
 
 Data from K2 \citep{2014PASP..126..398H} and TESS
-\citep{2015JATIS...1a4003R} have revealed a new class of variable
-star for which the root cause of variability is only beginning to
-become clear: complex rotators (CRs).  These objects
-are identified from their optical light curves, which show nearly
-periodic troughs that are either sharp or broad; these troughs are
-often superposed on quasi-sinusoidal spot-like modulation
+\citep{2015JATIS...1a4003R} have revealed a new class of variable star
+for which the root cause of variability is only beginning to become
+clear: complex rotators (CRs).  These objects are identified from
+their optical light curves, which show nearly periodic troughs that
+are either sharp or broad; these troughs are often superposed on
+quasi-sinusoidal spot-like modulation
 \citep{2017AJ....153..152S,2018AJ....155...63S,2019ApJ...876..127Z}.
 Some CRs show up to eight dips per cycle.  Most CRs are
 pre-main-sequence M dwarfs with ages of $\approx$5-150 million years
@@ -231,34 +242,62 @@ periodically transit the star
 \citep{2017AJ....153..152S,2023MNRAS.518.4734S}.  The second scenario
 invokes ``prominences'', long-lived condensations of cool, dense,
 marginally-ionized gas that are embedded within the hotter corona and
-corotate with the star
+that corotate with the star
 \citep{1989MNRAS.238..657C,2019MNRAS.482.2853J,2022MNRAS.514.5465W}.
-These hypothetical structures are analogous to quiescent prominences
+These hypothetical prominences are analogous to quiescent prominences
 and filaments seen in the solar corona \citep[see
 e.g.][]{2015ASSL..415.....V}, though rather than existing at a
 fraction of the stellar radius as in the solar case, they would exist
-at distances of a few stellar radii.  A final possibility is that a
-thin optically-thick ring obscures a small portion of the stellar
+at distances of a few stellar radii.  A final possibility is that an
+optically-thick ring obscures a small portion of the stellar
 photosphere \citep{2019ApJ...876..127Z}.  Hot spots passing behind
 such a ring could produce sudden dips.  We do not favor this scenario
-due to two issues discussed in Appendix~\ref{app:ring}.
+(see Appendix~\ref{app:ring}).
 
-The dust clump and prominence hypotheses are qualitatively similar,
-except that one invokes opacity from dust, while the other invokes
-opacity from gas, likely bound-free transitions in hydrogen or perhaps
-a molecular opacity.  However unambiguous evidence in support of any
-particular scenario has yet to be acquired.  Such evidence might
-include a spectroscopic detection of silicate 10\,$\mu$m dust
-absorption during a dip, or perhaps detection of transient Balmer-line
-excesses as a function of cycle phase, similar to observations made in
-systems such as AB~Dor \citep[see][]{1999ASPC..158..146C} or PTFO
-8-8695 \citep{2016ApJ...830...15J}.
+The dust clump and gas prominence hypotheses are geometrically
+indistinguishable; one could imagine dust or gas accumulating in
+either of the geometries shown in Figure~\ref{fig:f1}.  The main
+distinguishing factor between the two models is the composition of the
+occulting material.   ``Dust clumps'' invoke opacity from dust, which
+would need to be collisionally charged \citep{2023MNRAS.518.4734S}.
+``Gas prominences'' invoke opacity from partially-ionized gas, likely
+bound-free transitions in hydrogen or perhaps a molecular opacity.
+Unambiguous evidence in support of either scenario has yet to be
+acquired.  Such evidence might include a spectroscopic detection of
+silicate 10\,$\mu$m dust absorption during a dip, or perhaps detection
+of transient Balmer-line excesses as a function of cycle phase,
+similar to observations made in systems such as AB~Dor
+\citep[see][]{1999ASPC..158..146C} or PTFO 8-8695
+\citep{2016ApJ...830...15J}.
 
-CRs remain mysterious because they have been both hard to discover and
-hard to characterize.   They are hard to discover because they are
-rare: CRs comprise $\approx$1\% of the youngest $\approx$1\% of M
-dwarfs \citep{2018AJ....155..196R}.  Out of the millions of stars
-monitored by K2 and TESS, about 50 CRs have been reported to date
+In both models, the corotation radius is the location at which matter
+concentrates.  This is empirically justified by the observation that
+the sharp CR features are superposed over smooth, quasi-sinusoidal
+starspot profiles.  The theoretical importance of the corotation
+radius has been discussed in studies of rapid magnetic rotators,
+including neutron stars \citep[e.g.]{1973ApJ...184..271L}, magnetic
+massive stars \citep[e.g.][]{1985Ap&SS.116..285N}, and accreting T
+Tauri stars \citep[e.g.][]{2005ApJ...634.1214L}.  In regions where the
+magnetic field dominates the flow (i.e.  $B^2/8\pi > \rho v^2 /2$),
+matter is dragged along with the field lines.  Assuming a dipolar
+magnetic field geometry, then the tendency of both gas and dust to
+become trapped at corotation is tied to how of the four relevant
+forces -- gravity, Lorentz, inertial Coriolis, and inertial
+centrifugal -- the Lorentz and Coriolis only act perpendicular to
+field lines, while gravity and the centrifugal force are in balance at
+$R_{\rm c}$ \citep[e.g.][Sec.~2]{2005MNRAS.357..251T}.  Another way to
+phrase this statement is that there is a local minimum in the
+effective potential of the corotating frame; given a flow from the
+either the star or from a tenuous accretion disk, this local potential
+minimum enables material to build up \citep{2005MNRAS.357..251T}.
+
+While theoretical heritage for understanding rapid magnetic
+rotators exists, CRs have remained mysterious because they have been both
+hard to discover and hard to characterize.   They are hard to discover
+because they are rare: CRs comprise $\approx$1\% of the youngest
+$\approx$1\% of M dwarfs \citep{2018AJ....155..196R}.  Out of the
+millions of stars monitored by K2 and TESS, about 50 CRs have been
+reported to date
 \citep{2016AJ....152..114R,2017AJ....153..152S,2018AJ....155...63S,2019ApJ...876..127Z,2020AJ....160...86B,2022AJ....163..144G,2023ApJ...945..114P}.
 They have been hard to characterize because many of the known CRs are
 relatively faint; the initial K2 discoveries
@@ -934,7 +973,7 @@ connections between CRs and dippers in light of these
       rotation--color distribution of CRs against the rotation
       periods of K and M dwarfs in the Pleiades from
       \citet{2016AJ....152..114R}.  The lower-middle panel plots the
-      derived corotation radii $R_{\rm cr} = (GM/\Omega^2)^{1/3}$ in
+      derived corotation radii $R_{\rm c} = (GM/\Omega^2)^{1/3}$ in
       units of stellar radii against the measured CR periods, in
       units of hours.  Ages in the final panel are known from cluster
 			membership.
@@ -1358,35 +1397,38 @@ radius.
 \subsection{Typical and extreme CRs}
 \label{subsec:extreme}
 
-Figure~\ref{fig:catalogscatter} shows derived stellar properties for
-our CR catalog, and compares the CRs against both the target star
-sample (top panels), and against stars in the Pleiades
-\citep{2016AJ....152..114R}.  Typical CR masses span
-0.1-0.4\,$M_\odot$, and typical ages span 2-150\,Myr.  This mass and
-age range includes both fully convective stars
-($M_\star$$\lesssim$0.25\,$M_\odot$), and stars with a combination of
-radiative cores and convective envelopes
-($M_\star$$\gtrsim$0.25\,$M_\odot$; \citealt{2018A&A...619A.177B}).
-We found no obvious light curve morphology differences between the two
-classes.  In terms of their rotation rates relative to the Pleiades,
-the CRs are among the more rapidly rotating half of M dwarfs. 
+Referring back to Figure~\ref{fig:catalogscatter}, which compares the
+properties of CRs with those of the search sample (top panels) and the
+Pleiades \citep{2016AJ....152..114R}, we see that the typical CR
+masses span 0.1-0.4\,$M_\odot$, and the typical ages span 2-150\,Myr.
+This mass and age range includes both fully convective stars and stars
+with a combination of radiative cores and convective envelopes, with
+the dividing line at around $M_\star = 0.25\,M_\odot$
+\citep{2018A&A...619A.177B}.  We found no obvious differences in light
+curve morphology between CRs above and below the boundary of
+0.25\,$M_\odot$.  In terms of their rotation rates relative to the
+Pleiades, the CRs are among the more rapidly rotating half of M
+dwarfs. 
 
-The closest CR in our catalog is DG~CVn (TIC~368129164;
-$d$$=$18\,pc), a member of AB Dor.  To our knowledge, this work is the
-first time that it has been noted as a CR.  The three brightest CRs
-are DG~CVn ($T$=9.3), TIC~405754448 ($T$=9.6), and TIC~167664935
-($T$=10.3).  The shortest period belongs to TIC~201789285, at
-3.64\,hr.  The longest period belongs to TIC~405910546, at 37.9\,hr.
-If the latter source turns out to be an eclipsing binary, the
-next-longest would be TIC~193831684 (31.0\,hr).
+The closest CR in our catalog is DG~CVn (TIC~368129164; $d$$=$18\,pc),
+a member of AB Dor.  To our knowledge, this star had not previously
+been recognized as a CR.  The three brightest CRs are DG~CVn
+($T$=9.3), TIC~405754448 ($T$=9.6), and TIC~167664935 ($T$=10.3).  The
+shortest period, 3.64\,hr, belongs to TIC~201789285.  The longest
+period, 37.9\,hr, belongs to TIC~405910546.  If the latter source
+turns out to be an eclipsing binary, the longest-period CR in the
+catalog would be TIC~193831684 (31.0\,hr).  By definition, we required
+the periods to be below 48\,hr.
 
 The lowest mass ($\approx$$0.12$\,$M_\odot$) belongs to TIC~267953787.
-The catalog contains a few other stars with similar mass.  Given the
-small number of sub-stellar mass objects in our target sample, future
-studies of brown dwarf photometric variability might also yield CRs,
-though there could be degeneracies in interpretation with planetary
-surface features such as clouds and latitudinal bands
-\citep[e.g.][]{2021ApJ...906...64A,2022ApJ...924...68V}.
+The catalog contains a few other stars with similar mass.  We cannot
+rule out the possibility that CRs exist with even lower masses, given
+the small number of such low-mass stars in our target sample.  Perhaps
+even brown dwarfs can be CRs, although it might be difficult to
+distinguish the type of variability we associate with CRs from the
+usual variability of brown dwarfs caused by clouds and latitudinal
+bands \citep[e.g.][]{2021ApJ...906...64A,2022ApJ...924...68V}.
+
 
 
 \subsection{CRs and binarity}
@@ -1402,23 +1444,23 @@ as is the presence of multiple periods in the TESS light curves
 (\ngoodmultperiodflag/\ngoods).  Elevated astrometric noise is almost
 always accompanied by multiple detectable TESS periods
 (\ngoodruweandmultperiod/\ngoodhighruwe\ high-quality CRs).  The
-latter point strongly corroborates the idea that most sources with
-RUWE$_{\rm DR3}$$>$2 are intermediate separation binaries with
-projected apparent separations below 1$''$, and projected physical
-separations $\lesssim$50\,AU.
+latter observation corroborates the claim that most sources with
+RUWE$_{\rm DR3}$$>$2 are binaries with projected apparent separations
+below 1$''$, and projected physical separations $\lesssim$50\,AU.
 
-The multiplicity rate of M dwarfs near the Sun is 26.8$\pm$1.4\%
-\citep{2019AJ....157..216W}.  Based on the same study, the peak of the
-separation distribution decreases from $\approx$49\,AU for
-$0.30$-$0.60$\,$M_\odot$ stars, to $\approx$11\,AU for
+One possible relation between binarity and CRs is that the presence of
+an intermediate-separation binary could cause early disk dispersal,
+freeing the star to contract.  The CR phenomenon seems to require
+rapid rotation; thus if binary systems tend to produce more rapidly
+rotating stars, we would expect a sample of CRs to have a larger
+binary fraction than the field.  We do not see clear evidence for such
+an effect.  The multiplicity rate of M dwarfs near the Sun is
+26.8$\pm$1.4\% \citep{2019AJ....157..216W}.  Based on the same study,
+the peak of the separation distribution decreases from $\approx$49\,AU
+for $0.30$-$0.60$\,$M_\odot$ stars, to $\approx$11\,AU for
 $0.15$-$0.30$\,$M_\odot$ M dwarfs.  The multiplicity fraction in our
-CR sample seems either consistent or perhaps marginally higher than
-the field fraction.  This could plausibly be understood in a physical
-framework in which the presence of intermediate-separation binaries
-causes early disk dispersal, freeing the star to contract.  The CR
-phenomenon seems to require rapid rotation; thus if binary systems
-tend to produce more rapidly rotating stars, we would expect a sample
-of CRs to have a larger binary fraction than the field.
+CR sample seems approximately consistent with this field fraction.
+
 
 
 \subsubsection{Do K dwarf CRs exist?}
@@ -1427,40 +1469,47 @@ of CRs to have a larger binary fraction than the field.
 To date, the only stars reported to show the CR phenomenon are M
 dwarfs, with typical stellar masses $\lesssim$0.3\,$M_\odot$
 \citep{2017AJ....153..152S,2022AJ....163..144G}.  However the two most
-massive CRs in our sample, TIC~405754448 and TIC~405910546, appear to
-have masses of $\approx$0.82\,$M_\odot$ and $\approx$0.60\,$M_\odot$
-respectively.  The next-highest masses in our sample are
-$\approx$0.40\,$M_\odot$.
+massive CRs in our sample, TIC~405754448 and TIC~405910546, were
+assigned masses of $\approx$0.82\,$M_\odot$ and
+$\approx$0.60\,$M_\odot$ respectively.  The next-highest masses in our
+sample are $\approx$0.40\,$M_\odot$.
 
-Based on their locations in the color--absolute magnitude
-diagram and membership in LCC, both of the K dwarfs do indeed appear
-to be high mass.  However in detail, both are subject to ambiguities
+These stars' locations in color--absolute magnitude diagrams and
+their probable membership in Lower Centaurus Crux both support the
+conclusion that they have relatively high masses.
+However in detail, both are subject to ambiguities
 in interpretation.  The TIC~405910546 light curve has a unique shape,
 suggestive of an eclipsing binary.  Independently, TIC~405910546 was
 one of only \nrvscatterflag\ CRs flagged with a Gaia DR3 radial
 velocity scatter exceeding 20\,\kms.  Combined, these factors suggest
-that TIC~405910546 might be a pre-main-sequence eclipsing binary; it
-should be studied further to clarify this classification.  For
-TIC~405754448, we believe that the source {\it is} an unresolved
-binary, because RUWE$_{\rm DR3}$=6.8, and because the raw light curves
-in Sectors 11, 37, and 38 show an additional $\approx$6.5\,day,
-$\approx$0.3\% amplitude sinusoidal signal suggestive of an unresolved
-photometric companion.  If TIC~405754448 is a K+M binary, then the
+that TIC~405910546 could be a pre-main-sequence eclipsing binary; it
+should be studied further to clarify this classification.
+
+For the other object, TIC~405754448, the evidence for binarity is
+stronger.  The RUWE$_{\rm DR3}$ statistic is 6.8, and the raw light
+curves in Sectors 11, 37, and 38 show both the CR signal with period
+12.9\,hr and amplitude $\approx$1\% and an additional sinusoidal
+signal with a period $\approx$6.5\,days and amplitude $\approx$0.3\%,
+likely from a second star.  If TIC~405754448 is a K+M binary, then the
 flux ratio between the primary and secondary would be expected to be
-$\approx$10:1.  It would be challenging for the M dwarf to produce the
-observed 12.9\,hr signal with such a flux deficit, but not impossible.
-While both of these objects suggest that the CR phenomenon may extend
-up in mass to pre-main-sequence K dwarfs, more data are needed to
-fully substantiate this claim.
+$\approx$10:1.  Thus, if the K star were the source of the CR signal,
+its intrinsic variability amplitude would be $\approx$1\%, while if
+the M star were responsible its intrinsic variability amplitude would
+be $\approx$10\%.
+
+In short, these two objects suggest that the CR phenomenon may extend
+up in mass to pre-main-sequence K dwarfs, but more data are needed to
+substantiate this claim.
+
 
 \subsubsection{An astrophysical CR false positive: TIC~435903839}
 
 We originally classified TIC~435903839, with RUWE$_{\rm DR3}$=17.7, as
 an ``ambiguous'' CR with a 10.8\,hr period, because this period
 minimized the dispersion in the phase-folded light curve.  More
-careful inspection however showed that it is an impostor:
+careful inspection revealed an impostor:
 this source is a photometric blend of two ordinary rotating stars with
-$P_0$=3.60\,hr, and $P_1$=5.41\,hr, with a beat period $(P_0^{-1} -
+$P_0$=3.60\,hr, and $P_1$=5.41\,hr, giving a beat period $(P_0^{-1} -
 P_1^{-1})^{-1}$ of 10.8\,hr.  This is a novel false positive scenario
 for CRs: two rapidly-rotating stars with near-integer ratios of
 rotation periods.  The beat between the two rotation signals produces
@@ -1471,271 +1520,236 @@ multiple of the dispersion-minimizing 10.82\,hr period.
 
 \subsubsection{Multiple CRs in the same system: TIC~425937691 and TIC~142173958}
 
-TIC~142173958 and TIC~425937691 both show evidence for two separate
-CR signals in their TESS light curves.  For TIC~142173958, the
-signals are at 11.76\,hr and 12.84\,hr.  For TIC~425937691, they are
-at $\approx$4.82\,hr and $\approx$3.22\,hr, near the 3:2
-commensurability.  Given that both sources have two photometric
-signals and elevated RUWEs, they are probably unresolved binaries
-consisting of two independent CRs.  Recent work has shown that the
-orbits of binaries closer than $\lesssim$700 AU tend to be aligned
-with their planetary systems \citep[e.g.][]{2022AJ....163..207C}.  If
-we assume that observing CR variability similarly requires near
-edge-on viewing geometries, then we might expect a sufficiently close
-binary with one CR to also have another, since the spin axes in
-sufficiently close binaries would tend to be aligned.  In this
-scenario, the two periods of TIC~425937691 being within $\lesssim$1\%
-of the 3:2 period commensurability would simply be a coincidence.
+TIC~142173958 and TIC~425937691 both show evidence for two separate CR
+signals in their TESS light curves.  For TIC~142173958, the signals
+have periods of 11.76\,hr and 12.84\,hr.  For TIC~425937691, the two
+periods are 4.82\,hr and 3.22\,hr, near the 3:2 commensurability.
+Given that both sources have two photometric signals and elevated
+RUWEs, each source is probably an unresolved binary consisting of two
+CRs.
+
+Recent work has shown that the orbits of binaries closer than
+$\lesssim$700 AU tend to be aligned with their planetary systems
+\citep[e.g.][]{2022AJ....163..207C}.  If we assume that observing CR
+variability requires high inclinations relative to the line of sight,
+and that the inclinations in binaries are correlated, then we would
+expect the detection of one CR in a binary system to raise the
+probability that the other star is a CR.  The limitations of the
+current catalog prevent further exploration of this issue, but it
+might be interesting for future study.  Even if this scenario is
+correct, it would not provide an immediate explanation for the
+near-commensurability of the two periods of TIC~425937691 (the ratio
+is within 1\% of 3:2).
 
 
-\subsection{CRs are quasiperiodic}
 
-A periodic signal repeats exactly; the CRs do not
-(Figure~\ref{fig:evoln}).  While their periods appear to remain
-constant to within measurement precision over thousands of cycles, the
-light curve shapes evolve over 10 to 1{,}000 cycles.  They are
-therefore {\it quasi}periodic.  While this observation is consistent
-with the analyses by \citet{2022AJ....163..144G} and
+\subsection{Transience \& special phases of CR dips}
+
+While CR periods appear to remain constant to within measurement
+precision over thousands of cycles, the light curve shapes evolve over
+typical timescales of 10 to 1{,}000 cycles (e.g.
+Figures~\ref{fig:evoln} and~\ref{fig:lpriver0}).  The CRs are
+therefore quasiperiodic, with a characteristic dip longevity of
+$\approx$100 cycles.  While this observation is consistent with the
+analyses by \citet{2022AJ....163..144G} and
 \citet{2023ApJ...945..114P}, it marks a qualitative departure from the
 ``persistent'' {\it vs.} ``transient'' flux dip distinction described
-by \citet{2017AJ....153..152S}, since all CR dips seem to be
-transient over timescales of more than 1{,}000 cycles
-(Figure~\ref{fig:evoln}).
+by \citet{2017AJ....153..152S}, since all CR dips seem to be transient
+over timescales of more than 1{,}000 cycles (Figure~\ref{fig:evoln}).
 
-With that said, one might expect a truly quasiperiodic process to be
-able to explore all phase angles with equal weight.  LP 12-502, and
-perhaps other CRs, seem to have preferred phases.  For LP 12-502, all
-of the dips happen over phases corresponding to only two thirds of the
-period (Figure~\ref{fig:lp}).  The remaining third seems to be ``out
-of limits'' for any dipping material.  This could be evidence that the
-stellar magnetic field is strongly asymmetric, and can hold extrinsic
-material at corotation, but only over two thirds of the equatorial
-circle.  Alternatively, the source of the material (e.g. a
-planetesimal swarm) might be distributed over an arc of the same
-angular extent (240$^\circ$).  We favor the former explanation, for
-reasons discussed below.
+One peculiarity of CR evolution however is that the dips do not
+explore all phase angles with equal weight.  LP 12-502, and other CRs,
+have preferred phases lasting for at least two years.  For LP 12-502,
+all of the dips happen over phases corresponding to only two thirds of
+the period (Figures~\ref{fig:lp} and~\ref{fig:lpriver0}).  The
+remaining third seems to be ``out of limits'' for dips over the
+timespan of observations.  This could be evidence that the stellar
+magnetic field is not azimuthally symmetric.  Alternatively, the
+source of the material (e.g. a planetesimal swarm) might be
+distributed over an arc rather than occurring randomly around the
+entire orbit.  
 
 
 
 \subsection{Dip asymmetries and dust geometries}
 
-The asymmetry of a dip can help diagnose the optical depth of the
-occulting material as a function of orbital phase angle.  Sharp
-leading edges with trailing exponential egresses for instance have
-been previously seen for transiting exocomets and disintegrating rocky
-bodies
+The asymmetry of a dip around the time of minimum light might be
+caused by the variation in optical depth of the occulting material as
+a function of orbital phase angle.  Sharp leading edges with trailing
+exponential egresses, for instance, have been previously seen for
+transiting exocomets and disintegrating rocky bodies
 \citep[e.g.][]{2012ApJ...752....1R,2012A&A...545L...5B,2015Natur.526..546V,2019A&A...625L..13Z}.
 
-Examining Figure~\ref{fig:cqvs}, it is not obvious whether CRs as a
-whole show any preference for sharper ingresses, or sharper egresses.
-In some cases (e.g. TIC~425933644), the continuum itself is not
-well-defined, and so the meaning of ``ingress'' and ``egress'' are not
-clear.  In others, such as Sector~36 of TIC~89463560, there is a
-single clear sharp ingress with an exponential egress, which could be
-fitted using e.g.~a model analogous to those used for exocomets
-\citep[e.g.][]{2018MNRAS.474.1453R,2019A&A...625L..13Z}.  The main quantities of interest
-in such models would be the exponential decay time- and therefore
-length-scale, as well as the impact parameter and the inferred transit
-depth (and its implications for the equivalent ``radius'' of the
-transiting cloud).  We briefly explored such models, until it
-became clear that careful modeling of sources such as LP
-12-502 merits its own in-depth study.  Connections could likely also
-be made to the toroidal geometries that can be produced by outflowing
-atmospheres of transiting planets
+Examining Figure~\ref{fig:cqvs}, it is clear that CR dips can be
+asymmetric but it is not obvious whether there is a preference for
+sharper ingresses or sharper egresses.  In some cases (e.g.
+TIC~425933644), the flux variations do not resemble isolated dips,
+making the meaning of ``ingress'' and ``egress'' unclear.  In other
+cases, such as Sector~36 of TIC~89463560, there is a sharp drop with
+an exponential return to the baseline flux, resembling the signatures
+of exocomet \citep[e.g.][]{2018MNRAS.474.1453R,2019A&A...625L..13Z},
+or the outflowing exospheres of certain transiting planets
 \citep[e.g.][]{2019ApJ...873...89M,2022ApJ...926..226M}.
 
 
 
-\subsection{Dust, or gas?}
+\subsection{Dust vs. gas}
 
-We believe that the most likely scenarios to explain CRs are either
-the dust clump scenario or the prominence scenario
-(Figure~\ref{fig:f1}).  Both invoke clumpy material that would be
-magnetically confined at the corotation radius.  The prominence idea
-has a longer history, based on analogy with quiescent
-prominences/filaments observed to exist in the solar corona for up to
-a few weeks \citep[see][]{2015ASSL..415.....V}.  In an extrasolar
-context, spectroscopic detections of transient Balmer- and
-resonance-line absorption seen for stars such as AB~Dor and Speedy~Mic
+Both the dust clump and the gas prominence scenario invoke clumps
+of material at the corotation radius;
+the main property that we believe distinguishes the two ideas is 
+the composition of the material.
+
+\subsubsection{What is a prominence?}
+The prominence idea is based on an analogy with quiescent
+prominences/filaments in the solar corona that last as long as a few
+weeks \citep[see][]{2015ASSL..415.....V}.  In the context of the Sun,
+a prominence is a clump of cold, partially ionized hydrogen viewed in
+emission against the dark backdrop of space.  A filament is the same
+clump of plasma, but viewed in absorption against the solar disk.  In
+an extrasolar context, spectroscopic detections of transient Balmer-
+and resonance-line absorption seen for stars such as AB~Dor and
+Speedy~Mic
 \citep[e.g.][]{1989MNRAS.238..657C,1993MNRAS.262..369J,2006MNRAS.365..530D,2016MNRAS.463..965L}
-led to the interpretation that the data could best be explained by
-similar structures: cold, minimally ionized hydrogen clouds or
-filaments that scatter chromospheric emission from the star to produce
-the observed spectroscopic line variations
-\citep[see][]{1989MNRAS.238..657C}.  The short-term mechanical
-stability of such gas configurations is theoretically plausible
-\citep{2000MNRAS.316..647F,2022MNRAS.514.5465W}, and the
-interpretation of this class of observations seems at least somewhat
-secure.
+have been interpreted as prominences that scatter a star's
+chromospheric emission \citep[see][]{1989MNRAS.238..657C}.  The
+short-term mechanical stability of such gas configurations is
+theoretically plausible for such stars
+\citep{2000MNRAS.316..647F,2022MNRAS.514.5465W}.   To our best
+knowledge, this class of spectroscopic observation also has no viable
+alternative explanations.
 
-A clear link between the dense gas clumps (prominences) that likely
-exist around rapidly rotating low-mass stars and the CR phenomenon
-has yet to be made.  A simple visual examination of the TESS light
-curves for five prominence-hosting systems studied by
+We performed a simple visual examination of the TESS light curves for
+five prominence-hosting systems studied by
 \citet{2019MNRAS.482.2853J}--AB~Dor, Speedy~Mic, LQ Lup, HK Aqr, and
-V374 Peg--revealed no obvious CR behavior, though all show
-differential evolution, and Speedy~Mic shows two closely-spaced
-periods and a strong beat.  Spectroscopically observable prominences
-do not imply photometric CR-like dips.
-
-The key difference between the prominence and dust clump scenarios is
-in whether the occulting material of interest is neutral hydrogen, or
-dust.  In the phrasing of the ``frozen flux'' condition of ideal rigid
-field magnetohydrodynamics, the tendency of both to become trapped at
-the corotation radius in the equatorial plane is tied to how of the
-four relevant forces (gravity, Lorentz, inertial Coriolis, and
-inertial centrifugal), the Lorentz and Coriolis only act perpendicular
-to field lines, while gravity and the centrifugal force are in balance
-at $R_{\rm cr}$ \citep[see][Sec.~2]{2005MNRAS.357..251T}.  
-This assumes that the magnetic field dominates the flow, i.e., that
-$B^2/8\pi > \rho v^2 /2$, so that matter is dragged along with the
-field lines.
-The locations where this condition holds may ultimately determine where
-matter can accumulate.
-
-%The magnetic field strength is only relevant in this formulation of
-%the system in that we must have $ R_{\rm cr} < R_{\rm M}$ in
-%order for closed loops to exist that can support prominences
-%\citep[e.g.][]{1985Ap&SS.116..285N,2019MNRAS.482.2853J}.  In detail
-%however, the locations of such magnetic fixed points depends on the
-%star's magnetic field topology.
+V374 Peg--and detected no CR behavior.  Assuming that
+spectroscopically observable prominence systems do not turn off, this would
+imply that they are not always accompanied by photometric CR-like
+dips: a link between the spectroscopic prominences
+that may exist around rapidly rotating low-mass stars and the CR
+phenomenon has yet to be made.  
 
 
-\subsubsection{Gas absorption microphysics}
+\subsubsection{What is the microphysical source of opacity?}
 
 CRs show broadband flux variations that can be 1-2$\times$ deeper in
 the blue than in the red
 \citep{2017PASJ...69L...2O,2020AJ....160...86B,2022AJ....163..144G,2023MNRAS.518.2921K}.
-For neutral hydrogen to produce this effect in absorption, its opacity
-must be larger in the blue than in the red.
-\citet{1992oasp.book.....G} suggests that this might be
-microphysically possible: while bound-bound absorption provides
-opacity only at narrow resonant lines, the hydrogen opacity due to
-bound-free absorption is ``jagged'' \citep[see][Figure 8.5 and
+Dust can naturally explain this chromaticity, since it has a larger
+absorption cross-section in the blue than the red
+\citep[e.g.][]{1989ApJ...345..245C}.  Gas might also explain the observed
+chromaticities \citep{1992oasp.book.....G}.  While bound-bound
+absorption can be excluded, since it provides opacity only at narrow
+resonant lines, the (neutral) hydrogen opacity due to bound-free
+absorption is ``jagged'' \citep[see][Figure 8.5 and
 Eq.~8.8]{1992oasp.book.....G}, such that at temperatures of
-$\approx$3{,}000\,K to $\approx$10{,}000\,K the observed
-chromaticities might be reproduced.  While bound-free absorption of
-${\rm H}^{-}$ seems like it should be important at such cool
-temperatures, in detail this opacity source has the {\it opposite
-sign} from what is required to produce deeper dips in the blue than in
-the red.  Thomson scattering is similarly ruled out as a relevant
-opacity source, because it is gray.  The final plausible alternative
-opacity source is dust, which has the requisite larger absorption
-cross-section in the blue than the red \citep{1989ApJ...345..245C}.
+$\approx$3{,}000\,K to $\approx$10{,}000\,K the opacity can be larger
+at blue wavelengths than at red wavelengths.  Bound-free absorption of
+${\rm H}^{-}$ is often important at such temperatures, but this
+opacity source is stronger in the red than the blue, the opposite of
+what is required to produce deeper dips in the blue than in the red.
+Likewise, Thomson scattering is too gray to be the dominant opacity
+source.
 
 An instructive point of comparison is the rapidly rotating magnetic B
 star, $\sigma$~Ori~E, which shows dips that are deeper in the blue
 than in the red \citep{1977ApJ...216L..31H}.  Photometric and
 spectroscopic observations of this star have been understood in terms
-of a warped torus of circumstellar material, analogous to the
-geometries we are discussing for much cooler M dwarfs
+of a warped torus of corotating circumstellar material
 \citep{1978ApJ...224L...5L,1985Ap&SS.116..285N,2005ApJ...630L..81T}.
-This material is unlikely to be dust, due to the relevant sublimation
-timescales.  The opacity is instead thought to be sourced from
-bound-free absorption from neutral hydrogen
-\citep{1985Ap&SS.116..285N}, although to our best knowledge direct
-evidence for this conclusion has yet to be acquired.  Separate and
-smaller-amplitude emission in $\sigma$~Ori~E may also come from
-electrons scattering photospheric light toward the observer when the
-clouds are not in transit \citep{2022MNRAS.511.4815B}.
+The circumstellar material is unlikely to be dust, which would
+sublimate quickly at the distance of the torus from the
+star.\footnote{\citet{2019ApJ...876..127Z} explored the sublimation
+timescales for a canonical CR with $M_\star=0.2\,M_\odot$,
+$R_\star=0.3\,R_\odot$, and $T_{\rm eff}=3200\,{\rm K}$.  They found
+that non-shielded, generic silicate dust mixture \citep{1985ApJS...57..587D} with a
+single size of 0.1\,$\mu$m reached the $\approx$1500\,K sublimination
+temperature at $\approx$3\,$R_\star$.  This suggests that dust
+sublimation could be an important effect even for CRs. }  The opacity
+source for $\sigma$~Ori~E and its analogs is instead thought to be
+bound-free absorption by neutral hydrogen \citep{1985Ap&SS.116..285N},
+although to our best knowledge direct evidence for this conclusion has
+yet to be acquired.  Separate and smaller-amplitude continuum flux
+brightenings in $\sigma$~Ori~E may also come from electrons scattering
+photospheric light toward the observer when the clouds are not
+transiting \citep{2022MNRAS.511.4815B}.
 
 Given these complexities, it seems important for a future theoretical
 study to be conducted to determine to what degree the observed
 chromaticities in CRs match, or do not match, expectations from
 radiative transfer.  This issue has a key ability to resolve the
-question of whether the CRs are explained by dust or by gas, which
-has bearing on whether the material producing the dips is coming from
-the star, or whether it is a byproduct of the protoplanetary disk.
+question of whether the CRs are explained by dust or by gas, which has
+bearing on whether the material producing the dips is coming from the
+star, or whether it is a byproduct of the protoplanetary disk.
 
-
-%\subsubsection{Why corotation?}
-
-% The stable point only exists if R_A > R_K.  For radii between R_A
-% and R_K in such cases, consider a magnetic field line extending out
-% beyond R_K.  Whenever R>R_K, the material is centrifugally supported
-% (pushed out by the ~Ω^2R^2 centrifugal term in the corotating
-% frame).  If R<R_K in such cases along a given field line, the
-% material will fall back to the star.  So there are two conditions
-% that must be met: the star must spin fast enough, and closed
-% magnetic loops must extend beyond the corotation radius.  (This is
-% all spelled out by Nakajima1985, and Petit2013).
 
 
 \subsubsection{The lifetime constraint}
 
-Independent of the microphysical basis for gas absorption, the
-observed lifetime of the CR phenomenon could provide another
-dimension to discern between the gas vs.~dust clump scenarios.
-Based on the available statistics from e.g.
-\citet{2022AJ....164...80R} and references therein, it seems plausible
-that CR occurrence decreases in time, bottoming to zero well before
-the $\approx$700\,Myr age of Praesepe.  This is odd in the context of
-the prominence scenario, because pre-main-sequence M dwarfs spin up
-over the first $\approx$$10^8$\,yr; prominences might even be expected
-to be {\it more} common at the age of the Pleiades than for younger
-stars.  This broadly assumes that any star that can support
-prominences will do so, and that the magnetic topology of rapidly
-rotating M dwarfs at 100\,Myr is similar to that of rapidly rotating M
-dwarfs at say, 10\,Myr.  Based on the degree to which M dwarfs remain
-rapid rotators over the first few gigayears of their lives
-\citep[e.g.][]{2022AJ....164...80R,2022ApJ...936..109P}, it seems
-surprising in the gas clump (prominence) scenario that very few stars
-older than 150\,Myr have been seen to exhibit the phenomenon.  In the
-dust clump scenario this is not a problem, because if the dust were
-externally sourced, it would be expected to have a finite supply.
+The observed lifetime of the CR phenomenon could provide another way
+to discern between the gas and dust clump scenarios.  Based on the
+available statistics from e.g.  \citet{2022AJ....164...80R} and
+references therein, it seems plausible that CR occurrence decreases
+with stellar age from $\approx$3\% at 10\,Myr (Sco-Cen),
+to $\approx$1\% at 100\,Myr (Pleiades),
+down to 0\% by the $\approx$700\,Myr
+age of Praesepe.  This is odd in the context of the prominence
+scenario, because pre-main-sequence M dwarfs spin up over the first
+100\,Myr; prominences might therefore even be expected to be {\it
+more} common at 100\,Myr than at 10\,Myr, under the assumption that the
+production of prominences depends only on the stellar rotation rate. 
+The dust clump scenario would hold a natural explanation: the lower occurrence of CRs around older stars would
+simply reflect a finite supply of dust.
+One possible complication however is that the magnetic field topology
+of rapidly rotating M dwarfs may depend on factors other than the
+rotation rate (e.g. the age), which might affect the production of prominences.
 
 
 \subsection{Planets or planetesimal swarms near corotation?}
 
-Close-in planets are common around M-dwarfs; studies from Kepler have
-shown that high-mass M dwarfs have $\approx$0.1 planets per star with
+Close-in planets are common around M dwarfs; studies from Kepler have
+shown that early M dwarfs have $\approx$0.1 planets per star with
 sizes between 1-4\,$R_\oplus$ and orbital periods within 3 days
-\citep{2015ApJ...807...45D}.  The number increases to $\approx$0.7
-planets per star considering planets out to $P$$<$10\,days.
-Extrapolating to all small close-in planets with say 0.1-4\,$R_\oplus$
-and within 10 days, it is reasonable to expect on average one close-in
-planet per M dwarf.
+\citep{2015ApJ...807...45D}.  The frequency of planets per star
+increases to $\approx$0.7 when considering periods as long as
+10\,days.  Extrapolating to all small (0.1-4\,$R_\oplus$) planets within
+10 days, it is reasonable to expect
+nearly all M dwarfs to have at least one planet.
 
-In the context of planet formation, the stopping location for the
-innermost planet is set by the location of the protoplanetary disk's
-truncation radius \citep{2018haex.bookE.142I}.  Although the disk
-truncation radius is defined by equating the magnetic pressure from
-the stellar magnetosphere with the ram pressure from the inflowing
-gas, it also tends to coincide with the Keplerian corotation radius
-for low accretion rates
-\citep{2016ARA&A..54..135H,2022MNRAS.510.5246L}.  Within models that
-have one or more planets migrating inward due to gas drag, the
-innermost planets therefore arrive at $\approx$5-10 stellar radii
-before the disk becomes depleted.
+In the context of disk-driven planet migration, the stopping location
+for the innermost planet is set by the location of the protoplanetary
+disk's truncation radius \citep{2018haex.bookE.142I}.  The disk
+truncation radius is traditionally calculated by equating the magnetic
+pressure from the stellar magnetosphere with the ram pressure of the
+inflowing gas.  As it happens, the truncation radius is close to the
+corotation radius for low accretion rates
+\citep{2016ARA&A..54..135H,2022MNRAS.510.5246L}.  These considerations
+invite us to imagine one or more planets migrating inward due to gas
+drag, and the innermost planets arriving at $\approx$5-10 stellar
+radii before the disk is depleted.
 
-Given the known abundance of small planets around M dwarfs, it is
-tempting to try to interpret features of the CR light curves in terms
-of the possible presence of either close-in exoplanets or close-in
-planetesimals.  Rocky bodies this young could have molten global magma
-oceans analogous to those that existed on the Earth and Moon
-\citep[see][]{2022arXiv220310023L}, and could plausibly be outgassing
-either from those magma oceans, or from their unprocessed thin
-primordial atmospheres; in the former scenario, the gas would likely
-be enriched in heavy elements relative to the stellar wind.  The
-system would in certain respects be analogous to the Jupiter-Io plasma
-torus \citep[e.g.][]{2004jpsm.book..537S}, although with magnetic
-fields stronger by a factor of $\approx$1{,}000.  We emphasize that
-while this type of configuration seems a priori plausible, no direct
-evidence currently supports it.
+With this picture in mind, it is tempting to attribute features of the
+CR light curves as transits of material ejected by planets or
+planetesimals.  Young rocky bodies are expected to be hot, and they
+might expel either gas or dust.  The Jupiter-Io
+system \citep[e.g.][]{2004jpsm.book..537S} is analogous, in that a small rocky
+body similarly feeds the construction of a plasma torus.  We emphasize
+that while this type of configuration seems a priori plausible, no
+direct evidence currently supports it.
 
-The main logical function of the planetesimals is to serve as a source
-for the occulting gas or dust; they would not necessarily need to
-explain the observed phases of the observed dips.  The azimuth angle
-of the eventual confinement could be entirely determined by the
-stellar magnetic field configuration.  In this scenario, the obscuring
-material could potentially inspiral from outgassing planetesimals many
-stellar radii away from the corotation radius.  While the
-planetesimals themselves would not necessarily need to transit, if
-they did, they would need to be $\lesssim 1$\,$R_\oplus$ based on
-their non-detections in the TESS data.  This would be analogous to
-previously known systems such as K2-22 \citep{2015ApJ...812..112S} and
-KOI-2700 \citep{2014ApJ...784...40R}, though the obscuring material
-would be observed much further from the emitting planet.  
+The main logical function of the planetesimals would be to serve as a
+source for the occulting gas or dust; they would not necessarily need
+to explain the observed phases of the observed dips.  The azimuthal
+angle of the eventual entrainment would be entirely determined by the
+stellar magnetic field.  In this scenario, the obscuring material
+would inspiral from one or more rocky bodies well beyond the
+corotation radius.  The planetesimals themselves would not necessarily
+need to transit.  However if they did, they would need to be $\lesssim
+1$\,$R_\oplus$ based on their non-detections in the TESS data.
+Possibly analogous systems include K2-22 \citep{2015ApJ...812..112S}
+and KOI-2700 \citep{2014ApJ...784...40R}, though the obscuring
+material in the CRs would need to be observed much further from the
+emitting planet than for those two examples.  
 
 A more restrictive variant of the planetesimal scenario would be to
 posit that the obscuring material remains close to the launching body,
@@ -1757,43 +1771,8 @@ field configurations responsible for confining said material are
 stable over the existing two-year baseline.
 
 
-%In systems like LP 12-502, the observed variability would perhaps
-%drive one toward a picture of a disintegrating planetesimal swarm,
-%rather than just a single planetesimal.  The need for more than just
-%one launching body would be because we see dips appear and disappear at many
-%different phases, but with roughly the same period.  The observed
-%changing dip depths in response to flares could be understood through
-%the planetesimal outflow rates being stalled by changes in the local
-%magnetic field or coronal plasma density.  The sizes of these
-%purported planetesimals would need to be $\lesssim 1$\,$R_\oplus$,
-%based on the non-detections of their transits, analogous to e.g.
-%K2-22 \citep{2015ApJ...812..112S} or KOI-2700
-%\citep{2014ApJ...784...40R}.  Typical sizes of bodies in the asteroid
-%belt for instance span hundreds of meters to a few kilometers.
 
-%There are at least three problems with this disintegrating
-%planetesimal swarm concept.  First, the model would predict that
-%certain orbital phases would produce recurrent dips if observed over
-%sufficiently long baselines, because the launching planetesimal would
-%be massive enough to remain in orbit, while stochastically ejecting
-%material.  An analogous system would be K2-22
-%\citep{2015ApJ...812..112S}.  For most CRs (Figure~\ref{fig:evoln}),
-%the data are in tension with this expectation.  A second issue is that
-%many of the dips show asymmetries in the wrong direction relative to
-%the naive expectation of a trailing comet tail.  Invoking
-%non-exponentially decaying dust distributions as a function of azimuth
-%might be one way out, but such an idea lacks firm theoretical footing.
-%Finally, dynamical stability is a concern: in a model in which any new
-%dip is ``explained'' by invoking a new planetesimal, one might
-%eventually pack the corotation radius to a degree where instability
-%over short timescales would be guaranteed.
-
-%It is certainly possible that exoplanets or exoplanetesimals could end
-%up being connected to the CR phenomenon, for instance as a possible
-%sources for the occulting dust or gas.  However for the time being,
-%none of the CRs that we have studied in this work show clear evidence
-%for the nearby planets that we statistically expect should be common.
-
+%FIXME TODO LEFT OFF HERE
 
 \subsection{From dippers to debris disks}
 \label{subsec:discdippers}
@@ -1993,18 +1972,18 @@ The physical similarity between the B stars and the M dwarfs
 presumably has its origin in the existence of a ``centrifugal
 magnetosphere'' \citep[see][]{2013MNRAS.429..398P}.  In other words,
 both classes of objects probably satisfy the condition $R_{\rm M} >
-R_{\rm cr}$, for $R_{\rm M}$ the magnetospheric radius (sometimes
+R_{\rm c}$, for $R_{\rm M}$ the magnetospheric radius (sometimes
 referred to as the Alfv\'en radius).  When this condition
 holds, stable points exist wherever the outward centrifugal force is
 balanced by the combined effect of gravity and magnetic tension along
 closed field loops \citep{1985Ap&SS.116..285N}.  In the converse
-``dynamical'' case, when  $R_{\rm M} < R_{\rm cr}$, material
+``dynamical'' case, when  $R_{\rm M} < R_{\rm c}$, material
 interior to the magnetospheric radius returns to the stellar surface
 over the free-fall timescale.  A simple estimate assuming a dipole
 field with $B_0\approx1\,{\rm kG}$ at the star's surface, a local
 plasma number density $n\approx10^9\,{\rm cm^{-3}}$, and a plasma
 temperature $10^6\,{\rm K}$ gives magnetospheric radii of order a few
-times the corotation radii, $R_{\rm cr}$.  This suggests that the
+times the corotation radii, $R_{\rm c}$.  This suggests that the
 existence of a centrifugal magnetosphere is plausible in young,
 rapidly rotating M dwarfs.
 
@@ -2298,7 +2277,7 @@ All authors assisted in manuscript writing and revision.
 %\midrule
 %\endhead
 \startdata
-  TIC & $T$ & $d$ & $\bprp$ & RUWE & $P$ & Assoc & Age & $T_{\rm eff}$ & $R_\star$ & $M_\star$ & $R$$_{\rm cr}$ & $P_{\rm sec}$ & Quality & Bin & $N_{\rm sector}$ \\
+  TIC & $T$ & $d$ & $\bprp$ & RUWE & $P$ & Assoc & Age & $T_{\rm eff}$ & $R_\star$ & $M_\star$ & $R$$_{\rm c}$ & $P_{\rm sec}$ & Quality & Bin & $N_{\rm sector}$ \\
   -- &   mag & pc &    mag &      -- &        hr &   -- &        Myr &  K                  & $R_\odot$ & $M_\odot$ & $R_\star$         & hr                     & -- & -- & -- \\
 \hline
 \input{20230613_LGB_RJ_CPV_TABLE_selfnapplied_rounded_data}
