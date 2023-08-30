@@ -543,7 +543,7 @@ more accurate period determination.
 		\includegraphics[width=0.96\textwidth]{f2.pdf}
 		\vspace{-0.3cm}
 		\caption{
-      {\bf Validation plots used to  label CRs}.  The complete figure
+      {\bf Validation plots used to classify CRs}.  The complete figure
       set, with one image per sector for each of the \nallcands\
       objects in Table~\ref{tab:thetable} is available in the online
       journal. {\bf For internal collaboration review:
@@ -1023,13 +1023,13 @@ Section~\ref{subsec:discbinary}.
 		\includegraphics[width=\textwidth]{f4.pdf}
 		\vspace{-0.6cm}
 		\caption{
-			{\bf CRs keep their periods but change their shapes.}
+			{\bf Evolution of CR light curves over two years.}
 			Out of the \ngoods\ CRs in Figure~\ref{fig:cqvs}, 32 had
 			120-second cadence TESS data available for a baseline of at
 			least two years; the 27 brightest are shown here due to space
 			constraints.  Each panel shows one sector of TESS data, and is
 			phased to its deepest minimum in flux.  Each panel's title shows
-			the TIC identifier and approximate period in hours.  Text insets
+			the TIC identifier and period in hours.  Text insets
 			show the TESS sector numbers, which generally span two years, or
 			at least 1{,}000 cycles.  The vertical scale is fixed across
 			sectors to clarify shape changes.  Gray circles are raw 2-minute
@@ -1046,13 +1046,13 @@ Section~\ref{subsec:discbinary}.
 		\vspace{-0.3cm}
 		\caption{
       {\bf LP 12-502 (TIC~402980664) light curve}, where each time
-      segment represents one TESS orbit.  Data were acquired in Sectors
-      18-19, 25-26, 53, and 57-58.  Flares are drawn in gray.  The
-      light curve is binned to 15-minute intervals so that there are
-      96 points per day, and each point is connected by a line.  Data
-      gaps are not interpolated; if data are missing, nothing
-      is plotted.  The red vertical lines highlight apparently
-      instantaneous state changes in the shape of the dip pattern.  
+      segment represents one TESS orbit.  Data were acquired in
+      Sectors 18-19, 25-26, 53, and 57-58.  Flares are drawn in gray.
+      The light curve is binned to 15-minute intervals so that there
+      are 96 points per day, and each point is connected by a line.
+      Data gaps have nothing plotted.  The red vertical lines
+      highlight apparently instantaneous state changes in the shape of
+      the dip pattern.  
 		}
 		\label{fig:lplc}
 	\end{center}
@@ -1060,13 +1060,17 @@ Section~\ref{subsec:discbinary}.
 
 
 \subsection{Evolution over two year baseline}
+\label{subsec:twoyear}
 
 Figure~\ref{fig:evoln} shows ``before'' and ``after'' views of 27 CRs
 for which TESS 120-second cadence observations were available at least
 two years apart.  Such a baseline was available for 32 of the
 confirmed \ngoods\ CRs in our catalog; for plotting purposes we show
-the brightest 27.  We have phased each sector to its own local minimum
-because for most of the sources we do not know the period at the
+the brightest 27.  
+We have defined $\phi=0$ for each sector to be the time of minimum
+light observed in that sector, rather than using a consistent phase
+definition across multiple sectors.
+This is because for most of the sources we do not know the period at the
 precision necessary to be able to accurately propagate an ephemeris
 over two years.  The achievable period precision, $\sigma_P$, can be
 estimated as
@@ -1082,17 +1086,14 @@ over a single TESS sector yields
 $\sigma_{P}$$\approx$$0.25^{+0.38}_{-0.14}$\,minutes for the
 population shown in Figure~\ref{fig:evoln}; propagated forward 1{,}000
 cycles yields a typical ephemeris uncertainty range of 2-11\,hours.
-Measuring the periods for each sector independently, there did not
-seem to be any significant ($>$3$\sigma$) period changes.  This
-implies an absolute period stability of $\lesssim$0.1\% over the
-two-year baseline.
+Measuring the period independently for each sector did not reveal
+evidence for significant ($>$3$\sigma$) changes in period, implying
+a period stability of $\lesssim$0.1\% over two years.
 
-A few objects in Figure~\ref{fig:evoln}
-show clear signs of
-the CR phenomenon in one sector, and marginal or non-existent signs
-in the other.  While there is subjectivity in this assessment, to our
-eyes, cases for which at least one sector would be flagged as
-``ambiguous'' include
+A few objects in Figure~\ref{fig:evoln} show the CR phenomenon in one
+sector, and only marginal signs or no sign of CR behavior in the other
+sector.  In our subjective assessment, cases for which at least one
+sector would be flagged as ``ambiguous'' include
 TIC~368129164 (Sector 23 might be labeled an EB),
 TIC~177309964 (Sector 38 would be simply a rotating star),
 TIC~404144841 (Sector 38 looks like a rotating star),
@@ -1102,13 +1103,13 @@ and
 TIC~38820496 (Sector 28 might be an RS CVn).
 TIC~193831684, assessed on a single-sector basis, would probably be
 labeled an eclipsing binary---in fact, \citet{2021ApJ...912..123J}
-already gave this source such a label.  However,
-based on the shape evolution between Sectors 13 and 39, it is a
-CR.  Based on the fraction of sources overall that ``turned off'',
-the observed shape evolution implies that CRs have an on-off duty cycle of
-$\approx$75\%.  This type of correction is worth including in
-population-level estimates of how intrinsically common CRs are in the
-low-mass stellar population \citep[e.g.][]{2022AJ....163..144G}.
+already gave this source such a label.  However, based on the shape
+evolution between Sectors 13 and 39, it is a CR.  Based on the
+fraction of sources overall that ``turned off'', the observed shape
+evolution implies that CRs have an on-off duty cycle of $\approx$75\%.
+Correcting for the duty cycle might be important in population-level
+estimates of the intrinsic frequency of the CR phenomenon
+\citep[e.g.][]{2022AJ....163..144G}.
 
 
 
@@ -1119,13 +1120,13 @@ low-mass stellar population \citep[e.g.][]{2022AJ....163..144G}.
 		\vspace{-0.3cm}
 		\caption{
 			{\bf Evolution of LP 12-502} ($P$=18.5611\,h) at fixed period and
-			epoch over three years.  Each panel shows one phase-folded TESS
+      epoch over three years.  Each panel shows one (averaged) TESS
 			orbit; small text denotes relative cycle number.  There are 200
 			binned black points per cycle.  The TESS pointing law dictates
-			the large time gaps between Cycles 64-248, 315-1233, and
+			the large time gaps between cycles 64-248, 315-1233, and
 			1264-1410; larger gaps tend to yield larger shape changes.  The
 			dips usually evolve over tens to hundreds of cycles.  However
-			cycles 1233-1264 show a dip that ``switched'' from a depth and
+			cycles 1233-1264 show a dip that switched from a depth and
 			duration of 3\% and 3\,hr to 0.3\% and 1\,hr over less than one
 			cycle (cf.~Figure~\ref{fig:lplc}).
 		}
@@ -1172,131 +1173,144 @@ low-mass stellar population \citep[e.g.][]{2022AJ....163..144G}.
     {\bf River plots of the LP 12-502 light curve}, showing (clockwise
     from top-left) Sectors 18-19, 25-26, 53, and 58-59.  A
     two-harmonic sinusoid has been subtracted to highlight the sharp
-    dips.  In Sectors 25-26 (cycles 248-315), periods are visible at
+    dips.  
+    A fixed period and phase are adopted for all sectors; the dips
+    across all observations are bounded by $\phi \in [-0.35,0.35]$.
+    In Sectors 25-26 (cycles 248-315), periods are visible at
     the fundamental period of 18.5611\,hr, as well as at faster
     ($\phi$$\approx$0-0.07) and slower ($\phi$$\approx$0.25-0.27)
     relative periods based on the presence of blue dips with distinct
-    slopes.  Multiple simultaneous periods are also visible in Sectors
-    53 and 58-59.  White chunks denote missing data.
+    slopes.  Multiple simultaneous periods are also visible in Sector
+    53 (cycles 1234-1263) and Sectors 58-59 (cycles 1411-1479).  White
+    chunks denote missing data.
+    The state changes noted in red in Figure~\ref{fig:lplc} occur in
+    cycles 261, 309, and 1241.
 	}
 	\label{fig:lpriver0}
 \end{figure*}
 
 
-\subsection{Evolution over adjacent sectors, \& LP 12-502}
+\subsection{Evolution over consecutive sectors, \& LP 12-502}
 
-A small fraction of our objects were in regions of sky with many
-sectors of adjacent TESS data.  Out of this already small sample, LP
-12-502 (TIC 402980664; $d$=21\,pc, $J$=9.4, $T$=11.1) stood out due to
-the quality and content of its data.  We discuss another interesting
-source, TIC~300651846, in Appendix~\ref{app:tic3006}.  In this
-section, we first present the LP 12-502 observations and then
-highlight their implications.
+A few of our complex rotators were near the TESS continuous viewing
+zones (Figure~\ref{fig:catalogscatter}, top right).  Out of this
+already small sample, LP 12-502 (TIC 402980664; $d$=21\,pc, $J$=9.4,
+$T$=11.1) stood out due to the quality and content of its data.  We
+discuss another interesting source, TIC~300651846, in
+Appendix~\ref{app:tic3006}.  In this section, we describe the LP
+12-502 observations and the possible implications.
 
 
 \subsubsection{LP 12-502 observations}
 \label{subsec:lpobservations}
 
-Figure~\ref{fig:lplc} shows all available data for LP 12-502 from TESS
-Sectors 18, 19, 25, 26, 53, 58, and 59, split into successive orbits.
-The star was observed at 120-second cadence whenever it was observable
-by TESS.  We binned the light curve to 15-minute intervals for visual
-clarity, and required at least one (120-second cadence) flux
-measurement per bin.  Points more than 2.5$\sigma$ above the median
-are drawn in gray, also for visual clarity.  Missing data are not
-drawn.  Figure~\ref{fig:lp} then shows the same data, but folded for
-each successive TESS orbit.  Finally, Figure~\ref{fig:lpriver0} shows
-``river plots'' of the same data, split into similar intervals: the
-Sector 18-19 data, 25-26 data, 53 data, and 58-59 data.  The river
-plots are subject to one additional processing step: we fitted and
-subtracted a maximum-likelihood two-harmonic sinusoid independently
-from the Sector 18-19 data, 25-26 data, and 53, 58, and 59 data in
-order to accentuate changes in the dip timing and structure.
+Whenever LP 12-502 was located within a TESS sector, it was observed
+at 120-second cadence.  Figure~\ref{fig:lplc} shows all the available
+data, from Sectors 18, 19, 25, 26, 53, 58, and 59. Vertical offsets
+were applied to separate the data from different spacecraft orbit
+numbers; there are always two orbits per sector.  We binned the light
+curve to 15-minute intervals to facilitate visual inspection.  Points
+more than 2.5$\sigma$ above the median are drawn in gray, to prevent
+outliers from seizing attention.  Data gaps are not connected by lines
+(a common source of confusion in light curve visualization).
+Figure~\ref{fig:lp} shows the same data after phase-folding each TESS
+spacecraft orbit, assuming $P$=18.5611\,hr and a fixed reference epoch
+of BTJD=1791.5367.  Finally, Figure~\ref{fig:lpriver0} shows ``river
+plots'' of the same data, split into similar intervals: the Sector
+18-19 data, 25-26 data, 53 data, and 58-59 data.  The river plots are
+subject to one additional processing step: we fitted and subtracted a
+maximum-likelihood two-harmonic sinusoid independently from the Sector
+18-19 data, 25-26 data, and 53, 58, and 59 data in order to accentuate
+changes in the dip timing and structure.
 
 The average period, determined by measuring the PDM peak period over
 each sector independently, was $\langle P \rangle = 18.5560$\,hr.  The
 range between the maximum and minimum sector-specific periods was
-measured to be about one minute.   However, in detail, a period shift
-of $\pm$1\,minute would yield major phase drifts over the baseline;
-that time interval corresponds to $\approx$1/1000$^{\rm th}$ of a
-period, and we have observed 1500 cycles.  By fine-tuning over a grid
-in period, we found $P=18.5611 \pm 0.0001$\,hr, which seems to track
-certain features in the LP 12-502 light curve well over the entire
-dataset.
+measured to be about one minute.   However, a period shift of
+$\pm$1\,minute leads to large phase drifts over the entire timespan of
+observations.  One minute is $\approx$1/1000$^{\rm th}$ of a period,
+and we have observed 1500 cycles.  By folding with a fine grid of
+trial periods, we found that the choice $P=18.5611 \pm 0.0001$ causes
+more of the features in the LP 12-502 light curve to maintain constant
+phases over the entire dataset.
 
-What exactly is observed?  For the first 64 cycles, the star shows a
-pattern reminiscent of an eclipsing binary, with four obvious local
-minima.  We dub these dips $\{ 1, 2, 3, 4 \}$ at phases $\{ -0.28,
--0.08, 0, 0.25 \}$, respectively.  Over cycles 0-64, the depth of dips
-1 and 3 remain roughly fixed.  However dip 4 decreases in depth by
-about 2\%, while dip 2 increases in depth, by about the same amount
-(see Figure~\ref{fig:lp}).  During cycles 48-64, a fifth dip may also
-be emerging, in the main ``large'' dip group.
+We now attempt to describe the complex morphology of the light curve
+and its evolution.  For the first 64 cycles, the star shows four
+obvious local minima.  We dub these dips $\{ 1, 2, 3, 4 \}$ at phases
+$\{ -0.28, -0.08, 0, 0.25 \}$, respectively.  Dips 2 and 3 are part of
+the same ``global'' minimum, which otherwise resembles a long eclipse.
+Over cycles 0-64, the depth of dips 1 and 3 remain roughly fixed.  Dip
+4 decreases in depth by about 2\%, and dip 2 increases in depth by
+about the same amount (see Figure~\ref{fig:lp}).  A subtle fifth dip
+may also be present at phase +0.08, at the end of the global minimum
+that includes dips 2 and 3.
 
-There is then a 6-month (184 cycle) gap to Cycles 248-315, which show
+There is then a 6-month (184-cycle) gap to Cycles 248-315, which show
 two highly structured dip complexes, plus a small leading dip.  The
-single leading dip is present at the same phase as in cycles 0-64, and
-is therefore likely to be the same structure.  Along a similar line of
-logic, it seems plausible that the first ``dip complex'' during cycles
-248-264 represents an evolution of the initial complex seen during
-cycles 0-64, though with reduced depth.  During cycles 266-310, an
-additional local minimum develops between the two complexes; this
-feature is best visualized on the river plots
-(Figure~\ref{fig:lpriver0}), and we describe its (shorter) period
-below.
+leading dip has the same phase (relative to minimum light) as in
+cycles 0-64, and therefore seems likely to be due to the same
+structure.  Along a similar line of logic, it seems plausible that the
+first ``dip complex'' during cycles 248-264 represents an evolution
+and reduction in amplitude of dips 2 and 3 that were seen during
+cycles 0-64.  During cycles 266-310, an additional local minimum
+develops between the two complexes; this feature is best visualized on
+the river plots (Figure~\ref{fig:lpriver0}), where it is seen to have
+a shorter period than the other dips (as described below).
 
 The second dip complex during cycles 248-315 shows the most
 substructure.  During e.g.~cycles 283-298, this single complex shows
-six local minima.  The deepest dip is sharp: it shows a flux excursion
-of 3.5\% over about 22 minutes (0.02\,$P$), which is the steepest
-slope exhibited anywhere in the LP~12-502 dataset.  After the sharp
-dip, there is a roughly exponential fall-off spanning about a quarter
-of a period, punctuated by coherent local minima and maxima which in
-detail (Figure~\ref{fig:lpriver0}) have slightly longer periods than
-the sharp dip.  The sharp leading dip only decreases in depth
-following a sudden state-switch at BTJD 2030.7 (cycles 299-315), which
-happens during a flare (Figure~\ref{fig:lplc}).  The trailing dips
-remain thereafter.
+six local minima.  The first and deepest dip is sharp: it shows a flux
+excursion of 3.5\% over about 22 minutes (0.02\,$P$), which is the
+steepest slope exhibited anywhere in the LP~12-502 dataset.  After the
+sharp dip, there is a roughly exponential return to the baseline flux
+spanning about a quarter of a period, punctuated by coherent local
+minima and maxima that the river plot (Figure~\ref{fig:lpriver0})
+reveals to have slightly longer periods than the sharp dip.  The sharp
+leading dip remains roughly constant in amplitude until a sudden
+``state change'' at BTJD 2030.7 (cycle 309) that occurred at the same
+time as a flare, and left the trailing dips seemingly unaffected.
+This apparent state change, and two others, are marked with red lines
+in Figure~\ref{fig:lplc}.
 
-Sectors 53--58 (cycles 1233-1481) are comparatively tame; they showed
+The behavior during Sectors 53--58 (cycles 1233-1481) is comparatively tame; the light curve shows
 only four to six dips per cycle.  Some dips remain stable in depth and
-duration over this five month interval.  Other dips grow, like the one
+duration over this five-month interval.  Other dips grow, like the one
 at $\phi = +0.06$ between cycles 1499 and 1481.  Other dips, such as
 the one at $\phi = +0.12$ in cycles 1233-1264, disappear entirely.
-The most dramatic state switch occurs during cycles 1233-1247, when a
-large dip ``switches'' from a depth of 3\% and duration of 3 hours to
-a depth of 0.3\%, and a duration of 1 hour.
+The most dramatic state change occurs during cycle 1241, when a large
+dip switches from a depth of 3\% and a duration of 3 hours to a depth
+of 0.3\% and a duration of 1 hour.
 
 
 \subsubsection{Lessons from LP 12-502}
 \label{subsec:lplessons}
 
-{\sc State-switches reveal dip independence}---The state-switches seen
+{\sc State-changes reveal dip independence}---The state-changes seen
 in cycles 1233-1247 and 299-315 confirm that dips can disappear in
-less than one cycle, a point which has been previously appreciated
-\citep{2017AJ....153..152S}.  What is new in these particular changes
-is that the morphology changes show that the dips can be {\it
-independent} and {\it additive}.  For example, throughout cycles
-1233-1264, there are three local minima between phases of 0 and 0.3.
-They all have identical ingress times.  The shape change during the
-transition implies that the leading dip that ``turned off'' (reduced
-its depth and duration), while the trailing two dips remained fixed.
-This is visible in Figure~\ref{fig:lp}.  In other words, the
-structures producing these dips are independent to the degree that one
-can undergo a severe change while the others remain identical.  The
-state switches during cycles 248-264 and 299-315 share the same
-characteristic: it is always the {\it leading} dip of a complex that
-``switches off'', leaving the (fixed-depth) trailing dips in its wake.
+less than one cycle. While such behavior was also noted by
+\cite{2017AJ....153..152S}, the data presented here show further that
+the dips can be {\it independent} and {\it additive}.  For example,
+throughout cycles 1233-1264, there are three sharp dips between phases
+of 0 and 0.3 with different amplitudes but similar slopes.  During the
+transition, the leading dip nearly disappeared while the other two
+dips hardly changed; compare the centermost two panels of
+Figure~\ref{fig:lp}.  Evidently, the material or process responsible
+for one dip can vary independently of the materials or processes
+responsible for other dips.  The state changes during cycles 248-264
+and 299-315 support the same conclusion, while also hinting that the
+{\it leading} dip of a complex is most prone to disappearing, leaving
+the trailing dips unchanged in its wake.
 
-{\sc Slow growth; rapid death}---Although there are a few instances in
-which we observe dips switch off over less than one cycle, dip growth
-seems to happen more slowly.  For instance, the dip that grows between
-phase 0 and 0.1 between cycles 260-290 begins to become visible around
-BTJD 1993.2, and growths in depth by about 2\% over about six cycles,
-to become visible by eye by BTJD 1997.7.  The evolution of this
-particular dip is most clear in the river plots.  The evolution of the
-latter dip group in cycles 1410-1481 is another example of this slow
-mode of dip growth.
+
+{\sc Slow growth; rapid death}---LP 12-502 shows at least three
+instances in which dips switch off over less than one cycle; we did
+not see any such instances of dips switching on.  Dip growth instead
+seems to happen more slowly.  For instance, the dip at phase 0-0.1
+between cycles 258-290 begins to become detectable during cycle 258,
+and growths in depth by about 2\% over the next eight cycles.  The
+evolution of this particular dip is most clear in the river plots.
+The evolution of the dip group at phases 0.1-0.3 during cycles
+1410-1481 is another example of this slow mode of dip growth.
 
 % 16 px vs 310 px for a full phase
 % Based on our SED fitting $R_\star=0.369\,R_\odot$ star, and from the
@@ -1304,32 +1318,36 @@ mode of dip growth.
 
 {\sc Dip durations}---The shortest dip duration for any of the
 individual LP 12-502 dips seems to be $\approx$0.06\,$P$ $\approx$
-1.08\,hr.  In comparison, using the stellar radius and mass derived in
-Section~\ref{subsec:starprops}, the characteristic timescale $T_{\rm
-dur} \equiv R_\star P / (\pi a)$ for the transit of a point-source at
-corotation is 1.02$\pm$0.10\,hr.  This means that while some of the LP
-12-502 dips are sufficiently long to require structures that are
-extended in orbital azimuth, the durations of other dips are
-consistent with effective radii for the occulting material $R_{\rm
-eff} \ll R_\star$.  This implies $a/R_\star \approx 5.8$ for this
-material; the analogous timescale at the stellar surface is about six
-times slower.
+1.08\,hr.  This is very similar to the characteristic timescale of of
+transiting small body at the corotation radius,
+\begin{equation}
+T_{\rm dur} \equiv R_\star P_{\rm rot} / (\pi a) = 1.02\pm 0.10\,{\rm hr},
+\end{equation}
+where we have inserted the stellar radius and mass derived in
+Section~\ref{subsec:starprops}.  Thus, the shortest-duration dips
+could be produced by transits of bodies or distributions of material
+that are smaller than the star.  The corotation radius corresponds to
+$a/R_\star \approx 5.8$, i.e., the transit of a body at the corotation
+radius has a duration about six times shorter than a feature on the
+stellar photosphere that is carried across the visible hemisphere by
+rotation.  On the other hand, some dip durations are sufficiently long
+that an explanation involving transits would require structures that
+are larger than the star along the direction of orbital motion.
 
 {\sc Dip periods}---Most of the LP 12-502 dips repeat with a period of
 $P=18.5611 \pm 0.0001$\,hr.  However the river plots
-(Figure~\ref{fig:lpriver0}) reveal that the light curve has specific
-dips with simultaneous but distinct periods.  For instance, in sectors
-25-26, the local minimum that develops around cycle 262 has a period
-faster than the mean period by $\approx$0.1\%, while some of the
-trailing local minima in the main dip complex have periods slower than
-the mean period, by $\approx$0.04\%.  In addition to the fundamental
-period, we were able to identify at least four distinct periods shown
-by specific dips over the full Sectors 18-59 dataset, including
-periods at 18.5683, 18.5672, 18.5473, and 18.5145\,hr, with a typical
-measurement uncertainty of $\approx$0.0002\,hr.  If each period
-corresponds to an individual dust or gas clump, then this implies that
-multiple distinct clumps can orbit the star simultaneously, at
-marginally different separations.
+(Figure~\ref{fig:lpriver0}) reveal that a few dips have detectably
+distinct periods.  For instance, in sectors 25-26, the dip that
+develops around cycle 262 has a period shorter than the mean period by
+$\approx$0.1\%, and some of the trailing local minima in the main dip
+complex have periods slower than the mean period by $\approx$0.04\%.
+In addition to the fundamental period, we were able to identify at
+least four distinct periods shown by specific dips over the full
+Sectors 18-59 dataset: 18.5683, 18.5672, 18.5473, and 18.5145\,hr,
+with a measurement uncertainty of $\approx$0.0002\,hr. Possibly, the
+different periods belong to clumps of dust or prominences of gas at
+slightly different orbital distances surrounding the corotation
+radius.
 
 
 
