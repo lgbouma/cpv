@@ -260,7 +260,7 @@ def plot_river(time, flux, period, outdir, titlestr=None, cmap='Blues_r',
         vmax = np.nanmedian(flux)+4*np.nanstd(flux)
 
     set_style('science')
-    fig, ax = plt.subplots(figsize=(6,6))
+    fig, ax = plt.subplots(figsize=(6,5))
     c = ax.pcolor(np.arange(0, period, cadence)/period - 0.5,
                   list(range(cycle_min, cycle_max)),
                   100*flux_arr.T,
