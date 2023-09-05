@@ -1,8 +1,5 @@
 """
-Want to quote the following stat:
-
-    Only XX.X% of K- and M-dwarfs with d<100pc and T<16 received 2-minute
-    observations across Sectors 1-58.
+Make plot of completeness fraction for the 2-minute data between Sectors 1-55.
 """
 import numpy as np, pandas as pd, matplotlib.pyplot as plt
 
