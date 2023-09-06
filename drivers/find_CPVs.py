@@ -63,7 +63,7 @@ def get_ticids(sample_id):
         #"268963753"
         #"67745212"
         #"201789285",
-        "402980664"
+        #"402980664"
         #"251496897"
         #"141146666" # neighbor of 141146667
         #"353927317" # EPIC 211070495, Rebull2016
@@ -71,6 +71,7 @@ def get_ticids(sample_id):
         #"268971806" # HD 64740 has lots of data!
         #"254612758"  # rahul...
         #"435903839"
+        '243499565' # missed, in Sco-Cen from Stauffer2021
         ]
 
         N_stars_to_search = len(ticids)

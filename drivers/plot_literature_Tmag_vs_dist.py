@@ -160,13 +160,14 @@ def plot_tessmag_vs_distance(showliterature=1, show120seccands=1):
     #
     plt.close("all")
     set_style("science")
-    fig, ax = plt.subplots(figsize=(2,2))
+    f = 1.5
+    fig, ax = plt.subplots(figsize=(f*2,f*2))
 
     # 120 second CPV detections
     sel = (df.quality == 1)
     ax.scatter(
         df[sel].dist_pc, df[sel].TESSMAG,
-        c='C0', s=6, zorder=5, label='CQVs B23', linewidths=0
+        c='C0', s=f*9, zorder=5, label='CQVs B23', linewidths=0
     )
 
     # 120second candidates
@@ -174,7 +175,7 @@ def plot_tessmag_vs_distance(showliterature=1, show120seccands=1):
     if show120seccands:
         ax.scatter(
             df[sel].dist_pc, df[sel].TESSMAG,
-            c='C0', s=6, zorder=4, label='Candidates B23',
+            c='C0', s=f*9, zorder=4, label='Candidates B23',
             alpha=0.5, linewidths=0
         )
 
@@ -184,7 +185,7 @@ def plot_tessmag_vs_distance(showliterature=1, show120seccands=1):
         sel = ldf.telescope == 'K2'
         ax.scatter(
             ldf[sel].distance_pc, ldf[sel].TESSMAG,
-            c='gray', marker='D', s=5, linewidth=0.1, zorder=4,
+            c='gray', marker='D', s=f*9, linewidth=0.1, zorder=4,
             label='K2 literature'
         )
 
@@ -193,10 +194,10 @@ def plot_tessmag_vs_distance(showliterature=1, show120seccands=1):
             ldf[sel].distance_pc, ldf[sel].TESSMAG,
             #c='lightgray', marker='s', s=5, linewidth=0.1, zorder=6,
             label='TESS literature',
-            c='white', s=15, zorder=2, marker='o',
+            c='white', s=f*18, zorder=2, marker='o',
             #edgecolors='lightgray',
             edgecolors='k',
-            linewidth=0.2, alpha=1
+            linewidth=f*0.2, alpha=1
         )
 
     legend = ax.legend(loc='lower center', fontsize=5,
