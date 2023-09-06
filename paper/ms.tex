@@ -146,7 +146,7 @@
   entrained by the star's magnetic field, and the sharp features could
   result from a multipolar field topology, a hypothesis supported by
   correspondences between the light curves of CPVs and of B stars
-  that may have multipolar magnetic fields.
+  known to have multipolar magnetic fields.
 \end{abstract}
 
 
@@ -2428,6 +2428,49 @@ requirement that they all be simultaneously met seems sufficiently
 severe to disfavor this scenario.
 
 
+\begin{figure*}[!t]
+	\begin{center}
+		\subfloat{
+			\includegraphics[width=0.48\textwidth]{f11a.pdf}
+			\includegraphics[width=0.48\textwidth]{f11b.pdf}
+		}
+	\end{center}
+	\vspace{-0.4cm}
+	\caption{
+		{\bf Light curve evolution of TIC 300651846}.
+		All available 120-second cadence data as of 2023 Aug 11 are shown.
+		Cycles 0 to 622 span TESS Sectors 32-39 (Nov 2020--June 2021);
+		cycles 2296-2676 span Sectors 61-65 (Jan--June 2023).  We assumed
+		a 8.254\,hr period and a fixed reference epoch (BTJD 2174.127) for
+		both panels.  Light curve segments are split based on the presence
+		of gaps longer than three hours.  Cycle numbers are listed in the
+		lower-right of each light curve segment.
+	}
+	\label{fig:tic3006timegroups}
+\end{figure*}
+
+
+\begin{figure*}[!t]
+	\begin{center}
+		\subfloat{
+			\includegraphics[width=0.48\textwidth]{f12a.pdf}
+			\includegraphics[width=0.48\textwidth]{f12b.pdf}
+		}
+	\end{center}
+	\vspace{-0.4cm}
+	\caption{
+		{\bf River plots of TIC 300651846}.
+		This is an alternative visualization of the data in
+		Figure~\ref{fig:tic3006timegroups}.  All available 120-second
+		cadence data as of 2023 Aug 11 are shown.  Cycles 0 to 622 span
+		TESS Sectors 32-39 (Nov 2020--June 2021); cycles 2296-2676 span
+		Sectors 61-65 (Jan--June 2023).  We assumed $P$$=$8.254\,hr and
+		$t_0$=2174.127 [BTJD].  Note that the two panels have slightly
+		different color scales.
+	}
+	\label{fig:tic3006river}
+\end{figure*}
+
 
 \section{TIC~300651846}
 \label{app:tic3006}
@@ -2461,52 +2504,95 @@ sinusoid'' for this source, because the continuum is not as obviously
 defined.
 
 
-\begin{figure*}[!t]
-	\begin{center}
-		\subfloat{
-			\includegraphics[width=0.48\textwidth]{f11a.pdf}
-			\includegraphics[width=0.48\textwidth]{f11b.pdf}
-		}
-	\end{center}
-	\vspace{-0.4cm}
-	\caption{
-		{\bf Light curve evolution of TIC 300651846}.
-    All available 120-second cadence data as of 2023 Aug 11 are shown.
-    Cycles 0 to 622 span TESS Sectors 32-39 (Nov 2020--June 2021);
-    cycles 2296-2676 span Sectors 61-65 (Jan--June 2023).  We assumed
-    a 8.254\,hr period and a fixed reference epoch (BTJD 2174.127) for
-    both panels.  Light curve segments are split based on the presence
-    of gaps longer than three hours.  Cycle numbers are listed in the
-    lower-right of each light curve segment.
-	}
-	\label{fig:tic3006timegroups}
-\end{figure*}
+\section{Literature comparison}
+\label{sec:litcomp}
+
+We compared our CPV search results against previous work by
+compiling a list of CPVs from both K2
+\citep{2017AJ....153..152S,2018AJ....155...63S} and TESS
+\citep{2019ApJ...876..127Z,2020AJ....160...86B,2021AJ....161...60S,2022AJ....163..144G,2023ApJ...945..114P}.
+We counted PTFO 8-8695 as a TESS-detected CPV \citep[but see][and
+references therein]{2020AJ....160...86B}.  This effort resulted in a
+list of 74 unique objects that had been reported to be CPVs.  We made
+no attempt to reclassify these sources based on our subjective grading
+scheme.  TESS contributed 41 of the 74 objects; the remaining 33 were
+from K2.  
+
+{\it How many known CPVs did we miss?}---A minority of the literature
+CPVs, 19/74, were stars with 120-second TESS data acquired between
+Sectors 1-55 that also met conditions~\ref{eq:one}--\ref{eq:four}.
+Our blind search (Table~\ref{tab:thetable}) recovered all but two of
+these 19 sources: TIC~65347864 in Tuc-Hor \citep{2023ApJ...945..114P},
+and TIC~243499565 in Sco-Cen \citep{2021AJ....161...60S}.  During our
+blind vetting, we manually labelled both sources as eclipsing
+binaries.  Reconsidering with the knowledge of previous literature, we
+believe that TIC~65347864 remains ambiguous: this source shows one
+persistent broad local minimum superposed over sinusoidal spot
+modulation; it could be an eclipsing binary, an RS CVn, or a CPV.
+
+TIC~243499565 however is a bona fide CPV; our blind labeling for this
+source was incorrect.  \citet{2021AJ....161...60S} made the
+classification based on Sector~11 full-frame image data.  During
+Sector~38, the dip phases were different, and the source
+resembled an eccentric eclipsing binary (similar to TIC~193831684).  Sector~64 recently showed
+the development of additional local minima in the light curve so that
+it shows three dips per cycle; its CPV classification is secure.  Our
+search therefore missed one star that had previously been classified
+as a CPV.
+
+{\it How many of our CPVs are new?}---Considering only our ``good''
+CPVs, 35 of these 50 sources have not yet been reported in the
+literature.  Considering only the 13 ``ambiguous'' CPVs, 11 are new to
+the literature.  Two sources, TIC~67897871 (EPIC~202724025; RIK-90;
+\citealt{2017AJ....153..152S}) and TIC~118769116 (EPIC~247343526;
+\citealt{2017AJ....153..152S}), were previously only known to be CPVs
+due to K2 observations.  Both periods appear to have remained
+identical, within measurement precision.  The shapes have of course changed.
+These two objects, combined with PTFO 8-8695, provide evidence
+that CPV variability persists for at least decade timescales.
 
 
-\begin{figure*}[!t]
+\begin{figure}[!t]
 	\begin{center}
-		\subfloat{
-			\includegraphics[width=0.48\textwidth]{f12a.pdf}
-			\includegraphics[width=0.48\textwidth]{f12b.pdf}
+		\centering
+		\includegraphics[width=0.55\textwidth]{f13.pdf}
+		\vspace{-0.2cm}
+		\caption{
+			{\bf Brightnesses and distances of our CPVs compared
+      against previous work.}  
+      ``K2 literature'' corresponds to \citet{2017AJ....153..152S} and
+      \citet{2018AJ....155...63S}.  ``TESS literature'' corresponds to
+      \citet{2019ApJ...876..127Z,2021AJ....161...60S,2022AJ....163..144G}, and \citet{2023ApJ...945..114P}.
+      ``CQVs'' and ``candidates'' are as in
+      Figure~\ref{fig:catalogscatter}, though for visual clarity
+      unresolved binaries are not highlighted.  PTFO 8-8695, a CPV at
+      a distance of $\approx$350\,pc, is not shown.
 		}
+			\vspace{-0.5cm}
+		\label{fig:tmagvsdist}
 	\end{center}
-	\vspace{-0.4cm}
-	\caption{
-		{\bf River plots of TIC 300651846}.
-    This is an alternative visualization of the data in
-    Figure~\ref{fig:tic3006timegroups}.  All available 120-second
-    cadence data as of 2023 Aug 11 are shown.  Cycles 0 to 622 span
-    TESS Sectors 32-39 (Nov 2020--June 2021); cycles 2296-2676 span
-    Sectors 61-65 (Jan--June 2023).  We assumed $P$$=$8.254\,hr and
-    $t_0$=2174.127 [BTJD].  Note that the two panels have slightly
-    different color scales.
-	}
-	\label{fig:tic3006river}
-\end{figure*}
+\end{figure}
+
+
+
+{\it How do the brightness and distance distributions
+compare?}---Figure~\ref{fig:tmagvsdist} compares the TESS magnitudes
+and distances for the CPVs in Table~\ref{tab:thetable} against the
+previously known literature CPVs.  At the extremes, our new sources
+include the closest and brightest CPVs currently known. 
+All K2 CPVs are in Sco-Cen,
+$\approx$100-180\,pc from the Sun.  The large gap in the TESS literature CPV
+distance distribution was because the studies by
+\citep{2019ApJ...876..127Z} and \citet{2023ApJ...945..114P} both
+favored Tuc-Hor; many of our new CQVs are within this 40-100\,pc gap.
+
+
+
 
 
 
 \section{No significant power at 20~second cadence}
+\label{sec:twentysec}
 
 TESS was the first instrument to show that CPV light curves contain
 power at timescales of a few minutes
@@ -2526,6 +2612,7 @@ appreciable power at timescales shorter than a few minutes.
 
 
 \section{The CPVs are not obviously accreting}
+\label{sec:accretion}
 
 We acquired iodine-free reconnaissance spectra using Keck/HIRES for
 three CPVs.  The goals were to determine the chromospheric activity
@@ -2553,17 +2640,17 @@ signal, and a 9.00\,hr rotation signal with comparable amplitude.
 \begin{figure*}[!t]
 	\begin{center}
 	\subfloat{
-			\includegraphics[width=0.7\textwidth]{f13a.pdf}
+			\includegraphics[width=0.7\textwidth]{f14a.pdf}
     }
 
 	\vspace{-1.cm}
 	\subfloat{
-			\includegraphics[width=0.7\textwidth]{f13b.pdf}
+			\includegraphics[width=0.7\textwidth]{f14b.pdf}
     }
 
 	\vspace{-1.cm}
 	\subfloat{
-			\includegraphics[width=0.7\textwidth]{f13c.pdf}
+			\includegraphics[width=0.7\textwidth]{f14c.pdf}
     }
 	\end{center}
 	\vspace{-0.4cm}
