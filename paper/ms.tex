@@ -126,28 +126,30 @@
 \begin{abstract}
   %
   Complex periodic variables (CPVs) are stars that exhibit sharp and
-  periodic optical light curves.  Previous work has shown that such
-  stars tend to be disk-free pre-main-sequence M dwarfs with rotation
+  periodic optical light curves.  Previous work has indicated that such stars
+  tend to be disk-free pre-main-sequence M dwarfs with rotation
   periods of 0.2--2 days.  To advance understanding of these enigmatic
-  objects, we performed a blind CPV search using TESS 2-minute data of
+  objects, we performed a blind search using TESS 2-minute data of
   \nstarssearched\ K and M dwarfs with $T$$<$16 and $d$$<$150\,pc.  We
   found \ngoods\ high-quality CPVs.  The new objects include the
   brightest ($T$$\approx$9.5), closest ($d$$\approx$20\,pc), and
   oldest ($\approx$200\,Myr) CPVs known.  All objects but one turned
   out to be likely members of stellar associations, which enabled
-  age-dating.  One exceptional new object, LP 12-502, showed up to
-  eight dips per cycle; the dips at times coexisted with slightly
-  different periods, and the variability of the dips suggests that
-  they are additive and independent.  Broadly, our search confirms
+  age-dating.  An exceptional new object, LP 12-502, showed up to
+  eight flux dips per cycle; some of the LP 12-502 dips coexisted with slightly
+  different periods, and the shortest-duration LP 12-502 dips matched the expected
+  timescale for transiting small bodies at the corotation radius.
+  Broadly, our search confirms
   that CPVs are mostly young ($\lesssim$150\,Myr) and low-mass
   ($\lesssim$0.4\,$M_\odot$).  The flux dips that embody the class
   have lifetimes of $\approx$100 cycles, and the dips collapse in
-  response to stellar flares once every few months.  Corotating gas or
-  dust clumps remain the only viable explanation.  The gas or dust is
-  probably entrained by the star's magnetic field, and the sharp
-  features could result from a multipolar field topology, a hypothesis
-  supported by correspondences between the light curves of CPVs and of
-  B stars known to have multipolar magnetic fields.
+  response to stellar flares once every few months.  Corotating
+  concentrations of gas or dust remains the only plausible explanation
+  known.  The gas or dust is probably entrained by the star's magnetic
+  field, and the sharp features could result from a multipolar field
+  topology, a hypothesis supported by correspondences between the
+  light curves of CPVs and of B stars known to have multipolar
+  magnetic fields.
   %
 \end{abstract}
 
@@ -183,8 +185,8 @@ Stellar rotation (1629)}
 		Gray circles are raw 2-minute data; black circles are binned to
 		300 points per cycle.  The period in hours is printed in the
 		bottom right corner.  Left-to-right, the objects are LP 12-502
-		(TIC 402980664; Sector~19), TIC 94088626 (Sector 10), and TIC
-		425933644 (Sector~28).
+    (TIC~402980664; Sector~19), TIC~94088626 (Sector 10), and
+    TIC~425933644 (Sector~28).
 		{\it Bottom:} Cartoon explanations for the phenomenon.  The dust
 		clump scenario (left) and gas prominence scenario (right) both invoke
 		magnetically-entrained corotating material.
@@ -326,7 +328,7 @@ despite the potential utility of such observations.
 
 In this work, we aim to find bright and nearby CPVs, since these
 objects will be the most amenable to detailed photometric and
-spectroscopic analyses.  To do this, we use 120-second cadence data
+spectroscopic analyses.  To do this, we use 2-minute cadence data
 acquired by TESS between 2018 July and 2022 September (Sectors 1-55;
 Cycles 1-4).  We present our search methods in
 Section~\ref{sec:methods}, and the resulting CPV catalog in
@@ -369,25 +371,25 @@ clumps of gas or dust orbit at their corotation radii.
 
 We searched for CPVs by analyzing the short-cadence data acquired
 by TESS between 2018 July 25 and 2022 September 1 (Sectors 1-55).
-Specifically, we used the 120-second cadence light curves produced by
+Specifically, we used the 2-minute cadence light curves produced by
 the Science Processing and Operations Center at the NASA Ames Research
 Center \citep{2016SPIE.9913E..3EJ}.  While the TESS data products from
-these sectors also included full frame images with cadences of 600 and
-1800 seconds for a larger number of sources, we restricted our
-attention to the 120-second data for the sake of uniformity and
+these sectors also included full frame images with cadences of 10 and
+30 minutes for a larger number of sources, we restricted our
+attention to the 2-minute data for the sake of uniformity and
 simplicity in data handling.  In exchange, we sacrificed both
 completeness and homogeneity of the selection function.  While TESS
 cumulatively observed $\approx$90\% of the sky for at least one lunar
-month between 2018 July and 2022 September, the 120-second cadence
+month between 2018 July and 2022 September, the 2-minute cadence
 data were collected for only a subset of observable stars that were
 preferentially nearby and bright \citep[see][]{2021PASP..133i5002F}.
-The total 120-second data volume
+The total 2-minute data volume
 from Sectors 1-55 included 1{,}087{,}475 short-cadence light curves, which were
 available for 428{,}121 unique stars.
 % latter stats from MERGED_spoc2min_sector1_to_sector58.csv
 
 To simplify our search, we defined our target sample as
-stars with 120-second cadence TESS light curves satisfying the
+stars with 2-minute cadence TESS light curves satisfying the
 following four conditions:
 \begin{align}
   T &< 16 \quad&(\mathrm{Amenable\ with\ TESS}) \label{eq:one}\\
@@ -437,7 +439,7 @@ $\approx$0.12\,$M_\odot$.
       and early M dwarfs near the Sun, from Sectors 1-55.}  
       The orange dotted curve shows the number of stars in successive
       radial shells, each with a width of 10\,pc.  To be part of our selection function,
-      these stars must meet the listed conditions: they must be red dwarf
+      these stars must meet the following conditions: they must be red dwarf
       stars
       ($\bprp$>$1.5$; $M_{\rm G}$>4) amenable for TESS
       observations ($T$<16).  The blue solid curve shows the fraction
@@ -457,12 +459,13 @@ $\approx$0.12\,$M_\odot$.
 Prior to this study, most CPVs have been found by visually examining
 all the light curves of stars in young clusters
 \citep{2016AJ....152..114R,2017AJ....153..152S,2023ApJ...945..114P},
-or by flagging light curves with short periods and a large number of
+or by flagging light curves with short periods and 
 strong Fourier harmonics for visual inspection
 \citep{2019ApJ...876..127Z}.  In this work, we implemented a new
 search approach based on counting the number of sharp local minima in
 phase-folded light curves, while also using the Fourier approach.  We
-applied these two search techniques independently.
+applied these two search techniques independently to our
+\nstarssearched\ targets.
 
 
 \subsubsection{Counting dips}
@@ -474,7 +477,7 @@ or more dips per cycle, which distinguishes them from other types of
 variables such as synchronized and spotted binaries (RS CVn stars).
 
 For our dip-counting pipeline, we began with the {\tt PDC\_SAP} light
-curves for each sector, removed non-zero quality flags, and normalized
+curves for each sector \citep{2017ksci.rept....8S}, removed non-zero quality flags, and normalized
 the light curve by dividing out its median value.  We then flattened
 the light curve using a 5-day sliding median filter, as implemented in
 \texttt{wotan} \citep{2019AJ....158..143H}.  We computed a periodogram
@@ -526,7 +529,7 @@ eclipsing binaries.
 
 In short, CPV candidates were identified by requiring a peak PDM period
 below two days and the presence of at least three sharp local minima,
-based on at least one sector of the TESS 120-second data. Candidates
+based on at least one sector of the TESS 2-minute data. Candidates
 were then inspected visually as described in
 Section~\ref{subsec:visual}.
 
@@ -539,7 +542,7 @@ We performed an independent search using a Fourier-based approach,
 following \citet{2019ApJ...876..127Z} and \citet[][their
 Section~1.3]{2023MNRAS.524.4220P}.  Starting with the {\tt PDC\_SAP}
 light curves, we normalized each light curve, and then re-binned it
-into equal width 120-second bins to account for the uneven spacing in
+into equal width 2-minute bins to account for the uneven spacing in
 the TESS data, as well as the data gap caused by satellite downlink
 during each sector.  We then padded the data to ensure that the light
 curve had a length that was a power of two, as described by
@@ -548,17 +551,17 @@ of the padded light curve using {\tt numpy.fft}, we searched for peaks
 with a significance exceeding 12-$\sigma$ within a set of 500
 frequency bins.
 
-If a peak of such significance was found, we generated a ``summary
-sheet'' with information about the star, its full and folded light
-curves, Fourier transform, potential contaminating stars, and
-information about these contaminating stars.  Summary sheets were
-generated for $\approx$10\% of the 20{,}000 120-second targets in each
-sector.  We reviewed each summary sheet and tried to classify each
-light curve based on visual inspection of its morphology (with
-categories including eclipsing binary, CPV, RS CVn, and cataclysmic
-variable). Whenever a CPV was identified, the light curves from
-multiple sectors were stitched together and analyzed jointly, for a
-more accurate period determination.
+Peaks of significance were found for $\approx$10\% of the searched
+stars.  For all such cases, we generated an interim ``summary sheet''
+with information about the star, its full and folded light curves,
+Fourier transform, potential contaminating stars, and information
+about these contaminating stars.  We then reviewed each summary sheet,
+and tentatively classified each light curve based on visual inspection
+of its morphology (with common categories including eclipsing binary,
+CPV, RS CVn, and cataclysmic variable).
+%Whenever a CPV was identified, the light curves from
+%multiple sectors were stitched together and analyzed jointly, for a
+%more accurate period determination.
 
 
 
@@ -607,16 +610,16 @@ more accurate period determination.
       dip-counting search pipeline.  ``Neighbors'', abbreviated
       ``nbhr'', are listed within apparent distances of 2 TESS pixels
       if $\Delta T$$<$2.5.
-      {\it m)}: BANYAN-$\Sigma$ v1.2 association probabilities,
+      {\it m)}: BANYAN\,$\Sigma$ v1.2 association probabilities,
       calculated using positions, proper motions, and the parallax.
 		}
 		\label{fig:vet}
 	\end{center}
 \end{figure*}
 
-We assessed whether the objects found using the dip-counting
-(Section~\ref{subsec:counting}) and Fourier
-(Section~\ref{subsec:fourier}) techniques were consistent with
+We homogeneously assessed whether the objects identified using the
+dip-counting (Section~\ref{subsec:counting}) and Fourier
+(Section~\ref{subsec:fourier}) approaches were consistent with
 expectations for CPVs by assembling the data shown in
 Figure~\ref{fig:vet}.  We labeled a star as a ``good'' CPV if it met
 all of the following criteria for at least one TESS sector:
@@ -635,38 +638,39 @@ We also noted ''possible'' CPVs for which the classification was more
 ambiguous, and ``false positives'' that are definitely not CPVs.  The
 most common false positives for both the Fourier and dip-counting
 techniques were eclipsing binaries, ordinary spotted rapid rotators,
-and complex light curves due to multiple stars contributing to the
-photometric aperture.  Our dip-counting pipeline flagged
+and light curves that were complex due to multiple stars contributing to the
+photometric aperture.  Our specialized dip-counting pipeline flagged
 \nuniqdipflagged\ unique stars for visual inspection; about 20\% were
-subsequently labeled either good or possible CPVs.  From the Fourier
-pipeline, $\approx$0.5\% of stars that passed the 12-$\sigma$ peak
-threshold were eventually classified as CPVs.  This is because the
-Fourier pipeline was implemented as a general variability search; its
-results are also being used for analyses on topics other than CPVs.
+subsequently labeled either good or possible CPVs.  From the more
+general Fourier pipeline, $\approx$0.5\% of stars that passed the
+12-$\sigma$ peak threshold were eventually classified as CPVs.
 
 
 
 \subsection{Stellar properties}
 \label{subsec:starprops}
 
-\paragraph{Ages}
-We estimated the stellar ages by making probabilistic spatial and
-kinematic associations between the CPVs and known clusters in the solar
-neighborhood.  For most stars in our sample, we did this using
+\subsubsection{Ages}
+While most of our target stars were field stars, color--absolute
+magnitude diagrams suggested that most CPVs tended to be on the
+pre-main-sequence (e.g.\ panel {\it (k) of Figure~\ref{fig:vet}}).  We
+therefore estimated stellar ages by checking for probabilistic spatial
+and kinematic associations between the CPVs and known clusters in the
+solar neighborhood.  For most stars in our sample, we did this using
 BANYAN\,$\Sigma$
 \citep{2018ApJ...856...23G}.\footnote{\url{https://github.com/jgagneastro/banyan_sigma},
 git commit \texttt{394b486}} This algorithm calculates the probability
-that a given star belongs to one of 27 young clusters (or
-``associations'') within 150\,pc of the Sun, by modeling the clusters
-as multivariate Gaussian distributions in 3-D position and 3-D
-velocity space.  We used the Gaia DR2 sky positions, proper motions,
-and distances to calculate the membership probabilities.
-BANYAN\,$\Sigma$ in turn analytically marginalizes over the radial
-velocity dimension.  The probabilities returned by this procedure are
-qualitatively useful, but should be interpreted with caution because
-the assumption of Gaussian distributions is questionable for most
-groups within the solar neighborhood \citep[see
-e.g.][Figure~10]{2021ApJ...917...23K}.
+that a given star belongs to either the field, or to any of 27 young
+clusters (``associations'') within 150\,pc of the Sun.  This is
+achieved by modeling the field and cluster populations as multivariate
+Gaussian distributions in 3-D position and 3-D velocity space.  We
+used the Gaia DR2 sky positions, proper motions, and distances to
+calculate the membership probabilities.  BANYAN\,$\Sigma$ in turn
+analytically marginalizes over the radial velocity dimension.  The
+probabilities returned by this procedure are qualitatively helpful, but
+should be interpreted with caution because the assumption of Gaussian
+distributions is questionable for most groups within the solar
+neighborhood \citep[see e.g.][Figure~10]{2021ApJ...917...23K}.
 
 For a few cases where BANYAN\,$\Sigma$ yielded ambiguous results, we
 consulted the meta-catalog of young, age-dated, and age-dateable stars
@@ -674,14 +678,16 @@ provided by \citet{2022AJ....163..121B}, and also searched the local
 volume around each star for co-moving
 companions.\footnote{\url{https://github.com/adamkraus/Comove}, git
 commit \texttt{278b372}}
+Finally, to provide a base for comparison, we also ran the
+BANYAN\,$\Sigma$ membership analysis on our entire \nstarssearched\
+target star sample.
 
+\subsubsection{Effective temperatures, radii, and masses}
 
-\paragraph{Effective temperatures, radii, and masses}
-
-We determined the stellar effective temperature and radii by fitting
-the broadband spectral energy distributions (SEDs); we then estimated
-the masses by interpolating against the sizes, temperatures, and ages
-of the PARSEC v1.2S models
+We determined the stellar effective temperature and radii for the CPVs
+by fitting the broadband spectral energy distributions (SEDs); we then
+estimated the masses by interpolating against the sizes, temperatures,
+and ages of the PARSEC v1.2S models
 \citep{2012MNRAS.427..127B,2014MNRAS.444.2525C}.
 
 For the SED fitting, we used \texttt{astroARIADNE}
@@ -752,6 +758,78 @@ propagating the statistical uncertainties in the radii, temperatures,
 and ages.
 
 
+\subsubsection{Binarity}
+
+The main types of binaries of interest in this work are those that
+are unresolved, because they can lead to misinterpretations of the data.
+For instance, unresolved binaries might produce multiple photometric
+signals and hinder our ability to correctly identify the star hosting
+the CPV signal.  Unresolved binaries could also bias photometric magnitude
+and color measurements, which would affect our stellar parameter
+estimates.  To attempt to identify binaries, we considered the
+following lines of information.
+
+
+{\it Radial velocity scatter}---We examined diagrams of the Gaia DR3
+``radial velocity error'' as a function of stellar color for all
+\ncqvsnodebunked\ CPVs and candidate CPVs.  Since this quantity
+represents the standard deviation of the non-published Gaia RV time
+series, outliers can suggest single-lined spectroscopic binarity.
+These plots showed two clusters of stars, at $\lesssim$10\,\kms and
+20-25\,\kms.  We therefore adopted a threshold of $20$\,km\,s$^{-1}$ to
+flag possible single-lined spectroscopic binaries, which selected
+\nrvscatterflag\ stars: TIC~405910546, TIC~224283342, and
+TIC~280945693.
+
+{\it RUWE}---We examined plots of Gaia DR3 RUWE as a function of
+color.\footnote{For an explanation of the renormalized unit weight
+error (RUWE), see the GAIA DPAC technical note
+\url{http://www.rssd.esa.int/doc_fetch.php?  id=3757412}.}  Elevated
+RUWEs imply excess astrometric noise relative to a single-source
+model.  This can be caused by marginally resolved binaries,  intrinsic
+photometric variability, or intrinsic astrometric motion.  Based on
+this exercise, we adopted a threshold of RUWE$_{\rm DR3}>2$ to
+flag sources with excess astrometric noise.  This threshold was met
+by \ngoodhighruwe/\ngoods\ high-quality CPVs and by
+\nmaybehighruwe/\nmaybes\ of the ambiguous CPVs.  The choice of the threshold RUWE
+is somewhat subjective, since the RUWE distribution has an extended tail
+\citep[e.g.][]{2022MNRAS.513.5270P}.  If we had instead required
+RUWE$_{\rm DR3}>1.4$, \ngoodweakruwe/\ngoods\ high-quality CPVs
+and \nmaybeweakruwe/\nmaybes\ of the ambiguous sample would have been
+flagged.
+
+{\it Gaia DR3 non-single stars}---Gaia DR3 included a {\tt
+non\_single\_star} column that flagged eclipsing, astrometric, and
+spectroscopic binaries.  None of the stars in our CPV sample were
+identified as possible binaries in this column.
+
+{\it Multiple periodic TESS signals}---During our visual analysis of
+the TESS light curves and PDM periodograms, we flagged sources with
+beating light curves, and with PDM periodograms that showed multiple
+periods.  We also attempted to disentangle the two signals by
+subtracting the mean CPV signal over each sector, and then repeating
+the phase-dispersion minimization analysis.  The results of this effort
+are summarized in the secondary periods, $P_{\rm sec}$, listed in
+Table~\ref{tab:thetable}, which we required to be at least 5\%
+different from the primary period.  This process yielded
+\ngoodmultperiodflag/\ngoods\ high-quality CPVs with secondary
+periods; \nmaybemultperiodflag/\nmaybes\ of the ambiguous sample met
+the same criterion.  Of the \ngoodhighruwe\ good CPVs with ${\rm
+RUWE}_{\rm DR3}> 2$, \ngoodruweandmultperiod\ also showed secondary
+periods in the TESS light curves.  Considering the weaker threshold of
+${\rm RUWE}_{\rm DR3}> 1.4$,
+\ngoodweakruweandmultperiod/\ngoodweakruwe\ such CPVs showed secondary
+TESS periods.
+
+Table~\ref{tab:thetable} summarizes each of the sources of
+binarity information into a single bitwise column.  
+We present the detailed results concerning binarity in
+Section~\ref{subsec:resultsbinarity}, and a summary discussion in
+Section~\ref{subsec:discbinary}.
+
+
+
+
 \begin{figure*}[!tp]
 	\begin{center}
 		\centering
@@ -797,18 +875,18 @@ techniques, \nyesdipnofourier\ were found using only the dip-counting
 technique, and \nyesfouriernodip\ were found using only the Fourier
 technique.  In the following, we will focus our discussion on the good
 sample, irrespective of discovery method.  We will often refer to
-stars by their TIC identifiers; the easiest way to reference these
-against the figures in most document readers is to use a
-``find'' ({\tt Ctrl+F}) utility.
+stars by their TIC identifiers; these can be referenced against the
+figures in most digital document readers using a ``find'' ({\tt
+Ctrl+F}) utility.
 
 Figure~\ref{fig:cqvs} is a mosaic of phased light curves for the
 \ngoods\ CPVs.  The objects are sorted first in order of the number of
-TESS 120-second cadence sectors in which they clearly demonstrated the
+TESS 2-minute cadence sectors in which they clearly demonstrated the
 CPV phenomenon, and secondarily by descending brightness.  The top
-five objects by this metric are TIC~300651846 ($T$$=$13.5, 12
-sectors); TIC~402980664 ($T$$=$11.1, 7 sectors); TIC~89463560
-($T$$=$13.5, 5 sectors); TIC~363963079 ($T$$=$12.9, 5 sectors); and
-TIC~294328887 ($T$$=$14.2, 4 sectors).  The brightest five CPVs span
+five objects by this metric are TIC~300651846 (12 sectors);
+TIC~402980664 (7 sectors); TIC~89463560
+(5 sectors); TIC~363963079 (5 sectors); and
+TIC~294328887 (4 sectors).  The brightest five CPVs span
 9.3$<$$T$$<$11.1; the faintest five span 14.5$<$$T$$<$15.0.  The
 fastest five have periods spanning 3.6\,hr$<$$P$$<$6.2\,hr, and the
 slowest five span 27\,hr$<$$P$$<$38\,hr.
@@ -830,26 +908,35 @@ aware.
 
 
 
-\subsection{Ages}
+\subsection{Ages of CPVs}
+\label{subsec:ageresults}
 
 Of our \ncqvsnodebunked\ confirmed and candidate CPVs,
 \nnotfieldbanyan\ were associated with a nearby moving group or open
-cluster, primarily using BANYAN\,$\Sigma$.\footnote{Two of the
+cluster, primarily using BANYAN\,$\Sigma$ as described in
+Section~\ref{subsec:starprops}.\footnote{Two of the
 \nnotfieldbanyan\ memberships were made with low confidence and are
 flagged in Table~\ref{tab:thetable}.  The assignment of TIC~397791443
 to IC\,2602 was based not on BANYAN\,$\Sigma$ but instead on a
 literature search \citep[e.g.][]{2020A&A...633A..99C}.}  The relevant
 groups are listed in Table~\ref{tab:thetable}; their ages span
-$\approx$5-200\,Myr.  The groups that contain the largest number of
-CPVs in our catalog are Sco-Cen, Tuc-Hor, and Columba.  Six CPVs were
-also identified in the Argus association \citep{2019ApJ...870...27Z},
-which serves as an indirect line of evidence supporting the reality
-and youth of that group.  The large contribution from Sco-Cen is not
-surprising since Sco-Cen contains the majority of pre-main-sequence
-stars in the solar neighborhood, and many of its stars were selected
-for TESS 120-second cadence observations by guest investigators.
-Given the $\lesssim$$10\%$ completeness of TESS beyond 100\,pc, there
-may be many more CPVs in Sco-Cen that remain to be discovered.
+$\approx$5-200\,Myr.  For comparison, BANYAN\,$\Sigma$ assigned high-probability
+($>$95\%)
+field membership to 59{,}361 out of the
+\nstarssearched\ target stars.  Most stars in our target sample are old;
+the CPVs returned by our blind search are young.
+
+The groups that contain the largest number of CPVs in our catalog are
+Sco-Cen, Tuc-Hor, and Columba.  Six CPVs were also identified in the
+Argus association \citep{2019ApJ...870...27Z}, which serves as an
+indirect line of evidence supporting the reality and youth of that
+group.  The large contribution from Sco-Cen is not surprising since
+Sco-Cen contains the majority of pre-main-sequence stars in the solar
+neighborhood, and many of its stars were selected for TESS 2-minute
+cadence observations by guest investigators.  Given the
+$\lesssim$$10\%$ completeness of TESS beyond 100\,pc
+(Figure~\ref{fig:completeness}), there may be
+many more CPVs in Sco-Cen that remain to be discovered.
 
 There were two stars for which neither BANYAN\,$\Sigma$ nor a
 literature search led to a confident association with any young group.
@@ -863,7 +950,7 @@ $\approx$150\,Myr.  Table~\ref{tab:thetable} includes three
 $\approx$150\,Myr CPVs in AB~Dor \citep{2015MNRAS.454..593B}, a
 $\approx$112\,Myr old Pleiades CPV \citep{2015ApJ...813..108D}, and a
 similarly-aged Psc-Eri member \citep{2020A&A...639A..64R}.  To our
-knowledge, TIC~332517282 in AB~Dor ($t$$=$$149^{51}_{-19}$\,Myr;
+knowledge, TIC~332517282 in AB~Dor ($t$$=$$149^{+51}_{-19}$\,Myr;
 \citealt{2015MNRAS.454..593B}) was the previous record-holder for the
 oldest-known CPV \citep{2019ApJ...876..127Z,2022AJ....163..144G}; at
 least one unambiguous CPV (EPIC~211070495) and a few other candidates
@@ -876,7 +963,7 @@ candidate membership of TIC~294328887 in the Carina Near moving group
 \pm 50$\,Myr, is based on the lithium sequence of its G-dwarfs
 \citep{2006ApJ...649L.115Z}, which shows a coeval population of stars
 older than the Pleiades and younger than the 400\,Myr Ursa Major
-moving group.  However, the formal BANYAN-$\Sigma$ membership
+moving group.  However, the formal BANYAN\,$\Sigma$ membership
 probability is somewhat low (only 6\%), perhaps due to the missing
 radial velocity.  This lack of information could be rectified by
 acquiring even a medium-resolution spectrum.  An independent
@@ -885,7 +972,7 @@ sequence using TESS, could also bear on the question of whether
 TIC~294328887 is a member.
 
 
-\subsection{Infrared excesses}
+\subsection{Infrared excesses of CPVs}
 \label{subsec:irexcess}
 
 Most CPVs in our catalog did not show infrared excesses in the
@@ -895,18 +982,20 @@ $W1$-$W4$ bands, which is typical for this class of object
 labeled two objects as having reliable infrared excesses (both $W3$
 and $W4$ fluxes are more than 3$\sigma$ above the photospheric
 prediction): TIC~193136669 (TWA~34) and TIC~57830249 (TWA~33).
+However, neither is considered a ``good'' CPV for the reasons
+that follow.
 
-Both of these stars with IR exceses are in the TW Hydrae association
+Both of the stars with IR exceses are in the TW Hydrae association
 ($\approx$10\,Myr).  They have periods of 38\,hr and 44\,hr,
 respectively.  In our initial labeling, we labeled both as
 ``ambiguous'' CPVs because the dips in their Sector~36 light curves
 seemed to stochastically evolve over only one or a few cycles, which
-is not typical of CPVs; their periods were also long in comparison with
+is atypical for CPVs; their periods were also long in comparison with
 most of the other CPVs.  Inspection of additional sectors clarified
 that both sources are dippers, not CPVs (see the online plots in
 Figure~\ref{fig:vet}).  For TIC~57830249, the Sector~10 light curve of
 shows completely different behavior from Sector~36, with variability
-amplitudes of $\pm 50\%$ and no obvious periodicity.  TIC 57830249
+amplitudes of $\pm 50\%$ and no obvious periodicity.  TIC~57830249
 also shows continuum emission at 1.3\,mm \citep{2015A&A...582L...5R},
 which suggests that cold dust grains are present.
 
@@ -956,7 +1045,7 @@ connections between CPVs and dippers in light of these
       scatter exceeded 20\,\kms, or if Gaia ${\rm RUWE}_{\rm DR3}$$>$2
       and multiple photometric signals were present in the TESS light
       curve.  The top panels show the \nstarssearched\ target stars
-      with 120-second cadence TESS data as the shaded gray background;
+      with 2-minute cadence TESS data as the shaded gray background;
       darker regions correspond to a larger relative number of
       searched stars.  The lower-left panel compares the
       rotation--color distribution of CPVs against the rotation
@@ -973,76 +1062,107 @@ connections between CPVs and dippers in light of these
 
 
 
-\subsection{Binarity}
-\label{subsec:binarity}
+\subsection{Binarity of CPVs}
+\label{subsec:resultsbinarity}
 
-The main types of binaries of interest in this work were those that
-were unresolved, because they can lead to misinterpretations of the data.
-For instance, unresolved binaries might produce multiple photometric
-signals and hinder our ability to correctly identify the star hosting
-the CPV signal.  Unresolved binaries could also bias photometric magnitude
-and color measurements, which would affect our stellar parameter
-estimates.  To attempt to identify binaries, we considered the
-following lines of information.
+\subsubsection{Binary statistics}
 
-
-{\it Radial velocity scatter}---We examined diagrams of the Gaia DR3
-``radial velocity error'' as a function of stellar color for all
-\ncqvsnodebunked\ CPVs and candidate CPVs.  Since this quantity
-represents the standard deviation of the non-published Gaia RV time
-series, outliers can suggest single-lined spectroscopic binarity.
-These plots showed two clusters of stars, at $\lesssim$10\,\kms and
-20-25\,\kms.  We therefore adopted a threshold of $20$\,km\,s$^{-1}$ to
-flag possible single-lined spectroscopic binaries, which selected
-\nrvscatterflag\ stars: TIC~405910546, TIC~224283342, and
-TIC~280945693.
-
-{\it RUWE}---We examined plots of Gaia DR3 RUWE as a function of
-color.\footnote{For an explanation of the renormalized unit weight
-error (RUWE), see the GAIA DPAC technical note
-\url{http://www.rssd.esa.int/doc_fetch.php?  id=3757412}.}  Elevated
-RUWEs imply excess astrometric noise relative to a single-source
-model.  This can be caused by marginally resolved binaries,  intrinsic
-photometric variability, or intrinsic astrometric motion.  Based on
-this exercise, we adopted a threshold of RUWE$_{\rm DR3}$ $>$ 2 to
-flag sources with excess astrometric noise.  This threshold was met
-by \ngoodhighruwe/\ngoods\ high-quality CPVs and by
-\nmaybehighruwe/\nmaybes\ of the ambiguous CPVs.  The choice of the threshold RUWE
-is somewhat subjective, since the RUWE distribution has an extended tail
-\citep[e.g.][]{2022MNRAS.513.5270P}.  If we had instead required
-RUWE$_{\rm DR3}$ $>$ 1.4, \ngoodweakruwe/\ngoods\ high-quality CPVs
-and \nmaybeweakruwe/\nmaybes\ of the ambiguous sample would have been
-flagged.
-
-{\it Gaia DR3 non-single stars}---Gaia DR3 included a {\tt
-non\_single\_star} column that flagged eclipsing, astrometric, and
-spectroscopic binaries.  None of the stars in our CPV sample were
-identified as possible binaries in this column.
-
-{\it Multiple periodic TESS signals}---During our visual analysis of
-the TESS light curves and PDM periodograms, we flagged sources with
-beating light curves, and with PDM periodograms that showed multiple
-periods.  We also attempted to disentangle the two signals by
-subtracting the mean CPV signal over each sector, and then repeating
-the phase-dispersion minimization analysis.  The results of this effort
-are summarized in the secondary periods, $P_{\rm sec}$, listed in
-Table~\ref{tab:thetable}, which we required to be at least 5\%
-different from the primary period.  This process yielded
-\ngoodmultperiodflag/\ngoods\ high-quality CPVs with secondary
-periods; \nmaybemultperiodflag/\nmaybes\ of the ambiguous sample met
-the same criterion.  Of the \ngoodhighruwe\ good CPVs with RUWE$_{\rm
-DR3}$ $>$ 2, \ngoodruweandmultperiod\ also showed secondary periods in
-the TESS light curves.  Considering the weaker threshold of RUWE$_{\rm
-DR3}$ $>$ 1.4, \ngoodweakruweandmultperiod/\ngoodweakruwe\ such CPVs
-showed secondary TESS periods.
-
-Table~\ref{tab:thetable} summarizes each of the above sources of
-information into a single bitwise column.  We discuss possible
-connections between binarity and the CPV phenomenon in
-Section~\ref{subsec:discbinary}.
+A significant fraction of the CPVs show indications of unresolved
+binarity.  Excess noise above the Gaia single-source astrometric model
+is common (\ngoodhighruwe/\ngoods\ high-quality CPVs have RUWE$_{\rm
+DR3}$$>$2), as is the presence of multiple periods in the TESS light
+curves (\ngoodmultperiodflag/\ngoods).  Elevated astrometric noise
+almost always implies multiple detectable TESS periods
+(\ngoodruweandmultperiod/\ngoodhighruwe\ high-quality CPVs).  The
+latter observation corroborates the claim that most sources with
+RUWE$_{\rm DR3}$$>$2 are binaries with projected apparent separations
+below 1$''$, and projected physical separations $\lesssim$50\,AU.
+These observations are also in agreement with previous analyses of
+multi-periodic low-mass discovered by K2, which found that such
+systems are almost always binaries
+\citep{2018AJ....156..138T,2018AJ....156..275S}.
 
 
-\section{CPV evolution}
+\subsubsection{Do K dwarf CPVs exist?}
+\label{subsec:massive}
+
+To date, the only stars reported to show the CPV phenomenon are M
+dwarfs, with typical stellar masses $\lesssim$0.3\,$M_\odot$
+\citep{2017AJ....153..152S,2022AJ....163..144G}.  However the two most
+massive CPVs in our sample, TIC~405754448 and TIC~405910546, were
+assigned masses of $\approx$0.82\,$M_\odot$ and
+$\approx$0.60\,$M_\odot$ respectively.  The next-highest masses in our
+sample are $\approx$0.40\,$M_\odot$.
+
+These stars' locations in color--absolute magnitude diagrams and their
+probable membership in Lower Centaurus Crux both support the
+conclusion that they have relatively high masses.  However in detail,
+both are subject to ambiguities in interpretation.  The TIC~405910546
+light curve has a unique shape, suggestive of an eclipsing binary.
+Independently, TIC~405910546 was one of only \nrvscatterflag\ CPVs
+flagged with a Gaia DR3 radial velocity scatter exceeding 20\,\kms.
+Combined, these factors suggest that TIC~405910546 could be a
+pre-main-sequence eclipsing binary; it should be studied further to
+clarify this classification.
+
+For the other object, TIC~405754448, the evidence for binarity is
+stronger.  The RUWE$_{\rm DR3}$ statistic is 6.8, and the raw light
+curves in Sectors 11, 37, and 38 show both the CPV signal with period
+12.9\,hr and amplitude $\approx$1\% and an additional sinusoidal
+signal with a period $\approx$6.5\,days and amplitude $\approx$0.3\%,
+likely from a second star.  If TIC~405754448 is a K+M binary, then the
+flux ratio between the primary and secondary would be expected to be
+$\approx$10:1.  Thus, if the K star were the source of the CPV signal,
+its intrinsic variability amplitude would be $\approx$1\%, while if
+the M star were responsible its intrinsic variability amplitude would
+be $\approx$10\%.
+
+In short, these two objects suggest that the CPV phenomenon may extend
+up in mass to pre-main-sequence K dwarfs, but more data are needed to
+substantiate this claim.
+
+
+\subsubsection{An astrophysical CPV false positive: TIC~435903839}
+
+We originally classified TIC~435903839, with RUWE$_{\rm DR3}$=17.7, as
+an ``ambiguous'' CPV with a 10.8\,hr period, because this period
+minimized the dispersion in the phase-folded light curve.  More
+careful inspection revealed an impostor: this source is a photometric
+blend of two ordinary rotating stars with $P_0$=3.60\,hr, and
+$P_1$=5.41\,hr, giving a beat period $(P_0^{-1} - P_1^{-1})^{-1}$ of
+10.8\,hr.  This is a novel false positive scenario for CPVs: two rapid
+rotators near the 3:2 period commensurability.  The beat between the
+two rotation signals produces the apparent CPV signal.  Such false
+positives can be excluded through careful accounting of all peaks in a
+periodogram.  For instance, TIC~435903839 shows a peak at 16.27\,hr,
+which is not an integer multiple of the dispersion-minimizing
+10.82\,hr period.
+
+
+\subsubsection{Multiple CPVs in the same system: TIC~425937691 and TIC~142173958}
+
+TIC~142173958 and TIC~425937691 both show evidence for two separate CPV
+signals in their TESS light curves.  For TIC~142173958, the signals
+have periods of 11.76\,hr and 12.84\,hr.  For TIC~425937691, the two
+periods are 4.82\,hr and 3.22\,hr, near the 3:2 period commensurability.
+Given that both sources have two photometric signals and elevated
+RUWEs, each source is probably an unresolved binary consisting of two
+CPVs.  To our knowledge, these are the third and fourth such systems
+known: EPIC~204060981 has two CPVs with periods of 9.59\,hr and
+9.12\,hr \citep{2018AJ....155...63S}, and TIC~242407571 has two CPVs
+with periods of 11.33\,hr and 13.63\,hr, near the 6:5 period commensurability
+\citep{2021AJ....161...60S}.
+%\footnote{TIC~242407571, although within
+%our nominal distance and brightness limits, was not observed by TESS
+%in the 2-minute cadence mode between 2018~July and 2022~September, and
+%is therefore not in our sample.}
+
+
+
+
+
+
+\section{Evolution of CPV Behavior}
 \label{sec:evoln}
 
 \begin{figure*}[!tp]
@@ -1053,7 +1173,7 @@ Section~\ref{subsec:discbinary}.
 		\caption{
 			{\bf Evolution of CPV light curves over two years.}
 			Out of the \ngoods\ CPVs in Figure~\ref{fig:cqvs}, 32 had
-			120-second cadence TESS data available for a baseline of at
+			2-minute cadence TESS data available for a baseline of at
 			least two years; the 27 brightest are shown here due to space
 			constraints.  Each panel shows one sector of TESS data, and is
 			phased to its deepest minimum in flux.  Each panel's title shows
@@ -1091,7 +1211,7 @@ Section~\ref{subsec:discbinary}.
 \label{subsec:twoyear}
 
 Figure~\ref{fig:evoln} shows ``before'' and ``after'' views of 27 CPVs
-for which TESS 120-second cadence observations were available at least
+for which TESS 2-minute cadence observations were available at least
 two years apart.  Such a baseline was available for 32 of the
 confirmed \ngoods\ CPVs in our catalog; for plotting purposes we show
 the brightest 27.  
@@ -1132,7 +1252,9 @@ TIC~38820496 (Sector 28 might be an RS CVn).
 TIC~193831684, assessed on a single-sector basis, would probably be
 labeled an eclipsing binary---in fact, \citet{2021ApJ...912..123J}
 already gave this source such a label.  However, based on the shape
-evolution between Sectors 13 and 39, it is a CPV.  Based on the
+evolution between Sectors 13 and 39, it is a CPV.
+
+Based on the
 fraction of sources overall that ``turned off'', the observed shape
 evolution implies that CPVs have an on-off duty cycle of $\approx$75\%.
 Correcting for the duty cycle might be important in population-level
@@ -1186,14 +1308,14 @@ estimates of the intrinsic frequency of the CPV phenomenon
 \begin{figure*}[!t]
 	\begin{center}
 		\subfloat{
-			\includegraphics[width=0.48\textwidth]{f9a.pdf}
-			\includegraphics[width=0.48\textwidth]{f9b.pdf}
+			\includegraphics[width=0.49\textwidth]{f9a.pdf}
+			\includegraphics[width=0.49\textwidth]{f9b.pdf}
 		}
 		\vspace{-0.2cm}
 		
 		\subfloat{
-			\includegraphics[width=0.48\textwidth]{f9d.pdf}
-			\includegraphics[width=0.48\textwidth]{f9c.pdf}
+			\includegraphics[width=0.49\textwidth]{f9d.pdf}
+			\includegraphics[width=0.49\textwidth]{f9c.pdf}
 		}
 	\end{center}
 	\vspace{-0.4cm}
@@ -1222,7 +1344,7 @@ estimates of the intrinsic frequency of the CPV phenomenon
 
 A few of our complex periodic variables were near the TESS continuous viewing
 zones (Figure~\ref{fig:catalogscatter}, top right).  Out of this
-already small sample, LP 12-502 (TIC 402980664; $d$=21\,pc, $J$=9.4,
+already small sample, LP 12-502 (TIC~402980664; $d$=21\,pc, $J$=9.4,
 $T$=11.1) stood out due to the quality and content of its data.  We
 discuss another interesting source, TIC~300651846, in
 Appendix~\ref{app:tic3006}.  In this section, we describe the LP
@@ -1233,7 +1355,7 @@ Appendix~\ref{app:tic3006}.  In this section, we describe the LP
 \label{subsec:lpobservations}
 
 Whenever LP 12-502 was located within a TESS sector, it was observed
-at 120-second cadence.  Figure~\ref{fig:lplc} shows all the available
+at 2-minute cadence.  Figure~\ref{fig:lplc} shows all the available
 data, from Sectors 18, 19, 25, 26, 53, 58, and 59. Vertical offsets
 were applied to separate the data from different spacecraft orbit
 numbers; there are always two orbits per sector.  We binned the light
@@ -1386,26 +1508,26 @@ radius.
 \subsection{Typical and extreme CPVs}
 \label{subsec:extreme}
 
-Referring back to Figure~\ref{fig:catalogscatter}, which compares the
-properties of CPVs with those of the search sample (top panels) and the
-Pleiades \citep{2016AJ....152..114R}, we see that the typical CPV
-masses span 0.1-0.4\,$M_\odot$, and the typical ages span 2-150\,Myr.
-This mass and age range includes both fully convective stars and stars
-with a combination of radiative cores and convective envelopes, with
-the dividing line for these ages at around $M_\star = 0.25\,M_\odot$
-\citep{2018A&A...619A.177B}.  We found no obvious differences in light
-curve morphology between CPVs above and below the boundary of
-0.25\,$M_\odot$.  In terms of their rotation rates relative to the
+Referring back to Figure~\ref{fig:catalogscatter},  typical CPV
+masses span 0.1-0.4\,$M_\odot$, typical ages span 2-150\,Myr,
+and
+relative to the
 Pleiades, the CPVs are among the more rapidly rotating half of M
 dwarfs. 
+The CPV mass and age range includes both fully convective stars and stars
+with a combination of radiative cores and convective envelopes; 
+the dividing line for these ages is at around $M_\star = 0.25\,M_\odot$
+\citep{2018A&A...619A.177B}.  We found no obvious differences in light
+curve morphology for CPVs above and below this fully-convective pre-main-sequence boundary.  
 
-The closest CPV in our catalog is DG~CVn (TIC~368129164; $d$$=$18\,pc),
-a member of AB Dor.  To our knowledge, this star had not previously
-been recognized as a CPV.  The three brightest CPVs are DG~CVn
+The closest newly-recognized CPV in our catalog is DG~CVn (TIC~368129164),
+a member of AB Dor at $d$$=$18\,pc.  
+The three brightest CPVs are DG~CVn
 ($T$=9.3), TIC~405754448 ($T$=9.6), and TIC~167664935 ($T$=10.3).  The
 shortest period, 3.64\,hr, belongs to TIC~201789285.  The longest
-period, 37.9\,hr, belongs to TIC~405910546.  If the latter source
-turns out to be an eclipsing binary, the longest-period CPV in the
+period, 37.9\,hr, belongs to TIC~405910546.  Based on the Gaia$_{\rm DR3}$ RV
+scatter, the latter source may
+turn out to be an eclipsing binary; if so, the longest-period CPV in our
 catalog would be TIC~193831684 (31.0\,hr).  By definition, we required
 the periods to be below 48\,hr.
 
@@ -1420,115 +1542,22 @@ bands \citep[e.g.][]{2021ApJ...906...64A,2022ApJ...924...68V}.
 
 
 
-\subsection{CPVs and binarity}
+\subsection{Is binarity important for CPVs?}
 \label{subsec:discbinary}
 
-\subsubsection{Binary statistics}
+For CPVs, binarity seems to mostly provide a mix of
+observational nuisances and curiosities.  The
+nuisances include
+astrophysical false positives with two beating rapidly
+rotating stars, as well as uncertainty about which
+star is producing the CPV signal in binary systems.  Our two candidate K dwarf CPVs 
+suffer from the latter concern (see Section~\ref{subsec:resultsbinarity}).
 
-In Section~\ref{subsec:binarity}, we found that a significant fraction
-of the CPVs show indications of unresolved binarity.  Excess noise
-above the Gaia single-source astrometric model is common
-(\ngoodhighruwe/\ngoods\ high-quality CPVs have RUWE$_{\rm DR3}$$>$2),
-as is the presence of multiple periods in the TESS light curves
-(\ngoodmultperiodflag/\ngoods).  Elevated astrometric noise almost
-always implies multiple detectable TESS periods
-(\ngoodruweandmultperiod/\ngoodhighruwe\ high-quality CPVs).  The
-latter observation corroborates the claim that most sources with
-RUWE$_{\rm DR3}$$>$2 are binaries with projected apparent separations
-below 1$''$, and projected physical separations $\lesssim$50\,AU.
-These observations are also in agreement with previous analyses of
-multi-periodic low-mass discovered by K2, which found that such
-systems are almost always binaries
-\citep{2018AJ....156..138T,2018AJ....156..275S}.
-
-One possible relation between binarity and CPVs is that the presence of
-an intermediate-separation binary could cause early disk dispersal,
-freeing the star to contract.  The CPV phenomenon seems to require
-rapid rotation; thus if binary systems tend to produce more rapidly
-rotating stars, we would expect a sample of CPVs to have a larger
-binary fraction than the field.  We see marginal, if any, evidence for such
-an effect.  The multiplicity rate of M dwarfs near the Sun is
-26.8$\pm$1.4\% \citep{2019AJ....157..216W}.  Based on the same study,
-the peak of the separation distribution decreases from $\approx$49\,AU
-for $0.30$-$0.60$\,$M_\odot$ stars, to $\approx$11\,AU for
-$0.15$-$0.30$\,$M_\odot$ M dwarfs.  The multiplicity fraction in our
-CPV sample (32\% from RUWE$_{\rm DR3}$) seems approximately consistent
-with this field fraction.
-
-
-
-\subsubsection{Do K dwarf CPVs exist?}
-\label{subsec:massive}
-
-To date, the only stars reported to show the CPV phenomenon are M
-dwarfs, with typical stellar masses $\lesssim$0.3\,$M_\odot$
-\citep{2017AJ....153..152S,2022AJ....163..144G}.  However the two most
-massive CPVs in our sample, TIC~405754448 and TIC~405910546, were
-assigned masses of $\approx$0.82\,$M_\odot$ and
-$\approx$0.60\,$M_\odot$ respectively.  The next-highest masses in our
-sample are $\approx$0.40\,$M_\odot$.
-
-These stars' locations in color--absolute magnitude diagrams and
-their probable membership in Lower Centaurus Crux both support the
-conclusion that they have relatively high masses.
-However in detail, both are subject to ambiguities
-in interpretation.  The TIC~405910546 light curve has a unique shape,
-suggestive of an eclipsing binary.  Independently, TIC~405910546 was
-one of only \nrvscatterflag\ CPVs flagged with a Gaia DR3 radial
-velocity scatter exceeding 20\,\kms.  Combined, these factors suggest
-that TIC~405910546 could be a pre-main-sequence eclipsing binary; it
-should be studied further to clarify this classification.
-
-For the other object, TIC~405754448, the evidence for binarity is
-stronger.  The RUWE$_{\rm DR3}$ statistic is 6.8, and the raw light
-curves in Sectors 11, 37, and 38 show both the CPV signal with period
-12.9\,hr and amplitude $\approx$1\% and an additional sinusoidal
-signal with a period $\approx$6.5\,days and amplitude $\approx$0.3\%,
-likely from a second star.  If TIC~405754448 is a K+M binary, then the
-flux ratio between the primary and secondary would be expected to be
-$\approx$10:1.  Thus, if the K star were the source of the CPV signal,
-its intrinsic variability amplitude would be $\approx$1\%, while if
-the M star were responsible its intrinsic variability amplitude would
-be $\approx$10\%.
-
-In short, these two objects suggest that the CPV phenomenon may extend
-up in mass to pre-main-sequence K dwarfs, but more data are needed to
-substantiate this claim.
-
-
-\subsubsection{An astrophysical CPV false positive: TIC~435903839}
-
-We originally classified TIC~435903839, with RUWE$_{\rm DR3}$=17.7, as
-an ``ambiguous'' CPV with a 10.8\,hr period, because this period
-minimized the dispersion in the phase-folded light curve.  More
-careful inspection revealed an impostor:
-this source is a photometric blend of two ordinary rotating stars with
-$P_0$=3.60\,hr, and $P_1$=5.41\,hr, giving a beat period $(P_0^{-1} -
-P_1^{-1})^{-1}$ of 10.8\,hr.  This is a novel false positive scenario
-for CPVs: two rapid rotators near the 3:2 period commensurability.
-The beat between the two rotation signals produces the apparent CPV
-signal.  Such false positives can be excluded through careful
-accounting of all peaks in a periodogram.  For instance, TIC~435903839
-shows a peak at 16.27\,hr, which is not an integer multiple of the
-dispersion-minimizing 10.82\,hr period.
-
-\subsubsection{Multiple CPVs in the same system: TIC~425937691 and TIC~142173958}
-
-TIC~142173958 and TIC~425937691 both show evidence for two separate CPV
-signals in their TESS light curves.  For TIC~142173958, the signals
-have periods of 11.76\,hr and 12.84\,hr.  For TIC~425937691, the two
-periods are 4.82\,hr and 3.22\,hr, near the 3:2 period commensurability.
-Given that both sources have two photometric signals and elevated
-RUWEs, each source is probably an unresolved binary consisting of two
-CPVs.  To our knowledge, these are the third and fourth such systems
-known: EPIC~204060981 has two CPVs with periods of 9.59\,hr and
-9.12\,hr \citep{2018AJ....155...63S}, and TIC~242407571 has two CPVs
-with periods of 11.33\,hr and 13.63\,hr, near the 6:5 period commensurability
-\citep{2021AJ....161...60S}.\footnote{TIC~242407571, although within
-our nominal distance and brightness limits, was not observed by TESS
-in the 120-second cadence mode between 2018~July and 2022~September, and is therefore not in our sample.}
-
-Recent work has shown that the orbits of binaries closer than
+Curiosities include the four binary systems that are now known to each host
+two separate CQVs.
+CQVs are sufficiently rare that such systems may have 
+physical implications.
+For instance, recent work has shown that the orbits of binaries closer than
 $\lesssim$700 AU tend to be aligned with their planetary systems
 \citep[e.g.][]{2022AJ....163..207C}.  If we assume that observing CPV
 variability requires high inclinations relative to the line of sight,
@@ -1536,10 +1565,22 @@ and that the inclinations in binaries are correlated, then we would
 expect the detection of one CPV in a binary system to raise the
 probability that the other star is a CPV.  The limitations of the
 current catalog prevent further exploration of this issue, but it
-might be interesting for future study.  Even if this scenario is
-correct, it would not provide an immediate explanation for the
-near-commensurability of the two periods of either TIC~425937691 
-or TIC~242407571.
+might be interesting for future study.
+
+A separate possible relation between binarity and CPVs is that the presence
+of an intermediate-separation binary could cause early disk dispersal,
+freeing the star to contract.  The CPV phenomenon seems to require
+rapid rotation; thus if binary systems tend to produce more rapidly
+rotating stars, we would expect a sample of CPVs to have a larger
+binary fraction than the field.  However, we see minimal evidence for
+such an effect (Section~\ref{subsec:resultsbinarity}).  The
+multiplicity rate of M dwarfs near the Sun is 26.8$\pm$1.4\%
+\citep{2019AJ....157..216W}.  Based on the same study, the peak of the
+separation distribution decreases from $\approx$49\,AU for
+$0.30$-$0.60$\,$M_\odot$ stars, to $\approx$11\,AU for
+$0.15$-$0.30$\,$M_\odot$ M dwarfs.  The multiplicity fraction in our
+CPV sample ($\approx$32\% from RUWE$_{\rm DR3}$) seems approximately
+consistent with this field fraction.
 
 
 
@@ -2030,7 +2071,7 @@ dwarfs.
 \section{Conclusions}
 \label{sec:conclusion}
 
-In this work, we searched 120-second cadence TESS data collected from
+In this work, we searched 2-minute cadence TESS data collected from
 2018 July to 2022 September for complex periodic variables (CPVs).  The target
 stars were \nstarssearched\ late-K and early-to-mid M dwarfs within 150\,pc
 and with TESS magnitudes $T$<16. 
@@ -2046,7 +2087,7 @@ also derived temperatures and radii using SED fitting, and
 inferred stellar masses by interpolating against stellar evolutionary
 models.  We caution that our sample is far from being
 volume-limited and is not even magnitude-limited:
-the TESS 120-second stellar sample had a heterogeneous
+the TESS 2-minute stellar sample had a heterogeneous
 selection function which may have been biased in favor of young stars
 over field stars.  Previous work however has shown that $\approx$1-3\%
 of M dwarfs younger than $\approx$100\,Myr show the CPV phenomenon
@@ -2210,12 +2251,12 @@ We are also grateful for the assistance of S.~Yee,
 L.~Weiss, H.~Isaacson, and A.~Howard in acquiring and reducing the
 HIRES spectra.
 This paper relied primarily on data collected by the TESS mission; the specific
-120-second cadence observations can be accessed via
+2-minute cadence observations can be accessed via
 DOI\,\dataset[10.17909/t9-nmc8-f686]{https://doi.org/10.17909/t9-nmc8-f686}.
 Funding for the TESS mission is provided by NASA’s Science Mission
 Directorate.  
 We thank the TESS Architects (G.~Ricker, R.~Vanderspek, D.~Latham, S.~Seager, and J.~Jenkins) and the many TESS team members for their efforts to make the mission a continued success. 
-TIC 402980664 in particular was observed at 120-second
+LP 12-502 in particular was observed at 2-minute
 cadence thanks to the TESS Guest Investigator programs G022252 (PI:
 J.~Schlieder; Sectors 18, 19, 25, 26) and G04168 (PI: R.~Jayaraman;
 Sector 53). 
@@ -2365,7 +2406,7 @@ All authors assisted in manuscript revision.
   $N_{\rm sector}$ denotes the number of TESS sectors for which {\it
   any} data are expected to be acquired between July~2018 and
   Oct~2024.  This number is generally greater than the number of
-  sectors for which 120-second cadence data exist.   Association names
+  sectors for which 2-minute cadence data exist.   Association names
   and provenance follow conventions adopted by
   \citet{2018ApJ...856...23G}: 
 	ABDMG: AB~Doradus moving group \citep{2015MNRAS.454..593B}.
@@ -2440,7 +2481,7 @@ severe to disfavor this scenario.
 	\vspace{-0.4cm}
 	\caption{
 		{\bf Light curve evolution of TIC 300651846}.
-		All available 120-second cadence data as of 2023 Aug 11 are shown.
+		All available 2-minute cadence data as of 2023 Aug 11 are shown.
 		Cycles 0 to 622 span TESS Sectors 32-39 (Nov 2020--June 2021);
 		cycles 2296-2676 span Sectors 61-65 (Jan--June 2023).  We assumed
 		a 8.254\,hr period and a fixed reference epoch (BTJD 2174.127) for
@@ -2463,7 +2504,7 @@ severe to disfavor this scenario.
 	\caption{
 		{\bf River plots of TIC 300651846}.
 		This is an alternative visualization of the data in
-		Figure~\ref{fig:tic3006timegroups}.  All available 120-second
+		Figure~\ref{fig:tic3006timegroups}.  All available 2-minute
 		cadence data as of 2023 Aug 11 are shown.  Cycles 0 to 622 span
 		TESS Sectors 32-39 (Nov 2020--June 2021); cycles 2296-2676 span
 		Sectors 61-65 (Jan--June 2023).  We assumed $P$$=$8.254\,hr and
@@ -2478,14 +2519,14 @@ severe to disfavor this scenario.
 \label{app:tic3006}
 
 Figures~\ref{fig:tic3006timegroups} and~\ref{fig:tic3006river} show
-120-second cadence data for TIC~300651846, a CPV in the TESS
+2-minute cadence data for TIC~300651846, a CPV in the TESS
 continuous viewing zone.  If it were not for the existence of
-TIC~402980664, this source would have received greater
+LP~12-502, this source would have received greater
 attention.  With the exception of a few sectors, TESS data will exist
 for TIC~300651846 for at least Sectors 1-12, 27-39, and 61-69.  While
 most of the available data exist in the full frame images,
 Figures~\ref{fig:tic3006timegroups} and~\ref{fig:tic3006river} focus
-only on the currently available 120-second cadence data.
+only on the currently available 2-minute cadence data.
 
 During Sectors 32-39, the source shows between one and four local
 minima per cycle.  During the early portions of Sectors 61-65, it is
@@ -2500,7 +2541,7 @@ $\phi$$\approx$$-0.4$ and $\phi$$\approx$0.0 collapse.  For the cycle
 curvature in Figure~\ref{fig:tic3006timegroups} between $\phi \in
 [-0.25, -0.05]$ across cycles 2520-2561.  The  more typical dip
 evolution timescales for TIC~300651846 seem to be $\approx$50-100
-cycles.  Unlike the TIC~402980664 river plots
+cycles.  Unlike the LP~12-502 river plots
 (Figure~\ref{fig:lpriver0}), we did not subtract any ``continuum
 sinusoid'' for this source, because the continuum is not as obviously
 defined.
@@ -2521,7 +2562,7 @@ scheme.  TESS contributed 41 of the 74 objects; the remaining 33 were
 from K2.  
 
 {\it How many known CPVs did we miss?}---A minority of the literature
-CPVs, 19/74, were stars with 120-second TESS data acquired between
+CPVs, 19/74, were stars with 2-minute TESS data acquired between
 Sectors 1-55 that also met conditions~\ref{eq:one}--\ref{eq:four}.
 Our blind search (Table~\ref{tab:thetable}) recovered all but two of
 these 19 sources: TIC~65347864 in Tuc-Hor \citep{2023ApJ...945..114P},
@@ -2608,7 +2649,7 @@ The stars were TICs 142173958, 146539195, 24518895, 276453848,
 264599508, 363963079, 144486786, 408188366, 300651846, 262400835.
 These sources were selected from CPVs known at the time to have short
 periods and sharp features when observed at 2-minute cadence.
-Comparing the 20-second to 120-second data for these stars (data
+Comparing the 20-second to 2-minute data for these stars (data
 available on MAST), we concluded that these CPVs did not contain
 appreciable power at timescales shorter than a few minutes.
 
@@ -2621,7 +2662,7 @@ three CPVs.  The goals were to determine the chromospheric activity
 levels, and to check for indications of either accretion or
 spectroscopic binarity.  We acquired a 15 minute exposure of
 TIC~146539195 on 2023 January 3, a 15 minute exposure of TIC~264599508
-on 2023 January 9, and a 30 minute exposure of TIC~402980664 on 2023
+on 2023 January 9, and a 30 minute exposure of LP~12-502 (TIC~402980664) on 2023
 July 10.  The acquisition and analysis followed the usual techniques
 of the California Planet Survey \citep{2010ApJ...721.1467H}.
 Figure~\ref{fig:speccutouts} shows cutouts from the resulting spectra,
@@ -2664,7 +2705,7 @@ signal, and a 9.00\,hr rotation signal with comparable amplitude.
 		T Tauris.
 		The lithium detection for TIC~146539195 is consistent with its
 		mass and $\beta$~Pic membership;
-		the non-detections for TIC~402980664 and TIC~264599508
+		the non-detections for LP~12-502 (TIC~402980664) and TIC~264599508
 		are consistent with the $\approx$42\,Myr age implied by their membership
 		in the Columba moving group.
 	}
