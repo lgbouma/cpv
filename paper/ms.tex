@@ -95,15 +95,15 @@
 \author[0000-0001-6381-515X]{Luisa M. Rebull}
 \affiliation{\caltech}
 
-\author[0000-0003-4062-0776]{Alexandre David-Uraz}
-\affiliation{\howard}
-\affiliation{\goddard}
-
 \author{Lynne~A.~Hillenbrand}
 \affiliation{\caltech}
 
 \author[0000-0002-4265-047X]{Joshua N. Winn}
 \affiliation{\princeton}
+
+\author[0000-0003-4062-0776]{Alexandre David-Uraz}
+\affiliation{\howard}
+\affiliation{\goddard}
 
 \author[0000-0001-7204-6727]{G\'asp\'ar \'A. Bakos}
 \affiliation{\princeton}
@@ -124,29 +124,31 @@
 
 % 250 word max!
 \begin{abstract}
-  We explore a set of pre-main-sequence stars
-  with sub-solar masses, rotation periods of 0.2--2 days, optical variability amplitudes
-  of a few percent, and sharp light curve features that repeat for
-  hundreds of rotation cycles.  The sharp features are probably caused by
-  eclipsing clumps of dust or gas orbiting at the corotation radius.
-  We refer to this class of star as ``complex periodic variables'' (CPVs).
-  To improve our understanding of these
-  enigmatic objects, we conducted a survey for CPVs using TESS
-  short-cadence data collected between 2018~July and 2022~September.
-  Our search of \nstarssearched\ K and M dwarfs with $T$$<$16 and
-  $d$$<$150\,pc yielded \ngoods\ high-quality CPVs, most of which are
-  new discoveries.  Our sample includes the brightest
-  ($T$$\approx$9.5), closest ($d$$\approx$20\,pc), and oldest
-  ($\approx$200\,Myr) known CPVs.  One of the new discoveries, LP
-  12-502, stands out for the complexity of its light curve --- with as
-  many as eight flux dips per cycle --- and for the detail with which 
-  each dip's evolving amplitude and phase can be tracked over
-  1{,}500 cycles.  We argue that corotating gas or dust remains the
-  most viable explanation for CPVs. The gas or dust is probably
-  entrained by the star's magnetic field, and the sharp features could
-  result from a multipolar field topology, a hypothesis supported by
-  correspondences between the light curves of CPVs and of B stars
-  known to have multipolar magnetic fields.
+  %
+  Complex periodic variables (CPVs) are stars that exhibit sharp and
+  periodic optical light curves.  Previous work has shown that such
+  stars tend to be disk-free pre-main-sequence M dwarfs with rotation
+  periods of 0.2--2 days.  To advance understanding of these enigmatic
+  objects, we performed a blind CPV search using TESS 2-minute data of
+  \nstarssearched\ K and M dwarfs with $T$$<$16 and $d$$<$150\,pc.  We
+  found \ngoods\ high-quality CPVs.  The new objects include the
+  brightest ($T$$\approx$9.5), closest ($d$$\approx$20\,pc), and
+  oldest ($\approx$200\,Myr) CPVs known.  All objects but one turned
+  out to be likely members of stellar associations, which enabled
+  age-dating.  One exceptional new object, LP 12-502, showed up to
+  eight dips per cycle; the dips at times coexisted with slightly
+  different periods, and the variability of the dips suggests that
+  they are additive and independent.  Broadly, our search confirms
+  that CPVs are mostly young ($\lesssim$150\,Myr) and low-mass
+  ($\lesssim$0.4\,$M_\odot$).  The flux dips that embody the class
+  have lifetimes of $\approx$100 cycles, and the dips collapse in
+  response to stellar flares once every few months.  Corotating gas or
+  dust clumps remain the only viable explanation.  The gas or dust is
+  probably entrained by the star's magnetic field, and the sharp
+  features could result from a multipolar field topology, a hypothesis
+  supported by correspondences between the light curves of CPVs and of
+  B stars known to have multipolar magnetic fields.
+  %
 \end{abstract}
 
 
@@ -311,7 +313,7 @@ rotators exists, CPVs have remained mysterious because they have been both
 hard to discover and hard to characterize.   They have been hard to discover
 because they are rare: CPVs comprise $\approx$1\% of the youngest
 $\approx$1\% of M dwarfs \citep{2018AJ....155..196R}.  Out of the
-millions of stars monitored by K2 and TESS, about 50 CPVs have been
+millions of stars monitored by K2 and TESS, about 70 CPVs have been
 reported to date
 \citep{2016AJ....152..114R,2017AJ....153..152S,2018AJ....155...63S,2019ApJ...876..127Z,2020AJ....160...86B,2021AJ....161...60S,2022AJ....163..144G,2023ApJ...945..114P}.
 They have been hard to characterize because many of the known CPVs are
@@ -1312,7 +1314,7 @@ of 0.3\% and a duration of 1 hour.
 \label{subsec:lplessons}
 
 {\sc State-changes reveal dip independence}---The state-changes seen
-in cycles 1233-1247 and 299-315 confirm that dips can disappear in
+in cycles 261, 309, and 1241 confirm that dips can disappear in
 less than one cycle. While such behavior was also noted by
 \cite{2017AJ....153..152S}, the data presented here show further that
 the dips can be {\it independent} and {\it additive}.  For example,
@@ -1322,8 +1324,8 @@ transition, the leading dip nearly disappeared while the other two
 dips hardly changed; compare the centermost two panels of
 Figure~\ref{fig:lp}.  Evidently, the material or process responsible
 for one dip can vary independently of the materials or processes
-responsible for other dips.  The state changes during cycles 248-264
-and 299-315 support the same conclusion, while also hinting that the
+responsible for other dips.  The state changes during cycles 261
+and 309 support the same conclusion, while also hinting that the
 {\it leading} dip of a complex is most prone to disappearing, leaving
 the trailing dips unchanged in its wake.
 
@@ -2224,7 +2226,7 @@ RJ and SR performed the Fourier-based analysis and contributed to light curve cl
 LR cross-examined the light curve classification, and contributed an independent SED analysis.
 AD identified the magnetic B star connection.
 LAH contributed to project design and to the interpretation of the light curves.
-JNW and SR significantly improved the clarity of the manuscript.
+JNW, SR, and LAH significantly improved the clarity of the manuscript.
 G\'AB acquired and maintained the servers used to run the dip-finding pipeline.
 %-----
 %{\bf JNW, MNG, GRR to confirm coauthorship \&/or to help out on interpretation!}
@@ -2549,7 +2551,7 @@ the literature.  Two sources, TIC~67897871 (EPIC~202724025; RIK-90;
 due to K2 observations.  Both periods appear to have remained
 identical, within measurement precision.  The shapes have of course changed.
 These two objects, combined with PTFO 8-8695, provide evidence
-that CPV variability persists for at least decade timescales.
+that CPV variability persists over timescales of at least decades.
 
 
 \begin{figure}[!t]
