@@ -3849,7 +3849,7 @@ def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None, emphruwe=1):
             ax = axd[axkey]
             _d = underplot_cqvtargets(ax, get_xval, get_yval)
             if axkey == 'A':
-                ax.text(0.97,0.97, 'CQVs', transform=ax.transAxes,
+                ax.text(0.97,0.97, 'CPVs', transform=ax.transAxes,
                         ha='right',va='top', color='C0', fontsize='small')
                 ax.text(0.97,0.92, 'Candidates', transform=ax.transAxes,
                         ha='right',va='top', color='C0', fontsize='small',
@@ -3870,7 +3870,7 @@ def plot_catalogscatter(outdir, showmaybe=0, plotsubset=None, emphruwe=1):
                 df_plei['dr2_bp_rp'], df_plei['Prot'], c='darkgray', s=3,
                 linewidths=0, zorder=-1, alpha=0.7
             )
-            ax.text(0.97,0.97, 'CQVs', transform=ax.transAxes,
+            ax.text(0.97,0.97, 'CPVs', transform=ax.transAxes,
                     ha='right',va='top', color='C0', fontsize='small')
             ax.text(0.97,0.92, 'Candidates', transform=ax.transAxes,
                     ha='right',va='top', color='lightblue', fontsize='small',
