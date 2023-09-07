@@ -149,7 +149,7 @@
   or dust is probably entrained by the star's magnetic field, and the
   sharp features could result from a multipolar field topology, a
   hypothesis supported by correspondences between the light curves of
-  CPVs and of B stars known to have multipolar magnetic fields.
+  CPVs and of rapidly-rotating B stars known to have multipolar magnetic fields.
   %
 \end{abstract}
 
@@ -269,14 +269,14 @@ photosphere \citep{2019ApJ...876..127Z}; hot spots passing behind
 such a ring could produce sudden dips.  We disfavor this scenario
 for reasons described in Appendix~\ref{app:ring}.
 
-The dust clump and gas prominence hypotheses are conceptually
-similar; one could imagine dust or gas accumulating in
-either of the geometries shown in Figure~\ref{fig:f1}.  The main
-distinguishing factor between the two models is the composition of the
-occulting material.   ``Dust clumps'' invoke opacity from dust, which
-would need to be collisionally charged \citep{2023MNRAS.518.4734S}.
-``Gas prominences'' invoke opacity from partially-ionized gas, likely
-bound-free transitions in hydrogen or perhaps a molecular opacity.
+While the dust clump and gas prominence hypotheses both invoke
+magnetically-entrained material, the two pictures differ in the origin
+and the composition of the occulting material.   ``Dust clumps''
+invoke opacity from dust, which would need to be collisionally charged
+\citep{2023MNRAS.518.4734S}; such dust might be sourced from a
+low-mass debris disk.  ``Gas prominences'' invoke opacity from
+partially-ionized gas, perhaps bound-free transitions in hydrogen or a
+molecular opacity.  The gas might be sourced from a stellar wind.
 Unambiguous evidence in support of either scenario has yet to be
 acquired.  Such evidence might include a spectroscopic detection of
 silicate 10\,$\mu$m dust absorption during a dip, or perhaps detection
@@ -629,9 +629,10 @@ all of the following criteria for at least one TESS sector:
   \item $P<2$\,days.
   %
   \item At least three dips per cycle, or else otherwise
-    oddly-shaped dips.
+    oddly-shaped dips relative to expectations for quasi-sinusoidal
+    starspot-induced modulation.
   %
-  \item Dip phases mostly repeat over $\approx$30\,day sector duration.
+  \item Persistent dips over multiple consecutive rotation cycles.
 \end{itemize}
 \vspace{-2pt}
 We also noted ''possible'' CPVs for which the classification was more
@@ -714,7 +715,7 @@ extinction:
   A_{\rm V} / {\rm mag}    &\sim \mathcal{U}(0, 0.2),
 \end{align}
 for $\mathcal{N}$ the Gaussian and $\mathcal{U}$ the uniform
-distributions, and $\mathcal{T}(\mu, \sigma, a, b)$ a truncated normal
+distributions, and $\mathcal{T}_{\rm N}(\mu, \sigma, a, b)$ a truncated normal
 distribution with mean $\mu$, standard deviation $\sigma$, and lower
 and upper bounds $a$ and $b$.  We validated our chosen upper bound on
 $A_{\rm V}$ using a 2MASS color-color diagram.  Finally, using
@@ -806,20 +807,22 @@ identified as possible binaries in this column.
 {\it Multiple periodic TESS signals}---During our visual analysis of
 the TESS light curves and PDM periodograms, we flagged sources with
 beating light curves, and with PDM periodograms that showed multiple
-periods.  We also attempted to disentangle the two signals by
-subtracting the mean CPV signal over each sector, and then repeating
-the phase-dispersion minimization analysis.  The results of this effort
-are summarized in the secondary periods, $P_{\rm sec}$, listed in
-Table~\ref{tab:thetable}, which we required to be at least 5\%
-different from the primary period.  This process yielded
-\ngoodmultperiodflag/\ngoods\ high-quality CPVs with secondary
-periods; \nmaybemultperiodflag/\nmaybes\ of the ambiguous sample met
-the same criterion.  Of the \ngoodhighruwe\ good CPVs with ${\rm
-RUWE}_{\rm DR3}> 2$, \ngoodruweandmultperiod\ also showed secondary
-periods in the TESS light curves.  Considering the weaker threshold of
-${\rm RUWE}_{\rm DR3}> 1.4$,
+periods.  In such cases, we attempted to disentangle the two signals
+by subtracting the mean CPV signal over each sector, and we then
+repeated the phase-dispersion minimization analysis.  The resulting
+secondary periods, $P_{\rm sec}$, are listed in
+Table~\ref{tab:thetable}; we required these to be at least 5\%
+different from the primary period, and for the majority of secondary
+signals the morphologies corresponded to starspot modulation.  This
+process yielded \ngoodmultperiodflag/\ngoods\ high-quality CPVs with
+secondary periods; \nmaybemultperiodflag/\nmaybes\ of the ambiguous
+sample met the same criterion.  Of the \ngoodhighruwe\ good CPVs with
+${\rm RUWE}_{\rm DR3}> 2$, \ngoodruweandmultperiod\ also showed
+secondary periods in the TESS light curves.  Considering the weaker
+threshold of ${\rm RUWE}_{\rm DR3}> 1.4$,
 \ngoodweakruweandmultperiod/\ngoodweakruwe\ such CPVs showed secondary
-TESS periods.
+TESS periods.  These results broadly suggest that the secondary
+periods are associated with physically-bound binary companions.
 
 Table~\ref{tab:thetable} summarizes each of the sources of
 binarity information into a single bitwise column.  
@@ -985,7 +988,7 @@ prediction): TIC~193136669 (TWA~34) and TIC~57830249 (TWA~33).
 However, neither is considered a ``good'' CPV for the reasons
 that follow.
 
-Both of the stars with IR exceses are in the TW Hydrae association
+Both of the stars with IR excesses are in the TW Hydrae association
 ($\approx$10\,Myr).  They have periods of 38\,hr and 44\,hr,
 respectively.  In our initial labeling, we labeled both as
 ``ambiguous'' CPVs because the dips in their Sector~36 light curves
@@ -993,7 +996,7 @@ seemed to stochastically evolve over only one or a few cycles, which
 is atypical for CPVs; their periods were also long in comparison with
 most of the other CPVs.  Inspection of additional sectors clarified
 that both sources are dippers, not CPVs (see the online plots in
-Figure~\ref{fig:vet}).  For TIC~57830249, the Sector~10 light curve of
+Figure~\ref{fig:vet}).  For TIC~57830249, the Sector~10 light curve 
 shows completely different behavior from Sector~36, with variability
 amplitudes of $\pm 50\%$ and no obvious periodicity.  TIC~57830249
 also shows continuum emission at 1.3\,mm \citep{2015A&A...582L...5R},
@@ -1039,9 +1042,9 @@ connections between CPVs and dippers in light of these
       CPVs are mostly pre-main-sequence M dwarfs, younger than
       $\approx$150 Myr, with rotation periods faster than
       $\approx$1\,day.  The \ngoods\ bona fide CPVs in
-      Table~\ref{tab:thetable} are the dark blue circles; \nmaybes\
-      ambiguous CPV candidates are light blue circles.  Unresolved
-      binaries (red circles) are objects for which the Gaia DR3 radial velocity
+      Table~\ref{tab:thetable} are the dark blue dots; \nmaybes\
+      ambiguous CPV candidates are light blue dots.  Unresolved
+      binaries (red rings) are objects for which the Gaia DR3 radial velocity
       scatter exceeded 20\,\kms, or if Gaia ${\rm RUWE}_{\rm DR3}$$>$2
       and multiple photometric signals were present in the TESS light
       curve.  The top panels show the \nstarssearched\ target stars
@@ -1078,7 +1081,7 @@ latter observation corroborates the claim that most sources with
 RUWE$_{\rm DR3}$$>$2 are binaries with projected apparent separations
 below 1$''$, and projected physical separations $\lesssim$50\,AU.
 These observations are also in agreement with previous analyses of
-multi-periodic low-mass discovered by K2, which found that such
+multi-periodic low-mass objects discovered by K2, which found that such
 systems are almost always binaries
 \citep{2018AJ....156..138T,2018AJ....156..275S}.
 
@@ -1213,7 +1216,7 @@ with periods of 11.33\,hr and 13.63\,hr, near the 6:5 period commensurability
 Figure~\ref{fig:evoln} shows ``before'' and ``after'' views of 27 CPVs
 for which TESS 2-minute cadence observations were available at least
 two years apart.  Such a baseline was available for 32 of the
-confirmed \ngoods\ CPVs in our catalog; for plotting purposes we show
+\ngoods\ confirmed CPVs in our catalog; for plotting purposes we show
 the brightest 27.  
 We have defined $\phi=0$ for each sector to be the time of minimum
 light observed in that sector, rather than using a consistent phase
@@ -1425,7 +1428,7 @@ in Figure~\ref{fig:lplc}.
 The behavior during Sectors 53--58 (cycles 1233-1481) is comparatively tame; the light curve shows
 only four to six dips per cycle.  Some dips remain stable in depth and
 duration over this five-month interval.  Other dips grow, like the one
-at $\phi = +0.06$ between cycles 1499 and 1481.  Other dips, such as
+at $\phi = +0.06$ between cycles 1458 and 1481.  Other dips, such as
 the one at $\phi = +0.12$ in cycles 1233-1264, disappear entirely.
 The most dramatic state change occurs during cycle 1241, when a large
 dip switches from a depth of 3\% and a duration of 3 hours to a depth
@@ -1632,7 +1635,7 @@ TIC~425933644), the flux variations do not resemble isolated dips,
 making the meaning of ``ingress'' and ``egress'' unclear.  In other
 cases, such as Sector~36 of TIC~89463560, there is a sharp drop with
 an exponential return to the baseline flux, resembling the signatures
-of exocomet \citep[e.g.][]{2018MNRAS.474.1453R,2019A&A...625L..13Z},
+of exocomets \citep[e.g.][]{2018MNRAS.474.1453R,2019A&A...625L..13Z},
 and the outflowing exospheres of some transiting planets
 \citep[e.g.][]{2019ApJ...873...89M,2022ApJ...926..226M}.
 
@@ -2006,8 +2009,9 @@ structures.
 between the CPVs and rapidly rotating magnetic B stars such as
 $\sigma$~Ori~E, which can have circumstellar gas clouds trapped in
 corotation \citep{2005ApJ...630L..81T}.  The $\sigma$~Ori class is
-distinct from Be-star decretion disks, which do not have any obvious
-connection to the stellar magnetic field \citep{2013A&ARv..21...69R}.
+distinct from Be-star decretion disks, which are found to
+systematically not host detectable magnetic fields
+\citep{2013A&ARv..21...69R,2016ASPC..506..207W}.
 
 An argument against the connection between CPVs and the $\sigma$~Ori~E
 analogs is that the light curve of $\sigma$~Ori~E is simpler than
@@ -2027,8 +2031,9 @@ magnetic B stars have simple light curves are HD~37776 and HD~64740.
 HD~37776 is known from spectropolarimetry to have an extreme field
 geometry dominated by high order multipoles
 \citep{2011ApJ...726...24K}.  The field geometry of HD~64740, while
-potentially less extreme, is also less well-studied
-\citep[see][Ch.~4]{1988PhDT........53B}.  Recent TESS light curves
+potentially less extreme, also shows evidence for a non-dipolar contribution
+\citep{2018MNRAS.475.5144S}.
+Recent TESS light curves
 of these two B stars appear surprisingly similar to the CPV light
 curves \citep{2020pase.conf...46M}.  The middle row of
 Figure~\ref{fig:bstar} shows the phased TESS light curves for these
@@ -2044,24 +2049,23 @@ which this technique is technically feasible \citep[see][and
 references therein]{2021A&ARv..29....1K}.
 
 
-The physical similarity between the B stars and the M dwarfs
-presumably has its origin in the existence of a ``centrifugal
-magnetosphere'' \citep[see][]{2013MNRAS.429..398P}.  In other words,
-both classes of objects probably satisfy the condition $R_{\rm m} >
-R_{\rm c}$, for $R_{\rm m}$ the magnetosphere radius (sometimes called
-the Alfv\'en radius).  Provided that charged particles are confined to
-move along magnetic field lines, stable points that balance the
-centrifugal force and gravity can then exist at the corotation radius
-\citep[e.g.][]{2005MNRAS.357..251T}.  In the converse ``dynamical''
-case, when $R_{\rm m} < R_{\rm c}$, material interior to the
-magnetospheric radius returns to the stellar surface over the
-free-fall timescale.  A simple estimate assuming a dipole field with
-$B_0\approx1\,{\rm kG}$ at the star's surface, a local plasma number
-density $n\approx10^9\,{\rm cm^{-3}}$, and a plasma temperature
-$10^6\,{\rm K}$ gives magnetospheric radii of order a few times the
-corotation radii, $R_{\rm c}$.  This suggests that the existence of a
-centrifugal magnetosphere is plausible for young, rapidly rotating M
-dwarfs.
+The physical similarity between the B stars and the M dwarfs could
+have its origin in the existence of a ``centrifugal magnetosphere''
+\citep[see][]{2013MNRAS.429..398P}.  In other words, both classes of
+objects might satisfy the condition $R_{\rm m} > R_{\rm c}$, for
+$R_{\rm m}$ the magnetosphere radius (sometimes called the Alfv\'en
+radius).  Provided that charged particles are confined to move along
+magnetic field lines, material can then build up at the corotation
+radius \citep[see][Sec.~4, and references
+therein]{2015SSRv..191..339R}.  In the converse ``dynamical'' case,
+when $R_{\rm m} < R_{\rm c}$, material interior to the magnetospheric
+radius returns to the stellar surface over the free-fall timescale.  A
+simple estimate assuming a dipole field with $B_0\approx1\,{\rm kG}$
+at the star's surface, a local plasma number density
+$n\approx10^9\,{\rm cm^{-3}}$, and a plasma temperature $10^6\,{\rm
+K}$ gives magnetospheric radii of order a few times the corotation
+radii, $R_{\rm c}$.  This suggests that the existence of a centrifugal
+magnetosphere is plausible for young, rapidly rotating M dwarfs.
 
 % NOTE to the arxiv crawlers:
 %
@@ -2101,7 +2105,9 @@ of M dwarfs younger than $\approx$100\,Myr show the CPV phenomenon
 Analyzing the TESS light curves and stellar properties of our CPVs, we
 draw the following conclusions.
 
+\vspace{-2pt}
 \begin{enumerate}[leftmargin=*]
+	  \setlength\itemsep{-2pt}
 %
     \item The sharpest CPV dips have durations of $\approx$0.05\,$P$
       and depths of $\approx$1-3\% (Figures~\ref{fig:cqvs}
@@ -2141,17 +2147,19 @@ draw the following conclusions.
       sometimes simultaneously, and each lasting for up to 50 cycles
       (Figure~\ref{fig:lpriver0}).
 %
-    \item The CPV peaks and dips evolve over timescales that are both secular
-      ($\approx$100\,cycles) and impulsive ($<$1 cycle).  Dip growth seems
-      to happen over durations of at least ten cycles, and slow dip
-      decay can also occur.  ``State-switches'' correspond to dips 
-      collapsing instantaneously, and
-      occur once every few months for
-      both LP~12-502 and TIC~300651846.
-      They are almost always linked with
-      observed optical flares.  Such switches are suggestive of
-      magnetic reconnection opening the ``magnetic cage'' that traps
-      the dust.
+    \item The CPV peaks and dips evolve over timescales that are both
+      secular ($\approx$100\,cycles) and impulsive ($<$1 cycle).  Dip
+      growth seems to happen over durations of at least ten cycles,
+      and slow dip decay can also occur.  ``State-switches''
+      correspond to dips collapsing instantaneously, and occur once
+      every few months for both LP~12-502 and TIC~300651846.  They are
+      almost always linked with observed optical flares.  Such
+      switches are suggestive of magnetic reconnection opening the
+      ``magnetic cage'' that traps the dust.
+%
+	\item The detailed morphology changes exhibited by LP~12-502
+	during its state-switches (e.g.\ Figure~\ref{fig:lp}, cycles 1233-1264)
+	imply that the flux dips are additive and independent.
 %
     \item The on-off duty cycle for CPVs seems to be $\approx$$75$\%, based
       on the fraction of bona fide CPVs that either turned on or turned
@@ -2241,7 +2249,7 @@ stellar magnetic field, whether from the Zeeman effect
 \citep[e.g.][]{2015Natur.523..568H}, could also help clarify the
 strength of the magnetospheres for these objects.
 
-On the theoretical front, building a physical understanding what sets
+On the theoretical front, building a physical understanding of what sets
 the characteristic size scale of the clumping material would help
 clarify why the light curves have the bizarre shapes that are
 observed.  The relevant puzzles in plasma physics and radiative
@@ -2268,12 +2276,14 @@ LP 12-502 in particular was observed at 2-minute
 cadence thanks to the TESS Guest Investigator programs G022252 (PI:
 J.~Schlieder; Sectors 18, 19, 25, 26) and G04168 (PI: R.~Jayaraman;
 Sector 53). 
+ADU acknowledges support by NASA under award number 80GSFC21M0002, as
+well as ROSES award 22-ADAP22-0070.
 
 %{\bf AUTHOR CONTRIBUTION STATEMENTS: PLEASE REVISE IF APPROPRIATE)}
 LGB conceived the project, performed the dip-counting search, light curve classification, cluster membership, SED, variability, and secondary-period analyses, and wrote the manuscript.
 RJ and SR performed the Fourier-based analysis and contributed to light curve classification.
 LR cross-examined the light curve classification, and contributed an independent SED analysis.
-AD identified the magnetic B star connection.
+ADU identified the magnetic B star connection.
 LAH contributed to project design and to the interpretation of the light curves.
 JNW, SR, and LAH significantly improved the clarity of the manuscript.
 G\'AB acquired and maintained the servers used to run the dip-finding pipeline.
@@ -2459,7 +2469,7 @@ transit behind the ring, it would produce a brightening, not a
 dimming.   Most CPVs show dimmings.   The ring scenario would therefore
 imply that large hot spots are common in the photospheres of
 pre-main-sequence M dwarfs.  Empirical evidence however suggests that
-cool spots dominate the the optical variability of disk-free
+cool spots dominate the optical variability of disk-free
 pre-main-sequence stars.  This evidence includes flux excursions
 caused by spot-crossings during planetary transits
 \citep[e.g.][]{2020AJ....160...33R,2022AJ....163..147G}, correlations
@@ -2652,14 +2662,16 @@ enabled by the fifteen-fold faster cadence in the TESS 2-minute data,
 relative to K2.  A logical follow-up is to ask whether the periodic
 components of the CPV light curves contain power at timescales below
 one minute.  Between 2020 and 2021, we observed 10 CPVs at 20-second
-cadence with TESS in order to explore this question (TESS DDT029; PI L.~Bouma).
-The stars were TICs 142173958, 146539195, 24518895, 276453848,
-264599508, 363963079, 144486786, 408188366, 300651846, 262400835.
-These sources were selected from CPVs known at the time to have short
-periods and sharp features when observed at 2-minute cadence.
-Comparing the 20-second to 2-minute data for these stars (data
-available on MAST), we concluded that these CPVs did not contain
-appreciable power at timescales shorter than a few minutes.
+cadence with TESS in order to explore this question (TESS DDT029; PI
+L.~Bouma).  The stars were TICs 142173958, 146539195, 24518895,
+276453848, 264599508, 363963079, 144486786, 408188366, 300651846,
+262400835.  These sources were selected from CPVs known at the time to
+have short periods and sharp features when observed at 2-minute
+cadence.  Comparing the 20-second to 2-minute data for these stars
+(data available on MAST), we concluded that these CPVs did not contain
+appreciable power at timescales shorter than a few minutes, other than
+the usual flaring.  This is consistent with the expected few-minute
+ingress and egress timescales for transiting circumstellar material.
 
 
 \section{The CPVs are not obviously accreting}
