@@ -1759,7 +1759,7 @@ of rapidly rotating M dwarfs may depend on factors other than the
 rotation rate (e.g.\ the age), which might alter the production of prominences.
 
 
-\subsection{Planets or planetesimal swarms near corotation?}
+\subsection{Planets or planetesimals near corotation?}
 
 Close-in planets are common around M dwarfs; studies from Kepler have
 shown that early M dwarfs have $\approx$0.1 planets per star with
@@ -1825,13 +1825,63 @@ field configurations responsible for confining said material are
 stable over the existing two-year baseline.
 
 
+\subsection{Mass flux estimate}
+\label{subsec:massflux}
+
+Assuming for the moment that the obscuring material is dust, we can
+estimate the mass of a transiting clump. First, we convert the transit
+depth into an effective cloud radius, $R_{\rm cloud}$.  For most CPVs
+in Figure~\ref{fig:cqvs}, this yields $\approx$2-20\,$R_\oplus$.  A
+minimum constraint on the number density of dust particles is obtained
+by requiring the cloud to be optically thick.  For cases like LP
+12-502, this is reasonable because the transit duration of the
+shortest dips implies $R_{\rm cloud}\ll R_\star$.  Carrying out the
+relevant calculation assuming the dust grains are 1\,$\mu$m in size,
+\citet{2023MNRAS.518.4734S} reported minimum cloud masses of order
+$10^{12}$\,kg (their Eq.~23), which scale linearly with both the
+optical depth and dust grain radius.  This is comparable to a small
+asteroid; the asteroid belt itself has a mass of order
+$\approx$10$^{21}$\,kg \citep{2019Icar..319..812P}.  A similar
+calculation that assumed occulting clumps of hydrogen, rather than
+dust, derived gas prominence masses of at least $10^{14}$\,kg
+\citep{1990MNRAS.247..415C}, about 100$\times$ larger than the lower
+limit on the dust mass.
+
+If the disappearance of a dip represents the permanent loss of the
+obscuring material -- for example, if it is the result of a dust clump
+being accreted or ejected -- then we can also estimate the rate at
+which mass is flowing through the structures that lead to dips.  For
+instance, LP~12-502 showed three ``state-switch'' events over the six
+months of available TESS observations, during cycles 261, 309, and
+1241 (Figure~\ref{fig:lpriver0}).  The other source for which we
+performed a comparable analysis, TIC~300651846
+(Appendix~\ref{app:tic3006}), showed two state-switches over 11
+months.  In all such cases, at least one dip turned off.  For purposes
+of estimation, we will take LP 12-502 as our prototype.  Assuming the
+occulting material is dust, the corresponding $\dot{M} \equiv M\cdot
+{\rm d}N/{\rm d}t$ time-averaged over six months is
+%$\approx$3$\times$$10^{-18} M_\odot\,{\rm yr}^{-1}
+$\approx
+1\times10^{-12} M_\oplus\,{\rm yr}^{-1}$.  Considered cumulatively
+over the $\approx$$10^8$ years for which the CPV phenomenon is
+observed, this yields a cumulative moved dust mass of
+$10^{-4}\,M_\oplus$, of order the Solar System's asteroid belt.  If
+the occulting material is gas, the lower mass bounds would be of order
+100 times larger.  For cases in which we observe the {\it growth} of
+dips, such as the Sector~29 data for TIC~224283342, or Sector~5 of
+TIC~294328885, the dip depths typically increase by of order a few
+percent over ten to twenty days.  This growth rate yields a mass flux
+one order of magnitude larger than the earlier estimate.
+
+
+
 
 \subsection{From dippers to debris disks}
 \label{subsec:discdippers}
 
 About one in three young stars with infrared-detected inner dusty
 disks show quasiperiodic or stochastic dimming over timescales of
-roughly one day \citep[e.g.][]{2010A&A...519A..88A}.  The dimming
+roughly one day \citep[e.g.][]{2010A&A...519A..88A,2010ApJS..191..389C}.  The dimming
 amplitudes can reach a few tenths of the stellar brightness, and dips
 with identical depths and phases rarely recur.  These ``dipper'' stars
 are probably explained by occulting circumstellar dust in the inner
@@ -1948,56 +1998,6 @@ structures.
 		\label{fig:bstar}
 	\end{center}
 \end{figure}
-
-
-\subsection{Mass flux estimate}
-\label{subsec:massflux}
-
-Assuming for the moment that the obscuring material is dust, we can
-estimate the mass of a transiting clump. First, we convert the transit
-depth into an effective cloud radius, $R_{\rm cloud}$.  For most CPVs
-in Figure~\ref{fig:cqvs}, this yields $\approx$2-20\,$R_\oplus$.  A
-minimum constraint on the number density of dust particles is obtained
-by requiring the cloud to be optically thick.  For cases like LP
-12-502, this is reasonable because the transit duration of the
-shortest dips implies $R_{\rm cloud}\ll R_\star$.  Carrying out the
-relevant calculation assuming the dust grains are 1\,$\mu$m in size,
-\citet{2023MNRAS.518.4734S} reported minimum cloud masses of order
-$10^{12}$\,kg (their Eq.~23), which scale linearly with both the
-optical depth and dust grain radius.  This is comparable to a small
-asteroid; the asteroid belt itself has a mass of order
-$\approx$10$^{21}$\,kg \citep{2019Icar..319..812P}.  A similar
-calculation that assumed occulting clupms of hydrogen, rather than
-dust, derived gas prominence masses of at least $10^{14}$\,kg
-\citep{1990MNRAS.247..415C}, about 100$\times$ larger than the lower
-limit on the dust mass.
-
-If the disappearance of a dip represents the permanent loss of the
-obscuring material -- for example, if it is the result of a dust clump
-being accreted or ejected -- then we can also estimate the rate at
-which mass is flowing through the structures that lead to dips.  For
-instance, LP~12-502 showed three ``state-switch'' events over the six
-months of available TESS observations, during cycles 261, 309, and
-1241 (Figure~\ref{fig:lpriver0}).  The other source for which we
-performed a comparable analysis, TIC~300651846
-(Appendix~\ref{app:tic3006}), showed two state-switches over 11
-months.  In all such cases, at least one dip turned off.  For purposes
-of estimation, we will take LP 12-502 as our prototype.  Assuming the
-occulting material is dust, the corresponding $\dot{M} \equiv M\cdot
-{\rm d}N/{\rm d}t$ time-averaged over six months is
-%$\approx$3$\times$$10^{-18} M_\odot\,{\rm yr}^{-1}
-$\approx
-1\times10^{-12} M_\oplus\,{\rm yr}^{-1}$.  Considered cumulatively
-over the $\approx$$10^8$ years for which the CPV phenomenon is
-observed, this yields a cumulative moved dust mass of
-$10^{-4}\,M_\oplus$, of order the Solar System's asteroid belt.  If
-the occulting material is gas, the lower mass bounds would be of order
-100 times larger.  For cases in which we observe the {\it growth} of
-dips, such as the Sector~29 data for TIC~224283342, or Sector~5 of
-TIC~294328885, the dip depths typically increase by of order a few
-percent over ten to twenty days.  This growth rate yields a mass flux
-one order of magnitude larger than the earlier estimate.
-
 
 
 \subsection{Strengthening the magnetic B star connection}
