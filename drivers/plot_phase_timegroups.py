@@ -42,10 +42,11 @@ def main():
             #cyclewindow = [-1,630]
             #ylim = [-105,5]
 
-            # for 2min secondthalf
+            ## for 2min secondthalf
             lc_cadences = '2min'
             cyclewindow = [2290,2680]
             ylim = [-133,5]
+
             mingap = 3/24
 
             ## for all available 2min
@@ -72,21 +73,14 @@ def main():
 
             do4029_resid = 0
 
-        cp.plot_phase_timegroups(
-            outdir,
-            ticid=f'TIC_{ticid}',
-            lc_cadences='2min',
-            binsize_phase=0.005,
-            t0=t0,
-            ylim=ylim,
-            yoffset=yoffset,
-            manual_period=manual_period,
-            showtitle=0,
-            do4029_resid=do4029_resid,
-            figsize_y=figsize_y,
-            cyclewindow=cyclewindow,
-            mingap=mingap
-        )
+        for r in [1,0]:
+            cp.plot_phase_timegroups(
+                outdir, ticid=f'TIC_{ticid}', lc_cadences='2min',
+                binsize_phase=0.005, t0=t0, ylim=ylim, yoffset=yoffset,
+                manual_period=manual_period, showtitle=0,
+                do4029_resid=do4029_resid, figsize_y=figsize_y,
+                cyclewindow=cyclewindow, mingap=mingap, rasterized=r
+            )
 
 if __name__ == "__main__":
     main()

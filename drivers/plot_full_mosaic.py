@@ -6,7 +6,9 @@ PLOTDIR = os.path.join(RESULTSDIR, 'full_lcmosaic')
 if not os.path.exists(PLOTDIR):
     os.mkdir(PLOTDIR)
 
-rp.plot_full_lcmosaic(PLOTDIR, sortby='Ngoodsectors_tic8_Tmag', binarytitle=1)
+for r in [0,1]:
+    rp.plot_full_lcmosaic(PLOTDIR, sortby='Ngoodsectors_tic8_Tmag',
+                          binarytitle=1, rasterized=r)
 rp.plot_full_lcmosaic(PLOTDIR, sortby='Rcr_over_Rstar')
 rp.plot_full_lcmosaic(PLOTDIR, sortby='Ngoodsectors_tic8_Tmag')
 rp.plot_full_lcmosaic(PLOTDIR, sortby='tlc_mean_period')

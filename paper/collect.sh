@@ -2,33 +2,54 @@ resultsdir="/Users/luke/Dropbox/proj/cpv/results"
 artdir="/Users/luke/Dropbox/proj/cpv/art"
 addir="/Users/luke/Dropbox/Documents/proposals/2023_05_ADAP/latex/figs/"
 
+################################
+# RASTERIZED FIGURES FOR ARXIV 
+# ...generally might prefer not, but this is a requirement for google chrome to render the figures correctly :-(
+################################
+echo -n "Enter 1 for arxiv (rasterized mosaics), 0 for anything else (e.g. AAS journals): "
+read VAR
+if [[ $VAR -eq 1 ]]
+then
+  # full LC mosaic (50 panel)
+  cp $resultsdir/full_lcmosaic/full_lcmosaic_showtitles_binarytitle_Ngoodsectors_tic8_Tmag_rasterized.pdf f4.pdf
+  # LC evolution
+  cp $resultsdir/beforeafter_mosaic/beforeafter_mosaic_showtitles_tic8_Tmag_rasterized.pdf f6.pdf
+  # TIC4029 phase timegroups one orbit per panel
+  cp $resultsdir/phase_timegroups_mosaic/TIC_402980664/TIC_402980664_P18.5611_2min_phase_timegroups_mosaic_ymin-4.8_ymax3_rasterized.pdf f8.pdf
+  # TIC3006 phase timegroup
+  cp $resultsdir/phase_timegroups/TIC_300651846/cycle-1_to_630TIC_300651846_P8.2540_2min_phase_timegroups_rasterized.pdf f11a.pdf
+  cp $resultsdir/phase_timegroups/TIC_300651846/cycle2290_to_2680TIC_300651846_P8.2540_2min_phase_timegroups_rasterized.pdf f11b.pdf
+else
+  # full LC mosaic (50 panel)
+  cp $resultsdir/full_lcmosaic/full_lcmosaic_showtitles_binarytitle_Ngoodsectors_tic8_Tmag.pdf f4.pdf
+  # LC evolution
+  cp $resultsdir/beforeafter_mosaic/beforeafter_mosaic_showtitles_tic8_Tmag.pdf f6.pdf
+  # TIC4029 phase timegroups one orbit per panel
+  cp $resultsdir/phase_timegroups_mosaic/TIC_402980664/TIC_402980664_P18.5611_2min_phase_timegroups_mosaic_ymin-4.8_ymax3.pdf f8.pdf
+  # TIC3006 phase timegroup
+  cp $resultsdir/phase_timegroups/TIC_300651846/cycle-1_to_630TIC_300651846_P8.2540_2min_phase_timegroups.pdf f11a.pdf
+  cp $resultsdir/phase_timegroups/TIC_300651846/cycle2290_to_2680TIC_300651846_P8.2540_2min_phase_timegroups.pdf f11b.pdf
+fi
+
+
 # tables
 cp $resultsdir/tables/2023_catalog_table/20230613_LGB_RJ_CPV_TABLE_selfnapplied_rounded.csv table1_short.csv
 cp $resultsdir/tables/2023_catalog_table/20230613_LGB_RJ_CPV_TABLE_selfnapplied_rounded_longMRT.csv table1_MRT.csv
 
 # 3-panel mosaic and cartoons
 cp $resultsdir/lc_mosaic/lc_mosaic_fav3.pdf f1a.pdf
-cp $artdir/twomodels.pdf f1b.pdf
+cp $artdir/twomodels-compressed.pdf f1b.pdf
 
 # completeness
 cp $resultsdir/fraction_coverage/fraction_coverage.pdf f2.pdf
 
 # fig3 is annotated_lp12502.key exported
 
-# full LC mosaic (50 panel)
-cp $resultsdir/full_lcmosaic/full_lcmosaic_showtitles_binarytitle_Ngoodsectors_tic8_Tmag.pdf f4.pdf
-
 # catalog properties
 cp $resultsdir/catalogscatter/catalogscatter_showmaybe_emphruwe.pdf f5.pdf
 
-# LC evolution
-cp $resultsdir/beforeafter_mosaic/beforeafter_mosaic_showtitles_tic8_Tmag.pdf f6.pdf
-
 # TIC4029 segments
 cp $resultsdir/tic4029_segments/tic4029_segments.pdf f7.pdf
-
-# TIC4029 phase timegroups one orbit per panel
-cp $resultsdir/phase_timegroups_mosaic/TIC_402980664/TIC_402980664_P18.5611_2min_phase_timegroups_mosaic_ymin-4.8_ymax3.pdf f8.pdf
 
 # TIC4029 river
 cp $resultsdir/river/TIC_402980664/TIC402980664_river_gist_stern_truncated_-1_64_manual_20230617_mask_v0_nterms2_vmin-4.00000_vmax1.00000.pdf f9a.pdf
@@ -42,9 +63,6 @@ cp $resultsdir/magnetic_bstar_comparison/magnetic_bstar_comparison_showtitles_co
 cp $resultsdir/magnetic_bstar_comparison/magnetic_bstar_comparison_showtitles_complexM.pdf f10c.pdf
 
 # appendix
-# TIC3006 phase timegroup
-cp $resultsdir/phase_timegroups/TIC_300651846/cycle-1_to_630TIC_300651846_P8.2540_2min_phase_timegroups.pdf f11a.pdf
-cp $resultsdir/phase_timegroups/TIC_300651846/cycle2290_to_2680TIC_300651846_P8.2540_2min_phase_timegroups.pdf f11b.pdf
 
 # TIC3006 river
 cp $resultsdir/river/tic_300651846/TIC300651846_river_seismic_-1_630_vmin-6.00000_vmax6.00000.pdf f12a.pdf

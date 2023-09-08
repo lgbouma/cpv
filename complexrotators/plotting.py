@@ -509,7 +509,8 @@ def plot_phase_timegroups(
     figsize_y=7,
     do4029_resid=0,
     cyclewindow=None,
-    mingap=3/24  # days
+    mingap=3/24,  # days
+    rasterized=False
     ):
     """
     As in plot_phase
@@ -618,7 +619,7 @@ def plot_phase_timegroups(
             fig=fig, ax=ax,
             titlestr=None, binsize_phase=binsize_phase,
             xlim=xlim, yoffset=ix, showtext=txt, savethefigure=False,
-            dy=yoffset
+            dy=yoffset, rasterized=rasterized
         )
 
         ix -= yoffset
@@ -651,10 +652,13 @@ def plot_phase_timegroups(
         s += 'resid_'
     if isinstance(cyclewindow, (tuple, list)):
         s += f'cycle{cyclewindow[0]}_to_{cyclewindow[1]}'
+    _r = ''
+    if rasterized:
+        _r = '_rasterized'
 
-    outpath = join(outdir, f"{s}{ticid}_P{plot_period*24:.4f}_{lc_cadences}_phase_timegroups.png")
+    outpath = join(outdir, f"{s}{ticid}_P{plot_period*24:.4f}_{lc_cadences}_phase_timegroups{_r}.png")
     #fig.savefig(outpath, dpi=300)
-    savefig(fig, outpath, dpi=450)
+    savefig(fig, outpath, dpi=600)
 
 
 def plot_phase_timegroups_mosaic(
@@ -669,7 +673,8 @@ def plot_phase_timegroups_mosaic(
     yoffset=5,
     showtitle=1,
     figsize_y=7,
-    model_id=None
+    model_id=None,
+    rasterized=False
     ):
     """
     As in plot_phase
@@ -782,7 +787,8 @@ def plot_phase_timegroups_mosaic(
             titlepad=0.1,
             showtext=False,
             savethefigure=False,
-            titlefontsize='x-small'
+            titlefontsize='x-small',
+            rasterized=rasterized
         )
         if isinstance(ylim, (list, tuple)):
             ax.set_ylim(ylim)
@@ -834,6 +840,8 @@ def plot_phase_timegroups_mosaic(
         s += f'_{model_id}'
     if isinstance(ylim, (list, tuple)):
         s += f'_ymin{ylim[0]}_ymax{ylim[1]}'
+    if rasterized:
+        s += "_rasterized"
 
     outpath = join(
         outdir,
@@ -844,7 +852,7 @@ def plot_phase_timegroups_mosaic(
 
     fig.savefig(outpath, bbox_inches='tight', dpi=450)
     print(f"saved {outpath}")
-    fig.savefig(outpath.replace('.png','.pdf'), bbox_inches='tight', dpi=450)
+    fig.savefig(outpath.replace('.png','.pdf'), bbox_inches='tight', dpi=600)
     print(f"saved {outpath.replace('.png','.pdf')}")
 
 
@@ -894,7 +902,7 @@ def plot_phased_light_curve(
     fig=None, ax=None, savethefigure=True,
     findpeaks_result=None, ylabel=None, showxticklabels=True,
     yoffset=0, dy=5, normfunc=True, xtxtoffset=0, titlepad=None,
-    titlefontsize='small', showtimeticks=None
+    titlefontsize='small', showtimeticks=None, rasterized=False
     ):
     """
     Non-obvious args:
@@ -969,13 +977,13 @@ def plot_phased_light_curve(
         ax.scatter(
             orb_bd['binnedphases'], norm(orb_bd['binnedmags']), color=c1,
             s=BINMS, linewidths=0,
-            alpha=alpha1, zorder=1002#, linewidths=0.2, edgecolors='white'
+            alpha=alpha1, zorder=1002, rasterized=rasterized#, linewidths=0.2, edgecolors='white'
         )
     else:
         ax.scatter(
             orb_bd['binnedphases'], norm(orb_bd['binnedmags']), color=c1,
             s=BINMS, linewidths=0.07, edgecolors='k',
-            alpha=alpha1, zorder=1002#, linewidths=0.2, edgecolors='white'
+            alpha=alpha1, zorder=1002, rasterized=rasterized#, linewidths=0.2, edgecolors='white'
         )
 
     if isinstance(findpeaks_result, dict):
@@ -2794,7 +2802,7 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0,
 
 
 def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
-                       sortby=None, binarytitle=0):
+                       sortby=None, binarytitle=0, rasterized=False):
     """
     the one that makes the publication
     (on mico, assuming that find_CPVs.py has been run using sample_id=="2023catalog_LGB_RJ_concat")
@@ -2922,7 +2930,7 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
             alpha0=alpha0, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
             fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
             showxticklabels=False, titlefontsize=titlefontsize,
-            titlepad=0.05
+            titlepad=0.05, rasterized=rasterized
         )
 
         if not showtitles:
@@ -3021,6 +3029,8 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
         s += '_binarytitle'
     if isinstance(sortby, str):
         s += f'_{sortby}'
+    if rasterized:
+        s += '_rasterized'
 
     # height/width
     fig.tight_layout(h_pad=0.06, w_pad=0.)
@@ -3028,11 +3038,11 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
     #axs[-1].set_axis_off()
 
     outpath = join(outdir, f'full_lcmosaic{s}.png')
-    savefig(fig, outpath, dpi=400)
+    savefig(fig, outpath, dpi=600)
 
 
 def plot_beforeafter_mosaic(outdir, showtitles=1, titlefontsize=3.75,
-                            sortby=None):
+                            sortby=None, rasterized=False):
     """
     the one that makes the publication
     (on mico, assuming that find_CPVs.py has been run using
@@ -3323,7 +3333,7 @@ def plot_beforeafter_mosaic(outdir, showtitles=1, titlefontsize=3.75,
             alpha0=alpha0, c1=c1, alpha1=1, phasewrap=True, plotnotscatter=False,
             fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
             showxticklabels=False, titlefontsize=titlefontsize,
-            titlepad=0.05
+            titlepad=0.05, rasterized=rasterized
         )
 
         if SIMPLEGRID:
@@ -3483,13 +3493,15 @@ def plot_beforeafter_mosaic(outdir, showtitles=1, titlefontsize=3.75,
         s += '_showtitles'
     if isinstance(sortby, str):
         s += f'_{sortby}'
+    if rasterized:
+        s += '_rasterized'
 
     # height/width
     if SIMPLEGRID:
         fig.tight_layout(h_pad=0.1, w_pad=0.)
 
     outpath = join(outdir, f'beforeafter_mosaic{s}.png')
-    savefig(fig, outpath, dpi=400)
+    savefig(fig, outpath, dpi=600)
 
 
 
@@ -4264,7 +4276,7 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
             alpha0=alpha0, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
             fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
             showxticklabels=False, titlefontsize=titlefontsize,
-            titlepad=0.05, yoffset=yoffset
+            titlepad=0.05, yoffset=yoffset, rasterized=rasterized
         )
 
         if not showtitles:
