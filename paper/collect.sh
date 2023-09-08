@@ -2,6 +2,10 @@ resultsdir="/Users/luke/Dropbox/proj/cpv/results"
 artdir="/Users/luke/Dropbox/proj/cpv/art"
 addir="/Users/luke/Dropbox/Documents/proposals/2023_05_ADAP/latex/figs/"
 
+# tables
+cp $resultsdir/tables/2023_catalog_table/20230613_LGB_RJ_CPV_TABLE_selfnapplied_rounded.csv table1_short.csv
+cp $resultsdir/tables/2023_catalog_table/20230613_LGB_RJ_CPV_TABLE_selfnapplied_rounded_longMRT.csv table1_MRT.csv
+
 # 3-panel mosaic and cartoons
 cp $resultsdir/lc_mosaic/lc_mosaic_fav3.pdf f1a.pdf
 cp $artdir/twomodels.pdf f1b.pdf
