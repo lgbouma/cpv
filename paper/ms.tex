@@ -2,7 +2,7 @@
 %\documentclass[12pt,twocolumn,tighten,linenumbers]{aastex63}
 %\documentclass[12pt,twocolumn,tighten,linenumbers,trackchanges]{aastex63}
 % drafting / arxiv
-\documentclass[11pt,twocolumn,tighten,linenumbers]{aastex63}
+\documentclass[11pt,twocolumn,tighten]{aastex63}
 \turnoffedit
 
 \usepackage{apjfonts}
@@ -158,7 +158,7 @@ Stellar rotation (1629)}
 			\includegraphics[width=0.8\textwidth]{f1a.pdf}
 		}
 		
-		\vspace{-0.65cm}
+		\vspace{-0.62cm}
 		\subfloat{
 			\includegraphics[width=0.66\textwidth]{f1b.pdf}
 		}
@@ -524,7 +524,7 @@ into equal width 2-minute bins to account for the uneven spacing in
 the TESS data, as well as the data gap caused by satellite downlink
 during each sector.  We then padded the data to ensure that the light
 curve had a length that was a power of two, as described by
-\citeauthor{2019ApJ...876..127Z}.  After taking the Fourier transform
+\citeauthor{2019ApJ...876..127Z}\ After taking the Fourier transform
 of the padded light curve using {\tt numpy.fft}, we searched for peaks
 with a significance exceeding 12-$\sigma$ within a set of 500
 frequency bins.
@@ -629,7 +629,7 @@ more general Fourier pipeline, $\approx$0.5\% of stars that passed the
 \subsubsection{Ages}
 While most of our target stars were field stars, color--absolute
 magnitude diagrams suggested that most CPVs tended to be on the
-pre-main-sequence (e.g.\ panel {\it (k) of Figure~\ref{fig:vet}}).  We
+pre-main-sequence (e.g.\ panel {\it (k)} of Figure~\ref{fig:vet}).  We
 therefore estimated stellar ages by checking for probabilistic spatial
 and kinematic associations between the CPVs and known clusters in the
 solar neighborhood.  For most stars in our sample, we did this using
@@ -776,7 +776,7 @@ sample would have been flagged.
 {\it Gaia DR3 non-single stars}---Gaia DR3 included a {\tt
 non\_single\_star} column that flagged eclipsing, astrometric, and
 spectroscopic binaries.  None of the stars in our CPV sample were
-identified as possible binaries in this column.
+identified as \deleted{possible }binaries in this column.
 
 {\it Multiple periodic TESS signals}---During our visual analysis of
 the TESS light curves and PDM periodograms, we flagged sources with
@@ -907,7 +907,7 @@ group.  The large contribution from Sco-Cen is not surprising since
 Sco-Cen contains the majority of pre-main-sequence stars in the solar
 neighborhood, and many of its stars were selected for TESS 2-minute
 cadence observations by guest investigators.  Given the
-$\lesssim$$10\%$ completeness of TESS beyond 100\,pc
+$\lesssim$$10\%$ completeness of \replaced{TESS}{our data} beyond 100\,pc
 (Figure~\ref{fig:completeness}), there may be many more CPVs in
 Sco-Cen that remain to be discovered.
 
@@ -1192,7 +1192,7 @@ tracked.  Assuming $\sigma_\phi$$\approx$$0.02$ and a 20-day baseline
 over a single TESS sector yields
 $\sigma_{P}$$\approx$$0.25^{+0.38}_{-0.14}$\,minutes for the
 population shown in Figure~\ref{fig:evoln}; propagated forward 1{,}000
-cycles yields a typical ephemeris uncertainty range of 2-11\,hours.
+cycles yields a typical ephemeris uncertainty range of 2 to 11\,hours.
 Measuring the period independently for each sector did not reveal
 evidence for significant ($>$3$\sigma$) changes in period, implying a
 period stability of $\lesssim$0.1\% over two years.
@@ -1688,7 +1688,7 @@ the star, or whether it is a byproduct of the protoplanetary disk.
 
 The observed lifetime of the CPV phenomenon could provide another way
 to discern between the gas and dust clump scenarios.  Based on the
-available statistics from e.g.  \citet{2022AJ....164...80R} and
+available statistics from \deleted{e.g. }\citet{2022AJ....164...80R} and
 references therein, it seems plausible that CPV occurrence decreases
 with stellar age from $\approx$3\% at 10\,Myr (Sco-Cen), to
 $\approx$1\% at 100\,Myr (Pleiades), down to 0\% by the
