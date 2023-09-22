@@ -121,7 +121,8 @@ def get_twomin():
 
 
 
-def plot_tessmag_vs_distance(showliterature=1, show120seccands=1):
+def plot_tessmag_vs_distance(showliterature=1, show120seccands=1, basems=9,
+                             f=1.5):
 
     # get & clean data
     df = get_detection_df()
@@ -136,6 +137,10 @@ def plot_tessmag_vs_distance(showliterature=1, show120seccands=1):
     tdf = get_twomin()
     ldf['wasInSelFn'] = ldf.ticid.isin(tdf.ID)
 
+    ldf['dist_pc'] = ldf['distance_pc']
+    selcols = 'ticid,dist_pc,TESSMAG'.split(",")
+    mdf = pd.concat((df[selcols], ldf[selcols]))
+    mdf = mdf.drop_duplicates(selcols)
 
     # the "real detection" CPV TESSMAGS do not match the "literature CPV"
     # TESSMAGS -- they are about 0.15 to 0.2 mags fainter.  this is because the
@@ -160,14 +165,13 @@ def plot_tessmag_vs_distance(showliterature=1, show120seccands=1):
     #
     plt.close("all")
     set_style("science")
-    f = 1.5
     fig, ax = plt.subplots(figsize=(f*2,f*2))
 
     # 120 second CPV detections
     sel = (df.quality == 1)
     ax.scatter(
         df[sel].dist_pc, df[sel].TESSMAG,
-        c='C0', s=f*9, zorder=5, label='CQVs B23', linewidths=0
+        c='C0', s=f*basems, zorder=5, label='CQVs B23', linewidths=0
     )
 
     # 120second candidates
@@ -175,7 +179,7 @@ def plot_tessmag_vs_distance(showliterature=1, show120seccands=1):
     if show120seccands:
         ax.scatter(
             df[sel].dist_pc, df[sel].TESSMAG,
-            c='C0', s=f*9, zorder=4, label='Candidates B23',
+            c='C0', s=f*basems, zorder=4, label='Candidates B23',
             alpha=0.5, linewidths=0
         )
 
@@ -185,7 +189,7 @@ def plot_tessmag_vs_distance(showliterature=1, show120seccands=1):
         sel = ldf.telescope == 'K2'
         ax.scatter(
             ldf[sel].distance_pc, ldf[sel].TESSMAG,
-            c='gray', marker='D', s=f*9, linewidth=0.1, zorder=4,
+            c='gray', marker='D', s=f*basems, linewidth=0.1, zorder=4,
             label='K2 literature'
         )
 
@@ -194,7 +198,7 @@ def plot_tessmag_vs_distance(showliterature=1, show120seccands=1):
             ldf[sel].distance_pc, ldf[sel].TESSMAG,
             #c='lightgray', marker='s', s=5, linewidth=0.1, zorder=6,
             label='TESS literature',
-            c='white', s=f*18, zorder=2, marker='o',
+            c='white', s=f*2*basems, zorder=2, marker='o',
             #edgecolors='lightgray',
             edgecolors='k',
             linewidth=f*0.2, alpha=1
@@ -217,9 +221,20 @@ def plot_tessmag_vs_distance(showliterature=1, show120seccands=1):
     if showliterature:
         s += '_showlit'
 
-    savefig(fig, f"../results/literaturecomp/gmag_vs_distance_CPVs{s}.png")
+    # manuscript default
+    if basems == 9:
+        savefig(fig, f"../results/literaturecomp/gmag_vs_distance_CPVs{s}.png")
+    else:
+        savefig(
+            fig,
+            f"../results/literaturecomp/gmag_vs_distance_CPVs{s}_basems{basems}.png"
+        )
 
 
 if __name__ == "__main__":
 
+    # sales plots
+    plot_tessmag_vs_distance(showliterature=1, basems=12, f=1.2)
+
+    # manuscript
     plot_tessmag_vs_distance(showliterature=1)
