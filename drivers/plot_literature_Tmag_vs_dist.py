@@ -171,7 +171,7 @@ def plot_tessmag_vs_distance(showliterature=1, show120seccands=1, basems=9,
     sel = (df.quality == 1)
     ax.scatter(
         df[sel].dist_pc, df[sel].TESSMAG,
-        c='C0', s=f*basems, zorder=5, label='CQVs B23', linewidths=0
+        c='C0', s=f*basems, zorder=5, label='CPVs B23', linewidths=0
     )
 
     # 120second candidates
@@ -190,7 +190,7 @@ def plot_tessmag_vs_distance(showliterature=1, show120seccands=1, basems=9,
         ax.scatter(
             ldf[sel].distance_pc, ldf[sel].TESSMAG,
             c='gray', marker='D', s=f*basems, linewidth=0.1, zorder=4,
-            label='K2 literature'
+            label='K2 literature', alpha=0.7
         )
 
         sel = ldf.telescope == 'TESS'
@@ -234,7 +234,7 @@ def plot_tessmag_vs_distance(showliterature=1, show120seccands=1, basems=9,
 if __name__ == "__main__":
 
     # sales plots
-    plot_tessmag_vs_distance(showliterature=1, basems=12, f=1.2)
+    plot_tessmag_vs_distance(showliterature=1, basems=12, f=1.)
 
     # manuscript
     plot_tessmag_vs_distance(showliterature=1)
