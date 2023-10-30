@@ -101,11 +101,11 @@ def nn_PARSEC_interpolator(rstar, teff, age, rstar_err, teff_err, age_err):
 
     # calculate distance!
     dist = np.sqrt(
-    np.array( ( (df['Rstar'] - rstar) / rstar_err )**2 )
-    +
-    np.array( ( (df['Teff'] - teff) / teff_err )**2 )
-    +
-    np.array( ( (df['age'] - age) / age_err )**2 )
+        np.array( ( (df['Rstar'] - rstar) / rstar_err )**2 )
+        +
+        np.array( ( (df['Teff'] - teff) / teff_err )**2 )
+        +
+        np.array( ( (df['age'] - age) / age_err )**2 )
     )
     df['dist_median'] = dist
 
