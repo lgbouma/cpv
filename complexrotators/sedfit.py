@@ -49,10 +49,13 @@ knownfailures = {
     ] },
 }
 
-def run_SED_analysis(ticid, trimlist=None):
+def run_SED_analysis(ticid, trimlist=None, uniformpriors=0):
     """
-    Run CQV-specific SED analysis.  Priors assume the star is a nearby M-dwarf.
-    Output goes to /reuslts/ariadne_sed_fitting/{starname}
+    Run CQV-specific SED analysis.  Priors assume the star is a nearby M-dwarf
+    if uniformpriors==0, else assumes uniform priors.
+
+    Output goes to either /results/ariadne_sed_fitting/{starname}
+    or /results/ariadne_sed_fitting_UNIFORM/{starname}.
 
     Atmospheric models used are BT-Settl AGSS2009.
 
@@ -83,7 +86,10 @@ def run_SED_analysis(ticid, trimlist=None):
     starname = f'TIC_{ticid}'
     #g_id = int(gdr2_df.dr2_source_id)
 
-    out_folder = join(RESULTSDIR, 'ariadne_sed_fitting', f'{starname}')
+    if uniformpriors:
+        out_folder = join(RESULTSDIR, 'ariadne_sed_fitting_UNIFORM', f'{starname}')
+    else:
+        out_folder = join(RESULTSDIR, 'ariadne_sed_fitting', f'{starname}')
     if not os.path.exists(out_folder): os.mkdir(out_folder)
 
     if ticid != '368129164':
@@ -170,7 +176,6 @@ def run_SED_analysis(ticid, trimlist=None):
 
         for mask_name in mask_names:
             s.remove_mag(mask_name)
-
 
     #
     # add WISE W3 and W4; for SED visualization only (not used in fitting); cache too
@@ -259,14 +264,24 @@ def run_SED_analysis(ticid, trimlist=None):
     # Teff and logg priors that use that knowledge.  They are _mostly_
     # close-by, so A_V should be small.  A_V=0.12 for the Pleiades
     # (Curtis2020), which is a high extinction sight-line.  So assume A_V<0.2. 
-    f.prior_setup = {
-            'teff': ('normal', 3000, 1000),
-            'logg': ('normal', 4.5, 0.5),
-            'z': ('uniform', -0.3, 0.3),
-            'dist': ('default'),
-            'rad': ('truncnorm', 0.5, 0.5, 0.1, 1.5),
-            'Av': ('uniform', 0, 0.2)
-    }
+    if not uniformpriors:
+        f.prior_setup = {
+                'teff': ('normal', 3000, 1000),
+                'logg': ('normal', 4.5, 0.5),
+                'z': ('uniform', -0.3, 0.3),
+                'dist': ('default'),
+                'rad': ('truncnorm', 0.5, 0.5, 0.1, 1.5),
+                'Av': ('uniform', 0, 0.2)
+        }
+    else:
+        f.prior_setup = {
+                'teff': ('uniform', 2000, 8000),
+                'logg': ('normal', 4.5, 0.5),
+                'z': ('uniform', -0.3, 0.3),
+                'dist': ('default'),
+                'rad': ('uniform', 0.1, 1.5),
+                'Av': ('uniform', 0, 0.2)
+        }
 
     cache_file = os.path.join(out_folder, 'BMA.pkl')
 
