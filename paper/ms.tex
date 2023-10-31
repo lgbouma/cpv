@@ -1,9 +1,9 @@
 % upon AAS submission
-%\documentclass[12pt,twocolumn,tighten,linenumbers]{aastex63}
-%\documentclass[12pt,twocolumn,tighten,linenumbers,trackchanges]{aastex63}
+%\documentclass[11pt,twocolumn,tighten,linenumbers]{aastex63}
+\documentclass[11pt,twocolumn,tighten,linenumbers,trackchanges]{aastex63}
 % drafting / arxiv
-\documentclass[11pt,twocolumn,tighten]{aastex63}
-\turnoffedit
+%\documentclass[11pt,twocolumn,tighten,linenumbers]{aastex63}
+%\turnoffedit
 
 \usepackage{apjfonts}
 \usepackage{url}
@@ -118,10 +118,10 @@
   M dwarfs with rotation periods ranging from 0.2 to 2 days.  To
   advance our understanding of these enigmatic objects, we conducted a
   blind search using TESS 2-minute data of \nstarssearched\ K and M
-  dwarfs with $T$$<$16 and $d$$<$150\,pc.  We found \ngoods\
+  dwarfs with $T$$<$16\added{\,mag} and $d$$<$150\,pc.  We found \ngoods\
   high-quality CPVs, and subsequently determined that most are members
   of stellar associations.  Among the new discoveries are the
-  brightest ($T$$\approx$9.5), closest ($d$$\approx$20\,pc), and
+  brightest ($T$$\approx$9.5\added{\,mag}), closest ($d$$\approx$20\,pc), and
   oldest ($\approx$200\,Myr) CPVs known.  One exceptional object, LP
   12-502, exhibited up to eight flux dips per cycle. Some of these
   dips coexisted with slightly different periods, and the
@@ -610,15 +610,17 @@ all of the following criteria for at least one TESS sector:
   \item Persistent dips over multiple consecutive rotation cycles.
 \end{itemize}
 \vspace{-2pt}
-We also noted ''possible'' CPVs for which the classification was more
-ambiguous, and ``false positives'' that are definitely not CPVs.  The
-most common false positives for both the Fourier and dip-counting
-techniques were eclipsing binaries, ordinary spotted rapid rotators,
-and light curves that were complex due to multiple stars contributing
-to the photometric aperture.  Our specialized dip-counting pipeline
-flagged \nuniqdipflagged\ unique stars for visual inspection; about
-20\% were subsequently labeled either good or possible CPVs.  From the
-more general Fourier pipeline, $\approx$0.5\% of stars that passed the
+We also noted \replaced{''possible'' CPVs for which the classification
+was more ambiguous, and}{a few stars with potentially oddly-shaped dips
+as ``ambiguous'' CPVs, and a few interesting} ``false
+positives'' that are definitely not CPVs.  The most common false
+positives for both the Fourier and dip-counting techniques were
+eclipsing binaries, ordinary spotted rapid rotators, and light curves
+that were complex due to multiple stars contributing to the
+photometric aperture.  Our specialized dip-counting pipeline flagged
+\nuniqdipflagged\ unique stars for visual inspection; about 20\% were
+subsequently labeled either good or \replaced{possible}{ambiguous} CPVs.  From the more
+general Fourier pipeline, $\approx$0.5\% of stars that passed the
 12-$\sigma$ peak threshold were eventually classified as CPVs.
 
 
@@ -650,10 +652,11 @@ solar neighborhood \citep[see e.g.][Figure~10]{2021ApJ...917...23K}.
 
 For a few cases where BANYAN\,$\Sigma$ yielded ambiguous results, we
 consulted the meta-catalog of young, age-dated, and age-dateable stars
-provided by \citet{2022AJ....163..121B}, and also searched the local
+\replaced{provided}{assembled} by \citet{2022AJ....163..121B}, and also searched the local
 volume around each star for co-moving
 companions.\footnote{\url{https://github.com/adamkraus/Comove}, git
-commit \texttt{278b372}} Finally, to provide a base for comparison, we
+commit \texttt{278b372}\added{; see also \citet{2021AJ....161..171T}.}}\added{ A few important sources in the former meta-catalog included the
+Theia groups from \citet{KounkelCovey2019} and \citet{2020AJ....160..279K}, and the SPYGLASS stars from Table~1 of \citet{2021ApJ...917...23K}.} Finally, to provide a base for comparison, we
 also ran the BANYAN\,$\Sigma$ membership analysis on our entire
 \nstarssearched\ target star sample.
 
@@ -700,28 +703,27 @@ likelihood, and set a stopping threshold of ${\rm d}\log \mathcal{Z} <
 
 With the effective temperatures and stellar radii from the SED fit, we
 estimated the stellar masses by interpolating against the PARSEC
-isochrones \citep[v1.2S][]{2014MNRAS.444.2525C}.  The need for models
-that incorporate some form of correction for young, active M dwarfs is
-well-documented
-\citep[e.g.][]{2012ApJ...756...47S,2015ApJ...804..146D,2016A&A...593A..99F,2020ApJ...891...29S}.
+isochrones \citep[v1.2S;][]{2014MNRAS.444.2525C}.  The need for models
+that incorporate some form of correction for \deleted{young, active }M dwarfs is
+well-documented \citep[e.g.][]{2012ApJ...756...47S,2015ApJ...804..146D,2016A&A...593A..99F,2018AJ....155..225K,2019MNRAS.489.2615M,2020ApJ...891...29S}.
 Plausible explanations for the disagreement between observed and
 theoretical M dwarf colors and sizes include starspot coverage
-\citep[e.g.][]{2017ApJ...836..200G} and potentially incomplete line
+\citep[e.g.][]{2017ApJ...836..200G} and \deleted{potentially }incomplete line
 lists \citep[e.g.][]{2013A&A...556A..15R}.  In the PARSEC models,
 \citet{2014MNRAS.444.2525C} performed an empirical correction to the
 temperature--opacity relation drawn from the BT-Settl model
 atmospheres, in order to match observed masses and radii of young
 eclipsing binaries.  This is sufficient for our goal of estimating
 stellar masses.  Given our estimates of $\{ \tilde{T}_{\rm eff},
-\tilde{M}_\star, \tilde{t} \}$, and approximating their uncertainties
-as Gaussian $\sigma_{\tilde{T}_{\rm eff}}$, $\sigma_{\tilde{M}_\star}$
+\tilde{R}_\star, \tilde{t} \}$, and approximating their uncertainties
+as Gaussian $\sigma_{\tilde{T}_{\rm eff}}$, $\sigma_{\tilde{R}_\star}$
 and $\sigma_{\tilde{t}}$, we define a distance metric $\Delta$ to each
-model PARSEC grid-point $\{ T_{\rm eff}, M_\star, t \}$ via
+model PARSEC grid-point $\{ T_{\rm eff}, R_\star, t \}$ via
 \begin{equation}
   \Delta^2 = 
   \left( \frac{\tilde{T}_{\rm eff} - T_{\rm eff}}{\sigma_{\tilde{T}_{\rm eff}}} \right)^2
   +
-  \left( \frac{\tilde{M}_{\star} - M_{\star}}{\sigma_{\tilde{M}_{\star}}} \right)^2
+  \left( \frac{\tilde{R}_{\star} - R_{\star}}{\sigma_{\tilde{R}_{\star}}} \right)^2
   +
   \left( \frac{\tilde{t} - t}{\sigma_{\tilde{t}}} \right)^2,
 \end{equation}
@@ -749,8 +751,8 @@ the following lines of information.
 ``radial velocity error'' as a function of stellar color for all
 \ncqvsnodebunked\ CPVs and candidate CPVs.  Since this quantity
 represents the standard deviation of the non-published Gaia RV time
-series, outliers can suggest single-lined spectroscopic binarity.
-These plots showed two clusters of stars, at $\lesssim$10\,\kms and
+series, outliers can suggest single-lined spectroscopic binarity\added{ \citep[e.g.][]{2022arXiv220611275C}}.  These plots showed two
+clusters of stars, at $\lesssim$10\,\kms and
 20-25\,\kms.  We therefore adopted a threshold of $20$\,km\,s$^{-1}$
 to flag possible single-lined spectroscopic binaries, which selected
 \nrvscatterflag\ stars: TIC~405910546, TIC~224283342, and
@@ -762,8 +764,9 @@ error (RUWE), see the GAIA DPAC technical note
 \url{http://www.rssd.esa.int/doc_fetch.php?  id=3757412}.}  Elevated
 RUWEs imply excess astrometric noise relative to a single-source
 model.  This can be caused by marginally resolved binaries,  intrinsic
-photometric variability, or intrinsic astrometric motion.  Based on
-this exercise, we adopted a threshold of RUWE$_{\rm DR3}>2$ to flag
+photometric variability, or intrinsic astrometric motion\added{
+\citep[e.g.][]{2021AJ....162..128W}}.  Based on this exercise, we
+adopted a threshold of RUWE$_{\rm DR3}>2$ to flag
 sources with excess astrometric noise.  This threshold was met by
 \ngoodhighruwe/\ngoods\ high-quality CPVs and by
 \nmaybehighruwe/\nmaybes\ of the ambiguous CPVs.  The choice of the
@@ -950,7 +953,7 @@ TIC~294328887 is a member.
 
 Most CPVs in our catalog did not show infrared excesses in the
 $W1$-$W4$ bands, which is typical for this class of object
-\citep{2017AJ....153..152S}.  Visually inspecting the SEDs of our
+\citep{2017AJ....153..152S}.  \replaced{Visually inspecting}{Inspecting} the SEDs of our
 \nallcands\ star sample and the WISE images available through IRSA, we
 labeled two objects as having reliable infrared excesses (both $W3$
 and $W4$ fluxes are more than 3$\sigma$ above the photospheric
@@ -1099,6 +1102,7 @@ which is not an integer multiple of the dispersion-minimizing
 
 
 \subsubsection{Multiple CPVs in the same system: TIC~425937691 and TIC~142173958}
+\label{subsec:multis}
 
 TIC~142173958 and TIC~425937691 both show evidence for two separate
 CPV signals in their TESS light curves.  For TIC~142173958, the
@@ -1459,6 +1463,7 @@ radius.
 \label{sec:discussion}
 
 
+
 \subsection{Typical and extreme CPVs}
 \label{subsec:extreme}
 
@@ -1501,10 +1506,10 @@ The nuisances include astrophysical false positives with two beating
 rapidly rotating stars, as well as uncertainty about which star
 produces the CPV signal in binary systems.  Our two candidate K dwarf
 CPVs suffer from this latter concern (see
-Section~\ref{subsec:resultsbinarity}).
+Section~\ref{subsec:massive}).
 
 Curiosities include the four binary systems that are now known to each
-host two separate CPVs.  CPVs are sufficiently rare that such systems
+host two separate CPVs \added{(see Section~\ref{subsec:multis})}.  CPVs are sufficiently rare that such systems
 may have physical import.  Recent work has shown that the orbits of
 binaries closer than $\lesssim$700 AU tend to be aligned with their
 planetary systems \citep[e.g.][]{2022AJ....163..207C}.  If we assume
@@ -1515,7 +1520,7 @@ raise the probability that the other star is a CPV.  The limitations
 of the current catalog prevent further exploration of this issue, but
 it might be interesting for future study.
 
-A separate possible relation between binarity and CPVs is that the
+\deleted{A separate possible relation between binarity and CPVs is that the
 presence of a binary companion could cause early disk dispersal,
 freeing the star to contract.  The CPV phenomenon seems to require
 rapid rotation; thus if binary systems tend to produce more rapidly
@@ -1526,7 +1531,7 @@ multiplicity rate of M dwarfs near the Sun is 26.8$\pm$1.4\%
 \citep{2019AJ....157..216W}.  The $\approx$32\% multiplicity fraction
 in our CPV sample (from RUWE$_{\rm DR3}$; see
 Section~\ref{subsec:resultsbinarity}) seems approximately consistent
-with this field fraction.
+with this field fraction.}
 
 
 \subsection{Transience of CPV dips}
@@ -1699,10 +1704,39 @@ more} common at 100\,Myr than at 10\,Myr, under the assumption that
 the production of prominences depends only on the stellar rotation
 rate.  The dust clump scenario would hold a natural explanation: the
 lower occurrence of CPVs around older stars would simply reflect a
-finite supply of dust.  One possible complication however is that the
+finite supply of dust.  One \replaced{possible}{potential} complication however is that the
 magnetic field topology of rapidly rotating M dwarfs may depend on
 factors other than the rotation rate (e.g.\ the age), which might
 alter the production of prominences.
+
+
+\added{\subsection{Why are the dip and spot periods nearly equal?}}
+
+\added{The CPV dips are usually superposed on nearly sinusoidal modulation.
+The sinusoidal modulation
+is probably induced by brightness inhomogeneities on the stellar surface.  If
+the dips are explained by material orbiting the star, then the proximity
+of the spot and dip periods is surprising.
+For instance, the dust clumps modeled by \citet{2023MNRAS.518.4734S} tend to
+accumulate near -- but not exactly at -- corotation.}
+
+\added{To explore the proximity of the dip and spot periods, we
+generated synthetic light curves that superposed a sinusoid and a single
+eclipse.  We imposed periods, amplitudes, sampling, and noise properties
+similar to typical CPVs in Figure~\ref{fig:cpvs}.  We then tuned
+the period of the eclipse signal to differ slightly from the
+sinusoidal period, and processed the resulting synthetic signals
+through the same period-finding routine to which we subjected the real data.
+Provided the dip and sinusoid periods agreed to within $\approx$0.1\%, we found that
+phase-folding on the dominant period (that of the larger-amplitude starspots)
+yielded dip signals analogous to those in Figure~\ref{fig:cpvs}.  However
+increasing the period difference beyond $\gtrsim$0.3\%, the dip signal quickly becomes
+``smeared'' out and unidentifiable when phase-folding.  This
+exercise highlights that our search was sensitive only to stars with dip
+and spot periods that agreed to within a few parts per thousand.  
+Some CPVs may exceed this threshold; we encourage
+future work aimed at determining whether such stars exist.}
+
 
 
 \subsection{Planets or planetesimals near corotation?}
@@ -2210,7 +2244,8 @@ Fellowship, and for helpful conversations with J.~Spake, A.~Mann,
 G.~Laughlin, and B.~Draine.  
 We are also grateful for the assistance of S.~Yee, L.~Weiss,
 H.~Isaacson, and A.~Howard in acquiring and reducing the HIRES
-spectra.
+spectra\added{, and for the reviewer's suggestion to consider
+the proximity of the dip and spot periods}.
 This paper relied primarily on data collected by the TESS mission; the
 specific 2-minute cadence observations can be accessed via
 DOI\,\dataset[10.17909/t9-nmc8-f686]{https://doi.org/10.17909/t9-nmc8-f686}.
@@ -2319,7 +2354,7 @@ G\'AB acquired and maintained the servers used to run the dip-finding pipeline.
     APASS \citep{2016yCat.2336....0H},
 		Gaia \citep{2018A&A...616A...1G,2023A&A...674A...1G},
     SDSS \citep{2000AJ....120.1579Y},
-    WISE \citep{2010AJ....140.1868W}.
+    WISE \citep{2010AJ....140.1868W,2014yCat.2328....0C}.
 }
 
 \clearpage
@@ -2381,7 +2416,7 @@ G\'AB acquired and maintained the servers used to run the dip-finding pipeline.
 	UCL: Upper Centaurus Lupus \citep{2016MNRAS.461..794P}.
 	USCO: Upper Scorpius \citep{2016MNRAS.461..794P}.
 	The ``(?)'' string denotes low-confidence membership.
-}
+	}
 \end{deluxetable}
 
 %\clearpage
