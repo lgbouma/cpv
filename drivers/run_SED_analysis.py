@@ -6,6 +6,8 @@ import pandas as pd, numpy as np
 from complexrotators.paths import TABLEDIR
 from complexrotators.sedfit import run_SED_analysis
 
+UNIFORMPRIORS = 1 # true if you want to impose the uniform prior set
+
 MANUAL_TRIM_DICT = {
     # ticid: each entry in form (>xmin, <xmax, >ymin, <ymax)
     # e.g. to exclude everything about 1e-9 erg/cm2/s:
@@ -34,7 +36,8 @@ for ticid in ticids:
         trimlist = MANUAL_TRIM_DICT[str(ticid)]
 
     try:
-        run_SED_analysis(str(ticid), trimlist=trimlist)
+        run_SED_analysis(str(ticid), trimlist=trimlist,
+                         uniformpriors=UNIFORMPRIORS)
 
     except Exception as e:
         print(f'Error! {e}')
