@@ -66,12 +66,18 @@ def main(overwrite=0):
     selcols = 'ticid P2_hr P2class'
     multperiod_df = multperiod_df[selcols.split()]
 
+    HACK = 1
+    if HACK: # once things have already been made...
+        __df = pd.read_csv("table1_short.csv", sep="|")
+        _df = _df[_df.ticid.isin(__df.ticid)]
+
     rows = []
     for t in _df['ticid']:
         r = get_cpvtable_row(t, overwrite=overwrite)
         rows.append(r)
+        assert r.shape == (1, 325)
 
-    rdf = pd.concat(rows)
+    rdf = pd.concat(rows).reset_index(drop=True)
 
     df = _df.merge(rdf, how='inner', on='ticid')
     df = df.reset_index(drop=True)
@@ -751,13 +757,15 @@ def get_tess_cpv_lc_properties(ticid):
     return tlc_df
 
 
-def get_sedfit_results(ticid):
+def get_sedfit_results(ticid, uniformprior=1):
     """
     teff_sedfit rstar_sedfit temp_suppression radius_inflation
     teff_noactivity rstar_noactivity
     """
 
     sed_dir = join(RESULTSDIR, "ariadne_sed_fitting", f"TIC_{ticid}")
+    if uniformprior:
+        sed_dir = join(RESULTSDIR, "ariadne_sed_fitting_UNIFORM", f"TIC_{ticid}")
     sed_path = join(sed_dir, "best_fit_average.dat")
 
     if not os.path.exists(sed_path):
@@ -826,6 +834,10 @@ def get_isochrone_mass(sed_df, bdf):
             'teff_parsec': np.nan,
             'dist_median_parsec': np.nan,
         }, index=[0])
+        params = 'Mass logg Rstar age Teff dist_median'.split()
+        for p in params:
+            iso_df[f'{p.lower()}_parsec_perr'] = np.nan
+            iso_df[f'{p.lower()}_parsec_merr'] = np.nan
         return iso_df
 
     rstar = float(sed_df['rstar_sedfit'])
@@ -886,7 +898,7 @@ def get_cpvtable_row(ticid, overwrite=0):
 
     tlc_df = get_tess_cpv_lc_properties(ticid)
 
-    sed_df = get_sedfit_results(ticid)
+    sed_df = get_sedfit_results(ticid, uniformprior=1)
 
     iso_df = get_isochrone_mass(sed_df, bdf)
 
@@ -913,6 +925,10 @@ def get_cpvtable_row(ticid, overwrite=0):
 
     row.to_csv(cachecsv, index=False, sep="|")
     print(f"Wrote {cachecsv}")
+
+    if not row.shape == (1, 325):
+        import IPython; IPython.embed()
+        assert 0
 
     return row
 
