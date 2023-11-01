@@ -11,7 +11,7 @@ import os
 from os.path import join
 import pandas as pd, numpy as np
 
-from complexrotators.observability import get_gaia_rows
+from complexrotators.observability import get_gaia_dr2_rows
 from complexrotators.paths import RESULTSDIR
 
 from astropy.coordinates import SkyCoord
@@ -79,7 +79,7 @@ def run_SED_analysis(ticid, trimlist=None, uniformpriors=0):
     ##################
     # query the star #
     ##################
-    gdr2_df = get_gaia_rows(ticid, allcols=1)
+    gdr2_df = get_gaia_dr2_rows(ticid, allcols=1)
 
     ra = float(gdr2_df.ra)
     dec = float(gdr2_df.dec)
@@ -295,7 +295,10 @@ def run_SED_analysis(ticid, trimlist=None, uniformpriors=0):
     ##############
     # make plots #
     ##############
-    out_folder = join(RESULTSDIR, 'ariadne_sed_fitting', f'{starname}')
+    if uniformpriors:
+        out_folder = join(RESULTSDIR, 'ariadne_sed_fitting_UNIFORM', f'{starname}')
+    else:
+        out_folder = join(RESULTSDIR, 'ariadne_sed_fitting', f'{starname}')
 
     plots_out_folder = join(out_folder, 'plots')
     if not os.path.exists(plots_out_folder): os.mkdir(plots_out_folder)
