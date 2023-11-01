@@ -687,8 +687,8 @@ generally unconstrained.  Given our selection criteria for the stars,
 we assumed the following priors for the temperature, stellar size, and
 extinction:
 \begin{align}
-  T_{\rm eff} / {\rm K}    &\sim \mathcal{N}(3000, 1000), \\
-  R_\star / R_\odot  &\sim \mathcal{T}_{\rm N}(0.5, 0.3, 0.1, 1.5), \\
+  T_{\rm eff} / {\rm K}    &\sim \mathcal{U}(2000, 8000), \\
+  R_\star / R_\odot  &\sim \mathcal{U}(0.1, 1.5), \\
   A_{\rm V} / {\rm mag}    &\sim \mathcal{U}(0, 0.2),
 \end{align}
 for $\mathcal{N}$ the Gaussian and $\mathcal{U}$ the uniform
@@ -1052,7 +1052,7 @@ dwarfs, with typical stellar masses $\lesssim$0.3\,$M_\odot$
 massive CPVs in our sample, TIC~405754448 and TIC~405910546, were
 assigned masses of $\approx$0.82\,$M_\odot$ and
 $\approx$0.60\,$M_\odot$ respectively.  The next-highest mass in our
-sample belongs to TIC~59836633 ($\approx$0.48\,$M_\odot$), with all
+sample belongs to TIC~59836633 ($\approx$\replaced{0.48}{0.45}\,$M_\odot$), with all
 remaining CPVs having masses $\lesssim$0.40\,$M_\odot$.
 
 The locations of TIC~405754448 and TIC~405910546 in color--absolute
