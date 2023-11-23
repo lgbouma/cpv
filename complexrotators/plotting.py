@@ -1091,8 +1091,8 @@ def plot_phased_light_curve(
 
 
 def get_ylimguess(y):
-    ylow = np.nanpercentile(y, 0.1)
-    yhigh = np.nanpercentile(y, 99.5)
+    ylow = np.nanpercentile(y, 2.5)
+    yhigh = np.nanpercentile(y, 97.5)
     ydiff = (yhigh-ylow)
     ymin = ylow - 0.35*ydiff
     ymax = yhigh + 0.35*ydiff
