@@ -311,6 +311,9 @@ def main():
     df = pd.read_csv(csvpath, sep="|")
     ticids = np.array(df.ticid).astype(str)
 
+    sample_id = 'debug'
+    ticids = ['245902096']
+
     for ticid in ticids:
         LOGINFO(42*'-')
         LOGINFO(f"Beginning find_transits for {ticid}...")

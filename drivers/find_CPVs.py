@@ -71,7 +71,11 @@ def get_ticids(sample_id):
         #"268971806" # HD 64740 has lots of data!
         #"254612758"  # rahul...
         #"435903839"
-        '243499565' # missed, in Sco-Cen from Stauffer2021
+        #'243499565' # missed, in Sco-Cen from Stauffer2021
+        #"118769116",
+        #"59129133"
+        #"245902096"
+        "274127413"
         ]
 
         N_stars_to_search = len(ticids)
