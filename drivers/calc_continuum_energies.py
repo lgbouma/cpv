@@ -3,6 +3,8 @@
 import numpy as np
 from astropy import units as u, constants as c
 
+from cdips_followup.spectools import vac_to_air
+
 n_1 = 3 # "Paschen" continua
 
 n_1_dict = {
@@ -23,6 +25,7 @@ for n_1, name in n_1_dict.items():
         λ = c.h * c.c / ΔE
         txt = (
             f'{str(n_1).zfill(2)}->{str(n_2).zfill(2)}: ΔE = {ΔE.to(u.eV).value:.2f}eV, '
-            f'λ = {λ.to(u.nm).value:.1f}.nm'
+            f'λvac = {λ.to(u.Angstrom).value:.1f} A, '
+            f'λair = {vac_to_air(λ).to(u.Angstrom).value:.1f} A'
         )
         print(txt)
