@@ -4539,6 +4539,7 @@ def plot_lineevolnpanel(outdir):
             #)
 
             # "normalize"
+            #flx /= np.nanmedian(flx)
             if l != 'He':
                 flx /= np.nanmedian(flx)
             else:
@@ -4632,6 +4633,7 @@ def plot_lineevolnpanel(outdir):
                   for s in specpaths]
         outdict = {
             'wav': wav,
+            'flxs': flxs,
             'flx_median': flx_median,
             'smooth_flx_median': smooth_flx_median,
             'smooth_diff_flxs': smooth_diff_flxs,
