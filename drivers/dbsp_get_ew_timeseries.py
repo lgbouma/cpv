@@ -6,10 +6,11 @@ import matplotlib.pyplot as plt, numpy as np, pandas as pd
 from complexrotators.paths import RESULTSDIR
 from astropy.time import Time
 
-linename = 'HBeta'
-linekey = 'Hβ'
-fitsdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/20231111/p200_dbsp_blue_A/Science'
-ewdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/20231111/p200_dbsp_blue_A/Balmer_EWs'
+linename = 'HGamma'
+linekey = 'Hγ'
+datestr = '20231112'
+fitsdir = f'/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/{datestr}/p200_dbsp_blue_A/Science'
+ewdir = f'/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/{datestr}/p200_dbsp_blue_A/Balmer_EWs'
 fitspaths = np.sort(glob(join(fitsdir, "spec1d_blue*LP_12-502*fits")))
 
 print(len(fitspaths))
@@ -63,6 +64,6 @@ ax.set_ylabel(f'{linekey} EW [mA]')
 ax.set_xlabel('JD_UTC - 2460259')
 outdir = join(RESULTSDIR, 'DBSP_results')
 if not os.path.exists(outdir): os.mkdir(outdir)
-outpath = join(outdir, f'{linename}_vs_time_20231111.png')
+outpath = join(outdir, f'{linename}_vs_time_{datestr}.png')
 savefig(fig, outpath)
 
