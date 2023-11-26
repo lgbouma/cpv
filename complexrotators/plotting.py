@@ -27,6 +27,7 @@ Contents:
     Spectra:
         | plot_spectrum_windows
         | plot_winered_windows
+        | plot_lineevolnpanel
 
     Population:
         | plot_catalogscatter
@@ -4167,7 +4168,7 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
         # sigmaOriE from Townsend2013
         texts = [
             8, 7,
-			7, 7,
+            7, 7,
             0.8, 0.1
         ] # masses
     elif selfn == 'simpleB':
@@ -4196,7 +4197,7 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
         ]
         # sigmaOriE from Townsend2013
         texts = [
-			7, 7,
+            7, 7,
         ] # masses
     elif selfn == 'complexM':
         ticids = [
@@ -4441,3 +4442,237 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
 
     outpath = join(outdir, f'magnetic_bstar_comparison{s}.png')
     savefig(fig, outpath, dpi=400)
+
+
+def plot_lineevolnpanel(outdir):
+
+    # get data
+    lines = ['Hη', 'Hζ', 'Ca[K]', 'Ca[H] + Hε', 'CaI',
+             'He', 'Na D1', 'Hα']
+    globs = ['*bj*order04*', '*bj*order05*', '*bj*order07*', '*bj*order07*',
+             '*bj*order13*', '*rj*order10*', '*rj*order11*', '*ij*order00*']
+    deltawav = 5
+    xlims = [
+        [3835.397-1.5*deltawav, 3835.397+1.5*deltawav], # Hη (9->2)
+        [3889.096-1.5*deltawav, 3889.096+1.5*deltawav], # Hζ (8->2)
+        [3933.66-deltawav, 3933.66+deltawav], # ca k
+        [3968.47-deltawav, 3968.47+deltawav], # ca h
+        [4226-deltawav, 4226+deltawav], # CaI
+        [5875.618-deltawav, 5875.618+deltawav], #He
+        [5895.92-deltawav, 5895.92+deltawav], # Na D1
+        [6562.8-1.5*deltawav, 6562.8+1.5*deltawav], # halpha
+    ]
+
+    #
+    # get all wavelengths & fluxes over all chips...
+    #
+
+    from cdips_followup.spectools import read_hires
+    specdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC402980664_RDX'
+    bpaths = np.sort(glob(join(specdir, 'bj531*.fits')))
+    ipaths = np.sort(glob(join(specdir, 'ij531*.fits')))
+    rpaths = np.sort(glob(join(specdir, 'rj531*.fits')))
+
+    # make plot
+    plt.close('all')
+    set_style('clean')
+
+    toprowkeys = [x for x in 'abcdefgh']
+    bottomrowkeys = [x for x in 'ijklmnop']
+
+    #fig, ax = plt.subplots(figsize=(4,3))
+    fig = plt.figure(figsize=(11*1.3,3*1.3))
+    axd = fig.subplot_mosaic(
+        """
+        abcdefgh
+        ijklmnop
+        """,
+        gridspec_kw={
+            #"width_ratios": [1, 1, 1, 1]
+            "height_ratios": [1, 3]
+        },
+    )
+
+    from scipy.ndimage import gaussian_filter1d
+    from specutils.spectra import Spectrum1D, SpectralRegion
+    from specutils.fitting import fit_generic_continuum
+    import warnings
+    from rudolf.plotting import multiline
+
+    # iterate over each line / spectral window
+    for ix, (l,g,xlim) in enumerate(zip(lines, globs, xlims)):
+
+        toprowkey = toprowkeys[ix]
+        bottomrowkey = bottomrowkeys[ix]
+
+        if 'bj' in g:
+            specpaths = bpaths
+        elif 'ij' in g:
+            specpaths = ipaths
+        elif 'rj' in g:
+            specpaths = rpaths
+
+        # iterate over times...
+        mjds, flxs, wavs = [],[],[]
+        for specpath in specpaths:
+
+            # header time info
+            hdul = fits.open(specpath)
+            dateobs = hdul[0].header['DATE-OBS']
+            exptime = hdul[0].header['EXPTIME']
+            mjd = hdul[0].header['MJD']
+            utc = hdul[0].header['UTC'][:5]
+            timestr = f"{dateobs} {utc}UT"
+            hdul.close()
+
+            # flux info
+            flx_2d, wav_2d = read_hires(
+                specpath, is_registered=0, return_err=0
+            )
+
+            # there are a few cases, like CaHK, for which multiple orders exist
+            order = int(g.split('order')[-1].rstrip("*"))
+            flx, wav = flx_2d[order, :], wav_2d[order, :]
+
+            #flx, wav = get_flx_wav_given_2d_and_target(
+            #    flx_2d, wav_2d, xlim[1]-deltawav
+            #)
+
+            # "normalize"
+            if l != 'He':
+                flx /= np.nanmedian(flx)
+            else:
+                _sel = (wav < 5881) & (wav > 5879)
+                normfactor = np.nanmedian(flx[_sel])
+                flx /= normfactor
+
+            mjds.append(mjd)
+            flxs.append(flx)
+            wavs.append(wav)
+
+            ## range over which to continuum normalize...
+            #sel = ((xlim[0]-20) < wav) & (wav < xlim[1]+20)
+
+            #swav = wav[sel]
+            #sflx = flx[sel]
+
+            # # continuum normalize
+            # spec = Spectrum1D(spectral_axis=swav*u.AA,
+            #                   flux=sflx*u.dimensionless_unscaled)
+            # with warnings.catch_warnings():  # Ignore warnings
+            #     warnings.simplefilter('ignore')
+            #     g1_fit = fit_generic_continuum(spectrum)
+            # sflx_continuum_fitted = g1_fit(sflx*u.AA)
+            # spec_normalized = spec / sflx_continuum_fitted
+            # norm_sflx = spec_normalized.flux
+            # spectrum = Spectrum1D(flux=y*u.dimensionless, spectral_axis=x*u.um)
+
+        mjds = np.array(mjds).astype(float)
+        flxs = np.array(flxs)
+        wavs = np.array(wavs)
+
+        # does the wavelength solution vary over time?  it should not.  this
+        # assertion statement verifies that.
+        assert np.diff(wavs, axis=0).sum() == 0
+
+        # average over time to get the median line profile
+        # compute direct subtraction residual
+        fn = lambda x: gaussian_filter1d(x, sigma=4)
+
+        flx_median = np.nanmedian(flxs, axis=0)
+        smooth_flx_median = fn(flx_median)
+
+        smooth_flxs = np.array([
+            fn(flxs[ix, :]) for ix in range(len(flxs))
+        ])
+
+        smooth_diff_flxs = smooth_flxs - smooth_flx_median[None, :]
+
+        # plot average line profile over all spectra
+        sel = ((xlim[0]-1.3*deltawav) < wav) & (wav < xlim[1]+1.3*deltawav)
+        swav = wav[sel]
+        sflx = smooth_flx_median[sel]
+
+        axd[toprowkey].plot(
+            swav, sflx, c='k', zorder=3, lw=0.2
+        )
+
+        # plot individual line profiles at each time (minus the average line
+        # profile)
+        lc = multiline(
+            wavs, smooth_diff_flxs, 24*(nparr(mjds)-np.min(mjds)),
+            #cmap='Spectral',
+            #cmap='winter',
+            cmap='viridis',
+            ax=axd[bottomrowkey], lw=0.5
+        )
+
+        axd[toprowkey].set_title(l)
+        axd[toprowkey].set_xticklabels([])
+
+        axd[toprowkey].set_xlim(xlim)
+        axd[bottomrowkey].set_xlim(xlim)
+
+        axd[bottomrowkey].xaxis.set_major_locator(MaxNLocator(5))
+
+        if l == 'Hη':
+            axd[bottomrowkeys[ix]].set_ylim([-2.5, 8])
+        elif l == 'CaI':
+            axd[bottomrowkeys[ix]].set_ylim([-0.5, 2])
+        elif l == 'He':
+            axd[bottomrowkeys[ix]].set_ylim([-0.3, 1.4])
+        elif l == 'Na D1':
+            axd[bottomrowkeys[ix]].set_ylim([-0.3, 0.9])
+        elif l == 'Hζ':
+            axd[bottomrowkeys[ix]].set_ylim([-3, 11])
+        #if ix == 2:
+        #    axd[str(ix+3)].set_yticks([-0.1,0,0.1])
+
+        expids = [os.path.basename(s).rstrip('.fits').lstrip('b')
+                  for s in specpaths]
+        outdict = {
+            'wav': wav,
+            'flx_median': flx_median,
+            'smooth_flx_median': smooth_flx_median,
+            'smooth_diff_flxs': smooth_diff_flxs,
+            'mjds': mjds,
+            'specpaths': specpaths,
+            'expids': expids
+        }
+        cachepath = join(
+            outdir, f'spec_cache_{g.replace("*","_").lstrip("_").rstrip("_")}.pkl'
+        )
+        with open(cachepath, "wb") as f:
+            pickle.dump(outdict, f)
+        print(f'Wrote {cachepath}')
+
+
+    axd[toprowkeys[0]].set_ylabel('Median line profile')
+    axd[bottomrowkeys[0]].set_ylabel('Observed - Median line profile')
+
+    axins1 = inset_axes(axd[bottomrowkeys[-1]], width="25%", height="5%",
+                        loc='lower right', borderpad=1.5)
+    cb = fig.colorbar(lc, cax=axins1, orientation="horizontal")
+    cb.ax.tick_params(labelsize='xx-small')
+    cb.ax.set_title('Time [hours]', fontsize='xx-small')
+    # axd['b'].text(0.725,0.955, '$t$ [days]',
+    #         transform=axd['b'].transaxes,
+    #         ha='right',va='top', color='k', fontsize='xx-small')
+    cb.ax.tick_params(size=0, which='both') # remove the ticks
+    axins1.xaxis.set_ticks_position("bottom")
+
+    #fig.text(-0.01,0.5, 'Flux [order-normalized median]', va='center',
+    #         rotation=90)
+    fig.text(0.5,-0.01, r'Wavelength [$\AA$]', va='center', ha='center',
+             rotation=0)
+
+    fig.tight_layout()
+
+    # set naming options
+    s = ''
+
+    outpath = os.path.join(outdir, f'j531_lineevolnpanel.png')
+    savefig(fig, outpath, dpi=400)
+
+
+
