@@ -5,25 +5,45 @@ from os.path import join
 import matplotlib.pyplot as plt, numpy as np, pandas as pd
 from complexrotators.paths import RESULTSDIR
 from astropy.time import Time
+from astropy import units as u
+from numpy import array as nparr
+from matplotlib.ticker import (
+    MultipleLocator, FormatStrFormatter, AutoMinorLocator
+)
+
+
+from cdips.utils.lcutils import astropy_utc_time_to_bjd_tdb
+from aesthetic.plot import set_style, savefig
 
 def plot_ew_timeseries(
     linename = 'HGamma',
     linekey = 'Hγ',
-    datestr = '20231112'
+    datestr = '20231112',
+    side='blue'
 ):
-    fitsdir = f'/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/{datestr}/p200_dbsp_blue_A/Science'
-    ewdir = f'/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/{datestr}/p200_dbsp_blue_A/Balmer_EWs'
-    fitspaths = np.sort(glob(join(fitsdir, "spec1d_blue*LP_12-502*fits")))
+
+    fitsdir = f'/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/{datestr}/p200_dbsp_{side}_A/Science'
+    ewdir = f'/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/{datestr}/p200_dbsp_{side}_A/Balmer_EWs'
+    fitspaths = np.sort(glob(join(fitsdir, f"spec1d_{side}*LP_12-502*fits")))
 
     print(len(fitspaths))
 
     times, keys = [], []
-    for f in fitspaths:
+    for ix, f in enumerate(fitspaths):
         hl = fits.open(f)
-        time = hl[0].header['MJD']
+        # shutter open time, from "UTSHUT" keyword
+        mjd = hl[0].header['MJD']
+        # exposure time in days
+        texp = (hl[0].header['EXPTIME']*u.second).to(u.day).value
+        # exposure midtime
+        time = mjd + texp
         key = os.path.basename(f).replace(".fits","")
         times.append(time)
         keys.append(key)
+
+        if ix == 0:
+            ra, dec = hl[0].header['RA']*u.deg, hl[0].header['DEC']*u.deg
+
         hl.close()
 
     csvpaths = [glob(join(ewdir, '*'+linename+"*"+key+'*_results.csv'))[0] for key in keys]
@@ -37,42 +57,166 @@ def plot_ew_timeseries(
 
     times = np.array(times)+2400000.5 # mjd to jd
 
-    t = Time(times, format='jd')
-    # # then t.jd can be passed and
-    # # manually ran thru https://astroutils.astronomy.osu.edu/time/utc2bjd.php
-    # # -->learn it is a five minute difference(...not important, probably)
-    # bjd_times = np.array([
-    #     2460259.599272287, 2460259.608587248, 2460259.615961203, 2460259.623156718,
-    #     2460259.630352222, 2460259.637547795, 2460259.644743333, 2460259.651938917,
-    #     2460259.659134478, 2460259.666330027, 2460259.673525519, 2460259.680721057,
-    #     2460259.688240211, 2460259.695435748, 2460259.702631262, 2460259.709826811,
-    #     2460259.717022301, 2460259.724217827, 2460259.731413306, 2460259.738608912,
-    #     2460259.745804483, 2460259.753000077, 2460259.760195556, 2460259.767391069,
-    #     2460259.777480704, 2460259.784676286, 2460259.791871822, 2460259.799067427,
-    #     2460259.806263033, 2460259.813458591, 2460259.820654150, 2460259.827849743,
-    #     2460259.835045221, 2460259.842240733, 2460259.849436256, 2460259.856631756,
-    #     2460259.863827280, 2460259.871022815, 2460259.878218303, 2460259.885413757,
-    #     2460259.892609234, 2460259.899804768, 2460259.907040118, 2460259.914235664,
-    #     2460259.921431198, 2460259.928626709, 2460259.935822221, 2460259.943017731,
-    #     2460259.950213219, 2460259.957408811, 2460259.964604322, 2460259.971799878,
-    #     2460259.978995435, 2460259.986191039, 2460259.993386503, 2460260.000582014
-    # ])
+    t = Time(times, format='jd', scale='utc')
 
-    from aesthetic.plot import set_style, savefig
+    t_bjd_tdb = astropy_utc_time_to_bjd_tdb(
+        t, ra, dec, observatory='earthcenter', get_barycorr=0
+    )
+
     set_style('clean')
     fig, ax = plt.subplots()
-    ax.errorbar(times - 2460259, fitted_ews, yerr=0.75*errs)
+    ax.errorbar(t_bjd_tdb - 2460255, fitted_ews, yerr=0.75*errs)
     ax.set_ylabel(f'{linekey} EW [mA]')
-    ax.set_xlabel('JD_UTC - 2460259')
+    ax.set_xlabel('BJD_TDB - 2460255')
     outdir = join(RESULTSDIR, 'DBSP_results')
     if not os.path.exists(outdir): os.mkdir(outdir)
     outpath = join(outdir, f'{linename}_vs_time_{datestr}.png')
     savefig(fig, outpath)
 
+    ptimes, pews, perrs = t_bjd_tdb - 2460255, fitted_ews, 0.75*errs
+    return ptimes, pews, perrs
+
+
+def t_to_phase(t, dofloor=0):
+    t0 = 2450000 + 1791.12
+    period = 18.5611/24
+    φ = (t-t0)/period
+    if dofloor:
+        φ = (t-t0)/period- np.floor( (t-t0)/period )
+    return φ
+
+def phase_to_t(φ):
+    # note: kind of wrong... there is no inverse...
+    t0 = 2450000 + 1791.12
+    period = 18.5611/24
+    return φ * period + t0
+
+def plot_stack_ew_timeseries(ha, hb, hc, datestr):
+
+    linekeys = 'Hα,Hβ,Hγ'.split(',')
+    ewinfo = [ha, hb, hc]
+
+    set_style('clean')
+    fig, axs = plt.subplots(figsize=(3,6), nrows=len(ewinfo), sharex=True)
+
+    for ix, (ax, ewi, lk) in enumerate(zip(axs, ewinfo, linekeys)):
+
+        ptimes, pews, perrs = ewi
+
+        ax.errorbar(ptimes, nparr(pews)/(1e3), yerr=nparr(perrs)/(1e3), c='k',
+                    ecolor='k', elinewidth=0.5)
+
+        ax.set_ylabel(f'{lk} EW [$\AA$]')
+
+        ax2 = ax.twiny()
+        t = ptimes + 2460255 # convert to bjdtdb
+        phases = t_to_phase(t) - np.min(t_to_phase(t)).astype(int)
+        if max(phases) > 1:
+            phases -= 1
+        ax2.errorbar(phases, nparr(pews)/(1e3),
+                     yerr=nparr(perrs)/(1e3), alpha=0)
+        if ix == 0:
+            ax2.set_xlabel("Phase, φ")
+
+    axs[-1].set_xlabel('BJD_TDB - 2460255')
+
+    fig.tight_layout()
+
+    outdir = join(RESULTSDIR, 'DBSP_results')
+    if not os.path.exists(outdir): os.mkdir(outdir)
+    outpath = join(outdir, f'stackew_vs_time_DBSP_UT{datestr}.png')
+    savefig(fig, outpath)
+
+def plot_stack_ew_vs_phase(has, hbs, hcs, datestrs):
+
+    linekeys = 'f,Hα,Hβ,Hγ'.split(',')
+
+    datecolors = [f'C{ix}' for ix in range(len(datestrs))]
+
+    set_style('clean')
+    fig, axs = plt.subplots(figsize=(3,7), nrows=len(linekeys), sharex=True)
+
+    # iterate over dates
+    for _id, (ha,hb,hc,datestr,datec) in enumerate(
+        zip(has, hbs, hcs, datestrs, datecolors)
+    ):
+
+        ewinfo = [None, ha, hb, hc]
+
+        axs[0].text(0.97,0.03+_id*0.06, datestr,
+                    transform=axs[0].transAxes, ha='right',va='bottom',
+                    color=datec)
+
+        # iterate over lines
+        for ix, (ax, ewi, lk) in enumerate(zip(axs, ewinfo, linekeys)):
+
+            if lk != 'f':
+                ptimes, pews, perrs = ewi
+                t = ptimes + 2460255 # convert to bjdtdb
+                phase = t_to_phase(t, dofloor=1)
+
+                ax.scatter(phase, nparr(pews)/(1e3), c=datec, alpha=0.9,
+                           linewidths=0, zorder=2, s=3)
+                ax.errorbar(phase, nparr(pews)/(1e3), yerr=nparr(perrs)/(1e3),
+                            c=datec, ecolor=datec, elinewidth=0.5, lw=0, alpha=0.5,
+                            zorder=1)
+
+                ax.set_ylabel(f'{lk} EW [$\AA$]')
+                if lk == 'Hα':
+                    ax.yaxis.set_major_locator(MultipleLocator(1))
+                else:
+                    ax.yaxis.set_major_locator(MultipleLocator(2))
+
+            else:
+                TIERRASDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/TIERRAS'
+                if datestr == '20231111':
+                    df = pd.read_csv(
+                        join(TIERRASDIR, "20231110_TIC402980664_circular_fixed_ap_phot_13.csv")
+                    )
+                elif datestr == '20231112':
+                    df = pd.read_csv(
+                        join(TIERRASDIR, "20231110_TIC402980664_circular_fixed_ap_phot_21.csv")
+                    )
+                t = np.array(df['BJD TDB'])
+                phase = t_to_phase(t, dofloor=1)
+                flux = np.array(df['Target Relative Flux'])
+                flux_err = np.array(df['Target Relative Flux Error'])
+
+                x0 = 73
+                ax.scatter(phase, 1e3*flux - x0, c=datec, alpha=0.9,
+                           linewidths=0, zorder=2, s=2)
+                ax.errorbar(phase, 1e3*flux - x0, yerr=1e3*flux_err,
+                            c=datec, ecolor=datec, elinewidth=0.5, lw=0, alpha=0.5,
+                            zorder=1)
+
+                ax.set_ylabel('$f_{\mathrm{TIERRAS}}$ [%]')
+                ax.set_ylim([70 - x0,76 - x0])
+
+
+    axs[-1].set_xlabel("Phase, φ")
+
+    fig.tight_layout(h_pad=0)
+
+    outdir = join(RESULTSDIR, 'DBSP_results')
+    if not os.path.exists(outdir): os.mkdir(outdir)
+    outpath = join(outdir, f'stackew_vs_phase_DBSP_{"_".join(datestrs)}.png')
+    savefig(fig, outpath)
+
+
+
 if __name__ == "__main__":
 
-    plot_ew_timeseries(linename='HBeta', linekey='Hβ', datestr='20231111')
-    plot_ew_timeseries(linename='HBeta', linekey='Hβ', datestr='20231112')
+    datestrs = "20231111,20231112".split(",")
+    #FIXME FIXME FIXME TODO: update this to plot the new HIRES EWs when not sleepdeprived
 
-    plot_ew_timeseries(linename='HGamma', linekey='Hγ', datestr='20231111')
-    plot_ew_timeseries(linename='HGamma', linekey='Hγ', datestr='20231112')
+    has, hbs, hcs = [], [], []
+    for d in datestrs:
+        ha = plot_ew_timeseries(linename='HAlpha', linekey='Hα', datestr=d, side='red')
+        hb = plot_ew_timeseries(linename='HBeta', linekey='Hβ', datestr=d)
+        hc = plot_ew_timeseries(linename='HGamma', linekey='Hγ', datestr=d)
+        plot_stack_ew_timeseries(ha, hb, hc, d)
+        has.append(ha)
+        hbs.append(hb)
+        hcs.append(hc)
+
+    plot_stack_ew_vs_phase(has, hbs, hcs, datestrs)
