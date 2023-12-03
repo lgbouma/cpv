@@ -8,13 +8,14 @@ import os
 from numpy import array as nparr
 from os.path import join
 from glob import glob
+from matplotlib.transforms import blended_transform_factory
 
 from astropy.io import fits
 
 from scipy.ndimage import gaussian_filter1d
 
 from rudolf.plotting import multiline
-from cdips_followup.spectools import read_hires
+from cdips_followup.spectools import read_hires, LINE_D
 from aesthetic.plot import set_style, savefig
 
 def given_specpaths_get_timeseries_data(spectrum_paths, order):
@@ -107,6 +108,26 @@ def plot_continuum_timeseries(ylim=None):
             else:
                 ax.set_ylim([0,3])
 
+            # plot line names
+            xmin = min(wavs[0])
+            xmax = max(wavs[0])
+            this_d = []
+            for k, v in LINE_D:
+                if v > xmin and v<xmax:
+                    this_d.append([k, v])
+            if len(this_d) > 0:
+                for k, v in this_d:
+                    ylim = ax.get_ylim()
+                    delta_y = 0.9*(max(ylim) - min(ylim))
+                    ax.vlines(v, min(ylim)+delta_y, max(ylim), zorder=-3,
+                              linestyles=':', color='k', lw=0.3)
+                    ax.set_ylim(ylim)
+
+                    tform = blended_transform_factory(ax.transData, ax.transAxes)
+                    ax.text(v, 0.95, k, ha='center', va='top', transform=tform,
+                            fontsize=4)
+
+
             outdir = '/Users/luke/Dropbox/proj/cpv/results/HIRES_continuum_evoln'
             s = ''
             s += 'ordermednorm'
@@ -114,7 +135,7 @@ def plot_continuum_timeseries(ylim=None):
                 s += f'_ylim{ylim[0]}-{ylim[1]}'
             outpath = os.path.join(outdir, f'{orderstr}_continuum_evoln_{s}.png')
 
-            savefig(fig, outpath, dpi=400)
+            savefig(fig, outpath, dpi=400, writepdf=0)
 
 if __name__ == "__main__":
 
