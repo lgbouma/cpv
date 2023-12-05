@@ -62,13 +62,14 @@ def plot_continuum_timeseries(ylim=None):
 
     datadir = "/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC402980664_RDX"
     outdir = '/Users/luke/Dropbox/proj/cpv/results/HIRES_results'
+    datestr = 'j533'
 
     chips = 'b,r,i'.split(",")
     norders = [23,16,10]
 
     for chip,norder in zip(chips,norders):
 
-        spectrum_paths = np.sort(glob(join(datadir, f'{chip}j*fits')))
+        spectrum_paths = np.sort(glob(join(datadir, f'{chip}{datestr}*fits')))
 
         for order in range(norder):
 
@@ -103,7 +104,7 @@ def plot_continuum_timeseries(ylim=None):
             ax.set_xlabel('λ [$\AA$]')
             ax.set_ylabel('Relative flux (order med norm)')
 
-            if isinstance(ylim, list):
+            if isinstance(ylim, (list,tuple)):
                 ax.set_ylim(ylim)
             else:
                 ax.set_ylim([0,3])
@@ -128,10 +129,11 @@ def plot_continuum_timeseries(ylim=None):
                             fontsize=4)
 
 
-            outdir = '/Users/luke/Dropbox/proj/cpv/results/HIRES_continuum_evoln'
+            outdir = f'/Users/luke/Dropbox/proj/cpv/results/HIRES_continuum_evoln/{datestr}'
+            if not os.path.exists(outdir): os.mkdir(outdir)
             s = ''
             s += 'ordermednorm'
-            if isinstance(ylim, list):
+            if isinstance(ylim, (list,tuple)):
                 s += f'_ylim{ylim[0]}-{ylim[1]}'
             outpath = os.path.join(outdir, f'{orderstr}_continuum_evoln_{s}.png')
 
@@ -139,4 +141,5 @@ def plot_continuum_timeseries(ylim=None):
 
 if __name__ == "__main__":
 
-    plot_continuum_timeseries()
+    plot_continuum_timeseries(ylim=list([0,10]))
+    plot_continuum_timeseries(ylim=list([0,3]))
