@@ -15,6 +15,13 @@ from matplotlib.ticker import (
 from cdips.utils.lcutils import astropy_utc_time_to_bjd_tdb
 from aesthetic.plot import set_style, savefig
 
+UTCDICT = {
+    '20231111': '20231111: DBSP + TIERRAS',
+    '20231112': '20231112: DBSP + TIERRAS',
+    '20231123': '20231123: HIRES',
+    '20231203': '20231203: ~HIRES + TIERRAS'
+}
+
 def plot_ew_timeseries(
     linename = 'HGamma',
     linekey = 'Hγ',
@@ -30,6 +37,8 @@ def plot_ew_timeseries(
     if inst == 'HIRES' and linekey in ['Hα', 'Hγ', 'Hδ']:
         if utcdatestr == '20231123':
             hiresdate = 'j531'
+        elif utcdatestr == '20231203':
+            hiresdate = 'j533'
         else:
             raise NotImplementedError(
                 'manually input utc utcdatestr-> hires date mapping'
@@ -170,9 +179,9 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
 
         ewinfo = [None, ha, hb, hc]
 
-        axs[0].text(0.97,0.03+_id*0.06, utcdatestr,
+        axs[0].text(0.97,0.03+_id*0.06, UTCDICT[utcdatestr],
                     transform=axs[0].transAxes, ha='right',va='bottom',
-                    color=datec)
+                    color=datec, fontsize='x-small')
 
         # iterate over lines
         for ix, (ax, ewi, lk) in enumerate(zip(axs, ewinfo, linekeys)):
@@ -185,6 +194,15 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
                 t = ptimes + 2460255 # convert to bjdtdb
                 phase = t_to_phase(t, dofloor=1)
 
+                # FIXME HACK CLEANING
+                # FIXME HACK CLEANING
+                # FIXME HACK CLEANING
+                perrs[np.abs(perrs) > 1000] = 500 # one dud cosmic ray...
+                pews = nparr(pews)
+                pews[pews < 0] = np.nan # one Hγ HIRES point negative
+                # FIXME HACK CLEANING
+                # FIXME HACK CLEANING
+                # FIXME HACK CLEANING
                 ax.scatter(phase, nparr(pews)/(1e3), c=datec, alpha=0.9,
                            linewidths=0, zorder=2, s=3)
                 ax.errorbar(phase, nparr(pews)/(1e3), yerr=nparr(perrs)/(1e3),
@@ -206,6 +224,10 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
                 elif utcdatestr == '20231112':
                     df = pd.read_csv(
                         join(TIERRASDIR, "20231110_TIC402980664_circular_fixed_ap_phot_21.csv")
+                    )
+                elif utcdatestr == '20231203':
+                    df = pd.read_csv(
+                        join(TIERRASDIR, "20231202_TIC402980664_circular_fixed_ap_phot_18.csv")
                     )
                 else:
                     continue
@@ -239,8 +261,8 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
 
 if __name__ == "__main__":
 
-    utcdatestrs = "20231111,20231112,20231123".split(",")
-    insts = "DBSP,DBSP,HIRES".split(",")
+    utcdatestrs = "20231111,20231112,20231123,20231203".split(",")
+    insts = "DBSP,DBSP,HIRES,HIRES".split(",")
     uinsts = "_".join(np.unique(insts))
 
     has, hbs, hcs = [], [], []
