@@ -18,31 +18,58 @@ from aesthetic.plot import set_style, savefig
 def plot_ew_timeseries(
     linename = 'HGamma',
     linekey = 'Hγ',
-    datestr = '20231112',
-    side='blue'
+    utcdatestr = '20231112',
+    inst = 'DBSP',
+    ra = 16.733175*u.deg,
+    dec = 80.45945*u.deg
 ):
 
-    fitsdir = f'/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/{datestr}/p200_dbsp_{side}_A/Science'
-    ewdir = f'/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/{datestr}/p200_dbsp_{side}_A/Balmer_EWs'
-    fitspaths = np.sort(glob(join(fitsdir, f"spec1d_{side}*LP_12-502*fits")))
+    # parse input
+    if inst == 'HIRES' and linekey == 'Hβ':
+        return None, None, None
+    if inst == 'HIRES' and linekey in ['Hα', 'Hγ', 'Hδ']:
+        if utcdatestr == '20231123':
+            hiresdate = 'j531'
+        else:
+            raise NotImplementedError(
+                'manually input utc utcdatestr-> hires date mapping'
+            )
+        chip = 'b'
+        if linekey == 'Hα':
+            chip = 'i'
+
+    dbsp_bluelines = ['Hβ', 'Hγ']
+    dbsp_redlines = ['Hα']
+    if inst == 'DBSP' and linekey in dbsp_bluelines:
+        side = 'blue'
+    elif inst == 'DBSP' and linekey in dbsp_redlines:
+        side = 'red'
+
+    if inst == 'DBSP':
+        fitsdir = f'/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/{utcdatestr}/p200_dbsp_{side}_A/Science'
+        ewdir = f'/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/{utcdatestr}/p200_dbsp_{side}_A/Balmer_EWs'
+        fitspaths = np.sort(glob(join(fitsdir, f"spec1d_{side}*LP_12-502*fits")))
+    elif inst == 'HIRES':
+        fitsdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC402980664_RDX'
+        ewdir = '/Users/luke/Dropbox/proj/cpv/results/HIRES_results/Balmer_EWs'
+        fitspaths = np.sort(glob(join(fitsdir, f"{chip}{hiresdate}*fits")))
 
     print(len(fitspaths))
 
     times, keys = [], []
     for ix, f in enumerate(fitspaths):
         hl = fits.open(f)
-        # shutter open time, from "UTSHUT" keyword
-        mjd = hl[0].header['MJD']
+
+        # DBSP: shutter open time, from "UTSHUT" keyword
+        # HIRES: also shutter open time
+        mjd = np.float64(hl[0].header['MJD'])
         # exposure time in days
         texp = (hl[0].header['EXPTIME']*u.second).to(u.day).value
-        # exposure midtime
+        # exposure midtime (mjd)
         time = mjd + texp
         key = os.path.basename(f).replace(".fits","")
         times.append(time)
         keys.append(key)
-
-        if ix == 0:
-            ra, dec = hl[0].header['RA']*u.deg, hl[0].header['DEC']*u.deg
 
         hl.close()
 
@@ -68,9 +95,9 @@ def plot_ew_timeseries(
     ax.errorbar(t_bjd_tdb - 2460255, fitted_ews, yerr=0.75*errs)
     ax.set_ylabel(f'{linekey} EW [mA]')
     ax.set_xlabel('BJD_TDB - 2460255')
-    outdir = join(RESULTSDIR, 'DBSP_results')
+    outdir = join(RESULTSDIR, 'EW_results')
     if not os.path.exists(outdir): os.mkdir(outdir)
-    outpath = join(outdir, f'{linename}_vs_time_{datestr}.png')
+    outpath = join(outdir, f'{inst}_{linename}_vs_time_{utcdatestr}.png')
     savefig(fig, outpath)
 
     ptimes, pews, perrs = t_bjd_tdb - 2460255, fitted_ews, 0.75*errs
@@ -91,7 +118,7 @@ def phase_to_t(φ):
     period = 18.5611/24
     return φ * period + t0
 
-def plot_stack_ew_timeseries(ha, hb, hc, datestr):
+def plot_stack_ew_timeseries(ha, hb, hc, utcdatestr, uinsts):
 
     linekeys = 'Hα,Hβ,Hγ'.split(',')
     ewinfo = [ha, hb, hc]
@@ -122,33 +149,36 @@ def plot_stack_ew_timeseries(ha, hb, hc, datestr):
 
     fig.tight_layout()
 
-    outdir = join(RESULTSDIR, 'DBSP_results')
+    outdir = join(RESULTSDIR, 'EW_results')
     if not os.path.exists(outdir): os.mkdir(outdir)
-    outpath = join(outdir, f'stackew_vs_time_DBSP_UT{datestr}.png')
+    outpath = join(outdir, f'{uinsts}_stackew_vs_time_DBSP_UT{utcdatestr}.png')
     savefig(fig, outpath)
 
-def plot_stack_ew_vs_phase(has, hbs, hcs, datestrs):
+def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
 
     linekeys = 'f,Hα,Hβ,Hγ'.split(',')
 
-    datecolors = [f'C{ix}' for ix in range(len(datestrs))]
+    datecolors = [f'C{ix}' for ix in range(len(utcdatestrs))]
 
     set_style('clean')
     fig, axs = plt.subplots(figsize=(3,7), nrows=len(linekeys), sharex=True)
 
-    # iterate over dates
-    for _id, (ha,hb,hc,datestr,datec) in enumerate(
-        zip(has, hbs, hcs, datestrs, datecolors)
+    # iterate over dates / insts
+    for _id, (ha,hb,hc,utcdatestr,datec,i) in enumerate(
+        zip(has, hbs, hcs, utcdatestrs, datecolors, insts)
     ):
 
         ewinfo = [None, ha, hb, hc]
 
-        axs[0].text(0.97,0.03+_id*0.06, datestr,
+        axs[0].text(0.97,0.03+_id*0.06, utcdatestr,
                     transform=axs[0].transAxes, ha='right',va='bottom',
                     color=datec)
 
         # iterate over lines
         for ix, (ax, ewi, lk) in enumerate(zip(axs, ewinfo, linekeys)):
+
+            if i == 'HIRES' and lk == 'Hβ':
+                continue
 
             if lk != 'f':
                 ptimes, pews, perrs = ewi
@@ -169,14 +199,16 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, datestrs):
 
             else:
                 TIERRASDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/TIERRAS'
-                if datestr == '20231111':
+                if utcdatestr == '20231111':
                     df = pd.read_csv(
                         join(TIERRASDIR, "20231110_TIC402980664_circular_fixed_ap_phot_13.csv")
                     )
-                elif datestr == '20231112':
+                elif utcdatestr == '20231112':
                     df = pd.read_csv(
                         join(TIERRASDIR, "20231110_TIC402980664_circular_fixed_ap_phot_21.csv")
                     )
+                else:
+                    continue
                 t = np.array(df['BJD TDB'])
                 phase = t_to_phase(t, dofloor=1)
                 flux = np.array(df['Target Relative Flux'])
@@ -197,26 +229,35 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, datestrs):
 
     fig.tight_layout(h_pad=0)
 
-    outdir = join(RESULTSDIR, 'DBSP_results')
+    outdir = join(RESULTSDIR, 'EW_results')
     if not os.path.exists(outdir): os.mkdir(outdir)
-    outpath = join(outdir, f'stackew_vs_phase_DBSP_{"_".join(datestrs)}.png')
+    uinsts = "_".join(np.unique(insts))
+    outpath = join(outdir, f'stackew_vs_phase_{uinsts}_{"_".join(utcdatestrs)}.png')
     savefig(fig, outpath)
 
 
 
 if __name__ == "__main__":
 
-    datestrs = "20231111,20231112".split(",")
-    #FIXME FIXME FIXME TODO: update this to plot the new HIRES EWs when not sleepdeprived
+    utcdatestrs = "20231111,20231112,20231123".split(",")
+    insts = "DBSP,DBSP,HIRES".split(",")
+    uinsts = "_".join(np.unique(insts))
 
     has, hbs, hcs = [], [], []
-    for d in datestrs:
-        ha = plot_ew_timeseries(linename='HAlpha', linekey='Hα', datestr=d, side='red')
-        hb = plot_ew_timeseries(linename='HBeta', linekey='Hβ', datestr=d)
-        hc = plot_ew_timeseries(linename='HGamma', linekey='Hγ', datestr=d)
-        plot_stack_ew_timeseries(ha, hb, hc, d)
+    for d,i in zip(utcdatestrs, insts):
+        ha = plot_ew_timeseries(
+            linename='HAlpha', linekey='Hα', utcdatestr=d, inst=i
+        )
+        if i == 'DBSP':
+            hb = plot_ew_timeseries(
+                linename='HBeta', linekey='Hβ', utcdatestr=d, inst=i
+            )
+        hc = plot_ew_timeseries(
+            linename='HGamma', linekey='Hγ', utcdatestr=d, inst=i
+        )
+        plot_stack_ew_timeseries(ha, hb, hc, d, uinsts=uinsts)
         has.append(ha)
         hbs.append(hb)
         hcs.append(hc)
 
-    plot_stack_ew_vs_phase(has, hbs, hcs, datestrs)
+    plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts)
