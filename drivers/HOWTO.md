@@ -25,7 +25,7 @@ A) For getting all the 2-minute SPOC data and its Gaia xmatch
   g.phot_rp_mean_mag, g.phot_g_mean_flux_over_error,
   g.phot_bp_mean_flux_over_error, g.phot_rp_mean_flux_over_error, g.bp_rp,
   g.g_rp, g.radial_velocity, g.l, g.b
-  from user_lbouma.s1s58 import as u, gaiadr2.gaia_source as g
+  from user_lbouma.s1s58 as u, gaiadr2.gaia_source as g
   where u.dr2_source_id=g.source_id
   ```
   on the Gaia archive.
@@ -109,6 +109,46 @@ H) To reduce WINERED spectra
 ----------
 1. From ~/proj/WARP, run exec.sh in the py37_warp environment.
   - Tune individual frame id's, and obj id's, as required.
+
+----------
+I) For getting all the QLP data and their Gaia xmatch
+----------
+
+1. Get all the bulk download scripts locally (done on wh1).
+2. Run them.
+3. Use ~/QLP/get_QLP_ticid_lc_location.py to get CSV files of ticids and paths.
+4. Get the unique TICIDs from each an in-line script.
+5. Upload the resulting CSV file to CasJobs at MAST, but be sure to move the
+   largest TICIDs to the top of the list so that it guesses the correct dtype.
+6. Run a job like
+  ```
+  SELECT ticid, ID, GAIA into mydb.MyTable_v2 from MyDB.s1s55_qlp
+  JOIN CatalogRecord ON ticid = CatalogRecord.ID
+  ```
+  within the `TESS_82` context.
+7. Download output via MyDB -> MyTable_v2
+8. Move output to `~/local/QLP/MyTable_v2_lukebouma_s1s55_qlp_CasJobs_TIC8.csv`
+9. Run `get_QLP_gaiainfo.py`.  Upload the result to Gaia archive by _splitting
+   it in half_, because the max number of Gaia DR2 source_id's in an upload is
+   ~1e7.
+10. Run a job like
+  ```
+  select u.dr2_source_id, g.source_id, g.ra, g.dec, g.parallax,
+  g.parallax_over_error, g.pmra, g.pmdec, g.phot_g_mean_mag, g.phot_bp_mean_mag,
+  g.phot_rp_mean_mag, g.phot_g_mean_flux_over_error,
+  g.phot_bp_mean_flux_over_error, g.phot_rp_mean_flux_over_error, g.bp_rp,
+  g.g_rp, g.radial_velocity, g.l, g.b
+  from user_lbouma.qlp_s1s55_firsthalf as u, gaiadr2.gaia_source as g
+  where u.dr2_source_id=g.source_id
+  ```
+  on the Gaia archive.
+11. Move resulting .vot.gz files to ~/local/QLP
+12. Rerun `get_QLP_gaiainfo.py`
+
+12. Run `merge_spoc2min_metadata.py`
+13. Run `get_gaia_X_spoc2min_merge.py
+
+
 
 ----------
 X) To search for transiting planets
