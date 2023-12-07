@@ -1377,7 +1377,8 @@ def plot_cpvvetter(
     starid,
     periodsearch_result=None,
     findpeaks_result=None,
-    binsize_phase=0.005
+    binsize_phase=0.005,
+    lcpipeline='spoc2min'
     ):
 
     # get data
@@ -1390,8 +1391,19 @@ def plot_cpvvetter(
     qual = data["QUALITY"]
     sel = (qual == 0)
 
-    xc = data['MOM_CENTR2'][sel] # column
-    yc = data['MOM_CENTR1'][sel] # row
+    CENTRKEYDICT = {
+        'spoc2min': [
+            'MOM_CENTR2', # column
+            'MOM_CENTR1' # row
+        ],
+        'qlp': [
+            'SAP_X', # column
+            'SAP_Y' # row
+        ]
+    }
+
+    xc = data[CENTRKEYDICT[lcpipeline][0]][sel] # column
+    yc = data[CENTRKEYDICT[lcpipeline][1]][sel] # row
     bgv = data['SAP_BKG'][sel]
 
     assert len(xc) == len(d['times'])
@@ -1712,7 +1724,8 @@ def plot_cpvvetter(
     ax.set_axis_off()
 
     import sys
-    sys.path.append("/Users/luke/Dropbox/proj/banyan_sigma")
+    from complexrotators.paths import BANYANDIR
+    sys.path.append(BANYANDIR)
     from core import membership_probability
 
     ra, dec = float(gdf.ra), float(gdf.dec)
