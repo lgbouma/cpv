@@ -11,7 +11,7 @@ Contents:
 import logging
 from complexrotators import log_sub, log_fmt, log_date_fmt
 
-LOCAL_DEBUG = 1
+LOCAL_DEBUG = 0
 DEBUG = False
 if DEBUG:
     level = logging.DEBUG
@@ -41,7 +41,7 @@ from glob import glob
 import numpy as np, pandas as pd
 
 from complexrotators.paths import (
-    LOCALDIR, SPOCDIR, TARGETSDIR, TABLEDIR
+    LOCALDIR, SPOCDIR, QLPDIR, TARGETSDIR, TABLEDIR
 )
 from complexrotators.getters import (
     _get_lcpaths_given_ticid, _get_local_lcpaths_given_ticid,
@@ -56,26 +56,34 @@ from complexrotators.plotting import (
 
 from complexrotators import pipeline_utils as pu
 
-def get_ticids(sample_id):
+def get_ticids(sample_id, lcpipeline):
 
     if sample_id == 'debug':
         ticids = [
-        #"268963753"
-        #"67745212"
-        #"201789285",
-        #"402980664"
-        #"251496897"
-        #"141146666" # neighbor of 141146667
-        #"353927317" # EPIC 211070495, Rebull2016
-        #"220433363" # tess blend; gaia multipeaked; wanna see s32
-        #"268971806" # HD 64740 has lots of data!
-        #"254612758"  # rahul...
-        #"435903839"
-        #'243499565' # missed, in Sco-Cen from Stauffer2021
-        #"118769116",
-        #"59129133"
-        #"245902096"
-        "274127413"
+            #'243499565' # missed, in Sco-Cen from Stauffer2021
+            #"245902096"
+            #"274127413"
+            "368129164",
+            "405754448",
+            "167664935",
+            "311092148",
+            "402980664",
+            "50745567",
+            "59836633",
+            "425933644",
+            "142173958",
+            "146539195",
+            "206544316",
+            "335598085",
+            "405910546"
+            "272248916",
+            "178155030",
+            "224283342",
+            "89026133",
+            "234295610",
+            "118449916",
+            "67897871",
+            "353730181"
         ]
 
         N_stars_to_search = len(ticids)
@@ -101,8 +109,29 @@ def get_ticids(sample_id):
         N_stars_to_search = len(ticids)
         N_lcs_to_search = len(sdf)
 
+    elif 'pc' in sample_id and 'to' in sample_id and lcpipeline=='qlp':
+
+        lower = int(sample_id.split("to")[0])
+        upper = int(sample_id.split("to")[1].split("pc")[0])
+
+        assert upper <= 500 # parsecs
+
+        df = pd.read_csv(join(QLPDIR, "QLP_s1s55_X_GDR2_parallax_gt_2.csv"))
+
+        sel = (
+            (df["parallax"] <= 1e3*(1/lower))
+            &
+            (df["parallax"] > 1e3*(1/upper))
+        )
+
+        sdf = df[sel]
+        ticids = np.unique(list(sdf["ticid"].astype(str)))
+
+        N_stars_to_search = len(ticids)
+        N_lcs_to_search = len(sdf)
+
     # e.g., 30to50pc_mkdwarf, 50to60pc_mkdwarf, etc.
-    elif 'pc_mkdwarf' in sample_id and 'to' in sample_id:
+    elif 'pc_mkdwarf' in sample_id and 'to' in sample_id and lcpipeline=='spoc2min':
 
         lower = int(sample_id.split("to")[0])
         upper = int(sample_id.split("to")[1].split("pc")[0])
@@ -160,7 +189,7 @@ def get_ticids(sample_id):
 
 
 
-def find_CPV(ticid, sample_id, forcepdf=0):
+def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
     """
     Args:
 
@@ -171,22 +200,29 @@ def find_CPV(ticid, sample_id, forcepdf=0):
     forcepdf: if true, will require the pdf plot to be made, even if the usual
         exit code criteria were not met.
 
+    lcpipeline: "qlp" or "spoc2min"
+
     exit code definitions:
         exitcode 2: means periodogram_condition was not met
             periodogram_condition = (period < 2) & (pdm_theta < 0.9)
 
         exitcode 3: means not enough peaks were found --
             r['N_peaks'] < 3:
+
+        exitcode 4: light curve did not have finite values.
     """
+
+    assert lcpipeline in ["qlp", "spoc2min"]
 
     cachedir = join(LOCALDIR, "cpv_finding")
     if not os.path.exists(cachedir): os.mkdir(cachedir)
 
-    cachedir = join(cachedir, sample_id)
+    cachename = f"{lcpipeline}_{sample_id}"
+    cachedir = join(cachedir, cachename)
     if not os.path.exists(cachedir): os.mkdir(cachedir)
 
     minexitcode = -1
-    cand_logpaths = glob(join(cachedir, f"tess*00{ticid}-*runstatus.log"))
+    cand_logpaths = glob(join(cachedir, f"*tess*00{ticid}-*runstatus.log"))
     foundexitcodes = []
     if len(cand_logpaths) > 0:
         for cand_logpath in cand_logpaths:
@@ -212,7 +248,7 @@ def find_CPV(ticid, sample_id, forcepdf=0):
     if LOCAL_DEBUG:
         lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid)
     else:
-        lcpaths = _get_local_lcpaths_given_ticid(ticid)
+        lcpaths = _get_local_lcpaths_given_ticid(ticid, lcpipeline)
 
     if sample_id == 'debug':
         LOGWARNING("Found debug: taking only a single sector.")
@@ -246,7 +282,15 @@ def find_CPV(ticid, sample_id, forcepdf=0):
 
         # get the relevant light curve data
         (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
-         sector, starid) = prepare_cpv_light_curve(lcpath, cachedir)
+         sector, starid) = prepare_cpv_light_curve(
+             lcpath, cachedir, lcpipeline=lcpipeline
+         )
+
+        if y_flat is None:
+            LOGWARNING(f"{starid}: Failed to get finite light curve.")
+            exitcode = {'exitcode': 4}
+            pu.save_status(logpath, 'exitcode', exitcode)
+            continue
 
         # get period, t0, and periodogram (PDM or LombScargle)
         d = cpv_periodsearch(
@@ -357,7 +401,7 @@ def find_CPV(ticid, sample_id, forcepdf=0):
         if not os.path.exists(outpath):
             plot_cpvvetter(
                 outpath, lcpath, starid, periodsearch_result=d,
-                findpeaks_result=r
+                findpeaks_result=r, lcpipeline=lcpipeline
             )
         else:
             LOGINFO(f"Found {outpath}")
@@ -369,8 +413,22 @@ def find_CPV(ticid, sample_id, forcepdf=0):
 
 def main():
 
+    #################
+    # begin options #
+    #################
+    forcepdf = 0
+
+    lcpipeline = 'qlp' # "qlp" or "spoc2min"
+
     sample_ids = [
-        'debug'
+        #'debug'
+        # ### samples for the next CPV project:
+        '1to20pc'
+        # '20to40pc'
+        # '40to60pc'
+        # '60to80pc'
+        # '80to100pc'
+        # ### samples for CPV paper #1:
         #'2023catalog_LGB_RJ_concat'
         #'30pc_mkdwarf',
         #'30to50pc_mkdwarf',
@@ -385,14 +443,21 @@ def main():
         #'rahul_20230501'
     ]
 
-    forcepdf = True # FIXME true only for specific (N<~100 !) samples
+    ###############
+    # end options #
+    ###############
 
     for sample_id in sample_ids:
-        ticids = get_ticids(sample_id)
+
+        ticids = get_ticids(sample_id, lcpipeline)
+
+        if len(ticids) > 100 and forcepdf:
+            raise NotImplementedError
+
         for ticid in ticids:
             LOGINFO(42*'-')
             LOGINFO(f"Beginning {ticid}...")
-            find_CPV(ticid, sample_id, forcepdf=forcepdf)
+            find_CPV(ticid, sample_id, forcepdf=forcepdf, lcpipeline=lcpipeline)
 
     LOGINFO("Finished 🎉🎉🎉")
 
