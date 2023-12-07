@@ -196,9 +196,13 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
         x_fold = _pd['phase']
         y = _pd['mags']
         bs_days = period/50
-        orb_bd = phase_bin_magseries(x_fold, y, binsize=bs_days, minbinelems=3)
-        min_phase = orb_bd['binnedphases'][np.argmin(orb_bd['binnedmags'])]
-        t0 = t0_ini + min_phase*period
+        try:
+            orb_bd = phase_bin_magseries(x_fold, y, binsize=bs_days, minbinelems=3)
+            min_phase = orb_bd['binnedphases'][np.argmin(orb_bd['binnedmags'])]
+            t0 = t0_ini + min_phase*period
+        except ValueError:
+            # can be raised for very short periods...
+            t0 = t0_ini
 
     elif isinstance(t0, (int, float)):
         pass
@@ -477,9 +481,10 @@ def count_phased_local_minima(
     return r
 
 
-def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0):
+def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
+                            lcpipeline='spoc2min'):
     """
-    Given a SPOC 2-minute light curve, remove non-zero quality flags,
+    Given a light curve (SPOC 2-minute or QLP), remove non-zero quality flags,
     median-normalize, and run a 5-day median filter over the light curve.
     Cache the output.
     """
@@ -494,7 +499,11 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0):
 
     # light curve data
     time = d['TIME']
-    flux = d['PDCSAP_FLUX']
+    FLUXKEYDICT = {
+        'spoc2min': 'PDCSAP_FLUX',
+        'qlp': 'KSPSAP_FLUX'
+    }
+    flux = d[FLUXKEYDICT[lcpipeline]]
     qual = d['QUALITY']
     cadenceno = d['CADENCENO']
 
@@ -504,6 +513,10 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0):
     x_obs = time[sel]
     y_obs = flux[sel]
     cadenceno_obs = cadenceno[sel]
+
+    if np.isfinite(y_obs).sum() < 20:
+        return (None, None, None, None, None, None, None, None,
+                None, None, None)
 
     # normalize around 1
     y_obs /= np.nanmedian(y_obs)
@@ -515,7 +528,7 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0):
     # what is the cadence?
     cadence_sec = int(np.round(np.nanmedian(np.diff(x_obs))*24*60*60))
 
-    starid = f'{ticid}_S{str(sector).zfill(4)}_{cadence_sec}sec'
+    starid = f'{ticid}_S{str(sector).zfill(4)}_{cadence_sec}sec_{lcpipeline}'
 
     #
     # "light" detrending by default. (& cache it)
