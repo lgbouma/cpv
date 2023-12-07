@@ -38,7 +38,7 @@ B) To run the dip-based CPV-finder
 ----------
 
 1. Go to find_CPVs.py.  Define your sample shell, e.g., "85to95pc_mkdwarf", and
-  run it.
+  run it.  (NB: for the first paper, I did this on phtess3)
 
 ----------
 C) To assess what TESS data exists for a set of TIC IDs
@@ -144,11 +144,8 @@ I) For getting all the QLP data and their Gaia xmatch
   on the Gaia archive.
 11. Move resulting .vot.gz files to ~/local/QLP
 12. Rerun `get_QLP_gaiainfo.py`
-
-12. Run `merge_spoc2min_metadata.py`
-13. Run `get_gaia_X_spoc2min_merge.py
-
-
+13. Run `get_QLP_closesubset.py` to do some parallax cuts, to make more
+    manageable.
 
 ----------
 X) To search for transiting planets
