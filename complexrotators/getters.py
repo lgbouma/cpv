@@ -16,6 +16,7 @@ tic4029 specialized:
 """
 import numpy as np, pandas as pd
 import lightkurve as lk
+import os, csv
 from os.path import join
 from glob import glob
 import subprocess
@@ -139,14 +140,54 @@ def _get_lcpaths_fromlightkurve_given_ticid(ticid, require_lc=1):
     return lcpaths
 
 
-def _get_local_lcpaths_given_ticid(ticid):
+def get_qlp_lcpaths(ticid):
 
-    from complexrotators.paths import SPOCDIR
+    assert isinstance(ticid, str)
 
-    lcpaths = glob(join(SPOCDIR, "sector-*", f"*{ticid}*.fits"))
+    from complexrotators.paths import QLPDIR
+    # this CSV file has only the <500pc stars, which cuts time ~5x relative to
+    # the full query
+    lc_cache_path = join(
+        QLPDIR, "s0001_to_s0055_QLP_ticid_path_merged_parallax_gt_2mas.csv"
+    )
+
+    delim = ","
+
+    # use grep rather than reading the whole thing with pandas (much faster)
+    colnames = os.popen( f'head -n1 {lc_cache_path}' ).read()
+    colnames = colnames.rstrip('\n').split(delim)
+
+    rowentry = os.popen( f'grep {ticid} {lc_cache_path}' ).read()
+
+    if len(rowentry) >= 1:
+
+        rowentry = rowentry.split("\n")[:-1]
+
+        df = pd.DataFrame({})
+        for ix, k in enumerate(colnames):
+            df[k] = [r.split(",")[ix] for r in rowentry]
+
+        lcpaths = list(df.path)
+        lcpaths = [join(QLPDIR, l) for l in lcpaths]
+
+        return lcpaths
+
+    else:
+
+        return []
+
+
+def _get_local_lcpaths_given_ticid(ticid, lcpipeline):
+
+    if lcpipeline == 'spoc2min':
+        from complexrotators.paths import SPOCDIR
+        lcpaths = glob(join(SPOCDIR, "sector-*", f"*{ticid}*.fits"))
+
+    elif lcpipeline == 'qlp':
+        lcpaths = get_qlp_lcpaths(ticid)
 
     if len(lcpaths) == 0:
-        print(f"Failed to find 2 minute light curves for {ticid}")
+        print(f"Failed to find {lcpipeline} light curves for {ticid}")
 
     return lcpaths
 
