@@ -36,6 +36,7 @@ LOGEXCEPTION = LOGGER.exception
 ## IMPORTS ##
 #############
 import os, pickle
+import time as timemod
 from os.path import join
 from glob import glob
 import numpy as np, pandas as pd
@@ -260,6 +261,20 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
     # flares)), get the best period, and then phase-fold.
     #
     for lcpath in lcpaths:
+
+        if not os.path.exists(lcpath) and lcpipeline=='qlp':
+            LOGWARNING(f'Did not find {lcpath}')
+            LOGWARNING(f'Trying to curl it directly...')
+            # if the light curve does not exist... we will try to curl it...
+            searchstr = "/".join(lcpath.split("/")[4:])
+            os.popen(
+                f"curl -C - -f --create-dirs --output '{lcpath}' 'https://mast.stsci.edu/api/v0.1/Download/file/?uri=mast:HLSP/qlp/{searchstr}'"
+            )
+            # ...and it'll take some time.
+            # this is 100% as janky as it looks.  however, unlike the (many)
+            # stackoverflow answers that suggest requests, and json, and
+            # whatever... this one will work!
+            timemod.sleep(10)
 
         # instantiate the log
         lcpbase = os.path.basename(lcpath).replace(".fits", "")
