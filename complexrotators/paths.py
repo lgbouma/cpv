@@ -30,6 +30,10 @@ LKCACHEDIR = join(
 # https://archive.stsci.edu/tess/bulk_downloads/bulk_downloads_ffi-tp-lc-dv.html
 SPOCDIR = '/nfs/phtess2/ar0/TESS/SPOCLC'
 #SPOCDIR = '/ar1/TESS/SPOCLC'
+QLPDIR = '/ar1/TESS/QLP'
+
+# banyan-sigma needs to be installed here
+BANYANDIR = '/ar1/PROJ/luke/proj/banyan_sigma'
 
 LOCALDIR = join(os.path.expanduser('~'), 'local', 'complexrotators')
 if not os.path.exists(LOCALDIR): os.mkdir(LOCALDIR)
