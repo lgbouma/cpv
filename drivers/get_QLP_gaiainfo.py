@@ -6,10 +6,10 @@ import os
 from os.path import join
 from cdips.utils.gaiaqueries import given_votable_get_df
 
-QLPDIR = "/Users/luke/local/QLP"
+QLPDIR = "/ar1/local/QLP"
 
 gzpath = join(QLPDIR, "qlp_s1s55_firsthalf-result.vot.gz")
-gzpath2 = join(QLPDIR, "qlp_s1s55_firsthalf-result.vot.gz")
+gzpath2 = join(QLPDIR, "qlp_s1s55_secondhalf-result.vot.gz")
 
 if not os.path.exists(gzpath):
 
