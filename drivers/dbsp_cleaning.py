@@ -28,6 +28,14 @@ science_indices = range(19, 84+1) # 24-79: LP12-502, 80-83, two others
 objectname_indices = range(22, 77+1)
 junk_indices = [81,82]
 
+# NIGHT: 2023/11/12
+nightdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP/20231207'
+bias_indices = range(9, 18+1)
+arc_indices = [1,2,3, 84,85]
+domeflat_indices = [4,5,6,7,8, 86,87] #range(20, 22+1)
+science_indices = range(19, 83+1) # 24-79: LP12-502, 80-83, two others
+objectname_indices = range(23, 69+1)
+junk_indices = []
 
 DO_BIAS_UPDATE = 1
 DO_ARC_UPDATE = 1
