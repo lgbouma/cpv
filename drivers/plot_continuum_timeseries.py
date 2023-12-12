@@ -62,7 +62,7 @@ def plot_continuum_timeseries(ylim=None):
 
     datadir = "/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC402980664_RDX"
     outdir = '/Users/luke/Dropbox/proj/cpv/results/HIRES_results'
-    datestr = 'j533'
+    datestr = 'j531'
 
     chips = 'b,r,i'.split(",")
     norders = [23,16,10]
@@ -93,7 +93,7 @@ def plot_continuum_timeseries(ylim=None):
                 ax=ax, lw=0.5
             )
 
-            loc = 'lower left' if not isinstance(ylim, list) else 'upper left'
+            loc = 'lower left' if not isinstance(ylim, (list, tuple)) else 'upper right'
             axins1 = inset_axes(ax, width="20%", height="5%", loc=loc, borderpad=1.5)
             cb = fig.colorbar(lc, cax=axins1, orientation="horizontal")
             cb.ax.tick_params(labelsize='xx-small')
