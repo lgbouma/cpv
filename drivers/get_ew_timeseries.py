@@ -19,7 +19,8 @@ UTCDICT = {
     '20231111': '20231111: DBSP + TIERRAS',
     '20231112': '20231112: DBSP + TIERRAS',
     '20231123': '20231123: HIRES',
-    '20231203': '20231203: ~HIRES + TIERRAS'
+    '20231203': '20231203: HIRES + TIERRAS',
+    '20231207': '20231207: DBSP'
 }
 
 def plot_ew_timeseries(
@@ -86,7 +87,9 @@ def plot_ew_timeseries(
 
     dfs = [pd.read_csv(f) for f in csvpaths]
 
-    fitted_ews = [df['Fitted_EW_mA'].iloc[0] for df in dfs] # milliangstr
+    #FIXME FIXME TODO TODO
+    # fitted_ews = [df['Fitted_EW_mA'].iloc[0] for df in dfs] # milliangstr
+    fitted_ews = [np.abs(df['EW_mA'].iloc[0]) for df in dfs] # milliangstr
     perr = [df['Fitted_EW_mA_perr'].iloc[0] for df in dfs]
     merr = [df['Fitted_EW_mA_merr'].iloc[0] for df in dfs]
     errs = np.array([merr,perr])
@@ -114,7 +117,7 @@ def plot_ew_timeseries(
 
 
 def t_to_phase(t, dofloor=0):
-    t0 = 2450000 + 1791.12
+    t0 = 2450000 + 1791.12 + 0.5*18.5611/24
     period = 18.5611/24
     φ = (t-t0)/period
     if dofloor:
@@ -217,6 +220,7 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
 
             else:
                 TIERRASDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/TIERRAS'
+                KEPLERCAMDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/KeplerCam'
                 if utcdatestr == '20231111':
                     df = pd.read_csv(
                         join(TIERRASDIR, "20231110_TIC402980664_circular_fixed_ap_phot_13.csv")
@@ -229,6 +233,14 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
                     df = pd.read_csv(
                         join(TIERRASDIR, "20231202_TIC402980664_circular_fixed_ap_phot_18.csv")
                     )
+                elif utcdatestr == '20231207':
+                    df = pd.read_csv(
+                        join(KEPLERCAMDIR, "LP12-502_2023.1208_KeplerCam_g.dat"),
+                        delim_whitespace=True
+                    )
+                    df['BJD TDB'] = df['BJD_TDB_B']
+                    df['Target Relative Flux'] = df['rel_flux_T1_n']
+                    df['Target Relative Flux Error'] = df['rel_flux_err_T1_n']
                 else:
                     continue
                 t = np.array(df['BJD TDB'])
@@ -236,15 +248,22 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
                 flux = np.array(df['Target Relative Flux'])
                 flux_err = np.array(df['Target Relative Flux Error'])
 
-                x0 = 73
-                ax.scatter(phase, 1e3*flux - x0, c=datec, alpha=0.9,
+                if utcdatestr != '20231207':
+                    x0 = 73
+                    yval = 1e3*flux - x0
+                    yerr = 1e3*flux_err
+                else:
+                    yval = 1e2*(flux - 1)
+                    yerr = 1e2*flux_err
+
+                ax.scatter(phase, yval, c=datec, alpha=0.9,
                            linewidths=0, zorder=2, s=2)
-                ax.errorbar(phase, 1e3*flux - x0, yerr=1e3*flux_err,
+                ax.errorbar(phase, yval, yerr=yerr,
                             c=datec, ecolor=datec, elinewidth=0.5, lw=0, alpha=0.5,
                             zorder=1)
 
                 ax.set_ylabel('$f_{\mathrm{TIERRAS}}$ [%]')
-                ax.set_ylim([70 - x0,76 - x0])
+                ax.set_ylim([-5, 5])
 
 
     axs[-1].set_xlabel("Phase, φ")
@@ -261,8 +280,17 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
 
 if __name__ == "__main__":
 
-    utcdatestrs = "20231111,20231112,20231123,20231203".split(",")
-    insts = "DBSP,DBSP,HIRES,HIRES".split(",")
+    # NOTE: if you add new dates, gotta add to UTCDICT
+
+    utcdatestrs = "20231111,20231112,20231123,20231203,20231207".split(",")
+    insts = "DBSP,DBSP,HIRES,HIRES,DBSP".split(",")
+
+    # utcdatestrs = "20231111,20231112,20231203,20231207".split(",")
+    # insts = "DBSP,DBSP,HIRES,DBSP".split(",")
+
+    # utcdatestrs = "20231111,20231112,20231123".split(",")
+    # insts = "DBSP,DBSP,HIRES".split(",")
+
     uinsts = "_".join(np.unique(insts))
 
     has, hbs, hcs = [], [], []
