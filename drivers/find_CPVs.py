@@ -212,7 +212,9 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
 
         exitcode 4: light curve did not have finite values.
 
-        exitcode 5: faulty LC; flatten failed
+        exitcode 5: faulty LC; flatten failed so dip counter failed.
+
+        exitcode 6: insufficient points in LC; dip counter failed.
     """
 
     assert lcpipeline in ["qlp", "spoc2min"]
@@ -369,6 +371,11 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
         except np.linalg.LinAlgError as e:
             LOGWARNING(f"{starid}: {e} flatten pspline call faulty; SVD did not converge")
             exitcode = {'exitcode': 5}
+            pu.save_status(logpath, 'exitcode', exitcode)
+            continue
+        except ValueError as e:
+            LOGWARNING(f"{starid}: {e} insufficient points in light curve")
+            exitcode = {'exitcode': 6}
             pu.save_status(logpath, 'exitcode', exitcode)
             continue
 
