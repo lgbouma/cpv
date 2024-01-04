@@ -1633,17 +1633,20 @@ def plot_cpvvetter(
         enforce_all_sourceids_viable=True, savstr='', which_columns='*',
         table_name='gaia_source', gaia_datarelease='gaiadr2', getdr2ruwe=False
     )
-    gdf_ruwe = given_source_ids_get_gaia_data(
-        dr2_source_ids, runid+"_ruwe", n_max=5, overwrite=False,
-        enforce_all_sourceids_viable=True, savstr='', which_columns='*',
-        table_name='gaia_source', gaia_datarelease='gaiadr2', getdr2ruwe=True
-    )
+    try:
+        gdf_ruwe = given_source_ids_get_gaia_data(
+            dr2_source_ids, runid+"_ruwe", n_max=5, overwrite=False,
+            enforce_all_sourceids_viable=True, savstr='', which_columns='*',
+            table_name='gaia_source', gaia_datarelease='gaiadr2', getdr2ruwe=True
+        )
+        ruwe =  f"{gdf_ruwe['ruwe'].iloc[0]:.2f}"
+    except AttributeError:
+        ruwe = 'NaN'
 
     Gmag = f"{gdf['phot_g_mean_mag'].iloc[0]:.1f}"
     Rpmag = f"{gdf['phot_rp_mean_mag'].iloc[0]:.1f}"
     Bpmag = f"{gdf['phot_bp_mean_mag'].iloc[0]:.1f}"
     bp_rp = f"{gdf['bp_rp'].iloc[0]:.2f}"
-    ruwe =  f"{gdf_ruwe['ruwe'].iloc[0]:.2f}"
     plx = f"{gdf['parallax'].iloc[0]:.2f}"
     plx_err = f"{gdf['parallax_error'].iloc[0]:.2f}"
     dist_pc = 1/(float(plx)*1e-3)

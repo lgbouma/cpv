@@ -211,6 +211,8 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
             r['N_peaks'] < 3:
 
         exitcode 4: light curve did not have finite values.
+
+        exitcode 5: faulty LC; flatten failed
     """
 
     assert lcpipeline in ["qlp", "spoc2min"]
@@ -223,7 +225,7 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
     if not os.path.exists(cachedir): os.mkdir(cachedir)
 
     minexitcode = -1
-    cand_logpaths = glob(join(cachedir, f"*tess*00{ticid}-*runstatus.log"))
+    cand_logpaths = glob(join(cachedir, f"*tess*00{ticid}*runstatus.log"))
     foundexitcodes = []
     if len(cand_logpaths) > 0:
         for cand_logpath in cand_logpaths:
@@ -353,16 +355,22 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
             'pre_normalize': True
         }
         pu.save_status(logpath, 'count_phased_local_minima_options', cd)
-        r = count_phased_local_minima(
-            d['times'], d['fluxs'], d['t0'], d['period'],
-            method=cd['method'],
-            binsize_phase_units=cd['binsize_phase_units'],
-            height=cd['height'], width=cd['width'],
-            window_length_phase_units=cd['window_length_phase_units'],
-            max_splines=cd['max_splines'],
-            height_limit=cd['height_limit'],
-            pre_normalize=cd['pre_normalize']
-        )
+        try:
+            r = count_phased_local_minima(
+                d['times'], d['fluxs'], d['t0'], d['period'],
+                method=cd['method'],
+                binsize_phase_units=cd['binsize_phase_units'],
+                height=cd['height'], width=cd['width'],
+                window_length_phase_units=cd['window_length_phase_units'],
+                max_splines=cd['max_splines'],
+                height_limit=cd['height_limit'],
+                pre_normalize=cd['pre_normalize']
+            )
+        except np.linalg.LinAlgError as e:
+            LOGWARNING(f"{starid}: {e} flatten pspline call faulty; SVD did not converge")
+            exitcode = {'exitcode': 5}
+            pu.save_status(logpath, 'exitcode', exitcode)
+            continue
 
         # save the non-array output to the log file
         save_keys = ['N_peaks', 'peaks_phaseunits', 'peaks', 'properties',

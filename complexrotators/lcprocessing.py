@@ -200,7 +200,7 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
             orb_bd = phase_bin_magseries(x_fold, y, binsize=bs_days, minbinelems=3)
             min_phase = orb_bd['binnedphases'][np.argmin(orb_bd['binnedmags'])]
             t0 = t0_ini + min_phase*period
-        except ValueError:
+        except (ValueError, TypeError):
             # can be raised for very short periods...
             t0 = t0_ini
 
