@@ -1073,6 +1073,12 @@ def plot_phased_light_curve(
 
     if not showxticklabels:
         ax.set_xticklabels([])
+    else:
+        if showxticklabels == True:
+            pass
+        elif isinstance(showxticklabels, (list, tuple)):
+            ax.set_xticks(showxticklabels)
+            ax.set_xticklabels(showxticklabels)
 
     if isinstance(ylabel, str):
         ax.set_ylabel(ylabel)
