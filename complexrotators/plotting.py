@@ -16,6 +16,9 @@ Contents:
         | plot_phase_timegroups_mosaic
         | plot_cadence_comparison
 
+    Movies:
+        | plot_movie_phase_timegroups
+
     Single-object:
         | plot_tic4029_segments
 
@@ -4696,4 +4699,165 @@ def plot_lineevolnpanel(outdir):
     savefig(fig, outpath, dpi=400)
 
 
+def plot_movie_phase_timegroups(
+    outdir,
+    ticid=None,
+    lc_cadences='2min',
+    manual_period=None,
+    t0='binmin',
+    ylim=None,
+    binsize_phase=0.005,
+    xlim=[-0.6,0.6],
+    yoffset=5,
+    showtitle=1,
+    figsize_y=7,
+    model_id=None,
+    rasterized=False,
+    N_cyclestobin=3
+    ):
+    """
+    As in plot_phase
+    """
 
+    lclist = _get_cpv_lclist(lc_cadences, ticid)
+
+    if len(lclist) == 0:
+        print(f'WRN! Did not find light curves for {ticid}. Escaping.')
+        return 0
+
+    # for each light curve (sector / cadence specific), detrend if needed, get
+    # the best period.
+    _times, _fluxs, _t0s, _periods, _titlestrs = [],[],[],[], []
+
+    for lc in lclist:
+
+        (time, flux, qual, x_obs, y_obs, y_flat,
+         y_trend, x_trend, cadence_sec, sector,
+         starid) = prepare_given_lightkurve_lc(lc, ticid, outdir)
+
+        # get t0, period, lsp
+        if not isinstance(t0, float) and isinstance(manual_period, float):
+            d = cpv_periodsearch(x_obs, y_flat, starid, outdir, t0=t0)
+        else:
+            d = {'times': x_obs, 'fluxs': y_flat,
+                 't0': t0, 'period': manual_period}
+
+        _t0 = d['t0']
+        if isinstance(t0, float):
+            _t0 = t0
+        period = d['period']
+        if isinstance(manual_period, float):
+            period = manual_period
+        titlestr = starid.replace('_',' ')
+
+        _times.append(d['times'])
+        _fluxs.append(d['fluxs'])
+        _t0s.append(_t0)
+        _periods.append(period)
+        _titlestrs.append(titlestr)
+
+    # merge lightcurve data, and split before making the plot.
+    times = np.hstack(_times)
+    fluxs = np.hstack(_fluxs)
+    t0s = np.hstack(_t0s)
+    periods = np.hstack(_periods)
+    titlestrs = np.hstack(_titlestrs)
+
+    if isinstance(model_id, str):
+        # for now, just lp12-502
+        assert ticid == "TIC_402980664"
+        manual_csvpath = f'/Users/luke/Dropbox/proj/cpv/results/4029_mask/lc_lsresid_{model_id}.csv'
+        df = pd.read_csv(manual_csvpath)
+        times = np.array(df.time)
+        # residual flux from subtracting the model given in model_id
+        fluxs = np.array(df.r_flux)
+
+    #
+    # determine break times and groups
+    #
+    plot_period = np.nanmean(_periods)
+    plot_t0 = t0s[0]
+
+    min_cycle = 0 # NOTE: this might cut depending on t0
+    max_cycle = int(np.ceil((np.nanmax(times) - plot_t0)/plot_period))
+    break_times = [plot_t0 + ix*plot_period for ix in
+                   range(min_cycle, max_cycle, N_cyclestobin)]
+
+
+    # big time groups, separated by at least like a week.
+    # (might use these if you want to generate gap frames??)
+    from astrobase.lcmath import find_lc_timegroups
+    ngroups, groups = find_lc_timegroups(times, mingap=7*24/24)
+
+    # Make plots
+    time_index = 0
+
+    for t_start, t_stop in zip(break_times[:-1], break_times[1:]):
+
+        sel = (times >= t_start) & (times <= t_stop)
+        N_times = len(times[sel])
+        # require at least ~one cycle
+        if N_times <= 0.9*plot_period*24*60/2:
+            continue
+
+        plt.close('all')
+        #set_style("clean")
+        set_style("science")
+        factor=1.
+        fig, ax = plt.subplots(figsize=(factor*3, factor*3))
+
+        iso_t0 = Time(t_start+2457000, format='jd').isot[:10]
+        iso_t1 = Time(t_stop+2457000, format='jd').isot[:10]
+
+        e_start = int(np.floor((t_start - plot_t0)/plot_period))
+        e_end = int(np.floor((t_stop - plot_t0)/plot_period))
+
+        txt0 = f"{iso_t0}"+"$\,$-$\,$"+f"{iso_t1}"
+        txt1 = f"{e_start}"+"$\,$-$\,$"+f"{e_end}"
+        txt = txt0 + '\n' + txt1
+
+        gtime = times[sel]
+        gflux = fluxs[sel]
+
+        plot_phased_light_curve(
+            gtime, gflux, plot_t0, plot_period, None,
+            fig=fig, ax=ax,
+            binsize_phase=binsize_phase,
+            xlim=xlim,
+            #showtext=txt,
+            titlestr=txt,
+            titlepad=0.1,
+            showtext=False,
+            savethefigure=False,
+            titlefontsize='xx-small',
+            rasterized=rasterized
+        )
+        if isinstance(ylim, (list, tuple)):
+            ax.set_ylim(ylim)
+
+
+        ax.set_ylabel(r"$\Delta$ Flux [%]", fontsize='large')
+        ax.set_xlabel(r"Phase, φ", fontsize='large')
+
+        format_ax(ax)
+        fig.tight_layout()
+
+        s = ''
+        if isinstance(model_id, str):
+            s += f'_{model_id}'
+        #if isinstance(ylim, (list, tuple)):
+        #    s += f'_ymin{ylim[0]}_ymax{ylim[1]}'
+        if rasterized:
+            s += "_rasterized"
+
+        tstr = str(time_index).zfill(4)
+
+        outpath = join(
+            outdir,
+            f"{ticid}_{tstr}_{lc_cadences}_phase_timegroups{s}.png"
+        )
+
+        fig.savefig(outpath, bbox_inches='tight', dpi=450)
+        print(f"saved {outpath}")
+
+        time_index += 1
