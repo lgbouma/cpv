@@ -5,11 +5,13 @@ import numpy as np, matplotlib.pyplot as plt, pandas as pd
 
 from aesthetic.plot import set_style, savefig
 
-from complexrotators.getters import _get_lcpaths_fromlightkurve_given_ticid
+from complexrotators.getters import (
+    _get_lcpaths_fromlightkurve_given_ticid, get_qlp_lcpaths
+)
 from complexrotators.lcprocessing import (
     cpv_periodsearch, prepare_cpv_light_curve
 )
-from complexrotators.paths import RESULTSDIR
+from complexrotators.paths import RESULTSDIR, DATADIR
 from complexrotators.plotting import plot_phased_light_curve
 
 from astrobase.lcmath import (
@@ -28,10 +30,17 @@ def get_ylimguess(y):
 
 
 
-def make_plot(ticid, sector=None, showtitles=0, showphase=1):
+def make_plot(ticid, sector=None, showtitles=0, showphase=1, lcpipeline='spoc2min'):
 
     # get data
-    lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid)
+    if lcpipeline == 'spoc2min':
+        lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid)
+    elif lcpipeline == 'qlp':
+        # FIXME temp hack...
+        lcpaths = [join(DATADIR, 'photometry', 'tess',
+                        'hlsp_qlp_tess_ffi_s0031-0000000220599904_tess_v01_llc.fits')]
+        #lcpaths = get_qlp_lcpaths(ticid)
+
     if isinstance(sector,int):
         sstr = str(sector).zfill(4)
         lcpath = [l for l in lcpaths if sstr in l][0]
@@ -43,7 +52,9 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1):
 
     # get the relevant light curve data
     (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
-     sector, starid) = prepare_cpv_light_curve(lcpath, cachedir)
+     sector, starid) = prepare_cpv_light_curve(
+         lcpath, cachedir, lcpipeline=lcpipeline
+     )
 
     # get period, t0, and periodogram (PDM or LombScargle)
     d = cpv_periodsearch(
@@ -79,7 +90,10 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1):
     axs[0].set_xlabel('Time [days]')
     axs[0].set_ylabel('Relative flux')
 
-    axs[0].set_xlim([-1,11])
+    if not ticid == '220599904':
+        axs[0].set_xlim([-1,11])
+    else:
+        axs[0].set_xlim([14, 24])
 
     if showphase:
         plot_phased_light_curve(
@@ -103,6 +117,10 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1):
     savefig(fig, outpath, dpi=400)
 
 if __name__ == "__main__":
+
+    # qlp cpv
+    make_plot("220599904", sector=31, lcpipeline='qlp', showphase=0)
+
     # AU Mic
     make_plot('441420236', sector=1)
 
