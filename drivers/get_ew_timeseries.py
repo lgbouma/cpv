@@ -5,7 +5,7 @@ from os.path import join
 import matplotlib.pyplot as plt, numpy as np, pandas as pd
 from complexrotators.paths import RESULTSDIR
 from astropy.time import Time
-from astropy import units as u
+from astropy import units as u, constants as const
 from numpy import array as nparr
 from matplotlib.ticker import (
     MultipleLocator, FormatStrFormatter, AutoMinorLocator
@@ -84,6 +84,7 @@ def plot_ew_timeseries(
         hl.close()
 
     csvpaths = [glob(join(ewdir, '*'+linename+"*"+key+'*_results.csv'))[0] for key in keys]
+    speccsvpaths = [glob(join(ewdir, '*'+linename+"*"+key+'*_fittedslice.csv'))[0] for key in keys]
 
     dfs = [pd.read_csv(f) for f in csvpaths]
 
@@ -113,11 +114,11 @@ def plot_ew_timeseries(
     savefig(fig, outpath)
 
     ptimes, pews, perrs = t_bjd_tdb - 2460255, fitted_ews, 0.75*errs
-    return ptimes, pews, perrs
+    return ptimes, pews, perrs, keys, csvpaths, speccsvpaths
 
 
 def t_to_phase(t, dofloor=0):
-    t0 = 2450000 + 1791.12 + 0.5*18.5611/24
+    t0 = 2450000 + 1791.12 - 0.3*18.5611/24
     period = 18.5611/24
     φ = (t-t0)/period
     if dofloor:
@@ -140,7 +141,7 @@ def plot_stack_ew_timeseries(ha, hb, hc, utcdatestr, uinsts):
 
     for ix, (ax, ewi, lk) in enumerate(zip(axs, ewinfo, linekeys)):
 
-        ptimes, pews, perrs = ewi
+        ptimes, pews, perrs, __keys, __rescsvpaths, __fittedcsvpaths = ewi
 
         ax.errorbar(ptimes, nparr(pews)/(1e3), yerr=nparr(perrs)/(1e3), c='k',
                     ecolor='k', elinewidth=0.5)
@@ -149,9 +150,7 @@ def plot_stack_ew_timeseries(ha, hb, hc, utcdatestr, uinsts):
 
         ax2 = ax.twiny()
         t = ptimes + 2460255 # convert to bjdtdb
-        phases = t_to_phase(t) - np.min(t_to_phase(t)).astype(int)
-        if max(phases) > 1:
-            phases -= 1
+        phases = t_to_phase(t, dofloor=1)
         ax2.errorbar(phases, nparr(pews)/(1e3),
                      yerr=nparr(perrs)/(1e3), alpha=0)
         if ix == 0:
@@ -193,7 +192,7 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
                 continue
 
             if lk != 'f':
-                ptimes, pews, perrs = ewi
+                ptimes, pews, perrs, __keys, __rescsvpaths, __fittedcsvpaths = ewi
                 t = ptimes + 2460255 # convert to bjdtdb
                 phase = t_to_phase(t, dofloor=1)
 
@@ -223,15 +222,15 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
                 KEPLERCAMDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/KeplerCam'
                 if utcdatestr == '20231111':
                     df = pd.read_csv(
-                        join(TIERRASDIR, "20231110_TIC402980664_circular_fixed_ap_phot_13.csv")
+                        join(TIERRASDIR, "20231111_TIC402980664_circular_fixed_ap_phot_13.csv")
                     )
                 elif utcdatestr == '20231112':
                     df = pd.read_csv(
-                        join(TIERRASDIR, "20231110_TIC402980664_circular_fixed_ap_phot_21.csv")
+                        join(TIERRASDIR, "20231112_TIC402980664_circular_fixed_ap_phot_21.csv")
                     )
                 elif utcdatestr == '20231203':
                     df = pd.read_csv(
-                        join(TIERRASDIR, "20231202_TIC402980664_circular_fixed_ap_phot_18.csv")
+                        join(TIERRASDIR, "20231203_TIC402980664_circular_fixed_ap_phot_18.csv")
                     )
                 elif utcdatestr == '20231207':
                     df = pd.read_csv(
@@ -277,19 +276,416 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
     savefig(fig, outpath)
 
 
+def plot_movie_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, show_vel=0):
+
+    linekeys = 'f,Hα,Hβ,Hγ'.split(',')
+
+    datecolors = [f'C{ix}' for ix in range(len(utcdatestrs))]
+
+    set_style('clean')
+
+    fig = plt.figure(figsize=(7,3))
+    axd = fig.subplot_mosaic(
+        """
+        AABBE
+        AACCF
+        AADDG
+        """#,
+        #gridspec_kw={
+        #    "width_ratios": [1, 1, 1, 1]
+        #}
+    )
+    axkeys = "A,B,C,D".split(",")
+
+    alltimes, allkeys, allfittedpaths, allphases, allresultspaths = (
+        {}, {}, {}, {}, {}
+    )
+    # iterate over dates / insts
+    for _id, (ha,hb,hc,utcdatestr,datec,i) in enumerate(
+        zip(has, hbs, hcs, utcdatestrs, datecolors, insts)
+    ):
+
+        alltimes[f"{utcdatestr}_{i}"] = {}
+        allkeys[f"{utcdatestr}_{i}"] = {}
+        allfittedpaths[f"{utcdatestr}_{i}"] = {}
+        allresultspaths[f"{utcdatestr}_{i}"] = {}
+        allphases[f"{utcdatestr}_{i}"] = {}
+
+        ewinfo = [None, ha, hb, hc]
+
+        axd['A'].text(0.97,0.03+_id*0.06, UTCDICT[utcdatestr],
+                    transform=axd['A'].transAxes, ha='right',va='bottom',
+                    color=datec, fontsize='x-small')
+
+        # iterate over lines
+        for ix, (ax, ewi, lk) in enumerate(zip([axd['A'],axd['B'],axd['C'],axd['D']], ewinfo, linekeys)):
+
+            ax.set_xlim([0.18,1.02])
+
+            if i == 'HIRES' and lk == 'Hβ':
+                continue
+
+            if lk != 'f':
+                ptimes, pews, perrs, _keys, _resultscsvpaths, _fittedcsvpaths, = ewi
+
+                t = ptimes + 2460255 # convert to bjdtdb
+                phase = t_to_phase(t, dofloor=1)
+
+                alltimes[f"{utcdatestr}_{i}"][lk] = ptimes
+                allkeys[f"{utcdatestr}_{i}"][lk] = _keys
+                allfittedpaths[f"{utcdatestr}_{i}"][lk] = _fittedcsvpaths
+                allresultspaths[f"{utcdatestr}_{i}"][lk] = _resultscsvpaths
+                allphases[f"{utcdatestr}_{i}"][lk] = phase
+
+                # FIXME HACK CLEANING
+                # FIXME HACK CLEANING
+                # FIXME HACK CLEANING
+                perrs[np.abs(perrs) > 1000] = 500 # one dud cosmic ray...
+                pews = nparr(pews)
+                pews[pews < 0] = np.nan # one Hγ HIRES point negative
+                # FIXME HACK CLEANING
+                # FIXME HACK CLEANING
+                # FIXME HACK CLEANING
+                ax.scatter(phase, nparr(pews)/(1e3), c=datec, alpha=0.9,
+                           linewidths=0, zorder=2, s=3)
+                ax.errorbar(phase, nparr(pews)/(1e3), yerr=nparr(perrs)/(1e3),
+                            c=datec, ecolor=datec, elinewidth=0.5, lw=0, alpha=0.5,
+                            zorder=1)
+
+                ax.set_ylabel(f'{lk} EW [$\AA$]')
+                if lk == 'Hα':
+                    ax.yaxis.set_major_locator(MultipleLocator(1))
+                else:
+                    ax.yaxis.set_major_locator(MultipleLocator(2))
+
+                if lk != 'Hγ':
+                    ax.set_xticklabels([])
+
+            else:
+                TIERRASDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/TIERRAS'
+                KEPLERCAMDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/KeplerCam'
+                if utcdatestr == '20231111':
+                    df = pd.read_csv(
+                        join(TIERRASDIR, "20231111_TIC402980664_circular_fixed_ap_phot_13.csv")
+                    )
+                elif utcdatestr == '20231112':
+                    df = pd.read_csv(
+                        join(TIERRASDIR, "20231112_TIC402980664_circular_fixed_ap_phot_21.csv")
+                    )
+                elif utcdatestr == '20231203':
+                    df = pd.read_csv(
+                        join(TIERRASDIR, "20231203_TIC402980664_circular_fixed_ap_phot_18.csv")
+                    )
+                elif utcdatestr == '20231207':
+                    df = pd.read_csv(
+                        join(KEPLERCAMDIR, "LP12-502_2023.1208_KeplerCam_g.dat"),
+                        delim_whitespace=True
+                    )
+                    df['BJD TDB'] = df['BJD_TDB_B']
+                    df['Target Relative Flux'] = df['rel_flux_T1_n']
+                    df['Target Relative Flux Error'] = df['rel_flux_err_T1_n']
+                else:
+                    continue
+                t = np.array(df['BJD TDB'])
+                phase = t_to_phase(t, dofloor=1)
+                flux = np.array(df['Target Relative Flux'])
+                flux_err = np.array(df['Target Relative Flux Error'])
+
+                if utcdatestr != '20231207':
+                    x0 = 73
+                    yval = 1e3*flux - x0
+                    yerr = 1e3*flux_err
+                else:
+                    yval = 1e2*(flux - 1)
+                    yerr = 1e2*flux_err
+
+                ax.scatter(phase, yval, c=datec, alpha=0.9,
+                           linewidths=0, zorder=2, s=2)
+                ax.errorbar(phase, yval, yerr=yerr,
+                            c=datec, ecolor=datec, elinewidth=0.5, lw=0, alpha=0.5,
+                            zorder=1)
+
+                ax.set_ylabel('Relative flux [%]')
+                ax.set_ylim([-5, 5])
+
+    axd['A'].set_xlabel("Phase, φ")
+    axd['D'].set_xlabel("Phase, φ")
+
+    fig.tight_layout(h_pad=0, w_pad=0.5)
+
+    outdir = join(RESULTSDIR, 'movie_EW_results')
+    if not os.path.exists(outdir): os.mkdir(outdir)
+    uinsts = "_".join(np.unique(insts))
+    outpath = join(outdir, f'stackew_vs_phase_{uinsts}_{"_".join(utcdatestrs)}.png')
+    savefig(fig, outpath)
+
+    time_indices = []
+    for utcdatestr, i in zip(utcdatestrs, insts):
+        timed = alltimes[f"{utcdatestr}_{i}"]
+        phased = allphases[f"{utcdatestr}_{i}"]
+        N_times = len(timed['Hα'])
+        # by default, take only the times from the red arm...
+        for ix, t, phase in zip(range(N_times), timed['Hα'], phased['Hα']):
+            time_index = f"{utcdatestr}_{i}_{str(ix).zfill(4)}_{t:.8f}_{phase:.6f}"
+            time_indices.append(time_index)
+
+    # iterate over time indices...
+    for _time_index in time_indices:
+
+        # TODO FIXME proceed from here...
+        plt.close("all")
+
+        fig = plt.figure(figsize=(7,3.5))
+        axd = fig.subplot_mosaic(
+            """
+            AABBE
+            AACCF
+            AADDG
+            """#,
+            #gridspec_kw={
+            #    "width_ratios": [1, 1, 1, 1]
+            #}
+        )
+        axkeys = "A,B,C,D".split(",")
+
+        _, i, time_index, this_t, this_phase = _time_index.split("_")
+        this_phase = float(this_phase)
+        #this_t = np.float64(this_t)
+        #this_phase = t_to_phase(this_t, dofloor=1)
+
+        for _id, (ha,hb,hc,utcdatestr,datec,i) in enumerate(
+            zip(has, hbs, hcs, utcdatestrs, datecolors, insts)
+        ):
+            #
+            # A: do flux vs phase...
+            #
+            ax = axd['A']
+
+            axd['A'].text(0.97,0.03+_id*0.05, utcdatestr,
+                          transform=axd['A'].transAxes, ha='right',va='bottom',
+                          color=datec, fontsize='small')
+
+            TIERRASDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/TIERRAS'
+            KEPLERCAMDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/KeplerCam'
+            if utcdatestr == '20231111':
+                df = pd.read_csv(
+                    join(TIERRASDIR, "20231111_TIC402980664_circular_fixed_ap_phot_13.csv")
+                )
+            elif utcdatestr == '20231112':
+                df = pd.read_csv(
+                    join(TIERRASDIR, "20231112_TIC402980664_circular_fixed_ap_phot_21.csv")
+                )
+            elif utcdatestr == '20231203':
+                df = pd.read_csv(
+                    join(TIERRASDIR, "20231203_TIC402980664_circular_fixed_ap_phot_18.csv")
+                )
+            elif utcdatestr == '20231207':
+                df = pd.read_csv(
+                    join(KEPLERCAMDIR, "LP12-502_2023.1208_KeplerCam_g.dat"),
+                    delim_whitespace=True
+                )
+                df['BJD TDB'] = df['BJD_TDB_B']
+                df['Target Relative Flux'] = df['rel_flux_T1_n']
+                df['Target Relative Flux Error'] = df['rel_flux_err_T1_n']
+            else:
+                continue
+            t = np.array(df['BJD TDB'])
+            phase = t_to_phase(t, dofloor=1)
+            flux = np.array(df['Target Relative Flux'])
+            flux_err = np.array(df['Target Relative Flux Error'])
+
+            if utcdatestr != '20231207':
+                x0 = 73
+                yval = 1e3*flux - x0
+                yerr = 1e3*flux_err
+            else:
+                yval = 1e2*(flux - 1)
+                yerr = 1e2*flux_err
+
+            ax.scatter(phase, yval, c=datec, alpha=0.9,
+                       linewidths=0, zorder=2, s=2)
+            ax.errorbar(phase, yval, yerr=yerr,
+                        c=datec, ecolor=datec, elinewidth=0.5, lw=0, alpha=0.5,
+                        zorder=1)
+
+            ax.vlines(this_phase, -5, 5, colors='darkgray', alpha=0.5,
+                      linestyles='--', zorder=-10, linewidths=0.5)
+
+            ax.set_ylabel('Broadband flux [%]')
+            #ax.set_ylim([-5, 5])
+            ax.set_ylim([-3.8, 3.8])
+
+            #
+            # B, C, D : line EW vs phase
+            #
+
+            # iterate over lines
+            ewinfo = [None, ha, hb, hc]
+            for ix, (ax, ewi, lk) in enumerate(zip([axd['A'],axd['B'],axd['C'],axd['D']], ewinfo, linekeys)):
+
+                if ix == 0:
+                    continue
+                ax.set_xlim([0.18,1.02])
+
+                if i == 'HIRES' and lk == 'Hβ':
+                    continue
+
+                ptimes, pews, perrs, _keys, _csvpaths, _fittedcsvpaths = ewi
+
+                t = ptimes + 2460255 # convert to bjdtdb
+                phase = t_to_phase(t, dofloor=1)
+
+                # FIXME HACK CLEANING
+                # FIXME HACK CLEANING
+                # FIXME HACK CLEANING
+                perrs[np.abs(perrs) > 1000] = 500 # one dud cosmic ray...
+                pews = nparr(pews)
+                pews[pews < 0] = np.nan # one Hγ HIRES point negative
+                # FIXME HACK CLEANING
+                # FIXME HACK CLEANING
+                # FIXME HACK CLEANING
+                ax.scatter(phase, nparr(pews)/(1e3), c=datec, alpha=0.9,
+                           linewidths=0, zorder=2, s=3)
+                ax.errorbar(phase, nparr(pews)/(1e3), yerr=nparr(perrs)/(1e3),
+                            c=datec, ecolor=datec, elinewidth=0.5, lw=0, alpha=0.5,
+                            zorder=1)
+
+                ax.set_ylabel(f'{lk} '+'EW [$\mathrm{\AA}$]')
+                if lk == 'Hα':
+                    ax.yaxis.set_major_locator(MultipleLocator(1))
+                else:
+                    ax.yaxis.set_major_locator(MultipleLocator(2))
+
+                if lk != 'Hγ':
+                    ax.set_xticklabels([])
+
+                ymin, ymax = ax.get_ylim()
+                ax.vlines(this_phase, ymin, ymax, colors='darkgray', alpha=0.5,
+                          linestyles='--', zorder=-10, linewidths=0.5)
+                ax.set_ylim([ymin, ymax])
+
+        axd['A'].set_xlabel("Phase, φ")
+        axd['D'].set_xlabel("Phase, φ")
+
+        #
+        # E,F,G: spectra at each time!
+        #
+        __linekeys = 'Hα,Hβ,Hγ'.split(',')
+        keywav = {
+            'Hα':6562.8,
+            'Hβ':4861.35,
+            'Hγ':4340.47
+        }
+        for ax, lk in zip([axd['E'],axd['F'],axd['G']], __linekeys):
+
+            utckey = "_".join(_time_index.split("_")[:2])
+            this_index = int(_time_index.split("_")[2])
+
+            fittedcsvpath = allfittedpaths[utckey][lk][this_index]
+            resultscsvpath = allresultspaths[utckey][lk][this_index]
+
+            spec_df = pd.read_csv(fittedcsvpath)
+            wav,flx = nparr(spec_df.wav), nparr(spec_df.flx)
+
+            res_df = pd.read_csv(resultscsvpath)
+            dx = keywav[lk] - res_df.centroid_A.iloc[0]
+
+            # normalize to fifth entry... (!)
+            flx /= flx[5]
+
+            if not show_vel:
+                ax.plot(wav + dx, flx, c='k', lw=0.5)
+
+            if show_vel:
+
+                if lk == 'Hα':
+                    wav0 = 6563#2.8
+                elif lk == 'Hβ':
+                    wav0 = 4861#.35
+                elif lk == 'Hγ':
+                    wav0 = 4340#.47
+
+                deltawvlen = ( (wav + dx) - wav0 )
+                delta_v = const.c * (deltawvlen / wav0)
+                delta_v_kms = delta_v.to(u.km/u.s)
+
+                ax.plot(delta_v_kms, flx, c='k', lw=0.5)
+
+            ax.update({'ylabel': f'{lk} flux'})
+
+            if not show_vel:
+                if lk == 'Hα':
+                    wav0 = 6563#2.8
+                    ax.set_ylim([0.5,5.6])
+                    x0 = 2
+                    ax.set_xlim([wav0-8, wav0+8])
+                    ax.set_xticks([wav0-5, wav0+5])
+                elif lk == 'Hβ':
+                    wav0 = 4861#.35
+                    ax.set_ylim([0.5,5.6])
+                    ax.set_xlim([wav0-8, wav0+8])
+                    ax.set_xticks([wav0-5, wav0+5])
+                elif lk == 'Hγ':
+                    ax.set_ylim([0.5,5.6])
+                    wav0 = 4340#.47
+                    ax.set_xlim([wav0-8, wav0+8])
+                    ax.set_xticks([wav0-5, wav0+5])
+            else:
+                if lk == 'Hα':
+                    ax.set_ylim([0.5,5.6])
+                elif lk == 'Hβ':
+                    ax.set_ylim([0.5,5.6])
+                elif lk == 'Hγ':
+                    ax.set_ylim([0.5,5.6])
+
+                ax.set_xlim([-500, 500])
+                ax.set_xticks([-250, 0, 250])
+
+            ax.set_yticklabels([1,3,5])
+            ax.set_yticks([1,3,5])
+
+        axd['G'].set_xlabel('λ [$\mathrm{\AA}$]')
+        if show_vel:
+            axd['G'].set_xlabel('v [km$\,$s$^{-1}$]')
+
+        #fig.suptitle('LP 12-502, $P$ = 18.6 hr')
+        fig.tight_layout(h_pad=0, w_pad=0.5)
+
+        outdir = join(RESULTSDIR, 'movie_EW_results')
+        if showvel:
+            outdir = join(RESULTSDIR, 'movie_EW_results_showvel')
+        if not os.path.exists(outdir): os.mkdir(outdir)
+        uinsts = "_".join(np.unique(insts))
+
+        s = ''
+        if show_vel:
+            s += "_showvel"
+
+        outpath = join(
+            outdir,
+            f'{_time_index}_stackew_vs_phase_{uinsts}_{"_".join(utcdatestrs)}{s}.png'
+        )
+        savefig(fig, outpath, writepdf=0)
+
+
+
+
 
 if __name__ == "__main__":
 
     # NOTE: if you add new dates, gotta add to UTCDICT
 
-    utcdatestrs = "20231111,20231112,20231123,20231203,20231207".split(",")
-    insts = "DBSP,DBSP,HIRES,HIRES,DBSP".split(",")
+    # utcdatestrs = "20231111,20231112,20231123,20231203,20231207".split(",")
+    # insts = "DBSP,DBSP,HIRES,HIRES,DBSP".split(",")
 
     # utcdatestrs = "20231111,20231112,20231203,20231207".split(",")
     # insts = "DBSP,DBSP,HIRES,DBSP".split(",")
 
     # utcdatestrs = "20231111,20231112,20231123".split(",")
     # insts = "DBSP,DBSP,HIRES".split(",")
+
+    utcdatestrs = "20231111,20231112".split(",")
+    insts = "DBSP,DBSP".split(",")
 
     uinsts = "_".join(np.unique(insts))
 
@@ -311,3 +707,11 @@ if __name__ == "__main__":
         hcs.append(hc)
 
     plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts)
+
+    if utcdatestrs == "20231111,20231112".split(","):
+        plot_movie_stack_ew_vs_phase(
+            has, hbs, hcs, utcdatestrs, insts, show_vel=1
+        )
+        plot_movie_stack_ew_vs_phase(
+            has, hbs, hcs, utcdatestrs, insts
+        )
