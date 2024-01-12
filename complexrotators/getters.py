@@ -208,14 +208,36 @@ def get_qlp_lcpaths(ticid):
         return []
 
 
-def get_cdips_lcpaths(ticid):
+def fix_cdips_lcpaths(lcpaths):
+    """
+    some look like
+    /ar1/TESS/CDIPS/CDIPS/s0027/cam3_ccd3/hlsp_cdips_tess_ffi_gaiatwo0005196433038252282368-0027-cam3-ccd3_tess_v01_llc.fits
+    perhaps a mast error?
 
-    assert isinstance(ticid, str)
+    should be "s0027".  This fixes that.
+    """
 
-    from astrobase.services.identifiers import tic_to_gaiadr2
+    basedirs = [os.path.dirname(l) for l in lcpaths]
+    lcnames =  [os.path.basename(l) for l in lcpaths]
 
-    dr2_source_id = tic_to_gaiadr2(ticid)
-    LOGINFO(f"Got DR2 source id {dr2_source_id} for TIC {ticid}")
+    outlcpaths = []
+
+    # a weird name error exists in the cache csv file
+    for dn,l in zip(basedirs, lcnames):
+        a,b,c,d = l.split('-')
+        if not b.startswith("s"):
+            b = "s"+b
+        outname = f"{a}-{b}-{c}-{d}"
+        outpath = os.path.join(dn, outname)
+        outlcpaths.append(outpath)
+
+    return outlcpaths
+
+
+
+def get_cdips_lcpaths(dr2_source_id):
+
+    assert isinstance(dr2_source_id, str)
 
     from complexrotators.paths import CDIPSDIR
     # this CSV file has only the <500pc stars, which cuts time ~5x relative to
@@ -243,28 +265,16 @@ def get_cdips_lcpaths(ticid):
         lcpaths = list(df.name)
         lcpaths = [join(CDIPSDIR, "CDIPS", l) for l in lcpaths]
 
-        basedirs = [os.path.dirname(l) for l in lcpaths]
-        lcnames =  [os.path.basename(l) for l in lcpaths]
+        lcpaths = fix_cdips_lcpaths(lcpaths)
 
-        outlcpaths = []
-
-        # a weird name error exists in the cache csv file
-        for dn,l in zip(basedirs, lcnames):
-            a,b,c,d = l.split('-')
-            if not b.startswith("s"):
-                b = "s"+b
-            outname = f"{a}-{b}-{c}-{d}"
-            outpath = os.path.join(dn, outname)
-            outlcpaths.append(outpath)
-
-        return outlcpaths
+        return lcpaths
 
     else:
 
         return []
 
 
-def _get_local_lcpaths_given_ticid(ticid, lcpipeline):
+def _get_local_lcpaths_given_ticid(ticid, lcpipeline, dr2_source_id=None):
 
     if lcpipeline == 'spoc2min':
         from complexrotators.paths import SPOCDIR
@@ -274,7 +284,7 @@ def _get_local_lcpaths_given_ticid(ticid, lcpipeline):
         lcpaths = get_qlp_lcpaths(ticid)
 
     elif lcpipeline == 'cdips':
-        lcpaths = get_cdips_lcpaths(ticid)
+        lcpaths = get_cdips_lcpaths(dr2_source_id)
 
     if len(lcpaths) == 0:
         print(f"Failed to find {lcpipeline} light curves for {ticid}")
