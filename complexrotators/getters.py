@@ -14,6 +14,37 @@ tic4029 specialized:
 | get_4029_manual_mask
 
 """
+#############
+## LOGGING ##
+#############
+import logging
+from complexrotators import log_sub, log_fmt, log_date_fmt
+
+LOCAL_DEBUG = 0
+DEBUG = False
+if DEBUG:
+    level = logging.DEBUG
+else:
+    level = logging.INFO
+LOGGER = logging.getLogger(__name__)
+logging.basicConfig(
+    level=level,
+    style=log_sub,
+    format=log_fmt,
+    datefmt=log_date_fmt,
+    force=True
+)
+
+LOGDEBUG = LOGGER.debug
+LOGINFO = LOGGER.info
+LOGWARNING = LOGGER.warning
+LOGERROR = LOGGER.error
+LOGEXCEPTION = LOGGER.exception
+
+#############
+## IMPORTS ##
+#############
+
 import numpy as np, pandas as pd
 import lightkurve as lk
 import os, csv
@@ -177,6 +208,62 @@ def get_qlp_lcpaths(ticid):
         return []
 
 
+def get_cdips_lcpaths(ticid):
+
+    assert isinstance(ticid, str)
+
+    from astrobase.services.identifiers import tic_to_gaiadr2
+
+    dr2_source_id = tic_to_gaiadr2(ticid)
+    LOGINFO(f"Got DR2 source id {dr2_source_id} for TIC {ticid}")
+
+    from complexrotators.paths import CDIPSDIR
+    # this CSV file has only the <500pc stars, which cuts time ~5x relative to
+    # the full query
+    lc_cache_path = join(
+        CDIPSDIR, "hlsp_cdips_tess_ffi_s0001-s0055_tess_v01_catalog.csv"
+    )
+
+    delim = ";"
+
+    # use grep rather than reading the whole thing with pandas (much faster)
+    colnames = os.popen( f'head -n1 {lc_cache_path}' ).read()
+    colnames = colnames.rstrip('\n').split(delim)
+
+    rowentry = os.popen( f'grep {dr2_source_id} {lc_cache_path}' ).read()
+
+    if len(rowentry) >= 1:
+
+        rowentry = rowentry.split("\n")[:-1]
+
+        df = pd.DataFrame({})
+        for ix, k in enumerate(colnames):
+            df[k] = [r.split(delim)[ix] for r in rowentry]
+
+        lcpaths = list(df.name)
+        lcpaths = [join(CDIPSDIR, "CDIPS", l) for l in lcpaths]
+
+        basedirs = [os.path.dirname(l) for l in lcpaths]
+        lcnames =  [os.path.basename(l) for l in lcpaths]
+
+        outlcpaths = []
+
+        # a weird name error exists in the cache csv file
+        for dn,l in zip(basedirs, lcnames):
+            a,b,c,d = l.split('-')
+            if not b.startswith("s"):
+                b = "s"+b
+            outname = f"{a}-{b}-{c}-{d}"
+            outpath = os.path.join(dn, outname)
+            outlcpaths.append(outpath)
+
+        return outlcpaths
+
+    else:
+
+        return []
+
+
 def _get_local_lcpaths_given_ticid(ticid, lcpipeline):
 
     if lcpipeline == 'spoc2min':
@@ -185,6 +272,9 @@ def _get_local_lcpaths_given_ticid(ticid, lcpipeline):
 
     elif lcpipeline == 'qlp':
         lcpaths = get_qlp_lcpaths(ticid)
+
+    elif lcpipeline == 'cdips':
+        lcpaths = get_cdips_lcpaths(ticid)
 
     if len(lcpaths) == 0:
         print(f"Failed to find {lcpipeline} light curves for {ticid}")
