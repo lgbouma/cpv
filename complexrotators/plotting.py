@@ -1642,17 +1642,23 @@ def plot_cpvvetter(
     cam = str(hdr['CAMERA'])
     ccd = str(hdr['CCD'])
     Tmag = f"{hdr['TESSMAG']:.1f}"
-    if hdr[TEFFKEYDICT[lcpipeline]] is not None:
+    if hdr[TEFFKEYDICT[lcpipeline]] is not None and hdr[TEFFKEYDICT[lcpipeline]] != 'nan':
         teff_tic8 = f"{int(hdr[TEFFKEYDICT[lcpipeline]]):d} K"
     else:
         teff_tic8 = f"NaN"
-    ra = f"{hdr['RA_OBJ']:.2f}"
-    dec = f"{hdr['DEC_OBJ']:.2f}"
-    if hdr[PMRAKEYDICT[lcpipeline]] is not None:
+    if hdr['RA_OBJ'] != 'nan':
+        ra = f"{hdr['RA_OBJ']:.2f}"
+    else:
+        ra = 'NaN'
+    if hdr['DEC_OBJ'] != 'nan':
+        dec = f"{hdr['DEC_OBJ']:.2f}"
+    else:
+        dec = 'NaN'
+    if hdr[PMRAKEYDICT[lcpipeline]] is not None and hdr[PMRAKEYDICT[lcpipeline]] != 'nan':
         pmra = f"{hdr[PMRAKEYDICT[lcpipeline]]:.1f}"
     else:
         pmra = 'NaN'
-    if hdr[PMDECKEYDICT[lcpipeline]] is not None:
+    if hdr[PMDECKEYDICT[lcpipeline]] is not None and hdr[PMDECKEYDICT[lcpipeline]] != 'nan':
         pmdec = f"{hdr[PMDECKEYDICT[lcpipeline]]:.1f}"
     else:
         pmdec = 'NaN'
