@@ -219,7 +219,7 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
         exitcode 7: erroneous binning
     """
 
-    assert lcpipeline in ["qlp", "spoc2min"]
+    assert lcpipeline in ["qlp", "spoc2min", "cdips"]
 
     cachedir = join(LOCALDIR, "cpv_finding")
     if not os.path.exists(cachedir): os.mkdir(cachedir)
@@ -268,19 +268,20 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
     #
     for lcpath in lcpaths:
 
-        if not os.path.exists(lcpath) and lcpipeline=='qlp':
+        if not os.path.exists(lcpath) and lcpipeline in ['qlp', 'cdips']:
             LOGWARNING(f'Did not find {lcpath}')
             LOGWARNING(f'Trying to curl it directly...')
             # if the light curve does not exist... we will try to curl it...
             searchstr = "/".join(lcpath.split("/")[4:])
             os.popen(
-                f"curl -C - -f --create-dirs --output '{lcpath}' 'https://mast.stsci.edu/api/v0.1/Download/file/?uri=mast:HLSP/qlp/{searchstr}'"
+                f"curl -C - -f --create-dirs --output '{lcpath}' 'https://mast.stsci.edu/api/v0.1/Download/file/?uri=mast:HLSP/{lcpipeline}/{searchstr}'"
             )
             # ...and it'll take some time.
             # this is 100% as janky as it looks.  however, unlike the (many)
             # stackoverflow answers that suggest requests, and json, and
             # whatever... this one will work!
             timemod.sleep(10)
+
 
         # instantiate the log
         lcpbase = os.path.basename(lcpath).replace(".fits", "")
@@ -457,13 +458,17 @@ def main():
     #################
     forcepdf = 0
 
-    lcpipeline = 'qlp' # "qlp" or "spoc2min"
+    lcpipeline = 'cdips' # "qlp", "spoc2min", or "cdips"
 
     sample_ids = [
-        #'debug'
+        'debug'
         # ### samples for the next CPV project:
-        '1to20pc'
-        # '20to40pc'
+        #'1to20pc'
+        #'20to30pc'
+        #'30to40pc'
+        #'40to50pc'
+        #'50to60pc'
+        #'60to70pc'
         # '40to60pc'
         # '60to80pc'
         # '80to100pc'
