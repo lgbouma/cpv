@@ -1397,9 +1397,20 @@ def plot_cpvvetter(
     hdr = hdul[0].header
     data = hdul[1].data
     hdul.close()
-    qual = data["QUALITY"]
-    sel = (qual == 0)
 
+    # quality flags
+    QUALITYKEYDICT = {
+        'spoc2min': 'QUALITY',
+        'qlp': 'QUALITY',
+        'cdips': 'IRQ3'
+    }
+    qual = data[QUALITYKEYDICT[lcpipeline]]
+    if lcpipeline in ['spoc2min', 'qlp']:
+        sel = (qual == 0)
+    elif lcpipeline == 'cdips':
+        sel = (qual == 'G')
+
+    # centroid data
     CENTRKEYDICT = {
         'spoc2min': [
             'MOM_CENTR2', # column
@@ -1408,12 +1419,22 @@ def plot_cpvvetter(
         'qlp': [
             'SAP_X', # column
             'SAP_Y' # row
+        ],
+        'cdips': [
+            'XIC', # column
+            'YIC' # row
         ]
     }
-
     xc = data[CENTRKEYDICT[lcpipeline][0]][sel] # column
     yc = data[CENTRKEYDICT[lcpipeline][1]][sel] # row
-    bgv = data['SAP_BKG'][sel]
+
+    # background data
+    BKGDKEYDICT = {
+        'spoc2min': 'SAP_BKG',
+        'qlp': 'SAP_BKG',
+        'cdips': 'BGV'
+    }
+    bgv = data[BKGDKEYDICT[lcpipeline]][sel]
 
     assert len(xc) == len(d['times'])
 
@@ -1600,23 +1621,39 @@ def plot_cpvvetter(
     ax.set_axis_off()
 
     # tic8 info
+    TEFFKEYDICT = {
+        'spoc2min': 'TEFF',
+        'qlp': 'TEFF',
+        'cdips': 'TICTEFF'
+    }
+    PMRAKEYDICT = {
+        'spoc2min': 'PMRA',
+        'qlp': 'PMRA',
+        'cdips': 'PM_RA[mas/yr]'
+    }
+    PMDECKEYDICT = {
+        'spoc2min': 'PMDEC',
+        'qlp': 'PMDEC',
+        'cdips': 'PM_Dec[mas/year]'
+    }
+
     ticid = str(hdr['TICID'])
     sector = str(hdr['SECTOR'])
     cam = str(hdr['CAMERA'])
     ccd = str(hdr['CCD'])
     Tmag = f"{hdr['TESSMAG']:.1f}"
-    if hdr['TEFF'] is not None:
-        teff_tic8 = f"{int(hdr['TEFF']):d} K"
+    if hdr[TEFFKEYDICT[lcpipeline]] is not None:
+        teff_tic8 = f"{int(hdr[TEFFKEYDICT[lcpipeline]]):d} K"
     else:
         teff_tic8 = f"NaN"
     ra = f"{hdr['RA_OBJ']:.2f}"
     dec = f"{hdr['DEC_OBJ']:.2f}"
-    if hdr['PMRA'] is not None:
-        pmra = f"{hdr['PMRA']:.1f}"
+    if hdr[PMRAKEYDICT[lcpipeline]] is not None:
+        pmra = f"{hdr[PMRAKEYDICT[lcpipeline]]:.1f}"
     else:
         pmra = 'NaN'
-    if hdr['PMDEC'] is not None:
-        pmdec = f"{hdr['PMDEC']:.1f}"
+    if hdr[PMDECKEYDICT[lcpipeline]] is not None:
+        pmdec = f"{hdr[PMDECKEYDICT[lcpipeline]]:.1f}"
     else:
         pmdec = 'NaN'
     ra_obj, dec_obj = hdr['RA_OBJ'], hdr['DEC_OBJ']
