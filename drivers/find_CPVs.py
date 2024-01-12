@@ -215,6 +215,8 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
         exitcode 5: faulty LC; flatten failed so dip counter failed.
 
         exitcode 6: insufficient points in LC; dip counter failed.
+
+        exitcode 7: erroneous binning
     """
 
     assert lcpipeline in ["qlp", "spoc2min"]
@@ -420,10 +422,17 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
         outpath = join(cachedir, f'{starid}_phase.png')
         titlestr = f"TIC{starid}".replace("_", " ")
         if not os.path.exists(outpath):
-            plot_phased_light_curve(
-                d['times'], d['fluxs'], d['t0'], d['period'], outpath,
-                titlestr=titlestr, binsize_phase=0.005, findpeaks_result=r
-            )
+            try:
+                plot_phased_light_curve(
+                    d['times'], d['fluxs'], d['t0'], d['period'], outpath,
+                    titlestr=titlestr, binsize_phase=0.005, findpeaks_result=r
+                )
+            except TypeError as e:
+                LOGWARNING(f"{starid}: {e} plots failed with erroneous binning.")
+                exitcode = {'exitcode': 7}
+                pu.save_status(logpath, 'exitcode', exitcode)
+                continue
+
         else:
             LOGINFO(f"Found {outpath}")
 
