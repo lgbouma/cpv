@@ -31,6 +31,7 @@ LKCACHEDIR = join(
 SPOCDIR = '/nfs/phtess2/ar0/TESS/SPOCLC'
 #SPOCDIR = '/ar1/TESS/SPOCLC'
 QLPDIR = '/ar1/TESS/QLP'
+CDIPSDIR = '/ar1/TESS/CDIPS'
 
 # banyan-sigma needs to be installed here
 BANYANDIR = '/ar1/PROJ/luke/proj/banyan_sigma'
