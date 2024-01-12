@@ -131,8 +131,8 @@ def get_ticids(sample_id, lcpipeline):
         N_stars_to_search = len(ticids)
         N_lcs_to_search = len(sdf)
 
-    # e.g., 30to50pc_mkdwarf, 50to60pc_mkdwarf, etc.
     elif 'pc_mkdwarf' in sample_id and 'to' in sample_id and lcpipeline=='spoc2min':
+        # e.g., 30to50pc_mkdwarf, 50to60pc_mkdwarf, etc.
 
         lower = int(sample_id.split("to")[0])
         upper = int(sample_id.split("to")[1].split("pc")[0])
@@ -173,6 +173,31 @@ def get_ticids(sample_id, lcpipeline):
                 '20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied_BACKUP.csv'
             ), sep="|"
         )
+        ticids = np.unique(df.ticid.astype(str))
+
+        N_stars_to_search = len(ticids)
+        N_lcs_to_search = -1
+
+    elif 'cdips' in sample_id:
+
+        from complexrotators.paths import CDIPSDIR
+        targetcsv = join(CDIPSDIR, f"{sample_id}_with_TICID.csv")
+        if not os.path.exists(targetcsv):
+            from complexrotators.getters import fix_cdips_lcpaths
+            # this file contains the selected subset of the CDIPS catalog
+            df = pd.read_csv(join(CDIPSDIR, "{sample_id}.csv"))
+            ticids = []
+            for l in df.lcpath:
+                lcpaths = fix_cdips_lcpaths([l])
+                hl = fits.open(lcpaths[0])
+                hdr = hl[0].header
+                ticid = hdr['TICID']
+                ticids.append(ticid)
+                hl.close()
+            df['ticid'] = ticids
+            df.to_csv(targetcsv)
+
+        df = pd.read_csv(targetcsv)
         ticids = np.unique(df.ticid.astype(str))
 
         N_stars_to_search = len(ticids)
@@ -255,7 +280,15 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
     if LOCAL_DEBUG:
         lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid)
     else:
-        lcpaths = _get_local_lcpaths_given_ticid(ticid, lcpipeline)
+        dr2_source_id = None
+        if lcpipeline == 'cdips':
+            from astrobase.services.identifiers import tic_to_gaiadr2
+            dr2_source_id = tic_to_gaiadr2(ticid)
+            LOGINFO(f"Got DR2 source id {dr2_source_id} for TIC {ticid}")
+
+        lcpaths = _get_local_lcpaths_given_ticid(
+            ticid, lcpipeline, dr2_source_id=dr2_source_id
+        )
 
     if sample_id == 'debug':
         LOGWARNING("Found debug: taking only a single sector.")
@@ -472,6 +505,8 @@ def main():
         # '40to60pc'
         # '60to80pc'
         # '80to100pc'
+        # ### cluster samples (cdips reductions)
+        'Hyades_Melotte25_20240111_cdips_selxn'
         # ### samples for CPV paper #1:
         #'2023catalog_LGB_RJ_concat'
         #'30pc_mkdwarf',
