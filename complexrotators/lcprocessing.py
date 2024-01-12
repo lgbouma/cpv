@@ -498,21 +498,42 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
     ticid = hdr["TICID"]
 
     # light curve data
-    time = d['TIME']
+    TIMEKEYDICT = {
+        'qlp': 'TIME',
+        'spoc2min': 'TIME',
+        'cdips': 'TMID_BJD'
+    }
+    time = d[TIMEKEYDICT[lcpipeline]]
     FLUXKEYDICT = {
         'spoc2min': 'PDCSAP_FLUX',
-        'qlp': 'KSPSAP_FLUX'
+        'qlp': 'KSPSAP_FLUX',
+        'cdips': 'PCA3'
     }
     flux = d[FLUXKEYDICT[lcpipeline]]
-    qual = d['QUALITY']
-    cadenceno = d['CADENCENO']
+    if lcpipeline == 'cdips':
+        from cdips.utils.lcutils import _given_mag_get_flux
+        flux = _given_mag_get_flux(flux)
+
+    QUALITYKEYDICT = {
+        'spoc2min': 'QUALITY',
+        'qlp': 'QUALITY',
+        'cdips': 'IRQ3'
+    }
+
+    qual = d[QUALITYKEYDICT[lcpipeline]]
+
+    if lcpipeline in ['spoc2min', 'qlp']:
+        cadenceno = d['CADENCENO']
+        sel = (qual == 0)
+
+    elif lcpipeline == 'cdips':
+        sel = (qual == 'G')
 
     # remove non-zero quality flags
-    sel = (qual == 0)
-
     x_obs = time[sel]
     y_obs = flux[sel]
-    cadenceno_obs = cadenceno[sel]
+    if lcpipeline in ['spoc2min', 'qlp']:
+        cadenceno_obs = cadenceno[sel]
 
     if np.isfinite(y_obs).sum() < 20:
         return (None, None, None, None, None, None, None, None,
@@ -550,9 +571,10 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
             pickle.dump(lcd, f)
             LOGINFO(f'Made {pklpath}')
 
-    assert len(y_obs) == len(y_flat) == len(cadenceno_obs) == len(x_obs)
+    assert len(y_obs) == len(y_flat) == len(x_obs)
 
     if returncadenceno:
+        assert lcpipeline in ['spoc2min', 'qlp']
         return (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend,
                 cadence_sec, sector, starid, cadenceno_obs)
     else:
