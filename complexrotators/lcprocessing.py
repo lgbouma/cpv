@@ -506,10 +506,22 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
     time = d[TIMEKEYDICT[lcpipeline]]
     FLUXKEYDICT = {
         'spoc2min': 'PDCSAP_FLUX',
-        'qlp': 'KSPSAP_FLUX',
+        # As of 11/21/2023, the QLP has switched from "KSPSAP_FLUX" to
+        # "DET_FLUX".  This is because they "changed their detrending
+        # algorithm".  Qualitatively similar flattening in the latter.
+        'qlp': ['KSPSAP_FLUX', 'DET_FLUX'],
         'cdips': 'PCA3'
     }
-    flux = d[FLUXKEYDICT[lcpipeline]]
+    if lcpipeline in ['spoc2min', 'cdips']:
+        flux = d[FLUXKEYDICT[lcpipeline]]
+    elif lcpipeline == 'qlp':
+        if 'KSPSAP_FLUX' in d.names:
+            flux = d['KSPSAP_FLUX']
+        elif 'DET_FLUX' in d.names:
+            flux = d['DET_FLUX']
+        else:
+            raise NotImplementedError
+
     if lcpipeline == 'cdips':
         from cdips.utils.lcutils import _given_mag_get_flux
         flux = _given_mag_get_flux(flux)
