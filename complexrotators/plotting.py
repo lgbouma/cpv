@@ -1572,15 +1572,18 @@ def plot_cpvvetter(
     sel_bgv = np.isfinite(nbgv) & (nbgv < np.nanpercentile(nbgv, 98))
     ylim = get_ylimguess(nbgv[sel_bgv])
     ylim = [0.9,1.1]
-    plot_phased_light_curve(
-        d['times'][sel_bgv], nbgv[sel_bgv], d['t0'], d['period'], None,
-        ylim=ylim,
-        xlim=[-0.6,0.6], binsize_phase=0.01, BINMS=2, titlestr=None,
-        showtext=False, showtitle=False, figsize=None, c0='darkgray',
-        alpha0=0.3, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
-        fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
-        showxticklabels=True, ylabel='Bkg', normfunc=False
-    )
+    try:
+        plot_phased_light_curve(
+            d['times'][sel_bgv], nbgv[sel_bgv], d['t0'], d['period'], None,
+            ylim=ylim,
+            xlim=[-0.6,0.6], binsize_phase=0.01, BINMS=2, titlestr=None,
+            showtext=False, showtitle=False, figsize=None, c0='darkgray',
+            alpha0=0.3, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
+            fig=None, ax=ax, savethefigure=False, findpeaks_result=None,
+            showxticklabels=True, ylabel='Bkg', normfunc=False
+        )
+    except TypeError:
+        pass
     ax.set_xticklabels(['-0.5', '', '0', '', '0.5'])
     ax.set_xlabel("φ")
 
