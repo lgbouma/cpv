@@ -34,7 +34,7 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1, lcpipeline='spoc2mi
 
     # get data
     if lcpipeline == 'spoc2min':
-        lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid)
+        lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline)
     elif lcpipeline == 'qlp':
         # FIXME temp hack...
         lcpaths = [join(DATADIR, 'photometry', 'tess',
@@ -90,10 +90,11 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1, lcpipeline='spoc2mi
     axs[0].set_xlabel('Time [days]')
     axs[0].set_ylabel('Relative flux')
 
-    if not ticid == '220599904':
-        axs[0].set_xlim([-1,11])
-    else:
+    axs[0].set_xlim([-1,11])
+    if ticid == '220599904':
         axs[0].set_xlim([14, 24])
+    elif ticid == '402980664':
+        axs[0].set_xlim([4, 28])
 
     if showphase:
         plot_phased_light_curve(
@@ -117,6 +118,10 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1, lcpipeline='spoc2mi
     savefig(fig, outpath, dpi=400)
 
 if __name__ == "__main__":
+
+    # qlp cpv
+    make_plot("402980664", sector=73, showphase=0)
+    assert 0
 
     # qlp cpv
     make_plot("220599904", sector=31, lcpipeline='qlp', showphase=0)
