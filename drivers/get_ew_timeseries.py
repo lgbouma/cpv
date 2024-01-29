@@ -20,7 +20,8 @@ UTCDICT = {
     '20231112': '20231112: DBSP + TIERRAS',
     '20231123': '20231123: HIRES',
     '20231203': '20231203: HIRES + TIERRAS',
-    '20231207': '20231207: DBSP'
+    '20231207': '20231207: DBSP + KeplerCam',
+    '20240115': '20240115: DBSP + FlareCam'
 }
 
 def plot_ew_timeseries(
@@ -89,6 +90,7 @@ def plot_ew_timeseries(
     dfs = [pd.read_csv(f) for f in csvpaths]
 
     #FIXME FIXME TODO TODO
+    # The "Fitted EWs" seem janky!
     # fitted_ews = [df['Fitted_EW_mA'].iloc[0] for df in dfs] # milliangstr
     fitted_ews = [np.abs(df['EW_mA'].iloc[0]) for df in dfs] # milliangstr
     perr = [df['Fitted_EW_mA_perr'].iloc[0] for df in dfs]
@@ -234,7 +236,7 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
                     )
                 elif utcdatestr == '20231207':
                     df = pd.read_csv(
-                        join(KEPLERCAMDIR, "LP12-502_2023.1208_KeplerCam_g.dat"),
+                        join(KEPLERCAMDIR, "LP12-502_20231208_KeplerCam_g.dat"),
                         delim_whitespace=True
                     )
                     df['BJD TDB'] = df['BJD_TDB_B']
@@ -261,7 +263,7 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
                             c=datec, ecolor=datec, elinewidth=0.5, lw=0, alpha=0.5,
                             zorder=1)
 
-                ax.set_ylabel('$f_{\mathrm{TIERRAS}}$ [%]')
+                ax.set_ylabel('$f_{\mathrm{Broadband}}$ [%]')
                 ax.set_ylim([-5, 5])
 
 
@@ -378,7 +380,7 @@ def plot_movie_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, show_vel=0):
                     )
                 elif utcdatestr == '20231207':
                     df = pd.read_csv(
-                        join(KEPLERCAMDIR, "LP12-502_2023.1208_KeplerCam_g.dat"),
+                        join(KEPLERCAMDIR, "LP12-502_20231208_KeplerCam_g.dat"),
                         delim_whitespace=True
                     )
                     df['BJD TDB'] = df['BJD_TDB_B']
@@ -481,7 +483,7 @@ def plot_movie_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, show_vel=0):
                 )
             elif utcdatestr == '20231207':
                 df = pd.read_csv(
-                    join(KEPLERCAMDIR, "LP12-502_2023.1208_KeplerCam_g.dat"),
+                    join(KEPLERCAMDIR, "LP12-502_20231208_KeplerCam_g.dat"),
                     delim_whitespace=True
                 )
                 df['BJD TDB'] = df['BJD_TDB_B']
@@ -686,6 +688,16 @@ if __name__ == "__main__":
 
     utcdatestrs = "20231111,20231112".split(",")
     insts = "DBSP,DBSP".split(",")
+
+    utcdatestrs = ["20240115"]
+    insts = ["DBSP"]
+
+    utcdatestrs = "20231111,20231112,20231207,20240115".split(",")
+    insts = "DBSP,DBSP,DBSP,DBSP".split(",")
+
+    utcdatestrs = "20231207,20240115".split(",")
+    insts = "DBSP,DBSP".split(",")
+
 
     uinsts = "_".join(np.unique(insts))
 
