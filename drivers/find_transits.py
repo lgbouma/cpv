@@ -53,7 +53,7 @@ from complexrotators.plotting import (
 from complexrotators import pipeline_utils as pu
 
 
-def find_transits(ticid, sample_id):
+def find_transits(ticid, sample_id, lcpipeline='spoc2min'):
 
     cachedir = join(LOCALDIR, "cpv_transit_finding")
     if not os.path.exists(cachedir): os.mkdir(cachedir)
@@ -84,7 +84,7 @@ def find_transits(ticid, sample_id):
     # get the light curves for all desired sectors and cadences
     #
     if LOCAL_DEBUG:
-        lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid)
+        lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline)
     else:
         lcpaths = _get_local_lcpaths_given_ticid(ticid)
 
@@ -313,6 +313,7 @@ def main():
 
     sample_id = 'debug'
     ticids = ['245902096']
+    ticids = ['416538839']
 
     for ticid in ticids:
         LOGINFO(42*'-')

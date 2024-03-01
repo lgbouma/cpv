@@ -4515,20 +4515,46 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
     savefig(fig, outpath, dpi=400)
 
 
-def plot_lineevolnpanel(outdir):
+def plot_lineevolnpanel(outdir, starid=None, jstr=None):
+    """
+    starid: e.g. 'TIC402980664'
+    jstr: e.g. 'j531',
+    """
 
     # get data
-    lines = ['Hη', 'Hζ', 'Ca[K]', 'Ca[H] + Hε', 'CaI',
-             'He', 'Na D1', 'Hα']
-    globs = ['*bj*order04*', '*bj*order05*', '*bj*order07*', '*bj*order07*',
-             '*bj*order13*', '*rj*order10*', '*rj*order11*', '*ij*order00*']
-    deltawav = 5
+    lines = [
+        #'Hη',
+        'Hζ',
+        'Ca[K]',
+        'Ca[H] + Hε',
+        'CaI',
+        'Hγ',
+        'He',
+        'Na D1',
+        'Hα'
+    ]
+    globs = [
+        #'*bj*order04*',
+        '*bj*order05*',
+        '*bj*order07*',
+        '*bj*order07*',
+        '*bj*order13*',
+        '*bj*order15*',
+        '*rj*order10*',
+        '*rj*order11*',
+        '*ij*order00*'
+    ]
+    if starid == 'TIC402980664':
+        deltawav = 5
+    elif starid == 'TIC141146667':
+        deltawav = 7
     xlims = [
-        [3835.397-1.5*deltawav, 3835.397+1.5*deltawav], # Hη (9->2)
+        #[3835.397-1.5*deltawav, 3835.397+1.5*deltawav], # Hη (9->2)
         [3889.096-1.5*deltawav, 3889.096+1.5*deltawav], # Hζ (8->2)
         [3933.66-deltawav, 3933.66+deltawav], # ca k
         [3968.47-deltawav, 3968.47+deltawav], # ca h
         [4226-deltawav, 4226+deltawav], # CaI
+        [4340.05-deltawav, 4340.05+deltawav], # Hγ
         [5875.618-deltawav, 5875.618+deltawav], #He
         [5895.92-deltawav, 5895.92+deltawav], # Na D1
         [6562.8-1.5*deltawav, 6562.8+1.5*deltawav], # halpha
@@ -4539,10 +4565,10 @@ def plot_lineevolnpanel(outdir):
     #
 
     from cdips_followup.spectools import read_hires
-    specdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC402980664_RDX'
-    bpaths = np.sort(glob(join(specdir, 'bj531*.fits')))
-    ipaths = np.sort(glob(join(specdir, 'ij531*.fits')))
-    rpaths = np.sort(glob(join(specdir, 'rj531*.fits')))
+    specdir = f'/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/{starid}_RDX'
+    bpaths = np.sort(glob(join(specdir, f'b{jstr}*.fits')))
+    ipaths = np.sort(glob(join(specdir, f'i{jstr}*.fits')))
+    rpaths = np.sort(glob(join(specdir, f'r{jstr}*.fits')))
 
     # make plot
     plt.close('all')
@@ -4687,18 +4713,33 @@ def plot_lineevolnpanel(outdir):
 
         axd[bottomrowkey].xaxis.set_major_locator(MaxNLocator(5))
 
-        if l == 'Hη':
-            axd[bottomrowkeys[ix]].set_ylim([-2.5, 8])
-        elif l == 'CaI':
-            axd[bottomrowkeys[ix]].set_ylim([-0.5, 2])
-        elif l == 'He':
-            axd[bottomrowkeys[ix]].set_ylim([-0.3, 1.4])
-        elif l == 'Na D1':
-            axd[bottomrowkeys[ix]].set_ylim([-0.3, 0.9])
-        elif l == 'Hζ':
-            axd[bottomrowkeys[ix]].set_ylim([-3, 11])
-        #if ix == 2:
-        #    axd[str(ix+3)].set_yticks([-0.1,0,0.1])
+        if starid == 'TIC402980664':
+            if l == 'Hη':
+                axd[bottomrowkeys[ix]].set_ylim([-2.5, 8])
+            elif l == 'CaI':
+                axd[bottomrowkeys[ix]].set_ylim([-0.5, 2])
+            elif l == 'He':
+                axd[bottomrowkeys[ix]].set_ylim([-0.3, 1.4])
+            elif l == 'Na D1':
+                axd[bottomrowkeys[ix]].set_ylim([-0.3, 0.9])
+            elif l == 'Hζ':
+                axd[bottomrowkeys[ix]].set_ylim([-3, 11])
+            #if ix == 2:
+            #    axd[str(ix+3)].set_yticks([-0.1,0,0.1])
+        if starid == 'TIC141146667':
+            axd[bottomrowkeys[ix]].set_ylim([-10, 10])
+            if l == 'Hα':
+                axd[bottomrowkeys[ix]].set_ylim([-2, 2])
+            elif l == 'Hη':
+                axd[bottomrowkeys[ix]].set_ylim([-2.5, 8])
+            elif l == 'CaI':
+                axd[bottomrowkeys[ix]].set_ylim([-2, 4])
+            elif l == 'He':
+                axd[bottomrowkeys[ix]].set_ylim([-1, 1])
+            elif l == 'Na D1':
+                axd[bottomrowkeys[ix]].set_ylim([-1, 1])
+            elif l == 'Hζ':
+                axd[bottomrowkeys[ix]].set_ylim([-10, 10])
 
         expids = [os.path.basename(s).rstrip('.fits').lstrip('b')
                   for s in specpaths]
@@ -4744,7 +4785,7 @@ def plot_lineevolnpanel(outdir):
     # set naming options
     s = ''
 
-    outpath = os.path.join(outdir, f'j531_lineevolnpanel.png')
+    outpath = os.path.join(outdir, f'{starid}_{jstr}_lineevolnpanel.png')
     savefig(fig, outpath, dpi=400)
 
 
