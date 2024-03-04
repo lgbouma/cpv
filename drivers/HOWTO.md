@@ -3,7 +3,7 @@ This is a collection of analysis recipes relevant to CPVs.
 
 Contents:
 
-_0_ To get all 2-minute SPOC data, and to xmatch against Gaia
+_0_ To get all 2-minute SPOC light curves, and xmatch metadata against Gaia
 _1_ To run the dip-based CPV-finder
 _2_ To assess what TESS data exist for a set of TIC IDs
 _3_ To produce the table for the catalog manuscript
@@ -16,7 +16,7 @@ _9_ To search for transiting planets
 _10_ To collect and homogenize all known TESS + literature CPVs
 
 ----------
-_0_ To get all 2-minute SPOC data, and to xmatch against Gaia
+_0_ To get all 2-minute SPOC light curves, and xmatch metadata against Gaia
 
   1. Get all the bulk download scripts locally (done on wh1).
   2. Run them.
