@@ -382,6 +382,7 @@ def main():
 
     csvpath = join(
         TABLEDIR,
+        'lit_compilation',
         '20240304_CPV_lit_compilation_R16_S17_S18_B20_S21_Z19_G22_P23_B24.csv'
     )
     mdf.to_csv(csvpath, sep="|")
