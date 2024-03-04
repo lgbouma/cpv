@@ -1,6 +1,7 @@
 """
 Contents:
 
+| get_tic8_row
 | get_2min_cadence_spoc_tess_lightcurve
 | get_20sec_cadence_spoc_tess_lightcurve
 | _get_lcpaths_given_ticid
@@ -52,6 +53,9 @@ from os.path import join
 from glob import glob
 import subprocess
 from complexrotators.paths import LKCACHEDIR, LOCALDIR, RESULTSDIR
+
+from astroquery.exceptions import ResolverError
+from astroquery.mast import Catalogs
 
 def get_cqv_search_sample():
     localdir = '/Users/luke/local/SPOCLC'
@@ -388,3 +392,40 @@ def get_20sec_cadence_spoc_tess_lightcurve(
     ]
 
     return lc_list
+
+
+def get_tic8_row(ticid, cachedir):
+
+    cachepath = join(cachedir, f"TIC_{ticid}_mast_tic8_query.csv")
+
+    if os.path.exists(cachepath):
+        print(f'Found {cachepath}, returning.')
+        return pd.read_csv(cachepath)
+
+    ticstr = f"TIC {ticid}"
+    MAX_ITER = 10
+    ix = 0
+    # MAST hosting anything is a recipe for failed queries, TBH.
+    tic_data = None
+    while ix < MAX_ITER and tic_data is None:
+        try:
+            tic_data = Catalogs.query_object(ticstr, catalog="TIC")
+        except ResolverError as e:
+            time.sleep(3)
+            ix += 1
+            print(f'TIC {ticid} failed initial MAST query with {e}, retrying {ix}/{MAX_ITER}...')
+    if tic_data is None:
+        raise ResolverError(f'TIC {ticid} failed to get MAST query.')
+
+    t8_row = pd.DataFrame(tic_data.to_pandas().iloc[0]).T
+
+    t8_row = t8_row.rename({c:f"tic8_{c}" for c in t8_row.columns},
+                           axis='columns')
+
+    t8_row.to_csv(cachepath, index=False)
+    print(f'Cached {cachepath}')
+
+    return t8_row
+
+
+

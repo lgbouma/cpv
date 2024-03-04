@@ -32,12 +32,11 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 from astropy import constants as const, units as u
 
-from astroquery.mast import Catalogs
-from astroquery.exceptions import ResolverError
-
 from complexrotators.observability import (
     get_gaia_dr2_rows, assess_tess_holdings, get_gaia_dr3_rows
 )
+from complexrotators.getters import get_tic8_row
+
 from complexrotators import pipeline_utils as pu
 
 vetdir = join(RESULTSDIR, "cpvvetter")
@@ -598,40 +597,6 @@ def get_banyan_result(gdr2_df):
     return bdf
 
 
-def get_tic8_row(t):
-
-    cachepath = join(indir, f"TIC_{t}_mast_tic8_query.csv")
-
-    if os.path.exists(cachepath):
-        print(f'Found {cachepath}, returning.')
-        return pd.read_csv(cachepath)
-
-    ticstr = f"TIC {t}"
-    MAX_ITER = 10
-    ix = 0
-    # MAST hosting anything is a recipe for failed queries, TBH.
-    tic_data = None
-    while ix < MAX_ITER and tic_data is None:
-        try:
-            tic_data = Catalogs.query_object(ticstr, catalog="TIC")
-        except ResolverError as e:
-            time.sleep(3)
-            ix += 1
-            print(f'TIC {t} failed initial MAST query with {e}, retrying {ix}/{MAX_ITER}...')
-    if tic_data is None:
-        raise ResolverError(f'TIC {t} failed to get MAST query.')
-
-    t8_row = pd.DataFrame(tic_data.to_pandas().iloc[0]).T
-
-    t8_row = t8_row.rename({c:f"tic8_{c}" for c in t8_row.columns},
-                           axis='columns')
-
-    t8_row.to_csv(cachepath, index=False)
-    print(f'Cached {cachepath}')
-
-    return t8_row
-
-
 def identify_outliers(array, threshold=0.8):
     """
     Identifies outliers in an array of floats using a majority
@@ -894,7 +859,7 @@ def get_cpvtable_row(ticid, overwrite=0):
 
     bdf = get_banyan_result(gdr2_df)
 
-    t8_df = get_tic8_row(ticid)
+    t8_df = get_tic8_row(ticid, indir)
 
     tlc_df = get_tess_cpv_lc_properties(ticid)
 
