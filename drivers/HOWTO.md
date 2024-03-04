@@ -13,6 +13,7 @@ _6_ To make the plots and values files for the manuscript
 _7_ To reduce WINERED spectra
 _8_ For getting all the QLP data and their Gaia xmatch
 _9_ To search for transiting planets
+_10_ To collect and homogenize all known TESS + literature CPVs
 
 ----------
 _0_ To get all 2-minute SPOC data, and to xmatch against Gaia
@@ -163,3 +164,8 @@ _8_ For getting all the QLP data and their Gaia xmatch
 _9_ To search for transiting planets
 
   (...todo)
+
+----------
+_10_ To collect and homogenize all known TESS + literature CPVs
+
+1. `process_literature_cpvs.py`

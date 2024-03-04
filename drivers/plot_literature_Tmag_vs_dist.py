@@ -5,7 +5,7 @@ from complexrotators.paths import LOCALDIR, DATADIR, TABLEDIR
 from aesthetic.plot import set_style, savefig
 from numpy import array as nparr
 
-def get_detection_df():
+def get_bouma24_detection_df():
     # good, maybe, and omit impostors
     csvpath = join(
         TABLEDIR,
@@ -30,6 +30,18 @@ def get_detection_df():
 
 
 def get_literature_cpv_df():
+    """
+    COLLECTION PROCESS DESCRIBED IN
+    /Users/luke/Dropbox/proj/cpv/data/literature/README.txt
+
+    Collect CPVs reported by:
+
+        Stauffer+2017: K2 "class 1" and "class 2"
+            USco and RhoOph flux dip class categories.
+            "23 VLM members of ρ Oph and USco; 19 are 'class1' or 'class2',
+            other four are RIK-210 analogs."
+
+    """
 
     indir = join(DATADIR, 'interim')
     inpath = join(indir, "Stauffer2017_k2_class1class2_supplemented.csv")
@@ -125,7 +137,7 @@ def plot_tessmag_vs_distance(showliterature=1, show120seccands=1, basems=9,
                              f=1.5):
 
     # get & clean data
-    df = get_detection_df()
+    df = get_bouma24_detection_df()
     df = df.sort_values(by='ticid')
     df = df.reset_index(drop=True)
     df['TESSMAG'] = df['tic8_Tmag']
