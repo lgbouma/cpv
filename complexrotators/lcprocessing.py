@@ -482,11 +482,31 @@ def count_phased_local_minima(
 
 
 def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
-                            lcpipeline='spoc2min'):
+                            lcpipeline='spoc2min', runmedianfilter=1,
+                            rotmode=0):
     """
     Given a light curve (SPOC 2-minute or QLP), remove non-zero quality flags,
-    median-normalize, and run a 5-day median filter over the light curve.
-    Cache the output.
+    median-normalize, and (optionally) run a 5-day median filter over the light
+    curve.  Cache the output.
+
+    If "rotmode" is given, will select flux columns appropriate for rotation
+    ("SAP_FLUX" for SPOC; analogous for QLP).
+
+    Output:
+
+        if returncadenceno:
+            assert lcpipeline in ['spoc2min', 'qlp']
+            return (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend,
+                    cadence_sec, sector, starid, cadenceno_obs)
+        else:
+            return (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend,
+                    cadence_sec, sector, starid)
+
+    ...where
+
+        x_obs, y_obs: are the non-zero Q flag median normalized light curve.
+
+        x_trend, y_flat, y_trend: are the subsequent flattened light curve.
     """
 
     hl = fits.open(lcpath)
@@ -512,15 +532,28 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         'qlp': ['KSPSAP_FLUX', 'DET_FLUX'],
         'cdips': 'PCA3'
     }
+    if rotmode:
+        FLUXKEYDICT = {
+            'spoc2min': 'SAP_FLUX',
+            # As of 11/21/2023, the QLP has switched from "KSPSAP_FLUX" to
+            # "DET_FLUX".  This is because they "changed their detrending
+            # algorithm".  Qualitatively similar flattening in the latter.
+            'qlp': 'SAP_FLUX',
+            'cdips': 'IRM3'
+        }
+
     if lcpipeline in ['spoc2min', 'cdips']:
         flux = d[FLUXKEYDICT[lcpipeline]]
     elif lcpipeline == 'qlp':
-        if 'KSPSAP_FLUX' in d.names:
-            flux = d['KSPSAP_FLUX']
-        elif 'DET_FLUX' in d.names:
-            flux = d['DET_FLUX']
+        if not rotmode:
+            if 'KSPSAP_FLUX' in d.names:
+                flux = d['KSPSAP_FLUX']
+            elif 'DET_FLUX' in d.names:
+                flux = d['DET_FLUX']
+            else:
+                raise NotImplementedError
         else:
-            raise NotImplementedError
+            flux = d['SAP_FLUX']
 
     if lcpipeline == 'cdips':
         from cdips.utils.lcutils import _given_mag_get_flux
@@ -566,24 +599,34 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
     #
     # "light" detrending by default. (& cache it)
     #
-    pklpath = os.path.join(cachedir, f"{starid}_dtr_lightcurve.pkl")
-    if os.path.exists(pklpath):
-        LOGINFO(f"Found {pklpath}, loading and continuing.")
-        with open(pklpath, 'rb') as f:
-            lcd = pickle.load(f)
-        y_flat = lcd['y_flat']
-        y_trend = lcd['y_trend']
-        x_trend = lcd['x_trend']
-    else:
-        y_flat, y_trend = flatten(x_obs, y_obs, window_length=5.0,
-                                  return_trend=True, method='median')
-        x_trend = deepcopy(x_obs)
-        lcd = {'y_flat':y_flat, 'y_trend':y_trend, 'x_trend':x_trend }
-        with open(pklpath, 'wb') as f:
-            pickle.dump(lcd, f)
-            LOGINFO(f'Made {pklpath}')
+    if runmedianfilter:
 
-    assert len(y_obs) == len(y_flat) == len(x_obs)
+        pklpath = os.path.join(cachedir, f"{starid}_dtr_lightcurve.pkl")
+        if os.path.exists(pklpath):
+            LOGINFO(f"Found {pklpath}, loading and continuing.")
+            with open(pklpath, 'rb') as f:
+                lcd = pickle.load(f)
+            y_flat = lcd['y_flat']
+            y_trend = lcd['y_trend']
+            x_trend = lcd['x_trend']
+        else:
+            y_flat, y_trend = flatten(x_obs, y_obs, window_length=5.0,
+                                      return_trend=True, method='median')
+            x_trend = deepcopy(x_obs)
+            lcd = {'y_flat':y_flat, 'y_trend':y_trend, 'x_trend':x_trend }
+            with open(pklpath, 'wb') as f:
+                pickle.dump(lcd, f)
+                LOGINFO(f'Made {pklpath}')
+
+        assert len(y_obs) == len(y_flat) == len(x_obs)
+
+    else:
+
+        y_flat = None
+        y_trend = None
+        x_trend = None
+
+    assert len(y_obs) == len(x_obs)
 
     if returncadenceno:
         assert lcpipeline in ['spoc2min', 'qlp']
