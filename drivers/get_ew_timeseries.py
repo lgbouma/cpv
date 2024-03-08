@@ -278,7 +278,8 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
     savefig(fig, outpath)
 
 
-def plot_movie_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, show_vel=0):
+def plot_movie_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, show_vel=0,
+                                 noline=0):
 
     linekeys = 'f,Hα,Hβ,Hγ'.split(',')
 
@@ -510,8 +511,9 @@ def plot_movie_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, show_vel=0):
                         c=datec, ecolor=datec, elinewidth=0.5, lw=0, alpha=0.5,
                         zorder=1)
 
-            ax.vlines(this_phase, -5, 5, colors='darkgray', alpha=0.5,
-                      linestyles='--', zorder=-10, linewidths=0.5)
+            if not noline:
+                ax.vlines(this_phase, -5, 5, colors='darkgray', alpha=0.5,
+                          linestyles='--', zorder=-10, linewidths=0.5)
 
             ax.set_ylabel('Broadband flux [%]')
             #ax.set_ylim([-5, 5])
@@ -562,8 +564,9 @@ def plot_movie_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, show_vel=0):
                     ax.set_xticklabels([])
 
                 ymin, ymax = ax.get_ylim()
-                ax.vlines(this_phase, ymin, ymax, colors='darkgray', alpha=0.5,
-                          linestyles='--', zorder=-10, linewidths=0.5)
+                if not noline:
+                    ax.vlines(this_phase, ymin, ymax, colors='darkgray', alpha=0.5,
+                              linestyles='--', zorder=-10, linewidths=0.5)
                 ax.set_ylim([ymin, ymax])
 
         axd['A'].set_xlabel("Phase, φ")
@@ -653,8 +656,12 @@ def plot_movie_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, show_vel=0):
         #fig.suptitle('LP 12-502, $P$ = 18.6 hr')
         fig.tight_layout(h_pad=0, w_pad=0.5)
 
-        outdir = join(RESULTSDIR, 'movie_EW_results')
-        if showvel:
+        if not noline:
+            outdir = join(RESULTSDIR, 'movie_EW_results')
+        else:
+            outdir = join(RESULTSDIR, 'movie_EW_results_noline')
+
+        if show_vel:
             outdir = join(RESULTSDIR, 'movie_EW_results_showvel')
         if not os.path.exists(outdir): os.mkdir(outdir)
         uinsts = "_".join(np.unique(insts))
@@ -689,14 +696,14 @@ if __name__ == "__main__":
     utcdatestrs = "20231111,20231112".split(",")
     insts = "DBSP,DBSP".split(",")
 
-    utcdatestrs = ["20240115"]
-    insts = ["DBSP"]
+    # utcdatestrs = ["20240115"]
+    # insts = ["DBSP"]
 
-    utcdatestrs = "20231111,20231112,20231207,20240115".split(",")
-    insts = "DBSP,DBSP,DBSP,DBSP".split(",")
+    # utcdatestrs = "20231111,20231112,20231207,20240115".split(",")
+    # insts = "DBSP,DBSP,DBSP,DBSP".split(",")
 
-    utcdatestrs = "20231207,20240115".split(",")
-    insts = "DBSP,DBSP".split(",")
+    # utcdatestrs = "20231207,20240115".split(",")
+    # insts = "DBSP,DBSP".split(",")
 
 
     uinsts = "_".join(np.unique(insts))
@@ -721,6 +728,10 @@ if __name__ == "__main__":
     plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts)
 
     if utcdatestrs == "20231111,20231112".split(","):
+        plot_movie_stack_ew_vs_phase(
+            has, hbs, hcs, utcdatestrs, insts, show_vel=0, noline=1
+        )
+        assert 0
         plot_movie_stack_ew_vs_phase(
             has, hbs, hcs, utcdatestrs, insts, show_vel=1
         )
