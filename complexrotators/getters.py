@@ -150,7 +150,8 @@ def _get_lcpaths_given_ticid(ticid):
     return lcpaths
 
 
-def _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline, require_lc=1):
+def _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline, require_lc=1,
+                                            cachedir=LKCACHEDIR):
     # ticid like "289840928"
 
     assert isinstance(ticid, str)
@@ -167,15 +168,15 @@ def _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline, require_lc=1):
         sel = (lcset.author=='QLP')
     elif lcpipeline == 'cdips':
         sel = (lcset.author=='CDIPS')
-    lcc = lcset[sel].download_all()
+    lcc = lcset[sel].download_all(download_dir=cachedir)
 
     if lcpipeline == 'spoc2min':
         lcpaths = glob(
-            join(LKCACHEDIR, f'tess*{ticid}*-s', f'tess*{ticid}*-s_lc.fits')
+            join(cachedir, f'tess*{ticid}*-s', f'tess*{ticid}*-s_lc.fits')
         )
     elif lcpipeline in ['qlp', 'cdips']:
         lcpaths = glob(
-            join(LKCACHEDIR.replace("TESS","HLSP"), f'hlsp_{lcpipeline}*{ticid}*', f'*{ticid}*.fits')
+            join(cachedir.replace("TESS","HLSP"), f'hlsp_{lcpipeline}*{ticid}*', f'*{ticid}*.fits')
         )
 
     if require_lc:
