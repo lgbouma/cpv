@@ -1674,11 +1674,15 @@ def plot_cpvvetter(
     runid = f"dr2_{dr2_source_id}"
 
     dr2_source_ids = np.array([np.int64(dr2_source_id)])
-    gdf = given_source_ids_get_gaia_data(
-        dr2_source_ids, runid, n_max=5, overwrite=False,
-        enforce_all_sourceids_viable=True, savstr='', which_columns='*',
-        table_name='gaia_source', gaia_datarelease='gaiadr2', getdr2ruwe=False
-    )
+    try:
+        gdf = given_source_ids_get_gaia_data(
+            dr2_source_ids, runid, n_max=5, overwrite=False,
+            enforce_all_sourceids_viable=True, savstr='', which_columns='*',
+            table_name='gaia_source', gaia_datarelease='gaiadr2', getdr2ruwe=False
+        )
+    except Exception as e:
+        LOGERROR(f'{ticid} = {runid} failed due to:\n{e}...')
+        return 1
     try:
         gdf_ruwe = given_source_ids_get_gaia_data(
             dr2_source_ids, runid+"_ruwe", n_max=5, overwrite=False,
