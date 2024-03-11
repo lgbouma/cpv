@@ -178,7 +178,7 @@ def cpv_periodsearch(times, fluxs, starid, outdir, t0=None,
                           outfile=outfile, verbose=True)
         except Exception as e:
             LOGEXCEPTION(e)
-            LOGINFO("ontinuing...")
+            LOGINFO("Continuing...")
             pass
 
     if t0 is None:
