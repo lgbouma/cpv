@@ -232,14 +232,40 @@ def get_stauffer18_xmatch(s18_df_gk):
     return s18_df_gkt
 
 
+def append_tessmag_dist_given_df_with_ticid(df):
+    tmags = []
+    plxs = []
+    dists = []
+    for ticid in df.ticid:
+        print(ticid)
+        r_tic8 = get_tic_star_information(str(ticid))
+        tmags.append(float(r_tic8['Tmag']))
+        try:
+            plxs.append(float(r_tic8['plx']))
+            dists.append(1/(float(r_tic8['plx'])*1e-3))
+        except TypeError:
+            plxs.append(np.nan)
+            dists.append(np.nan)
+
+    df['TESSMAG'] = tmags
+    df['plx'] = plxs
+    df['dist_pc'] = dists
+
+    return df
+
+
 def append_tessmag_given_df_with_ticid(df):
     tmags = []
     for ticid in df.ticid:
         print(ticid)
         r_tic8 = get_tic_star_information(str(ticid))
         tmags.append(float(r_tic8['Tmag']))
+
     df['TESSMAG'] = tmags
+
     return df
+
+
 
 
 def main():
