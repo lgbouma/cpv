@@ -1,5 +1,6 @@
 import os
 from os.path import join
+from glob import glob
 
 import numpy as np, matplotlib.pyplot as plt, pandas as pd
 
@@ -11,7 +12,7 @@ from complexrotators.getters import (
 from complexrotators.lcprocessing import (
     cpv_periodsearch, prepare_cpv_light_curve
 )
-from complexrotators.paths import RESULTSDIR, DATADIR
+from complexrotators.paths import RESULTSDIR, DATADIR, LKCACHEDIR
 from complexrotators.plotting import plot_phased_light_curve
 
 from astrobase.lcmath import (
@@ -36,10 +37,12 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1, lcpipeline='spoc2mi
     if lcpipeline == 'spoc2min':
         lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline)
     elif lcpipeline == 'qlp':
-        # FIXME temp hack...
-        lcpaths = [join(DATADIR, 'photometry', 'tess',
-                        'hlsp_qlp_tess_ffi_s0031-0000000220599904_tess_v01_llc.fits')]
-        #lcpaths = get_qlp_lcpaths(ticid)
+        lcpaths = glob(join(
+            LKCACHEDIR.replace("TESS","HLSP"),
+            f'hlsp_qlp_tess_ffi_s{str(sector).zfill(4)}*{ticid}*llc',
+            '*fits'
+        ))
+        assert len(lcpaths) > 0
 
     if isinstance(sector,int):
         sstr = str(sector).zfill(4)
@@ -70,7 +73,7 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1, lcpipeline='spoc2mi
     else:
         titlestr = None
 
-    binsize_phase = 1/300
+    binsize_phase = 1/150
     BINMS=1.5
     alpha0=0.3
 
@@ -105,7 +108,7 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1, lcpipeline='spoc2mi
             fig=None, ax=axs[1], savethefigure=False, findpeaks_result=None,
             showxticklabels=[-0.5,0,0.5], titlefontsize=0, normfunc=0
         )
-        txt = f'P={d["period"]:.3f}d'
+        txt = f'$P$={d["period"]*24:.1f}hr'
         axs[1].text(0.97,0.97,txt, transform=axs[1].transAxes, ha='right',va='top',
                     color='k', fontsize='x-small')
 
@@ -120,8 +123,14 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1, lcpipeline='spoc2mi
 if __name__ == "__main__":
 
     # qlp cpv
-    make_plot("402980664", sector=73, showphase=0)
+    make_plot("260268310", sector=31, lcpipeline='qlp', showphase=1)
+
+    # qlp cpv
+    make_plot("35858638", sector=31, lcpipeline='qlp', showphase=1)
     assert 0
+
+    # cpv
+    make_plot("402980664", sector=73, showphase=0)
 
     # qlp cpv
     make_plot("220599904", sector=31, lcpipeline='qlp', showphase=0)
