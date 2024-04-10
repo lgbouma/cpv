@@ -66,6 +66,9 @@ def plot_tessmag_vs_distance(showliterature=1, showprediction=1, basems=9,
     # get QLP tic id's
     qlpdf = get_qlp_c1_to_c4_info()
     qlpdf['ticid'] = qlpdf.ticid.astype(str)
+    qlpdf.to_csv(
+        '../results/tables/20240319_qlp_0to100pc_concat.csv', index=False
+    )
 
     selcols = 'ticid'
     ldf = ldf.drop_duplicates(selcols)
@@ -138,7 +141,7 @@ def plot_tessmag_vs_distance(showliterature=1, showprediction=1, basems=9,
             linewidth=f*0.2, alpha=1
         )
 
-    legend = ax.legend(loc='lower right', fontsize=4.3,
+    legend = ax.legend(loc='lower right', fontsize=4.8,
                        handletextpad=-0.3,
                        borderaxespad=0.8, borderpad=0.15, fancybox=True,
                        framealpha=0.8, frameon=True, ncol=2, columnspacing=0.2)
