@@ -7,6 +7,7 @@ In order of perceived reusability:
 
 | get_gaia_dr2_rows
 | get_gaia_dr3_rows
+| get_tess_obstable_row
 
 | assess_tess_holdings
 | check_tesspoint
@@ -551,3 +552,43 @@ def merge_to_observability_table(
 
     outdf.to_csv(csvpath, index=False)
     print(f'Wrote {csvpath}')
+
+
+def flatten_tdf(tdf, ticid):
+
+    ftdf = pd.DataFrame({
+        'ticid': ticid,
+        'sectors': ",".join(list(tdf['sector'].astype(str))),
+        'N_sectors': len(tdf),
+        'N_200sec': ",".join(list(tdf['N_120sec'].astype(str))),
+        'N_FFI': ",".join(list(tdf['N_FFI'].astype(str))),
+    }, index=[0])
+
+    return ftdf
+
+
+
+def get_tess_obstable_row(ticid, indir, overwrite=0):
+
+    cachecsv = join(indir, f"TIC{ticid}_cpvtable_row.csv")
+    if os.path.exists(cachecsv) and not overwrite:
+        return pd.read_csv(cachecsv, sep="|", dtype={'tic8_GAIA':str})
+
+    # NOTE: a few DR2 source_id's missing->dont pull gaia data, for now.
+    #gdr2_df = get_gaia_dr2_rows(ticid, allcols=1)
+    #gdr3_df = get_gaia_dr3_rows(ticid)
+
+    from complexrotators.getters import get_tic8_row
+
+    t8_df = get_tic8_row(ticid, indir)
+    tdf = assess_tess_holdings(ticid, outdir=indir)
+    ftdf = flatten_tdf(tdf, ticid)
+
+    pd.options.display.max_rows = 5000
+
+    row = pd.concat((ftdf, t8_df), axis='columns')
+
+    row.to_csv(cachecsv, index=False, sep="|")
+    print(f"Wrote {cachecsv}")
+
+    return row
