@@ -1,6 +1,8 @@
 """
 Make an observing relevant table, given a list of TIC ID's for whatever the
-upcoming semester may be.
+upcoming semester may be.  Table contains RAs, DECs, mags, and TESS sectors
+during which the sources will be visible.  (Assuming an updated version of
+tesspoint).
 """
 from glob import glob
 from os.path import join
@@ -11,38 +13,10 @@ from complexrotators.paths import (
 )
 from os.path import join
 
-from complexrotators.observability import (
-    get_gaia_dr2_rows, assess_tess_holdings, get_gaia_dr3_rows
-)
-from complexrotators.getters import get_tic8_row
-
-from make_cpv_table import flatten_tdf
+from complexrotators.observability import get_tess_obstable_row
 
 indir = join(TABLEDIR, "lit_compilation")
 assert os.path.exists(indir)
-
-def get_obstable_row(ticid, overwrite=0):
-
-    cachecsv = join(indir, f"TIC{ticid}_cpvtable_row.csv")
-    if os.path.exists(cachecsv) and not overwrite:
-        return pd.read_csv(cachecsv, sep="|")
-
-    # NOTE: a few DR2 source_id's missing->dont pull gaia data, for now.
-    #gdr2_df = get_gaia_dr2_rows(ticid, allcols=1)
-    #gdr3_df = get_gaia_dr3_rows(ticid)
-
-    t8_df = get_tic8_row(ticid, indir)
-    tdf = assess_tess_holdings(ticid, outdir=indir)
-    ftdf = flatten_tdf(tdf, ticid)
-
-    pd.options.display.max_rows = 5000
-
-    row = pd.concat((ftdf, t8_df), axis='columns')
-
-    row.to_csv(cachecsv, index=False, sep="|")
-    print(f"Wrote {cachecsv}")
-
-    return row
 
 def main(overwrite=0):
 
@@ -54,14 +28,91 @@ def main(overwrite=0):
 
     rows = []
     for t in _df['ticid']:
-        r = get_obstable_row(t, overwrite=overwrite)
+        r = get_tess_obstable_row(t, indir, overwrite=overwrite)
         rows.append(r)
 
     rdf = pd.concat(rows).reset_index(drop=True)
+    rdf = rdf.rename(columns={'ticid': 'ticid_x'})
 
-    # note EPIC 204060981 / TIC 49072162 has two periods b/c two CPVs
-    df = _df.merge(rdf, how='inner', on=['ticid','period_hr'])
-    df = df.reset_index(drop=True)
+    df = pd.concat((rdf,_df), axis=1)
+    df.tic8_GAIA = df.tic8_GAIA.astype(str)
+    outcsvpath = join(
+        indir,
+        '20240304_CPV_lit_compilation_R16_S17_S18_B20_S21_Z19_G22_P23_B24_TIC8_obs_supplemented.csv'
+    )
+    df.to_csv(outcsvpath, index=False)
+    print(f'Wrote {outcsvpath}')
+
+    max_sector = []
+    for sstr in df['sectors'].astype(str):
+        if sstr == '-1':
+            max_sector.append(int(sstr))
+        elif "," in sstr:
+            max_sector.append(max(np.array(sstr.split(",")).astype(int)))
+        else:
+            max_sector.append(int(sstr))
+
+    df['max_sector'] = max_sector
+
+    #########################
+    # 24B / Cycle7 specific #
+    #########################
+    viable_sectors = range(88, 88+1)
+    df['c7observable'] = np.array(max_sector) >= 84
+    #########################
+
+    is_24b_observables = []
+    for sstr in df['sectors'].astype(str):
+        is_24b_observable = False
+        for s in viable_sectors:
+            if str(s) in sstr:
+                is_24b_observable = True
+                continue
+        is_24b_observables.append(is_24b_observable)
+
+    df['is_24b_observable'] = np.array(is_24b_observables).astype(int)
+
+    selcols = [
+        'ticid', 'sectors', 'c7observable', 'is_24b_observable', 'N_sectors', 'N_200sec', 'N_FFI',
+        'tic8_ra', 'tic8_dec', 'tic8_Tmag',
+        'tic8_GAIA',
+        'tic8_plx',
+        'tic8_Jmag',
+        'tic8_Teff',
+        'tic8_gaiabp',
+        'tic8_gaiarp',
+        'original_id', 'distance_pc',
+        'cluster', 'bibcode',
+        'period_hr', 'quality', 'telescope'
+    ]
+    sdf = df[selcols]
+    # TRUNCRATED VERSION OF EVERYTHING
+    outcsvpath = join(
+        indir,
+        '20240304_CPV_lit_compilation_R16_S17_S18_B20_S21_Z19_G22_P23_B24_TIC8_obs_truncated.csv'
+    )
+    sdf.to_csv(outcsvpath, index=False)
+    print(f'Wrote {outcsvpath}')
+
+    # OBSERVABLE IN 24B, SIMULTANEOUS WITH TESS
+    outcsvpath = join(
+        indir,
+        '20240304_CPV_lit_compilation_R16_S17_S18_B20_S21_Z19_G22_P23_B24_TIC8_obs_truncated_24BOBSERVEABLE.csv'
+    )
+    sdf[sdf.is_24b_observable == 1].sort_values(by='tic8_Tmag').to_csv(
+        outcsvpath, index=False
+    )
+    print(f'Wrote {outcsvpath}')
+
+    # OBSERVABLE IN CYCLE7 BY TESS
+    outcsvpath = join(
+        indir,
+        '20240304_CPV_lit_compilation_R16_S17_S18_B20_S21_Z19_G22_P23_B24_TIC8_obs_truncated_C7OBSERVABLE.csv'
+    )
+    sdf[sdf.c7observable].sort_values(by='tic8_Tmag').to_csv(
+        outcsvpath, index=False
+    )
+    print(f'Wrote {outcsvpath}')
 
     import IPython; IPython.embed()
 
