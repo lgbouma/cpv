@@ -4807,7 +4807,8 @@ def plot_movie_phase_timegroups(
     figsize_y=7,
     model_id=None,
     rasterized=False,
-    N_cyclestobin=3
+    N_cyclestobin=3,
+    sector_range=None
     ):
     """
     As in plot_phase
@@ -4824,6 +4825,12 @@ def plot_movie_phase_timegroups(
     _times, _fluxs, _t0s, _periods, _titlestrs = [],[],[],[], []
 
     for lc in lclist:
+
+        if sector_range is not None:
+            sector = lc.sector
+            ok_sector_list = list(sector_range)
+            if sector not in ok_sector_list:
+                continue
 
         (time, flux, qual, x_obs, y_obs, y_flat,
          y_trend, x_trend, cadence_sec, sector,
