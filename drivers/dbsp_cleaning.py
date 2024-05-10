@@ -55,7 +55,17 @@ science_indices = range(18, 73) # 18-50: LP12-502, 51-73: TIC141
 objectname_indices = range(18, 50+1)
 junk_indices = [17, 74, 75,76,77]
 
+# NIGHT: 2024/04/28
+nightdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP/20240428'
+bias_indices = range(7, 16+1)
+arc_indices = [1,2,3, 66,67]
+domeflat_indices = [4,5,6] #range(20, 22+1)
+science_indices = range(17, 65+1) # 18-50: LP12-502, 51-73: TIC141
+objectname_indices = range(17, 65+1)
+junk_indices = []
 
+#OBJECTNAME = 'LP_12-502'
+OBJECTNAME = 'DG_CVn'
 
 DO_BIAS_UPDATE = 1
 DO_ARC_UPDATE = 1
@@ -64,7 +74,6 @@ DO_OBJECTNAME_UPDATE = 1
 DO_FLAT_UPDATE = 1
 DO_JUNK_UPDATE = 1
 
-OBJECTNAME = 'LP_12-502'
 
 # ^^^ change above here ^^^
 ##########################################
