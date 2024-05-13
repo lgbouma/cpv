@@ -16,12 +16,15 @@ from cdips.utils.lcutils import astropy_utc_time_to_bjd_tdb
 from aesthetic.plot import set_style, savefig
 
 UTCDICT = {
+    # LP 12-502
     '20231111': '20231111: DBSP + TIERRAS',
     '20231112': '20231112: DBSP + TIERRAS',
     '20231123': '20231123: HIRES',
     '20231203': '20231203: HIRES + TIERRAS',
     '20231207': '20231207: DBSP + KeplerCam',
-    '20240115': '20240115: DBSP + FlareCam'
+    '20240115': '20240115: DBSP + FlareCam',
+    # DG CVn
+    '20240428': '20240428: DBSP + TIERRAS'
 }
 
 def plot_ew_timeseries(
@@ -29,9 +32,18 @@ def plot_ew_timeseries(
     linekey = 'Hγ',
     utcdatestr = '20231112',
     inst = 'DBSP',
-    ra = 16.733175*u.deg,
-    dec = 80.45945*u.deg
+    targetid = None,
+    ra = None,
+    dec = None,
+    # FOR LP-12-502
+    #targetid='LP_12-502'
+    #ra = 16.733175*u.deg,
+    #dec = 80.45945*u.deg,
 ):
+
+    assert isinstance(targetid, str)
+    assert not (ra is None)
+    assert not (dec is None)
 
     # parse input
     if inst == 'HIRES' and linekey == 'Hβ':
@@ -59,13 +71,15 @@ def plot_ew_timeseries(
     if inst == 'DBSP':
         fitsdir = f'/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/{utcdatestr}/p200_dbsp_{side}_A/Science'
         ewdir = f'/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/{utcdatestr}/p200_dbsp_{side}_A/Balmer_EWs'
-        fitspaths = np.sort(glob(join(fitsdir, f"spec1d_{side}*LP_12-502*fits")))
+        fitspaths = np.sort(glob(join(fitsdir, f"spec1d_{side}*{targetid}*fits")))
+
     elif inst == 'HIRES':
         fitsdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC402980664_RDX'
         ewdir = '/Users/luke/Dropbox/proj/cpv/results/HIRES_results/Balmer_EWs'
         fitspaths = np.sort(glob(join(fitsdir, f"{chip}{hiresdate}*fits")))
 
     print(len(fitspaths))
+    assert len(fitspaths) > 0
 
     times, keys = [], []
     for ix, f in enumerate(fitspaths):
@@ -107,33 +121,53 @@ def plot_ew_timeseries(
 
     set_style('clean')
     fig, ax = plt.subplots()
-    ax.errorbar(t_bjd_tdb - 2460255, fitted_ews, yerr=0.75*errs)
+    if targetid == 'LP_12-502':
+        t_offset = 2460255
+    elif targetid == 'DG_CVn':
+        t_offset = int(np.floor(min(t_bjd_tdb)))
+    else:
+        raise NotImplementedError
+
+    ax.errorbar(t_bjd_tdb - t_offset, fitted_ews, yerr=0.75*errs)
     ax.set_ylabel(f'{linekey} EW [mA]')
-    ax.set_xlabel('BJD_TDB - 2460255')
+    ax.set_xlabel(f'BJD_TDB - {t_offset}')
     outdir = join(RESULTSDIR, 'EW_results')
     if not os.path.exists(outdir): os.mkdir(outdir)
-    outpath = join(outdir, f'{inst}_{linename}_vs_time_{utcdatestr}.png')
+    outpath = join(outdir, f'{targetid}_{inst}_{linename}_vs_time_{utcdatestr}.png')
     savefig(fig, outpath)
 
-    ptimes, pews, perrs = t_bjd_tdb - 2460255, fitted_ews, 0.75*errs
+    ptimes, pews, perrs = t_bjd_tdb - t_offset, fitted_ews, 0.75*errs
     return ptimes, pews, perrs, keys, csvpaths, speccsvpaths
 
 
-def t_to_phase(t, dofloor=0):
-    t0 = 2450000 + 1791.12 - 0.3*18.5611/24
-    period = 18.5611/24
+def t_to_phase(t, targetid, dofloor=0):
+
+    if targetid == 'LP_12-502':
+        t0 = 2450000 + 1791.12 - 0.3*18.5611/24
+        period = 18.5611/24
+    elif targetid == 'DG_CVn':
+        t0 = 2460428
+        period = 6.44/24
+
     φ = (t-t0)/period
     if dofloor:
         φ = (t-t0)/period- np.floor( (t-t0)/period )
+
     return φ
 
-def phase_to_t(φ):
+def phase_to_t(φ, targetid):
+
     # note: kind of wrong... there is no inverse...
-    t0 = 2450000 + 1791.12
-    period = 18.5611/24
+    if targetid == 'LP_12-502':
+        t0 = 2450000 + 1791.12
+        period = 18.5611/24
+    elif targetid == 'DG_CVn':
+        t0 = 2460428
+        period = 6.44/24
+
     return φ * period + t0
 
-def plot_stack_ew_timeseries(ha, hb, hc, utcdatestr, uinsts):
+def plot_stack_ew_timeseries(ha, hb, hc, utcdatestr, uinsts, targetid):
 
     linekeys = 'Hα,Hβ,Hγ'.split(',')
     ewinfo = [ha, hb, hc]
@@ -151,23 +185,32 @@ def plot_stack_ew_timeseries(ha, hb, hc, utcdatestr, uinsts):
         ax.set_ylabel(f'{lk} EW [$\AA$]')
 
         ax2 = ax.twiny()
-        t = ptimes + 2460255 # convert to bjdtdb
-        phases = t_to_phase(t, dofloor=1)
+
+        if targetid == 'LP_12-502':
+            t_offset = 2460255
+        elif targetid == 'DG_CVn':
+            t_offset = 2460428
+        else:
+            raise NotImplementedError
+
+        t = ptimes + t_offset # convert back to bjdtdb
+        phases = t_to_phase(t, targetid, dofloor=1)
+
         ax2.errorbar(phases, nparr(pews)/(1e3),
                      yerr=nparr(perrs)/(1e3), alpha=0)
         if ix == 0:
             ax2.set_xlabel("Phase, φ")
 
-    axs[-1].set_xlabel('BJD_TDB - 2460255')
+    axs[-1].set_xlabel(f'BJD_TDB - {t_offset}')
 
     fig.tight_layout()
 
     outdir = join(RESULTSDIR, 'EW_results')
     if not os.path.exists(outdir): os.mkdir(outdir)
-    outpath = join(outdir, f'{uinsts}_stackew_vs_time_DBSP_UT{utcdatestr}.png')
+    outpath = join(outdir, f'{targetid}_{uinsts}_stackew_vs_time_DBSP_UT{utcdatestr}.png')
     savefig(fig, outpath)
 
-def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
+def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, targetid):
 
     linekeys = 'f,Hα,Hβ,Hγ'.split(',')
 
@@ -195,8 +238,13 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
 
             if lk != 'f':
                 ptimes, pews, perrs, __keys, __rescsvpaths, __fittedcsvpaths = ewi
-                t = ptimes + 2460255 # convert to bjdtdb
-                phase = t_to_phase(t, dofloor=1)
+
+                if targetid == 'LP_12-502':
+                    t_offset = 2460255
+                elif targetid == 'DG_CVn':
+                    t_offset = 2460428
+                t = ptimes + t_offset # convert to bjdtdb
+                phase = t_to_phase(t, targetid, dofloor=1)
 
                 # FIXME HACK CLEANING
                 # FIXME HACK CLEANING
@@ -242,14 +290,29 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
                     df['BJD TDB'] = df['BJD_TDB_B']
                     df['Target Relative Flux'] = df['rel_flux_T1_n']
                     df['Target Relative Flux Error'] = df['rel_flux_err_T1_n']
+                elif utcdatestr == '20240428':
+                    df = pd.read_csv(
+                        join(TIERRASDIR, "TIC368129164_global_lc.csv"),
+                        comment='#'
+                    )
+                    sel = (
+                        (df['BJD TDB'] > 2460428.81) &
+                        (df['BJD TDB'] < 2460429.2)
+                    )
+                    df = df[sel]
+                    df = df.rename({
+                        'Flux': 'Target Relative Flux',
+                        'Flux Error': 'Target Relative Flux Error'
+                    }, axis='columns')
+                    assert len(df) > 0
                 else:
                     continue
                 t = np.array(df['BJD TDB'])
-                phase = t_to_phase(t, dofloor=1)
+                phase = t_to_phase(t, targetid, dofloor=1)
                 flux = np.array(df['Target Relative Flux'])
                 flux_err = np.array(df['Target Relative Flux Error'])
 
-                if utcdatestr != '20231207':
+                if utcdatestr not in ['20231207', '20240428']:
                     x0 = 73
                     yval = 1e3*flux - x0
                     yerr = 1e3*flux_err
@@ -263,6 +326,12 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
                             c=datec, ecolor=datec, elinewidth=0.5, lw=0, alpha=0.5,
                             zorder=1)
 
+                #if utcdatestr == '20240428':
+                #    phase_end = t_to_phase(2460428.96, targetid, dofloor=1)
+                #    ax.vlines(phase_end, -5, 5, colors='darkgray', alpha=0.5,
+                #              linestyles=':', zorder=-10, linewidths=0.5)
+                #    ax.text(phase_end, 3, '(TIERRAS night end)')
+
                 ax.set_ylabel('$f_{\mathrm{Broadband}}$ [%]')
                 ax.set_ylim([-5, 5])
 
@@ -274,7 +343,7 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts):
     outdir = join(RESULTSDIR, 'EW_results')
     if not os.path.exists(outdir): os.mkdir(outdir)
     uinsts = "_".join(np.unique(insts))
-    outpath = join(outdir, f'stackew_vs_phase_{uinsts}_{"_".join(utcdatestrs)}.png')
+    outpath = join(outdir, f'{targetid}_stackew_vs_phase_{uinsts}_{"_".join(utcdatestrs)}.png')
     savefig(fig, outpath)
 
 
@@ -705,27 +774,40 @@ if __name__ == "__main__":
     # utcdatestrs = "20231207,20240115".split(",")
     # insts = "DBSP,DBSP".split(",")
 
+    #targetid = 'LP_12-502'
+    #ra = 16.733175*u.deg
+    #dec = 80.45945*u.deg
+
+    targetid = 'DG_CVn'
+    ra = 202.94307059819*u.deg
+    dec = 29.27621104174*u.deg
+
+    utcdatestrs = ["20240428"]
+    insts = ["DBSP"]
 
     uinsts = "_".join(np.unique(insts))
 
     has, hbs, hcs = [], [], []
     for d,i in zip(utcdatestrs, insts):
         ha = plot_ew_timeseries(
-            linename='HAlpha', linekey='Hα', utcdatestr=d, inst=i
+            linename='HAlpha', linekey='Hα', utcdatestr=d, inst=i,
+            targetid=targetid, ra=ra, dec=dec
         )
         if i == 'DBSP':
             hb = plot_ew_timeseries(
-                linename='HBeta', linekey='Hβ', utcdatestr=d, inst=i
+                linename='HBeta', linekey='Hβ', utcdatestr=d, inst=i,
+                targetid=targetid, ra=ra, dec=dec
             )
         hc = plot_ew_timeseries(
-            linename='HGamma', linekey='Hγ', utcdatestr=d, inst=i
+            linename='HGamma', linekey='Hγ', utcdatestr=d, inst=i,
+            targetid=targetid, ra=ra, dec=dec
         )
-        plot_stack_ew_timeseries(ha, hb, hc, d, uinsts=uinsts)
+        plot_stack_ew_timeseries(ha, hb, hc, d, uinsts, targetid)
         has.append(ha)
         hbs.append(hb)
         hcs.append(hc)
 
-    plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts)
+    plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, targetid)
 
     if utcdatestrs == "20231111,20231112".split(","):
         plot_movie_stack_ew_vs_phase(
