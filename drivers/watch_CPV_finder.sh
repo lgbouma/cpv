@@ -7,7 +7,7 @@
 #   of the job every 60 seconds and exits after sending the first email.
 #
 # Usage:
-#   ./monitor_CPV_finder.sh &
+#   ./watch_CPV_finder.sh &
 #
 # Note:
 #   - Make sure to have 'ssmtp' installed and properly configured on your
