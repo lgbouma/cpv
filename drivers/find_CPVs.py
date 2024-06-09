@@ -242,6 +242,10 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
         exitcode 6: insufficient points in LC; dip counter failed.
 
         exitcode 7: erroneous binning
+
+        exitcode 8: lcpath not found
+
+        exitcode 9: lcpath found but corrupted
     """
 
     assert lcpipeline in ["qlp", "spoc2min", "cdips"]
@@ -336,10 +340,21 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
                     continue
 
         # get the relevant light curve data
-        (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
-         sector, starid) = prepare_cpv_light_curve(
-             lcpath, cachedir, lcpipeline=lcpipeline
-         )
+        try:
+            (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
+             sector, starid) = prepare_cpv_light_curve(
+                 lcpath, cachedir, lcpipeline=lcpipeline
+             )
+        except FileNotFoundError:
+            LOGWARNING(f"{starid}: Failed to find lcpath {lcpath}.")
+            exitcode = {'exitcode': 8}
+            pu.save_status(logpath, 'exitcode', exitcode)
+            continue
+        except TypeError:
+            LOGWARNING(f"Got corrupt lcpath {lcpath}.")
+            exitcode = {'exitcode': 9}
+            pu.save_status(logpath, 'exitcode', exitcode)
+            continue
 
         if y_flat is None:
             LOGWARNING(f"{starid}: Failed to get finite light curve.")
@@ -536,7 +551,10 @@ def main():
         for ticid in ticids:
             LOGINFO(42*'-')
             LOGINFO(f"Beginning {ticid}...")
-            find_CPV(ticid, sample_id, forcepdf=forcepdf, lcpipeline=lcpipeline)
+            try:
+                find_CPV(ticid, sample_id, forcepdf=forcepdf, lcpipeline=lcpipeline)
+            except Exception as e:
+                LOGWARNING('FAILURE, {ticid} with {e}')
 
     LOGINFO("Finished 🎉🎉🎉")
 
