@@ -13,8 +13,8 @@ if not os.path.exists(PLOTDIR): os.mkdir(PLOTDIR)
 def main():
 
     ticids = [
-        # "402980664" # the one and only
-        "300651846"
+        "402980664" # the one and only
+        #"300651846"
     ]
 
     paramdict = {
@@ -46,7 +46,8 @@ def main():
                 showtitle=0,
                 rasterized=r,
                 sector_range=sector_range,
-                N_cyclestobin=N_cyclestobin
+                N_cyclestobin=N_cyclestobin,
+                style='science_wob'
             )
 
 if __name__ == "__main__":

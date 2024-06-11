@@ -2396,7 +2396,7 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
     bd = time_bin_magseries(ns.time, n(ns.y_resid_nsnw), binsize=900, minbinelems=1)
     ax.scatter(ns.time, n(ns.y_resid_nsnw), s=0.1, marker='o', c='lightgray', linewidths=0)
     ax.scatter(bd['binnedtimes'], bd['binnedmags'], c='k', s=0.3, zorder=2, linewidths=0)
-    ax.set_ylim(ylim_resid)
+    ax.set_ylim(ylim)
     ax.update({'xlabel': 'TESS Julian Date [days]', 'ylabel': 'Resid [%]'})
 
     tform = blended_transform_factory(ax.transData, ax.transAxes)
@@ -4808,7 +4808,8 @@ def plot_movie_phase_timegroups(
     model_id=None,
     rasterized=False,
     N_cyclestobin=3,
-    sector_range=None
+    sector_range=None,
+    style='science'
     ):
     """
     As in plot_phase
@@ -4822,7 +4823,7 @@ def plot_movie_phase_timegroups(
 
     # for each light curve (sector / cadence specific), detrend if needed, get
     # the best period.
-    _times, _fluxs, _t0s, _periods, _titlestrs = [],[],[],[], []
+    _times, _fluxs, _t0s, _periods, _titlestrs, _sectorstrs = [],[],[],[],[],[]
 
     for lc in lclist:
 
@@ -4856,6 +4857,7 @@ def plot_movie_phase_timegroups(
         _t0s.append(_t0)
         _periods.append(period)
         _titlestrs.append(titlestr)
+        _sectorstrs.append(np.repeat(sector, len(d['times'])))
 
     # merge lightcurve data, and split before making the plot.
     times = np.hstack(_times)
@@ -4863,6 +4865,7 @@ def plot_movie_phase_timegroups(
     t0s = np.hstack(_t0s)
     periods = np.hstack(_periods)
     titlestrs = np.hstack(_titlestrs)
+    sectorstrs = np.hstack(_sectorstrs)
 
     if isinstance(model_id, str):
         # for now, just lp12-502
@@ -4902,8 +4905,7 @@ def plot_movie_phase_timegroups(
             continue
 
         plt.close('all')
-        #set_style("clean")
-        set_style("science")
+        set_style(style)
         factor=1.
         fig, ax = plt.subplots(figsize=(factor*3, factor*3))
 
@@ -4913,19 +4915,26 @@ def plot_movie_phase_timegroups(
         e_start = int(np.floor((t_start - plot_t0)/plot_period))
         e_end = int(np.floor((t_stop - plot_t0)/plot_period))
 
+        gsectors = sectorstrs[sel]
+        assert len(np.unique(gsectors)) <= 2
+        _sector = gsectors[0]
+
         txt0 = f"{iso_t0}"+"$\,$-$\,$"+f"{iso_t1}"
-        txt1 = f"{e_start}"+"$\,$-$\,$"+f"{e_end}"
+        txt1 = f"Cycle {e_start}"+"$\,$-$\,$"+f"{e_end}, Sector {_sector}"
         txt = txt0 + '\n' + txt1
 
         gtime = times[sel]
         gflux = fluxs[sel]
 
+        c1 = 'k' if 'wob' not in style else 'white'
         plot_phased_light_curve(
             gtime, gflux, plot_t0, plot_period, None,
             fig=fig, ax=ax,
             binsize_phase=binsize_phase,
             xlim=xlim,
             #showtext=txt,
+            c0='darkgray',
+            c1=c1,
             titlestr=txt,
             titlepad=0.1,
             showtext=False,
@@ -4950,6 +4959,8 @@ def plot_movie_phase_timegroups(
         #    s += f'_ymin{ylim[0]}_ymax{ylim[1]}'
         if rasterized:
             s += "_rasterized"
+        if 'wob' in style:
+            s += '_wob'
 
         tstr = str(time_index).zfill(4)
 
