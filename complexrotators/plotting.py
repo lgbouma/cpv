@@ -4887,7 +4887,6 @@ def plot_movie_phase_timegroups(
     break_times = [plot_t0 + ix*plot_period for ix in
                    range(min_cycle, max_cycle, N_cyclestobin)]
 
-
     # big time groups, separated by at least like a week.
     # (might use these if you want to generate gap frames??)
     from astrobase.lcmath import find_lc_timegroups
@@ -4895,56 +4894,90 @@ def plot_movie_phase_timegroups(
 
     # Make plots
     time_index = 0
+    frames_per_second = 3
+    N_gap_seconds = 1.
+    N_frames_for_gaps = int(np.ceil(frames_per_second * N_gap_seconds))
+    timegap_counter = 0
+    last_e_end = 0
 
     for t_start, t_stop in zip(break_times[:-1], break_times[1:]):
 
         sel = (times >= t_start) & (times <= t_stop)
         N_times = len(times[sel])
-        # require at least ~one cycle
+
+        e_start = int(np.floor((t_start - plot_t0)/plot_period))
+        e_end = int(np.floor((t_stop - plot_t0)/plot_period))
+        if last_e_end == 0:
+            last_e_end == e_end
+
+        # require at least ~one cycle, unless we are at the beginning of a
+        # time gap.  in those instances, plot "Data Gap" frames for
+        # N_gap_seconds.
+        VERBOSE = 0
+        if VERBOSE:
+            print(time_index, t_start, t_stop, N_times, last_e_end, e_end, timegap_counter)
+
+        FLAG_TIMEGAP = 0
         if N_times <= 0.9*plot_period*24*60/2:
-            continue
+            if e_end - last_e_end > 30 and timegap_counter < N_frames_for_gaps:
+                # in this instance, there is a time gap.
+                FLAG_TIMEGAP = 1
+            else:
+                continue
+        if timegap_counter == N_frames_for_gaps:
+            timegap_counter = 0
+
+        iso_t0 = Time(t_start+2457000, format='jd').isot[:10]
+        iso_t1 = Time(t_stop+2457000, format='jd').isot[:10]
+
+        gtime = times[sel]
+        gflux = fluxs[sel]
+        gsectors = sectorstrs[sel]
+        assert len(np.unique(gsectors)) <= 2
+        try:
+            _sector = gsectors[0]
+        except IndexError:
+            pass
 
         plt.close('all')
         set_style(style)
         factor=1.
         fig, ax = plt.subplots(figsize=(factor*3, factor*3))
 
-        iso_t0 = Time(t_start+2457000, format='jd').isot[:10]
-        iso_t1 = Time(t_stop+2457000, format='jd').isot[:10]
-
-        e_start = int(np.floor((t_start - plot_t0)/plot_period))
-        e_end = int(np.floor((t_stop - plot_t0)/plot_period))
-
-        gsectors = sectorstrs[sel]
-        assert len(np.unique(gsectors)) <= 2
-        _sector = gsectors[0]
-
         txt0 = f"{iso_t0}"+"$\,$-$\,$"+f"{iso_t1}"
         txt1 = f"Cycle {e_start}"+"$\,$-$\,$"+f"{e_end}, Sector {_sector}"
         txt = txt0 + '\n' + txt1
 
-        gtime = times[sel]
-        gflux = fluxs[sel]
-
         c1 = 'k' if 'wob' not in style else 'white'
-        plot_phased_light_curve(
-            gtime, gflux, plot_t0, plot_period, None,
-            fig=fig, ax=ax,
-            binsize_phase=binsize_phase,
-            xlim=xlim,
-            #showtext=txt,
-            c0='darkgray',
-            c1=c1,
-            titlestr=txt,
-            titlepad=0.1,
-            showtext=False,
-            savethefigure=False,
-            titlefontsize='xx-small',
-            rasterized=rasterized
-        )
+        if not FLAG_TIMEGAP:
+            plot_phased_light_curve(
+                gtime, gflux, plot_t0, plot_period, None,
+                fig=fig, ax=ax,
+                binsize_phase=binsize_phase,
+                xlim=xlim,
+                #showtext=txt,
+                c0='darkgray',
+                c1=c1,
+                titlestr=txt,
+                titlepad=0.1,
+                showtext=False,
+                savethefigure=False,
+                titlefontsize='xx-small',
+                rasterized=rasterized
+            )
         if isinstance(ylim, (list, tuple)):
             ax.set_ylim(ylim)
+        if isinstance(xlim, (list, tuple)):
+            ax.set_xlim(xlim)
 
+        if FLAG_TIMEGAP:
+            ax.text(
+                0.5, 0.5, 'Gap', ha='center', va='center',
+                fontsize='x-large', transform=ax.transAxes
+            )
+            ax.set_title(txt, fontsize='xx-small', pad=0.1, color='k')
+            ax.set_xticks([-0.5, -0.25, 0, 0.25, 0.5])
+            ax.set_xticklabels([-0.5, -0.25, 0, 0.25, 0.5])
 
         ax.set_ylabel(r"$\Delta$ Flux [%]", fontsize='large')
         ax.set_xlabel(r"Phase, φ", fontsize='large')
@@ -4955,8 +4988,6 @@ def plot_movie_phase_timegroups(
         s = ''
         if isinstance(model_id, str):
             s += f'_{model_id}'
-        #if isinstance(ylim, (list, tuple)):
-        #    s += f'_ymin{ylim[0]}_ymax{ylim[1]}'
         if rasterized:
             s += "_rasterized"
         if 'wob' in style:
@@ -4973,3 +5004,12 @@ def plot_movie_phase_timegroups(
         print(f"saved {outpath}")
 
         time_index += 1
+        if not FLAG_TIMEGAP:
+            last_e_end = e_end
+
+        if FLAG_TIMEGAP:
+            if timegap_counter < N_frames_for_gaps:
+                timegap_counter += 1
+            else:
+                last_e_end = e_end
+                timegap_counter = 0
