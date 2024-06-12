@@ -31,10 +31,12 @@ def get_ylimguess(y):
 
 
 
-def make_plot(ticid, sector=None, showtitles=0, showphase=1, lcpipeline='spoc2min'):
+def make_plot(ticid, sector=None, showtitles=0, showphase=1,
+              lcpipeline='spoc2min', style='clean', xlim=None,
+              do_quality_trim=1, period=None, edge_trim=0, bincadence=None):
 
     # get data
-    if lcpipeline == 'spoc2min':
+    if lcpipeline in ['spoc2min', 'tess-spoc']:
         lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline)
     elif lcpipeline == 'qlp':
         lcpaths = glob(join(
@@ -56,15 +58,25 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1, lcpipeline='spoc2mi
     # get the relevant light curve data
     (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
      sector, starid) = prepare_cpv_light_curve(
-         lcpath, cachedir, lcpipeline=lcpipeline
+         lcpath, cachedir, lcpipeline=lcpipeline,
+         do_quality_trim=do_quality_trim
      )
 
     # get period, t0, and periodogram (PDM or LombScargle)
     d = cpv_periodsearch(
         x_obs, y_flat, starid, cachedir, t0='binmin', periodogram_method='pdm'
     )
+    if period is not None:
+        d['period'] = period
 
-    bd = time_bin_magseries(d['times'], d['fluxs'], binsize=1200, minbinelems=1)
+    bd = time_bin_magseries(x_obs, y_flat, binsize=1200, minbinelems=1)
+    #if not edge_trim:
+    #    bd = time_bin_magseries(d['times'], d['fluxs'], binsize=1200, minbinelems=1)
+    #else:
+    #    _x = d['times']
+    #    _sel = (_x - np.nanmin(_x) > 1) & (_x - np.nanmin(_x) < 25)
+    #    bd = time_bin_magseries(d['times'][_sel], d['fluxs'][_sel], binsize=1200, minbinelems=1)
+
     #ylim = get_ylimguess(1e2*(bd['binnedmags']-np.nanmean(bd['binnedmags'])))
     ylim = get_ylimguess(y_flat)
 
@@ -79,79 +91,122 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1, lcpipeline='spoc2mi
 
     # make plot
     plt.close('all')
-    set_style('clean')
+    set_style(style)
     if showphase:
-        fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(0.6666*1.2*3.5, 1.2*1.25),
-                                constrained_layout=True, sharey=True)
+        fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(0.6666*1.2*4.5, 1.2*1.25),
+                                constrained_layout=True)
         axs = axs.flatten()
     else:
-        fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(0.6666*1.2*3.5, 1.2*1.25),
-                                constrained_layout=True, sharey=True)
+        fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(0.6666*1.2*4.5, 1.2*1.25),
+                                constrained_layout=True)
         axs = [axs]
 
-    axs[0].scatter(x_obs-np.nanmin(x_obs)-1, y_flat, c='k', s=0.35, linewidths=0, zorder=10)
+    c = 'k' if 'wob' not in style else 'white'
+    c2 = 'lightgray'
+
+    if bincadence is None:
+        axs[0].scatter(x_obs-np.nanmin(x_obs), y_flat, c=c, s=0.5, linewidths=0, zorder=10)
+        _, _groups = find_lc_timegroups(x_obs, mingap=0.5/24)
+        for _g in _groups:
+            axs[0].plot(x_obs[_g]-np.nanmin(x_obs), y_flat[_g], c=c2, zorder=8, lw=0.2, alpha=0.25)
+    else:
+        _bd = time_bin_magseries(x_obs, y_flat, binsize=bincadence, minbinelems=1)
+        _x, _y = _bd['binnedtimes'], _bd['binnedmags']
+        axs[0].scatter(_x-np.nanmin(_x), _y, c=c, s=0.5, linewidths=0, zorder=10)
+        _, _groups = find_lc_timegroups(_x, mingap=0.5/24)
+        for _g in _groups:
+            axs[0].plot(_x[_g]-np.nanmin(_x), _y[_g], c=c2, zorder=8, lw=0.2, alpha=0.25)
+
+
     axs[0].set_xlabel('Time [days]')
     axs[0].set_ylabel('Relative flux')
+    if showphase:
+        axs[1].set_ylabel('Relative flux')
 
-    axs[0].set_xlim([-1,11])
+    axs[0].set_xlim([-0.2,10.2])
+    if isinstance(xlim, (list, tuple)):
+        axs[0].set_xlim(xlim)
     if ticid == '220599904':
         axs[0].set_xlim([14, 24])
-    elif ticid == '402980664':
-        axs[0].set_xlim([4, 28])
 
     if showphase:
+        c1 = 'k' if 'wob' not in style else 'white'
         plot_phased_light_curve(
             d['times'], d['fluxs'], d['t0'], d['period'], None, ylim=ylim,
             xlim=[-0.6,0.6], binsize_phase=binsize_phase, BINMS=BINMS, titlestr=titlestr,
             showtext=False, showtitle=False, figsize=None, c0='darkgray',
-            alpha0=alpha0, c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
+            alpha0=alpha0, c1=c1, alpha1=1, phasewrap=True, plotnotscatter=False,
             fig=None, ax=axs[1], savethefigure=False, findpeaks_result=None,
             showxticklabels=[-0.5,0,0.5], titlefontsize=0, normfunc=0
         )
-        txt = f'$P$={d["period"]*24:.1f}hr'
-        axs[1].text(0.97,0.97,txt, transform=axs[1].transAxes, ha='right',va='top',
-                    color='k', fontsize='x-small')
+        txt = f'$P$={d["period"]*24:.1f}$\,$hr'
+        axs[1].text(0.97,0.97,txt, transform=axs[1].transAxes,
+                    ha='right',va='top')
 
         axs[1].update({'xlabel': 'Phase, φ'})
+
+    for ax in axs:
+        ax.set_ylim(ylim)
 
     outdir = join(RESULTSDIR, "normal_stars")
     if not os.path.exists(outdir): os.mkdir(outdir)
 
-    outpath = join(outdir, f"TIC{ticid}_s{str(sector).zfill(4)}.png")
+    s = '' if 'wob' not in style else '_wob'
+    p = '' if showphase else '_nophase'
+    outpath = join(outdir, f"TIC{ticid}_s{str(sector).zfill(4)}{s}{p}.png")
     savefig(fig, outpath, dpi=400)
 
 if __name__ == "__main__":
 
-    # qlp cpv
-    make_plot("260268310", sector=31, lcpipeline='qlp', showphase=1)
+    styles = ['clean_wob', 'clean']
+    for style in styles:
 
-    # qlp cpv
-    make_plot("35858638", sector=31, lcpipeline='qlp', showphase=1)
-    assert 0
+        # LP 12-502 cpv
+        #for sector in [18, 19, 25, 26, 53, 58, 73]:
+        for sector in [58]:
+            make_plot("402980664", sector=sector, style=style)
+            make_plot("402980664", sector=sector, style=style, showphase=0,
+                      bincadence=600)
+        # AB Dor, great rotator
+        make_plot('149248196', sector=7, style=style)
+        make_plot('149248196', sector=7, style=style, showphase=0)
 
-    # cpv
-    make_plot("402980664", sector=73, showphase=0)
+        # OO Peg, great EB
+        make_plot('314847177', sector=55, lcpipeline='tess-spoc', style=style,
+                 xlim=[-0.2, 28.2], do_quality_trim=0, period=2.98465593,
+                  edge_trim=1)
+        make_plot('314847177', sector=55, lcpipeline='tess-spoc', style=style,
+                  showphase=0, xlim=[-0.2, 28.2], do_quality_trim=0,
+                  period=2.98465593, edge_trim=1)
+        assert 0
 
-    # qlp cpv
-    make_plot("220599904", sector=31, lcpipeline='qlp', showphase=0)
 
-    # AU Mic
-    make_plot('441420236', sector=1)
+        # disk
+        make_plot('57528302', sector=36, showphase=0, style=style)
 
-    # disk
-    make_plot('57528302', sector=36, showphase=0)
+        # nice rotator (secretly cpv sometimes)
+        make_plot('177309964', sector=67, style=style)
+        make_plot('177309964', sector=67, style=style, showphase=0)
 
-    # nice rotator (secretly cpv sometimes)
-    make_plot('177309964', sector=67)
+        ## nice eb
+        #make_plot('281498280', sector=1, style=style)
+        #make_plot('281498280', sector=1, style=style, showphase=0)
 
-    # nice eb
-    make_plot('281498280', sector=1)
+        assert 0
+        # qlp cpv
+        make_plot("260268310", sector=31, lcpipeline='qlp', showphase=1)
 
-    # HIP 67522
-    make_plot("166527623")
+        # qlp cpv
+        make_plot("35858638", sector=31, lcpipeline='qlp', showphase=1)
 
+        # qlp cpv
+        make_plot("220599904", sector=31, lcpipeline='qlp', showphase=0)
+
+        # AU Mic
+        make_plot('441420236', sector=1)
+
+        # HIP 67522
+        make_plot("166527623")
 
     # # # shape-changing rotator
     # make_plot("93839949")
-
-
