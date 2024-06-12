@@ -483,7 +483,7 @@ def count_phased_local_minima(
 
 def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
                             lcpipeline='spoc2min', runmedianfilter=1,
-                            rotmode=0):
+                            rotmode=0, do_quality_trim=1):
     """
     Given a light curve (SPOC 2-minute or QLP), remove non-zero quality flags,
     median-normalize, and (optionally) run a 5-day median filter over the light
@@ -521,7 +521,8 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
     TIMEKEYDICT = {
         'qlp': 'TIME',
         'spoc2min': 'TIME',
-        'cdips': 'TMID_BJD'
+        'cdips': 'TMID_BJD',
+        'tess-spoc': 'TIME',
     }
     time = d[TIMEKEYDICT[lcpipeline]]
     FLUXKEYDICT = {
@@ -530,11 +531,13 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         # "DET_FLUX".  This is because they "changed their detrending
         # algorithm".  Qualitatively similar flattening in the latter.
         'qlp': ['KSPSAP_FLUX', 'DET_FLUX'],
-        'cdips': 'PCA3'
+        'cdips': 'PCA3',
+        'tess-spoc': 'SAP_FLUX',
     }
     if rotmode:
         FLUXKEYDICT = {
             'spoc2min': 'SAP_FLUX',
+            'tess-spoc': 'SAP_FLUX',
             # As of 11/21/2023, the QLP has switched from "KSPSAP_FLUX" to
             # "DET_FLUX".  This is because they "changed their detrending
             # algorithm".  Qualitatively similar flattening in the latter.
@@ -542,7 +545,7 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
             'cdips': 'IRM3'
         }
 
-    if lcpipeline in ['spoc2min', 'cdips']:
+    if lcpipeline in ['spoc2min', 'cdips', 'tess-spoc']:
         flux = d[FLUXKEYDICT[lcpipeline]]
     elif lcpipeline == 'qlp':
         if not rotmode:
@@ -561,13 +564,14 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
 
     QUALITYKEYDICT = {
         'spoc2min': 'QUALITY',
+        'tess-spoc': 'QUALITY',
         'qlp': 'QUALITY',
         'cdips': 'IRQ3'
     }
 
     qual = d[QUALITYKEYDICT[lcpipeline]]
 
-    if lcpipeline in ['spoc2min', 'qlp']:
+    if lcpipeline in ['spoc2min', 'qlp', 'tess-spoc']:
         cadenceno = d['CADENCENO']
         sel = (qual == 0)
 
@@ -575,10 +579,16 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         sel = (qual == 'G')
 
     # remove non-zero quality flags
-    x_obs = time[sel]
-    y_obs = flux[sel]
-    if lcpipeline in ['spoc2min', 'qlp']:
-        cadenceno_obs = cadenceno[sel]
+    if do_quality_trim:
+        x_obs = time[sel]
+        y_obs = flux[sel]
+        if lcpipeline in ['spoc2min', 'qlp']:
+            cadenceno_obs = cadenceno[sel]
+    else:
+        x_obs = time
+        y_obs = flux
+        if lcpipeline in ['spoc2min', 'qlp']:
+            cadenceno_obs = cadenceno
 
     if np.isfinite(y_obs).sum() < 20:
         return (None, None, None, None, None, None, None, None,
@@ -629,7 +639,7 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
     assert len(y_obs) == len(x_obs)
 
     if returncadenceno:
-        assert lcpipeline in ['spoc2min', 'qlp']
+        assert lcpipeline in ['spoc2min', 'qlp', 'tess-spoc']
         return (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend,
                 cadence_sec, sector, starid, cadenceno_obs)
     else:
