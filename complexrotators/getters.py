@@ -168,6 +168,8 @@ def _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline, require_lc=1,
         sel = (lcset.author=='QLP')
     elif lcpipeline == 'cdips':
         sel = (lcset.author=='CDIPS')
+    elif lcpipeline == 'tess-spoc':
+        sel = (lcset.author=='TESS-SPOC')
     lcc = lcset[sel].download_all(download_dir=cachedir)
 
     if cachedir is None:
@@ -177,7 +179,7 @@ def _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline, require_lc=1,
         lcpaths = glob(
             join(cachedir, f'tess*{ticid}*-s', f'tess*{ticid}*-s_lc.fits')
         )
-    elif lcpipeline in ['qlp', 'cdips']:
+    elif lcpipeline in ['qlp', 'cdips', 'tess-spoc']:
         lcpaths = glob(
             join(cachedir.replace("TESS","HLSP"), f'hlsp_{lcpipeline}*{ticid}*', f'*{ticid}*.fits')
         )
