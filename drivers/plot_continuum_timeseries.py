@@ -33,9 +33,17 @@ def given_specpaths_get_timeseries_data(spectrum_paths, order):
         hdul.close()
 
         # flux info
-        flx_2d, wav_2d = read_hires(
-            specpath, is_registered=0, return_err=0, start=10, end=-10
-        )
+        try:
+            flx_2d, wav_2d = read_hires(
+                specpath, is_registered=0, return_err=0, start=10, end=-10
+            )
+        except IndexError:
+            # odd edge case for j537.174 blue chip...
+            print(f'caught index error and pulling just flux for {specpath}...')
+            hdul = fits.open(specpath)
+            flx_2d = hdul[0].data
+            flx_2d = flx_2d[:, 10:-10]
+            hdul.close()
 
         flx, wav = flx_2d[order, :], wav_2d[order, :]
 
@@ -60,9 +68,15 @@ def given_specpaths_get_timeseries_data(spectrum_paths, order):
 
 def plot_continuum_timeseries(ylim=None):
 
+    # TIC 4029 (j533 also exists, and is decent)
     datadir = "/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC402980664_RDX"
     outdir = '/Users/luke/Dropbox/proj/cpv/results/HIRES_results'
     datestr = 'j531'
+
+    # TIC 1411
+    datadir = "/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC141146667_RDX"
+    outdir = '/Users/luke/Dropbox/proj/cpv/results/HIRES_results'
+    datestr = 'j537'
 
     chips = 'b,r,i'.split(",")
     norders = [23,16,10]
@@ -70,6 +84,10 @@ def plot_continuum_timeseries(ylim=None):
     for chip,norder in zip(chips,norders):
 
         spectrum_paths = np.sort(glob(join(datadir, f'{chip}{datestr}*fits')))
+
+        if 'TIC1411' in datadir:
+            # trim few junky outliers
+            spectrum_paths = spectrum_paths[1:-2]
 
         for order in range(norder):
 
