@@ -47,7 +47,8 @@ def main():
                 rasterized=r,
                 sector_range=sector_range,
                 N_cyclestobin=N_cyclestobin,
-                style='science_wob'
+                style='science_wob',
+                arial_font=1
             )
 
 if __name__ == "__main__":
