@@ -104,18 +104,23 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
     c = 'k' if 'wob' not in style else 'white'
     c2 = 'lightgray'
 
+
     if bincadence is None:
-        axs[0].scatter(x_obs-np.nanmin(x_obs), y_flat, c=c, s=0.5, linewidths=0, zorder=10)
+        x_offset = np.nanmin(x_obs)
+        if ticid == '314847177':
+            x_offset = np.nanmin(x_obs) + 15
+        axs[0].scatter(x_obs-x_offset, y_flat, c=c, s=0.5, linewidths=0, zorder=10)
         _, _groups = find_lc_timegroups(x_obs, mingap=0.5/24)
         for _g in _groups:
-            axs[0].plot(x_obs[_g]-np.nanmin(x_obs), y_flat[_g], c=c2, zorder=8, lw=0.2, alpha=0.25)
+            axs[0].plot(x_obs[_g]-x_offset, y_flat[_g], c=c2, zorder=8, lw=0.2, alpha=0.25)
     else:
         _bd = time_bin_magseries(x_obs, y_flat, binsize=bincadence, minbinelems=1)
         _x, _y = _bd['binnedtimes'], _bd['binnedmags']
-        axs[0].scatter(_x-np.nanmin(_x), _y, c=c, s=0.5, linewidths=0, zorder=10)
+        _x_offset = np.nanmin(_x)
+        axs[0].scatter(_x-_x_offset, _y, c=c, s=0.5, linewidths=0, zorder=10)
         _, _groups = find_lc_timegroups(_x, mingap=0.5/24)
         for _g in _groups:
-            axs[0].plot(_x[_g]-np.nanmin(_x), _y[_g], c=c2, zorder=8, lw=0.2, alpha=0.25)
+            axs[0].plot(_x[_g]-_x_offset, _y[_g], c=c2, zorder=8, lw=0.2, alpha=0.25)
 
 
     axs[0].set_xlabel('Time [days]')
@@ -161,26 +166,26 @@ if __name__ == "__main__":
     styles = ['clean_wob', 'clean']
     for style in styles:
 
-        # LP 12-502 cpv
-        #for sector in [18, 19, 25, 26, 53, 58, 73]:
-        for sector in [58]:
-            make_plot("402980664", sector=sector, style=style)
-            make_plot("402980664", sector=sector, style=style, showphase=0,
-                      bincadence=600)
         # AB Dor, great rotator
         make_plot('149248196', sector=7, style=style)
-        make_plot('149248196', sector=7, style=style, showphase=0)
+        make_plot('149248196', sector=7, style=style, showphase=0,
+                  xlim=[-0.2, 6.2])
+        assert 0
 
         # OO Peg, great EB
         make_plot('314847177', sector=55, lcpipeline='tess-spoc', style=style,
                  xlim=[-0.2, 28.2], do_quality_trim=0, period=2.98465593,
                   edge_trim=1)
         make_plot('314847177', sector=55, lcpipeline='tess-spoc', style=style,
-                  showphase=0, xlim=[-0.2, 28.2], do_quality_trim=0,
+                  showphase=0, xlim=[-0.2, 12.2], do_quality_trim=0,
                   period=2.98465593, edge_trim=1)
-        assert 0
 
-
+        # LP 12-502 cpv
+        #for sector in [18, 19, 25, 26, 53, 58, 73]:
+        for sector in [58]:
+            make_plot("402980664", sector=sector, style=style)
+            make_plot("402980664", sector=sector, style=style, showphase=0,
+                      bincadence=600)
         # disk
         make_plot('57528302', sector=36, showphase=0, style=style)
 
