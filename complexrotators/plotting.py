@@ -88,6 +88,7 @@ from collections import OrderedDict
 import matplotlib as mpl
 import matplotlib.colors as colors
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib import rcParams
 
 from astropy import units as u, constants as const
 from astropy.coordinates import SkyCoord
@@ -4809,7 +4810,8 @@ def plot_movie_phase_timegroups(
     rasterized=False,
     N_cyclestobin=3,
     sector_range=None,
-    style='science'
+    style='science',
+    arial_font=0
     ):
     """
     As in plot_phase
@@ -4941,6 +4943,8 @@ def plot_movie_phase_timegroups(
 
         plt.close('all')
         set_style(style)
+        if arial_font:
+            rcParams['font.family'] = 'Arial'
         factor=1.
         fig, ax = plt.subplots(figsize=(factor*3, factor*3))
 
