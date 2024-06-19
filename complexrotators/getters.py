@@ -65,6 +65,8 @@ from scipy.ndimage import gaussian_filter1d
 from astroquery.exceptions import ResolverError
 from astroquery.mast import Catalogs
 
+from cdips.utils.lcutils import astropy_utc_time_to_bjd_tdb
+
 def get_cqv_search_sample():
     localdir = '/Users/luke/local/SPOCLC'
     csvpath = join(localdir, 'gaia_X_spoc2min_merge.csv')
@@ -458,6 +460,10 @@ def get_specriver_data(
     datedict = {
         '141146667': 'j537'
     }
+    radecdict = {
+        # ra,dec
+        '141146667': [166.31, 59.25]
+    }
     assert str(ticid) in datedict
     datestr = datedict[str(ticid)]
 
@@ -525,6 +531,13 @@ def get_specriver_data(
         hl.close()
         t = Time(mjd, format='mjd', scale='utc')
 
-        spectimes.append(t.jd - 2457000) # to TJD
+        ra = radecdict[str(ticid)][0]*u.deg
+        dec = radecdict[str(ticid)][1]*u.deg
+        t_bjd_tdb, bary_corr = astropy_utc_time_to_bjd_tdb(
+            t, ra, dec, observatory='earthcenter', get_barycorr=1
+        )
+        print(f"barycorr is {bary_corr*24*60:.1f} minutes")
+
+        spectimes.append(t_bjd_tdb - 2457000) # to TJD
 
     return specpaths, np.array(spectimes), xvals, yvals
