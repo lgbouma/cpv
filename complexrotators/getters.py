@@ -14,6 +14,9 @@ tic4029 specialized:
 | get_tic4029_lc_and_mask
 | get_4029_manual_mask
 
+spectra:
+| get_specriver_data
+
 """
 #############
 ## LOGGING ##
@@ -53,6 +56,11 @@ from os.path import join
 from glob import glob
 import subprocess
 from complexrotators.paths import LKCACHEDIR, LOCALDIR, RESULTSDIR
+
+from astropy.io import fits
+from astropy import units as u, constants as const
+from astropy.time import Time
+from scipy.ndimage import gaussian_filter1d
 
 from astroquery.exceptions import ResolverError
 from astroquery.mast import Catalogs
@@ -434,4 +442,89 @@ def get_tic8_row(ticid, cachedir):
     return t8_row
 
 
+def get_specriver_data(
+    ticid, linestr, specdir='/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/'
+):
+    """
+    Get flux vs wavelength cutouts for your desired line, given HIRES .fits
+    spectra in a directory.
+    """
 
+    from cdips_followup.spectools import read_hires
+
+    datadir = join(specdir, f"TIC{ticid}_RDX")
+    assert os.path.exists(datadir)
+
+    datedict = {
+        '141146667': 'j537'
+    }
+    assert str(ticid) in datedict
+    datestr = datedict[str(ticid)]
+
+    assert linestr in ['Hα', 'Hγ', 'CaK']
+    infodict = {
+        # λ0, chip, order, normpoint(km/s)
+        'Hα': [6562.8, 'i', 0, 700],
+        'Hγ': [4340.47, 'b', 15, None],
+        'CaK': [3933.66, 'b', 6, None]
+    }
+
+    λ0 = infodict[linestr][0]
+    λmin, λmax = λ0 - 20, λ0 + 20
+    chip = infodict[linestr][1]
+    order = infodict[linestr][2]
+    normatvel = infodict[linestr][3]
+
+    def get_vel(wav, wav0):
+        deltawvlen = ( wav - wav0 )
+        delta_v = const.c * (deltawvlen / wav0)
+        delta_v_kms = delta_v.to(u.km/u.s)
+        return delta_v_kms.value
+
+    specpaths = np.sort(glob(join(datadir, f"{chip}{datestr}*.fits")))
+    assert len(specpaths) > 0
+    if str(ticid) == '141146667':
+        specpaths = specpaths[1:]
+
+    yvals, xvals, spectimes = [], [], []
+
+    for specpath in specpaths:
+
+        try:
+            flx_2d, wav_2d = read_hires(specpath, is_registered=0, return_err=0)
+        except IndexError:
+            # odd edge case for j537.174 blue chip...
+            print('caught index error and pulling just flux...')
+            hdul = fits.open(specpath)
+            flx_2d = hdul[0].data
+            hdul.close()
+        start = 10
+        end = -10
+        flx, wav = flx_2d[order, start:end], wav_2d[order, start:end]
+
+        sel = (wav > λmin) & (wav < λmax)
+        wav = wav[sel]
+        flx = flx[sel]
+
+        vels = get_vel(wav, λ0)
+
+        # FIXME might want to specify elsewhere...
+        # TODO : fit like a polynomial...
+        if normatvel is None:
+            norm_flx = np.nanmedian(flx)
+        else:
+            fn = lambda x: gaussian_filter1d(x, sigma=5)
+            norm_flx = fn(flx)[ np.argmin(abs(vels - normatvel)) ]
+
+        fn = lambda x: gaussian_filter1d(x, sigma=2)
+        yvals.append(fn(flx/norm_flx))
+        xvals.append(vels)
+
+        hl = fits.open(specpath)
+        mjd = hl[0].header['MJD']
+        hl.close()
+        t = Time(mjd, format='mjd', scale='utc')
+
+        spectimes.append(t.jd - 2457000) # to TJD
+
+    return specpaths, np.array(spectimes), xvals, yvals
