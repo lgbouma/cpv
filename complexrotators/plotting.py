@@ -18,6 +18,7 @@ Contents:
 
     Movies:
         | plot_movie_phase_timegroups
+        | plot_movie_specriver
 
     Single-object:
         | plot_tic4029_segments
@@ -5017,3 +5018,252 @@ def plot_movie_phase_timegroups(
             else:
                 last_e_end = e_end
                 timegap_counter = 0
+
+
+def plot_movie_specriver(
+    outdir,
+    ticid=None,
+    linestr='Hα',
+    lc_cadences='2min',
+    manual_period=None,
+    t0='binmin',
+    ylim=None,
+    binsize_phase=0.005,
+    xlim=[-0.6,0.6],
+    showtitle=1,
+    figsize_y=7,
+    rasterized=False,
+    sector: int=None,
+    style='science',
+    arial_font=0,
+    lamylim=None,
+    cb_ticks=[1,2,3]
+    ):
+    """
+    As in plot_phase
+    """
+
+    ###############
+    # get LC data #
+    ###############
+    assert isinstance(sector, int)
+    sector_range = [sector]
+
+    lclist = _get_cpv_lclist(lc_cadences, "TIC "+ticid)
+
+    if len(lclist) == 0:
+        print(f'WRN! Did not find light curves for {ticid}. Escaping.')
+        return 0
+
+    # for each light curve (sector / cadence specific), detrend if needed, get
+    # the best period.
+    _times, _fluxs, _t0s, _periods, _titlestrs, _sectorstrs = [],[],[],[],[],[]
+
+    for lc in lclist:
+
+        if sector_range is not None:
+            sector = lc.sector
+            ok_sector_list = list(sector_range)
+            if sector not in ok_sector_list:
+                continue
+
+        (time, flux, qual, x_obs, y_obs, y_flat,
+         y_trend, x_trend, cadence_sec, sector,
+         starid) = prepare_given_lightkurve_lc(lc, ticid, outdir)
+
+        # get t0, period, lsp
+        if not isinstance(t0, float) and isinstance(manual_period, float):
+            d = cpv_periodsearch(x_obs, y_flat, starid, outdir, t0=t0)
+        else:
+            d = {'times': x_obs, 'fluxs': y_flat,
+                 't0': t0, 'period': manual_period}
+
+        _t0 = d['t0']
+        if isinstance(t0, float):
+            _t0 = t0
+        period = d['period']
+        if isinstance(manual_period, float):
+            period = manual_period
+        titlestr = starid.replace('_',' ')
+
+        _times.append(d['times'])
+        _fluxs.append(d['fluxs'])
+        _t0s.append(_t0)
+        _periods.append(period)
+        _titlestrs.append(titlestr)
+        _sectorstrs.append(np.repeat(sector, len(d['times'])))
+
+    # merge lightcurve data, and split before making the plot.
+    times = np.hstack(_times)
+    fluxs = np.hstack(_fluxs)
+    t0s = np.hstack(_t0s)
+    periods = np.hstack(_periods)
+    titlestrs = np.hstack(_titlestrs)
+    sectorstrs = np.hstack(_sectorstrs)
+
+    #################
+    # get spec data #
+    #################
+    from complexrotators.getters import get_specriver_data
+    specpaths, spectimes, xvals, yvals = get_specriver_data(
+        ticid, linestr
+    )
+
+    t0 = t0s[0]
+    period = periods[0]
+
+    _pd = phase_magseries(spectimes, np.ones(len(spectimes)), period, t0,
+                          wrap=0, sort=False)
+    specphases = _pd['phase']
+    specphases[specphases > 0.5] -= 1
+
+    flux_arr = np.zeros(
+        (len(xvals[0]), len(spectimes))
+    )
+    for ix, yval in enumerate(yvals):
+        flux_arr[:, ix] = yval
+
+
+    ##########################################
+    # Begin the plot
+
+    for time_index, (spectime, specphase, specpath, xval, yval) in enumerate(zip(
+        spectimes, specphases, specpaths, xvals, yvals
+    )):
+
+        plt.close("all")
+        set_style(style)
+        if arial_font:
+            rcParams['font.family'] = 'Arial'
+
+        fig = plt.figure(figsize=(8,3))
+        axd = fig.subplot_mosaic(
+            """
+            ABC
+            """#,
+            #gridspec_kw={
+            #    "width_ratios": [1, 1, 1, 1]
+            #}
+        )
+
+        ##########################################
+        # flux vs phase
+        ax = axd['A']
+        txt = ''
+        c0 = 'darkgray'
+        c1 = 'k' if 'wob' not in style else 'white'
+        plot_phased_light_curve(
+            times, fluxs, t0, period, None, fig=fig, ax=ax, titlestr=None,
+            binsize_phase=binsize_phase, xlim=xlim, yoffset=0, showtext=txt,
+            savethefigure=False, dy=0, rasterized=rasterized, c0=c0, c1=c1
+        )
+        if isinstance(ylim, (list, tuple)):
+            ax.set_ylim(ylim)
+        if isinstance(xlim, (list, tuple)):
+            ax.set_xlim(xlim)
+
+        ylim = ax.get_ylim()
+        ax.vlines(specphase, ylim[0], ylim[1], colors='darkgray', alpha=0.5,
+                  linestyles='--', zorder=-10, linewidths=0.5)
+        ax.set_ylim(ylim)
+
+        ax.set_ylabel(r"$\Delta$ Flux [%]", fontsize='large')
+        ax.set_xlabel(r"Phase, φ", fontsize='large')
+        format_ax(ax)
+
+        ##########################################
+        # flux vs wavelength
+        ax = axd['B']
+
+        c = 'k' if 'wob' not in style else 'white'
+        ax.plot(
+            xval, yval, c=c, lw=0.5
+        )
+        txt = f't={24*(spectime-min(spectimes)):.1f}hr, φ={specphase:.2f}'
+        ax.text(
+            0.96, 0.96, txt, ha='right', va='top', transform=ax.transAxes
+        )
+        txt = linestr
+        ax.text(
+            0.04, 0.96, txt, ha='left', va='top', transform=ax.transAxes
+        )
+
+        assert isinstance(lamylim, (list, tuple))
+        ax.set_ylim(lamylim)
+
+        ax.set_ylabel("$f_\lambda$", fontsize='large')
+        ax.set_xlabel(r"Δv [km/s]", fontsize='large')
+
+        ##########################################
+        # specriver: phase vs wavelength, color by flux
+        ax = axd['C']
+
+        cmap = 'YlGnBu'
+        cmap = 'Greys_r'
+        vmin = lamylim[0]
+        vmax = lamylim[1]
+        c = ax.pcolor(xval,
+                      24*(spectimes-min(spectimes)),
+                      flux_arr.T,
+                      cmap=cmap,
+                      norm=colors.LogNorm(
+                           vmin=0.9, vmax=vmax
+                      ),
+                      shading='auto', rasterized=True)
+
+        ax.set_ylabel("Time [hr]", fontsize='large')
+        ax.set_xlabel(r"Δv [km/s]", fontsize='large')
+
+        xmin, xmax = ax.get_xlim()
+        ax.hlines(24*(spectime-min(spectimes)), xmin, xmax,
+                  colors='darkgray', alpha=0.9, linestyles='--', zorder=2,
+                  linewidths=0.5)
+        ax.set_xlim((xmin, xmax))
+
+        # sick inset colorbar
+        x0,y0,dx,dy = 1.02, -0.09, 0.3, 0.02
+        axins1 = inset_axes(ax, width="100%", height="100%",
+                            bbox_to_anchor=(x0,y0,dx,dy),
+                            loc='lower right',
+                            bbox_transform=ax.transAxes)
+        cb = fig.colorbar(c, cax=axins1, orientation="horizontal",
+                          extend="both")
+
+        cb.set_label("$f_\lambda$", rotation=0, labelpad=3)
+        if cb_ticks is not None:
+            cb.set_ticks(cb_ticks)
+            cb.set_ticklabels(cb_ticks)
+        else:
+            cb.ax.yaxis.set_tick_params(left=False, labelleft=False)
+            cb.ax.xaxis.set_tick_params(left=False, labelleft=False)
+            cb.ax.xaxis.set_tick_params(bottom=False, labelbottom=False)
+
+            # cb.set_ticks([])
+            # tick_labels = cb.ax.get_yticklabels()
+            # #plt.setp(tick_labels, visible=False)
+            # #cb.ax.tick_params(color='k')
+            # ## Get the current tick locations and labels
+            # #tick_locs = [1,vmax]
+            # #tick_labels = [1, int(vmax)]
+            # ## Set the new tick locations and labels
+            # #cb.set_ticks(tick_locs)
+            # cb.set_ticklabels(tick_labels, fontsize='xx-small')
+
+
+        fig.tight_layout()
+
+        s = ''
+        if rasterized:
+            s += "_rasterized"
+        if 'wob' in style:
+            s += '_wob'
+
+        tstr = str(time_index).zfill(4)
+
+        outpath = join(
+            outdir,
+            f"specriver_{ticid}_{linestr}_{tstr}_{lc_cadences}{s}.png"
+        )
+
+        fig.savefig(outpath, bbox_inches='tight', dpi=450)
+        print(f"saved {outpath}")
