@@ -456,6 +456,9 @@ def get_specriver_data(
 
     datadir = join(specdir, f"TIC{ticid}_RDX")
     assert os.path.exists(datadir)
+    # NOTE: this must be downloaded from JUMP
+    timecsvpath = join(datadir, f'tic{ticid}_trv.csv')
+    timedf = pd.read_csv(timecsvpath, comment='#')
 
     datedict = {
         '141146667': 'j537'
@@ -466,6 +469,9 @@ def get_specriver_data(
     }
     assert str(ticid) in datedict
     datestr = datedict[str(ticid)]
+
+    sel = timedf.observation_id.str.contains(datedict[ticid])
+    seltimedf = timedf[sel]
 
     assert linestr in ['Hα', 'Hγ', 'CaK']
     infodict = {
@@ -495,6 +501,8 @@ def get_specriver_data(
     yvals, xvals, spectimes = [], [], []
 
     for specpath in specpaths:
+
+        obs_id = os.path.basename(specpath).rstrip(".fits").lstrip(chip)
 
         try:
             flx_2d, wav_2d = read_hires(specpath, is_registered=0, return_err=0)
@@ -538,6 +546,14 @@ def get_specriver_data(
         )
         print(f"barycorr is {bary_corr*24*60:.1f} minutes")
 
-        spectimes.append(t_bjd_tdb - 2457000) # to TJD
+        # this t_bjd_tdb is just from the "MJD" header keyword... i am not even
+        # sure if this is file cretaion time, midtime, or what.  use the jump
+        # time instead, which i think might even be photon weighted
+        #spectimes.append(t_bjd_tdb - 2457000) # to TJD
+
+        jumptime_bjd_tdb = seltimedf.loc[
+            seltimedf.observation_id==obs_id, 'bjd'
+        ].iloc[0]
+        spectimes.append(jumptime_bjd_tdb - 2457000) # to TJD
 
     return specpaths, np.array(spectimes), xvals, yvals
