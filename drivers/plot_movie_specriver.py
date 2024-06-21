@@ -15,7 +15,7 @@ def main():
     ticids = [
         "141146667"
     ]
-    linestr = 'Hγ'
+    linestr = 'Hα' # "Hγ"
 
     paramdict = {
         # period in hr, t0, flux ylim, sector number, lambdaylim
