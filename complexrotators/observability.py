@@ -560,7 +560,8 @@ def flatten_tdf(tdf, ticid):
         'ticid': ticid,
         'sectors': ",".join(list(tdf['sector'].astype(str))),
         'N_sectors': len(tdf),
-        'N_200sec': ",".join(list(tdf['N_120sec'].astype(str))),
+        'N_120sec': ",".join(list(tdf['N_120sec'].astype(str))),
+        'N_200sec': ",".join(list(tdf['N_200sec'].astype(str))),
         'N_FFI': ",".join(list(tdf['N_FFI'].astype(str))),
     }, index=[0])
 
