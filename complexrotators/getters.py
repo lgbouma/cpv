@@ -412,6 +412,8 @@ def get_20sec_cadence_spoc_tess_lightcurve(
 
 def get_tic8_row(ticid, cachedir):
 
+    import time
+
     cachepath = join(cachedir, f"TIC_{ticid}_mast_tic8_query.csv")
 
     if os.path.exists(cachepath):
