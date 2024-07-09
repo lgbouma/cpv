@@ -950,6 +950,7 @@ def plot_phased_light_curve(
     # time units
     # x_fold = (x - t0 + 0.5 * period) % period - 0.5 * period
     # phase units
+    # phase = (times - epoch)/period - floor((times - epoch)/period)
     if plotnotscatter:
         _pd = phase_magseries(x, y, period, t0, wrap=phasewrap,
                               sort=False)
@@ -5238,6 +5239,7 @@ def plot_movie_specriver(
             cb.ax.xaxis.set_tick_params(left=False, labelleft=False)
             cb.ax.xaxis.set_tick_params(bottom=False, labelbottom=False)
 
+            # NOTE doesn't work...
             # cb.set_ticks([])
             # tick_labels = cb.ax.get_yticklabels()
             # #plt.setp(tick_labels, visible=False)
