@@ -73,10 +73,10 @@ def plot_continuum_timeseries(ylim=None):
     outdir = '/Users/luke/Dropbox/proj/cpv/results/HIRES_results'
     datestr = 'j531'
 
-    # TIC 1411
-    datadir = "/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC141146667_RDX"
-    outdir = '/Users/luke/Dropbox/proj/cpv/results/HIRES_results'
-    datestr = 'j537'
+    #  # TIC 1411
+    #  datadir = "/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC141146667_RDX"
+    #  outdir = '/Users/luke/Dropbox/proj/cpv/results/HIRES_results'
+    #  datestr = 'j537'
 
     chips = 'b,r,i'.split(",")
     norders = [23,16,10]
@@ -102,7 +102,7 @@ def plot_continuum_timeseries(ylim=None):
 
             # make plot
             plt.close("all")
-            set_style("clean")
+            set_style("science")
 
             fig, ax = plt.subplots(figsize=(10,3))
             lc = multiline(
@@ -155,9 +155,11 @@ def plot_continuum_timeseries(ylim=None):
                 s += f'_ylim{ylim[0]}-{ylim[1]}'
             outpath = os.path.join(outdir, f'{orderstr}_continuum_evoln_{s}.png')
 
+            #plt.show(block=True)
+
             savefig(fig, outpath, dpi=400, writepdf=0)
 
 if __name__ == "__main__":
 
-    plot_continuum_timeseries(ylim=list([0,10]))
+    #plot_continuum_timeseries(ylim=list([0,10]))
     plot_continuum_timeseries(ylim=list([0,3]))
