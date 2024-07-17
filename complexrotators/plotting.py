@@ -1458,14 +1458,22 @@ def plot_cpvvetter(
         """
     )
 
-    axd['E'].get_shared_x_axes().join(axd['E'], axd['G'])
-    axd['E'].get_shared_x_axes().join(axd['E'], axd['I'])
-    axd['G'].get_shared_x_axes().join(axd['G'], axd['I'])
+    try:
+        axd['E'].get_shared_x_axes().join(axd['E'], axd['G'])
+        axd['E'].get_shared_x_axes().join(axd['E'], axd['I'])
+        axd['G'].get_shared_x_axes().join(axd['G'], axd['I'])
+        axd['F'].get_shared_x_axes().join(axd['F'], axd['H'])
+        axd['F'].get_shared_x_axes().join(axd['F'], axd['J'])
+        axd['H'].get_shared_x_axes().join(axd['H'], axd['J'])
 
-    axd['F'].get_shared_x_axes().join(axd['F'], axd['H'])
-    axd['F'].get_shared_x_axes().join(axd['F'], axd['J'])
-    axd['H'].get_shared_x_axes().join(axd['H'], axd['J'])
-
+    except:
+        # syntax changed circa matplotlib3.6
+        axd['E'].get_shared_x_axes().joined(axd['E'], axd['G'])
+        axd['E'].get_shared_x_axes().joined(axd['E'], axd['I'])
+        axd['G'].get_shared_x_axes().joined(axd['G'], axd['I'])
+        axd['F'].get_shared_x_axes().joined(axd['F'], axd['H'])
+        axd['F'].get_shared_x_axes().joined(axd['F'], axd['J'])
+        axd['H'].get_shared_x_axes().joined(axd['H'], axd['J'])
 
     # pdcsap flux vs time (qual==0, after 5-day median smooth)
     ax = axd['D']
