@@ -447,7 +447,8 @@ def get_tic8_row(ticid, cachedir):
 
 
 def get_specriver_data(
-    ticid, linestr, specdir='/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/'
+    ticid, linestr, specdir='/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/',
+    dlambda=20
 ):
     """
     Get flux vs wavelength cutouts for your desired line, given HIRES .fits
@@ -462,12 +463,18 @@ def get_specriver_data(
     timecsvpath = join(datadir, f'tic{ticid}_trv.csv')
     timedf = pd.read_csv(timecsvpath, comment='#')
 
+    normpointdict = {
+        '141146667': 700,
+        '402980664': 350
+    }
     datedict = {
-        '141146667': 'j537'
+        '141146667': 'j537',
+        '402980664': 'j531'
     }
     radecdict = {
         # ra,dec
-        '141146667': [166.31, 59.25]
+        '141146667': [166.31, 59.25],
+        '402980664': [16.733, 80.459]
     }
     assert str(ticid) in datedict
     datestr = datedict[str(ticid)]
@@ -478,13 +485,13 @@ def get_specriver_data(
     assert linestr in ['Hα', 'Hγ', 'CaK']
     infodict = {
         # λ0, chip, order, normpoint(km/s)
-        'Hα': [6562.8, 'i', 0, 700],
+        'Hα': [6562.8, 'i', 0, normpointdict[ticid]],
         'Hγ': [4340.47, 'b', 15, None],
         'CaK': [3933.66, 'b', 6, None]
     }
 
     λ0 = infodict[linestr][0]
-    λmin, λmax = λ0 - 20, λ0 + 20
+    λmin, λmax = λ0 - dlambda, λ0 + dlambda
     chip = infodict[linestr][1]
     order = infodict[linestr][2]
     normatvel = infodict[linestr][3]
