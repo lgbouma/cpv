@@ -13,20 +13,28 @@ if not os.path.exists(PLOTDIR): os.mkdir(PLOTDIR)
 def main():
 
     ticids = [
-        "141146667"
+        #"141146667"
+        "402980664"
     ]
     linestr = 'Hα' # "Hγ"
 
     paramdict = {
-        # period in hr, t0, flux ylim, sector number, lambdaylim
+        # period in hr, t0, flux ylim, sector number, lambdaylim, dlambda
         '141146667': [0.163762133*24, 3339.9326, [-10, 6], 75,
-                      {'Hα':[0.7, 3.8], 'Hγ': [0.7, 7], 'CaH': [0.7, 10]}]
+                      {'Hα':[0.7, 3.8], 'Hγ': [0.7, 7], 'CaH': [0.7, 10]}, 20],
+        '402980664': [18.5611, 1791.12, [-4.8,3], 73,
+                      {'Hα':[0.7, 2], 'Hγ': [0.7, 7], 'CaH': [0.7, 10]}, 10]
     }
     cb_tickd = {
-        'Hα': [1,2,3],
-        'Hγ': None,
-        'CaH': None
+        '141146667': {
+            'Hα': [1,2,3], 'Hγ': None, 'CaH': None
+        },
+        '402980664': {
+            'Hα': [1,2], 'Hγ': None, 'CaH': None
+        }
     }
+
+    lognorm = False
 
     for ticid in ticids:
 
@@ -38,6 +46,7 @@ def main():
         ylim = paramdict[ticid][2]
         sector = paramdict[ticid][3]
         lamylim = paramdict[ticid][4][linestr]
+        dlambda = paramdict[ticid][5]
 
         for r in [0]:
             cp.plot_movie_specriver(
@@ -55,7 +64,9 @@ def main():
                 sector=sector,
                 style='science_wob',
                 arial_font=1,
-                cb_ticks=cb_tickd[linestr]
+                cb_ticks=cb_tickd[ticid][linestr],
+                dlambda=dlambda,
+                lognorm=lognorm
             )
 
 if __name__ == "__main__":
