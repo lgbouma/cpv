@@ -5046,7 +5046,9 @@ def plot_movie_specriver(
     style='science',
     arial_font=0,
     lamylim=None,
-    cb_ticks=[1,2,3]
+    cb_ticks=[1,2,3],
+    dlambda=20,
+    lognorm=True
     ):
     """
     As in plot_phase
@@ -5115,7 +5117,7 @@ def plot_movie_specriver(
     #################
     from complexrotators.getters import get_specriver_data
     specpaths, spectimes, xvals, yvals = get_specriver_data(
-        ticid, linestr
+        ticid, linestr, dlambda=dlambda
     )
 
     t0 = t0s[0]
@@ -5211,13 +5213,19 @@ def plot_movie_specriver(
         cmap = 'Greys_r'
         vmin = lamylim[0]
         vmax = lamylim[1]
+
+        if lognorm:
+            # NOTE: this generates buggy behavior with the colorbar ticks and
+            # ticklabels below.  use only if needed?
+            norm = colors.LogNorm(vmin=0.9, vmax=vmax)
+        else:
+            norm = colors.Normalize(vmin=0.9, vmax=vmax)
+
         c = ax.pcolor(xval,
                       24*(spectimes-min(spectimes)),
                       flux_arr.T,
                       cmap=cmap,
-                      norm=colors.LogNorm(
-                           vmin=0.9, vmax=vmax
-                      ),
+                      norm=norm,
                       shading='auto', rasterized=True)
 
         ax.set_ylabel("Time [hr]", fontsize='large')
@@ -5246,18 +5254,7 @@ def plot_movie_specriver(
             cb.ax.yaxis.set_tick_params(left=False, labelleft=False)
             cb.ax.xaxis.set_tick_params(left=False, labelleft=False)
             cb.ax.xaxis.set_tick_params(bottom=False, labelbottom=False)
-
-            # NOTE doesn't work...
-            # cb.set_ticks([])
-            # tick_labels = cb.ax.get_yticklabels()
-            # #plt.setp(tick_labels, visible=False)
-            # #cb.ax.tick_params(color='k')
-            # ## Get the current tick locations and labels
-            # #tick_locs = [1,vmax]
-            # #tick_labels = [1, int(vmax)]
-            # ## Set the new tick locations and labels
-            # #cb.set_ticks(tick_locs)
-            # cb.set_ticklabels(tick_labels, fontsize='xx-small')
+        cb.update_ticks()
 
 
         fig.tight_layout()
