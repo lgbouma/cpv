@@ -71,7 +71,7 @@ def plot_continuum_timeseries(ylim=None):
     # TIC 4029 (j533 also exists, and is decent)
     datadir = "/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC402980664_RDX"
     outdir = '/Users/luke/Dropbox/proj/cpv/results/HIRES_results'
-    datestr = 'j531'
+    datestr = 'j533'
 
     #  # TIC 1411
     #  datadir = "/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC141146667_RDX"
@@ -88,6 +88,8 @@ def plot_continuum_timeseries(ylim=None):
         if 'TIC1411' in datadir:
             # trim few junky outliers
             spectrum_paths = spectrum_paths[1:-2]
+        if 'TIC4029' in datadir and datestr == 'j533':
+            spectrum_paths = spectrum_paths[:-1]
 
         for order in range(norder):
 
