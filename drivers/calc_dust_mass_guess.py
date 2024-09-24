@@ -53,7 +53,7 @@ print(
     f"R_in = {R_in:.2f}\n"
     f"R_out = {R_out:.2f}\n"
     f"T_dust = {T_dust}\n"
-    f"L_star = {L_star.to(u.Lsun):.1f},\n"
+    f"L_star = {L_star.to(u.Lsun):.1e},\n"
     f"L_dust = {L_dust.to(u.Lsun):.1e},\n"
     f"L_ratio = {L_ratio:.3f},\n"
     f"N_dust_grains = {N_dust_grains.cgs:.1e}\n"
