@@ -115,6 +115,27 @@ def calc_flux_ratio_at_2microns(teff_star, teff_dust, dust_bb_scaling_factor):
     flux_total = flux_star + flux_dust
     return (flux_star / flux_total).value
 
+def calc_flux_ratio_at_10microns(teff_star, teff_dust, dust_bb_scaling_factor):
+    """
+    Calculate the flux ratio at 10 microns (20000 angstroms).
+
+    Args:
+        teff_star (float): Effective temperature of the star in Kelvin.
+        teff_dust (float): Effective temperature of the dust in Kelvin.
+        dust_bb_scaling_factor (float): Scaling factor for the dust blackbody luminosity.
+
+    Returns:
+        float: Flux ratio at 2 microns.
+    """
+    wavelength_2microns = 10e-6 * u.m
+    flux_star, _ = blackbody_flux(teff_star, wavelength_2microns)
+    flux_dust, _ = blackbody_flux(teff_dust, wavelength_2microns)
+    flux_dust *= dust_bb_scaling_factor
+    flux_total = flux_star + flux_dust
+    return (flux_star / flux_total).value
+
+
+
 def bol_flux_ratio(teff_star, teff_dust, dust_bb_scaling_factor):
     """
     Calculate the bolometric flux ratio of the scaled 1500 K blackbody to the 3000 K blackbody.
@@ -206,6 +227,11 @@ def main():
         teff_star, teff_dust, dust_bb_scaling_factor
     )
     print(f"Flux ratio at 2 microns (3000 K / total): {flux_ratio_at_2microns:.4f}")
+    flux_ratio_at_10microns = calc_flux_ratio_at_10microns(
+        teff_star, teff_dust, dust_bb_scaling_factor
+    )
+    print(f"Flux ratio at 10 microns (3000 K / total): {flux_ratio_at_10microns:.4f}")
+
 
     dust_to_star_bol_flux_ratio = bol_flux_ratio(teff_star, teff_dust, dust_bb_scaling_factor)
     print(f"Bol flux ratio (scaled 1500 K / 3000 K): "
