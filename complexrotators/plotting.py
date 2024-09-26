@@ -5048,7 +5048,10 @@ def plot_movie_specriver(
     lamylim=None,
     cb_ticks=[1,2,3],
     dlambda=20,
-    lognorm=True
+    lognorm=True,
+    figsize=(8,3),
+    showhline=1
+    # NOTE: no savepdf option, b/c the image does not render
     ):
     """
     As in plot_phase
@@ -5147,7 +5150,7 @@ def plot_movie_specriver(
         if arial_font:
             rcParams['font.family'] = 'Arial'
 
-        fig = plt.figure(figsize=(8,3))
+        fig = plt.figure(figsize=figsize)
         axd = fig.subplot_mosaic(
             """
             ABC
@@ -5209,8 +5212,10 @@ def plot_movie_specriver(
         # specriver: phase vs wavelength, color by flux
         ax = axd['C']
 
-        cmap = 'YlGnBu'
-        cmap = 'Greys_r'
+        if 'wob' in style:
+            cmap = 'Greys_r'
+        else:
+            cmap = 'Greys'
         vmin = lamylim[0]
         vmax = lamylim[1]
 
@@ -5232,9 +5237,10 @@ def plot_movie_specriver(
         ax.set_xlabel(r"Δv [km/s]", fontsize='large')
 
         xmin, xmax = ax.get_xlim()
-        ax.hlines(24*(spectime-min(spectimes)), xmin, xmax,
-                  colors='darkgray', alpha=0.9, linestyles='--', zorder=2,
-                  linewidths=0.5)
+        if showhline:
+            ax.hlines(24*(spectime-min(spectimes)), xmin, xmax,
+                      colors='darkgray', alpha=0.9, linestyles='--', zorder=2,
+                      linewidths=0.5)
         ax.set_xlim((xmin, xmax))
 
         # sick inset colorbar

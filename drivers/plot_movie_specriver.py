@@ -13,28 +13,30 @@ if not os.path.exists(PLOTDIR): os.mkdir(PLOTDIR)
 def main():
 
     ticids = [
-        #"141146667"
-        "402980664"
+        "141146667"
+        #"402980664"
     ]
     linestr = 'Hα' # "Hγ"
 
     paramdict = {
         # period in hr, t0, flux ylim, sector number, lambdaylim, dlambda
         '141146667': [0.163762133*24, 3339.9326, [-10, 6], 75,
-                      {'Hα':[0.7, 3.8], 'Hγ': [0.7, 7], 'CaH': [0.7, 10]}, 20],
+                      {'Hα':[0.7, 2.1], 'Hγ': [0.7, 7], 'CaH': [0.7, 10]}, 20],
         '402980664': [18.5611, 1791.12, [-4.8,3], 73,
                       {'Hα':[0.7, 2], 'Hγ': [0.7, 7], 'CaH': [0.7, 10]}, 10]
     }
     cb_tickd = {
         '141146667': {
-            'Hα': [1,2,3], 'Hγ': None, 'CaH': None
+            'Hα': [1,2], 'Hγ': None, 'CaH': None
         },
         '402980664': {
             'Hα': [1,2], 'Hγ': None, 'CaH': None
         }
     }
 
-    lognorm = False
+    # NOTE: depends on star.  linear norm, tuning vmin/vmax in "lambdaylim"
+    # above preferred
+    lognorm = 0
 
     for ticid in ticids:
 
@@ -62,9 +64,16 @@ def main():
                 showtitle=0,
                 rasterized=r,
                 sector=sector,
+                # NOTE: parameters below for F2024 proposals, but look good!
+                #  style='science',
+                #  figsize=(8,2.5),
+                #  savepdf=1,
+                #  showhline=0,
+                #  cb_ticks=[1,2],
+                # NOTE: default parameter set below
                 style='science_wob',
-                arial_font=1,
                 cb_ticks=cb_tickd[ticid][linestr],
+                arial_font=1,
                 dlambda=dlambda,
                 lognorm=lognorm
             )
