@@ -3,6 +3,7 @@ from os.path import join
 from glob import glob
 
 import numpy as np, matplotlib.pyplot as plt, pandas as pd
+from matplotlib import rcParams
 
 from aesthetic.plot import set_style, savefig
 
@@ -32,8 +33,9 @@ def get_ylimguess(y):
 
 
 def make_plot(ticid, sector=None, showtitles=0, showphase=1,
-              lcpipeline='spoc2min', style='clean', xlim=None,
-              do_quality_trim=1, period=None, edge_trim=0, bincadence=None):
+              showtext=1, lcpipeline='spoc2min', style='clean', xlim=None,
+              do_quality_trim=1, period=None, edge_trim=0, bincadence=None,
+              arial_font=0):
 
     # get data
     if lcpipeline in ['spoc2min', 'tess-spoc']:
@@ -92,6 +94,9 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
     # make plot
     plt.close('all')
     set_style(style)
+    if arial_font:
+        rcParams['font.family'] = 'Arial'
+
     if showphase:
         fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(0.6666*1.2*4.5, 1.2*1.25),
                                 constrained_layout=True)
@@ -145,8 +150,9 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
             showxticklabels=[-0.5,0,0.5], titlefontsize=0, normfunc=0
         )
         txt = f'$P$={d["period"]*24:.1f}$\,$hr'
-        axs[1].text(0.97,0.97,txt, transform=axs[1].transAxes,
-                    ha='right',va='top')
+        if showtext:
+            axs[1].text(0.97,0.97,txt, transform=axs[1].transAxes,
+                        ha='right',va='top')
 
         axs[1].update({'xlabel': 'Phase, φ'})
 
@@ -163,14 +169,29 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
 
 if __name__ == "__main__":
 
-    styles = ['clean_wob', 'clean']
+    # Sep2024 JWST/LCO CPVs
+    make_plot("141146667", sector=41, style='clean', showtext=0,
+              arial_font=1)
+    make_plot("402980664", sector=58, style='clean', showtext=0,
+              arial_font=1)
+    make_plot("300651846", sector=66, style='clean', showtext=0,
+              arial_font=1)
+
+    styles = ['clean', 'clean_wob']
+
     for style in styles:
+
+        # LP 12-502 cpv
+        #for sector in [18, 19, 25, 26, 53, 58, 73]:
+        for sector in [58]:
+            make_plot("402980664", sector=sector, style=style)
+            make_plot("402980664", sector=sector, style=style, showphase=0,
+                      bincadence=600)
 
         # AB Dor, great rotator
         make_plot('149248196', sector=7, style=style)
         make_plot('149248196', sector=7, style=style, showphase=0,
                   xlim=[-0.2, 6.2])
-        assert 0
 
         # OO Peg, great EB
         make_plot('314847177', sector=55, lcpipeline='tess-spoc', style=style,
@@ -180,12 +201,6 @@ if __name__ == "__main__":
                   showphase=0, xlim=[-0.2, 12.2], do_quality_trim=0,
                   period=2.98465593, edge_trim=1)
 
-        # LP 12-502 cpv
-        #for sector in [18, 19, 25, 26, 53, 58, 73]:
-        for sector in [58]:
-            make_plot("402980664", sector=sector, style=style)
-            make_plot("402980664", sector=sector, style=style, showphase=0,
-                      bincadence=600)
         # disk
         make_plot('57528302', sector=36, showphase=0, style=style)
 
