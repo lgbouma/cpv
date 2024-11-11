@@ -81,7 +81,12 @@ def dust_transit_depth_detailedopacity(
         r_star (float): Radius of the star (in solar radii).
         Sigma (float): Surface density of the clump.
         A_clump_ratio (float): Ratio of clump area to star area.
-        opacitysource (str): "Draine2003", "DL03", "C11" or "J13".  (Per gasvsdust.getters)
+        opacitysource (str):
+            "Draine2003",  ISM from Draine's website
+            "G23",  Gordon2023 ISM
+            "G29_pl",  Powerlaw+ G29-38 Alycia Weinberger fit
+            "G29_cr",  Powerlaw+ G29-38 Alycia Weinberger with cranked up crystalline olivine
+            "DL03", "C11" or "J13".  (Per gasvsdust.getters)
         opacitysubtype (str): Pick a specific dust composition from the DustEM suite:
             C11: PAH0_MC10, PAH1_MC10, amCBEx, amCBEx_2, aSilx
             DL01: PAH0_DL01, PAH1_DL01, Gra, Gra_2, aSil
@@ -94,7 +99,9 @@ def dust_transit_depth_detailedopacity(
     # Star area
     A_star = np.pi * (r_star * 6.96e8)**2  # Convert solar radii to meters
 
-    assert opacitysource in ["Draine2003", "DL03", "C11", "J13", "G23"]
+    assert opacitysource in [
+        "Draine2003", "DL03", "C11", "J13", "G23", "G29_pl", "G29_cr"
+    ]
 
     from scipy.interpolate import interp1d
     if opacitysource == 'Draine2003':
@@ -116,6 +123,14 @@ def dust_transit_depth_detailedopacity(
         fudge = 3.65e4
         # Absorption + scattering cross section per mass of dust [opacity] in cm^2/g
         kappa = fudge*A_lambda_over_Av
+
+    elif opacitysource in ['G29_pl', 'G29_cr']:
+        from gasvsdust.getters import get_alycia_model_plus_powerlaw
+        if opacitysource == 'G29_pl':
+            model_id = 'g29_38_like_1200K_model'
+        elif opacitysource == 'G29_cr':
+            model_id = 'g29_38_like_more_crystalline'
+        kappa = get_alycia_model_plus_powerlaw(wavelength, model_id)
 
     else:
         from gasvsdust.getters import get_DustEM_dat
