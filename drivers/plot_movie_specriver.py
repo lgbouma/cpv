@@ -71,6 +71,7 @@ def main():
                 #  showhline=0,
                 #  cb_ticks=[1,2],
                 # NOTE: default parameter set below
+                verticallayout=1,
                 style='science_wob',
                 cb_ticks=cb_tickd[ticid][linestr],
                 arial_font=1,
