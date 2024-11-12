@@ -908,7 +908,7 @@ def plot_phased_light_curve(
     fig=None, ax=None, savethefigure=True,
     findpeaks_result=None, ylabel=None, showxticklabels=True,
     yoffset=0, dy=5, normfunc=True, xtxtoffset=0, titlepad=None,
-    titlefontsize='small', showtimeticks=None, rasterized=False
+    titlefontsize='small', showtimeticks=None, rasterized=False, longwrap=False
     ):
     """
     Non-obvious args:
@@ -925,7 +925,11 @@ def plot_phased_light_curve(
         showtext: bool or stirng.  If string, the string is shown.
         findpeaks_result: output from ``count_phased_local_minima``
         showtimeticks: list of times to show with colored ticks
+        longwrap: like phasewrap, but [-1, 5].  If true, phasewrap false.
     """
+
+    if longwrap:
+        assert not phasewrap
 
     # make plot
     if savethefigure:
@@ -959,6 +963,12 @@ def plot_phased_light_curve(
                               sort=True)
     x_fold = _pd['phase']
     y = _pd['mags']
+
+    if longwrap:
+        cycles = np.arange(-1, 6)  #  [-1, 0, 1, ... 5]
+        x_fold = np.concatenate([x_fold + cycle for cycle in cycles])
+        y = np.tile(y, len(cycles))
+
 
     if len(x_fold) > int(2e4):
         # see https://github.com/matplotlib/matplotlib/issues/5907
