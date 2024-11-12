@@ -5060,11 +5060,14 @@ def plot_movie_specriver(
     dlambda=20,
     lognorm=True,
     figsize=(8,3),
-    showhline=1
-    # NOTE: no savepdf option, b/c the image does not render
+    showhline=1,
+    verticallayout=0,
+    specriverorient='vertphase' # "time", "phase", or "vertphase"
     ):
     """
     As in plot_phase
+
+    NOTE: no savepdf option, b/c the image does not render
     """
 
     ###############
@@ -5135,6 +5138,7 @@ def plot_movie_specriver(
 
     t0 = t0s[0]
     period = periods[0]
+    t0 += 0.15*period # NOTE: manual "phi0" tuning to make it physical...
 
     _pd = phase_magseries(spectimes, np.ones(len(spectimes)), period, t0,
                           wrap=0, sort=False)
@@ -5160,15 +5164,23 @@ def plot_movie_specriver(
         if arial_font:
             rcParams['font.family'] = 'Arial'
 
-        fig = plt.figure(figsize=figsize)
-        axd = fig.subplot_mosaic(
-            """
-            ABC
-            """#,
-            #gridspec_kw={
-            #    "width_ratios": [1, 1, 1, 1]
-            #}
-        )
+        if not verticallayout:
+            fig = plt.figure(figsize=figsize)
+            axd = fig.subplot_mosaic(
+                """
+                ABC
+                """
+            )
+        else:
+            fig = plt.figure(figsize=(6,6))
+            axd = fig.subplot_mosaic(
+                """
+                AA..
+                AABB
+                CCBB
+                CC..
+                """
+            )
 
         ##########################################
         # flux vs phase
@@ -5176,24 +5188,39 @@ def plot_movie_specriver(
         txt = ''
         c0 = 'darkgray'
         c1 = 'k' if 'wob' not in style else 'white'
+        if specriverorient == 'vertphase':
+            phasewrap, longwrap = False, True
+            xlim = None
+        else:
+            phasewrap, longwrap = True, False
+            xlim = xlim
+
         plot_phased_light_curve(
             times, fluxs, t0, period, None, fig=fig, ax=ax, titlestr=None,
             binsize_phase=binsize_phase, xlim=xlim, yoffset=0, showtext=txt,
-            savethefigure=False, dy=0, rasterized=rasterized, c0=c0, c1=c1
+            savethefigure=False, dy=0, rasterized=rasterized, c0=c0, c1=c1,
+            phasewrap=phasewrap, longwrap=longwrap
         )
         if isinstance(ylim, (list, tuple)):
             ax.set_ylim(ylim)
         if isinstance(xlim, (list, tuple)):
             ax.set_xlim(xlim)
-
         ylim = ax.get_ylim()
-        ax.vlines(specphase, ylim[0], ylim[1], colors='darkgray', alpha=0.5,
-                  linestyles='--', zorder=-10, linewidths=0.5)
+        if specriverorient != 'vertphase':
+            ax.vlines(specphase, ylim[0], ylim[1], colors='darkgray', alpha=0.5,
+                      linestyles='--', zorder=-10, linewidths=0.5)
+        else:
+            pass
         ax.set_ylim(ylim)
 
         ax.set_ylabel(r"$\Delta$ Flux [%]", fontsize='large')
         ax.set_xlabel(r"Phase, φ", fontsize='large')
-        format_ax(ax)
+
+        if specriverorient == 'vertphase':
+            ax.set_xticks([0, 0.5, 1])
+            ax.set_xticklabels(['0.0', '0.5', '1.0'])
+
+        #format_ax(ax)
 
         ##########################################
         # flux vs wavelength
@@ -5203,7 +5230,10 @@ def plot_movie_specriver(
         ax.plot(
             xval, yval, c=c, lw=0.5
         )
-        txt = f't={24*(spectime-min(spectimes)):.1f}hr, φ={specphase:.2f}'
+        if specriverorient != 'vertphase':
+            txt = f't={24*(spectime-min(spectimes)):.1f}hr, φ={specphase:.2f}'
+        else:
+            txt = f't={24*(spectime-min(spectimes)):.1f}hr'
         ax.text(
             0.96, 0.96, txt, ha='right', va='top', transform=ax.transAxes
         )
@@ -5236,30 +5266,82 @@ def plot_movie_specriver(
         else:
             norm = colors.Normalize(vmin=0.9, vmax=vmax)
 
+        if specriverorient == 'time':
+            xval = xval
+            yval = 24*(spectimes-min(spectimes)) # time in hr
+            cval = flux_arr.T
+        elif specriverorient == 'phase':
+            xval = xval
+            yval = (spectimes-t0)/period
+            yval -= np.min(np.ceil(yval))
+            cval = flux_arr.T
+        elif specriverorient == 'vertphase':
+            yval = 1.*xval
+            xval = (spectimes-t0)/period
+            xval -= np.min(np.ceil(xval))
+            cval = flux_arr
+
         c = ax.pcolor(xval,
-                      24*(spectimes-min(spectimes)),
-                      flux_arr.T,
+                      yval,
+                      cval,
                       cmap=cmap,
                       norm=norm,
                       shading='auto', rasterized=True)
 
-        ax.set_ylabel("Time [hr]", fontsize='large')
-        ax.set_xlabel(r"Δv [km/s]", fontsize='large')
+        if specriverorient == 'time':
+            ax.set_ylabel("Time [hr]", fontsize='large')
+            ax.set_xlabel(r"Δv [km/s]", fontsize='large')
+        elif specriverorient == 'phase':
+            ax.set_ylabel("Phase, φ", fontsize='large')
+            ax.set_xlabel(r"Δv [km/s]", fontsize='large')
+        elif specriverorient == 'vertphase':
+            ax.set_ylabel(r"Δv [km/s]", fontsize='large')
+            ax.set_xlabel("Phase, φ", fontsize='large')
 
         xmin, xmax = ax.get_xlim()
+        ymin, ymax = ax.get_ylim()
         if showhline:
-            ax.hlines(24*(spectime-min(spectimes)), xmin, xmax,
-                      colors='darkgray', alpha=0.9, linestyles='--', zorder=2,
-                      linewidths=0.5)
+            if specriverorient == 'time':
+                ax.hlines(24*(spectime-min(spectimes)), xmin, xmax,
+                          colors='darkgray', alpha=0.9, linestyles='--', zorder=2,
+                          linewidths=0.5)
+            elif specriverorient == 'phase':
+                _yvals = (spectimes-t0)/period
+                _yval = (spectime-t0)/period - np.min(np.ceil(_yvals))
+                ax.hlines(_yval, xmin, xmax,
+                          colors='darkgray', alpha=0.9, linestyles='--', zorder=2,
+                          linewidths=0.5)
+            elif specriverorient == 'vertphase':
+                _xvals = (spectimes-t0)/period
+                _xval = (spectime-t0)/period - np.min(np.ceil(_xvals))
+                ax.vlines(_xval, ymin, ymax,
+                          colors='darkgray', alpha=0.9, linestyles='--', zorder=2,
+                          linewidths=0.5)
+                # NOTE annoying mod 0.5 wrap issue
+                axd['A'].vlines(
+                    _xval, ylim[0], ylim[1], colors='darkgray', alpha=0.5,
+                    linestyles='--', zorder=-10, linewidths=0.5
+                )
+
         ax.set_xlim((xmin, xmax))
+        ax.set_ylim((ymin, ymax))
+        if specriverorient == 'vertphase':
+            axd['A'].set_xlim((xmin, xmax))
 
         # sick inset colorbar
-        x0,y0,dx,dy = 1.02, -0.09, 0.3, 0.02
+        if specriverorient in ['time', 'phase']:
+            x0,y0,dx,dy = 1.02, -0.09, 0.3, 0.02
+            orientation = 'horizontal'
+            loc = 'bottom right'
+        elif specriverorient == 'vertphase':
+            x0,y0,dx,dy = 1.09, 0.03, 0.02, 0.3
+            orientation = 'vertical'
+            loc = 'center right'
         axins1 = inset_axes(ax, width="100%", height="100%",
                             bbox_to_anchor=(x0,y0,dx,dy),
-                            loc='lower right',
+                            loc=loc,
                             bbox_transform=ax.transAxes)
-        cb = fig.colorbar(c, cax=axins1, orientation="horizontal",
+        cb = fig.colorbar(c, cax=axins1, orientation=orientation,
                           extend="both")
 
         cb.set_label("$f_\lambda$", rotation=0, labelpad=3)
@@ -5278,6 +5360,8 @@ def plot_movie_specriver(
         s = ''
         if rasterized:
             s += "_rasterized"
+        if verticallayout:
+            s += "_verticallayout"
         if 'wob' in style:
             s += '_wob'
 
