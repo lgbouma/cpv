@@ -28,7 +28,7 @@ science_indices = range(19, 84+1) # 24-79: LP12-502, 80-83, two others
 objectname_indices = range(22, 77+1)
 junk_indices = [81,82]
 
-# NIGHT: 2023/11/12
+# NIGHT: 2023/12/07
 nightdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP/20231207'
 bias_indices = range(9, 18+1)
 arc_indices = [1,2,3, 84,85]
@@ -46,7 +46,7 @@ science_indices = range(19, 48+1) # 24-79: LP12-502, 80-83, two others
 objectname_indices = range(19, 38+1)
 junk_indices = []
 
-# NIGHT: 2023/12/18
+# NIGHT: 2024/01/15
 nightdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP/20240115'
 bias_indices = range(7, 16+1)
 arc_indices = [1,2,3, 80,81,82]
@@ -64,8 +64,54 @@ science_indices = range(17, 65+1) # 18-50: LP12-502, 51-73: TIC141
 objectname_indices = range(17, 65+1)
 junk_indices = []
 
-#OBJECTNAME = 'LP_12-502'
-OBJECTNAME = 'DG_CVn'
+# NIGHT: 2024/11/04
+nightdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP/20241104'
+bias_indices = range(7, 16+1)
+arc_indices = [1,2,3, 82,83]
+domeflat_indices = [4,5,6, 84,85] #range(20, 22+1)
+science_indices = list(range(17, 22+1)) + list(range(23, 78+1)) + list(range(80, 81+1)) # 17-78: LP12-502, 80-81: TIC141
+objectname_indices = range(17, 78+1)
+junk_indices = [22, 79]
+
+# NIGHT: 2024/11/05
+nightdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP/20241105'
+bias_indices = range(7, 16+1)
+arc_indices = [1,2,3, 93,94]
+domeflat_indices = [4,5,6, 95,96] #range(20, 22+1)
+science_indices = list(range(18, 79+1)) + list(range(80, 92+1))
+objectname_indices = range(18, 79+1)
+junk_indices = [17]
+
+# NIGHT: 2024/11/06
+nightdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP/20241106'
+bias_indices = range(7, 16+1)
+arc_indices = [1,2,3, 69,70]
+domeflat_indices = [4,5,6, 71,72] #range(20, 22+1)
+science_indices = list(range(18, 55+1))
+objectname_indices = range(18, 55+1)
+junk_indices = range(56, 68+1)
+
+# NIGHT: 2024/11/07
+nightdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP/20241107'
+bias_indices = range(7, 16+1)
+arc_indices = [1,2,3, 97,98]
+domeflat_indices = [4,5,6, 99,100] #range(20, 22+1)
+science_indices = list(range(18, 32+1)) + list(range(34, 96+1))
+objectname_indices = list(range(18, 32+1)) + list(range(34, 77+1))
+junk_indices = [33]
+
+# NIGHT: 2024/11/06
+nightdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP/20241108'
+bias_indices = range(7, 16+1)
+arc_indices = [1,2,3, 92,93]
+domeflat_indices = [4,5,6, 94,95] #range(20, 22+1)
+science_indices = list(range(17, 88+1))
+objectname_indices = list(range(17, 78+1))
+junk_indices = range(89,91+1)
+
+
+OBJECTNAME = 'LP_12-502'
+#OBJECTNAME = '76_Tau'
 
 DO_BIAS_UPDATE = 1
 DO_ARC_UPDATE = 1
