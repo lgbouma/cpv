@@ -23,8 +23,13 @@ UTCDICT = {
     '20231203': '20231203: HIRES + TIERRAS',
     '20231207': '20231207: DBSP + KeplerCam',
     '20240115': '20240115: DBSP + FlareCam',
+    '20241104': '20241104: DBSP + TESS',
+    '20241105': '20241105: DBSP + TESS',
+    '20241106': '20241106: DBSP + TESS',
+    '20241107': '20241107: DBSP + TESS',
+    '20241108': '20241108: DBSP + TESS',
     # DG CVn
-    '20240428': '20240428: DBSP + TIERRAS'
+    '20240428': '20240428: DBSP + TIERRAS',
 }
 
 def plot_ew_timeseries(
@@ -762,8 +767,8 @@ if __name__ == "__main__":
     # utcdatestrs = "20231111,20231112,20231123".split(",")
     # insts = "DBSP,DBSP,HIRES".split(",")
 
-    utcdatestrs = "20231111,20231112".split(",")
-    insts = "DBSP,DBSP".split(",")
+    #utcdatestrs = "20231111,20231112".split(",")
+    #insts = "DBSP,DBSP".split(",")
 
     # utcdatestrs = ["20240115"]
     # insts = ["DBSP"]
@@ -774,18 +779,21 @@ if __name__ == "__main__":
     # utcdatestrs = "20231207,20240115".split(",")
     # insts = "DBSP,DBSP".split(",")
 
-    #targetid = 'LP_12-502'
-    #ra = 16.733175*u.deg
-    #dec = 80.45945*u.deg
+    targetid = 'LP_12-502'
+    ra = 16.733175*u.deg
+    dec = 80.45945*u.deg
 
-    targetid = 'DG_CVn'
-    ra = 202.94307059819*u.deg
-    dec = 29.27621104174*u.deg
+    #targetid = 'DG_CVn'
+    #ra = 202.94307059819*u.deg
+    #dec = 29.27621104174*u.deg
 
-    utcdatestrs = ["20240428"]
-    insts = ["DBSP"]
+    utcdatestrs = ["20241108"]
+    utcdatestrs = "20241104,20241105,20241106,20241107,20241108".split(",")
+    insts = ["DBSP"]*len(utcdatestrs)
 
     uinsts = "_".join(np.unique(insts))
+
+    if len(utcdatestrs) > 1:  assert len(insts) == len(utcdatestrs)
 
     has, hbs, hcs = [], [], []
     for d,i in zip(utcdatestrs, insts):
