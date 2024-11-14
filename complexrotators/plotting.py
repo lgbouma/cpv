@@ -5062,7 +5062,8 @@ def plot_movie_specriver(
     figsize=(8,3),
     showhline=1,
     verticallayout=0,
-    specriverorient='vertphase' # "time", "phase", or "vertphase"
+    specriverorient='vertphase', # "time", "phase", or "vertphase"
+    removeavg=0
     ):
     """
     As in plot_phase
@@ -5150,6 +5151,32 @@ def plot_movie_specriver(
     )
     for ix, yval in enumerate(yvals):
         flux_arr[:, ix] = yval
+
+    if removeavg:
+        # subtract a gausian-smoothed "mean spectrum" over the full time-series.
+        # NOTE: looking at the mean shows a "blue excess" - not surprising
+        # given the amount of blue emission at many x vsini.  Somewhere in the
+        # 10-25th percentile seems better. --> Adopting 25th percentile.
+
+        meanflux = np.nanmean(flux_arr, axis=1)
+        pctflux = np.nanpercentile(flux_arr, 25, axis=1)
+        fn = lambda x: gaussian_filter1d(x, sigma=10)
+        smoothmeanflux = fn(pctflux)
+
+        outpath = join(
+            outdir,
+            f"tic1411_gaussianfilter_25pctile.png"
+        )
+        plt.close("all")
+        fig, ax = plt.subplots()
+        ax.plot(xvals[0], smoothmeanflux, c='k', lw=0.5)
+        ax.update({'xlabel':'Δv [km/s]', 'ylabel':"$f_\lambda$"})
+        fig.savefig(outpath, bbox_inches='tight')
+
+        for yval in yvals:
+            yval -= smoothmeanflux
+
+        flux_arr = flux_arr - smoothmeanflux[:,None]
 
 
     ##########################################
@@ -5244,8 +5271,13 @@ def plot_movie_specriver(
 
         assert isinstance(lamylim, (list, tuple))
         ax.set_ylim(lamylim)
+        if removeavg:
+            ax.set_ylim((-0.5, 1))
 
-        ax.set_ylabel("$f_\lambda$", fontsize='large')
+        fluxlabel = "$f_\lambda$"
+        if removeavg:
+            fluxlabel = "$f_\lambda$ - pct25($f_\lambda$)"
+        ax.set_ylabel(fluxlabel, fontsize='large')
         ax.set_xlabel(r"Δv [km/s]", fontsize='large')
 
         ##########################################
@@ -5256,6 +5288,8 @@ def plot_movie_specriver(
             cmap = 'Greys_r'
         else:
             cmap = 'Greys'
+        if removeavg:
+            cmap = 'Spectral'
         vmin = lamylim[0]
         vmax = lamylim[1]
 
@@ -5265,6 +5299,8 @@ def plot_movie_specriver(
             norm = colors.LogNorm(vmin=0.9, vmax=vmax)
         else:
             norm = colors.Normalize(vmin=0.9, vmax=vmax)
+        if removeavg:
+            norm = colors.Normalize(vmin=-0.2, vmax=0.8)
 
         if specriverorient == 'time':
             xval = xval
@@ -5344,7 +5380,10 @@ def plot_movie_specriver(
         cb = fig.colorbar(c, cax=axins1, orientation=orientation,
                           extend="both")
 
-        cb.set_label("$f_\lambda$", rotation=0, labelpad=3)
+        rotation = 0 if specriverorient != 'vertphase' else 90
+        cb.set_label(fluxlabel, rotation=rotation, labelpad=3)
+        if removeavg:
+            cb_ticks = [0, 0.5]
         if cb_ticks is not None:
             cb.set_ticks(cb_ticks)
             cb.set_ticklabels(cb_ticks)
@@ -5364,6 +5403,8 @@ def plot_movie_specriver(
             s += "_verticallayout"
         if 'wob' in style:
             s += '_wob'
+        if removeavg:
+            s += '_remove25pct'
 
         tstr = str(time_index).zfill(4)
 
