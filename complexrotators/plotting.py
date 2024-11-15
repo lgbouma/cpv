@@ -5039,6 +5039,7 @@ def plot_movie_phase_timegroups(
                 timegap_counter = 0
 
 
+
 def plot_movie_specriver(
     outdir,
     ticid=None,
@@ -5063,7 +5064,8 @@ def plot_movie_specriver(
     showhline=1,
     verticallayout=0,
     specriverorient='vertphase', # "time", "phase", or "vertphase"
-    removeavg=0
+    removeavg=0,
+    norm_by_veq=1
     ):
     """
     As in plot_phase
@@ -5134,8 +5136,11 @@ def plot_movie_specriver(
     #################
     from complexrotators.getters import get_specriver_data
     specpaths, spectimes, xvals, yvals = get_specriver_data(
-        ticid, linestr, dlambda=dlambda
+        ticid, linestr, dlambda=dlambda, usespectype='reduced'
     )
+
+    if norm_by_veq:
+        xvals = np.array(xvals) / 130 # km/s
 
     t0 = t0s[0]
     period = periods[0]
@@ -5278,7 +5283,8 @@ def plot_movie_specriver(
         if removeavg:
             fluxlabel = "$f_\lambda$ - pct25($f_\lambda$)"
         ax.set_ylabel(fluxlabel, fontsize='large')
-        ax.set_xlabel(r"Δv [km/s]", fontsize='large')
+        dvlabel = r"Δv [km/s]" if not norm_by_veq else r"Δ$v$/$v_\mathrm{eq}$"
+        ax.set_xlabel(dvlabel, fontsize='large')
 
         ##########################################
         # specriver: phase vs wavelength, color by flux
@@ -5290,6 +5296,8 @@ def plot_movie_specriver(
             cmap = 'Greys'
         if removeavg:
             cmap = 'Spectral'
+            cmap = 'bwr'
+
         vmin = lamylim[0]
         vmax = lamylim[1]
 
@@ -5324,14 +5332,15 @@ def plot_movie_specriver(
                       norm=norm,
                       shading='auto', rasterized=True)
 
+        dvlabel = r"Δv [km/s]" if not norm_by_veq else r"Δ$v$/$v_\mathrm{eq}$"
         if specriverorient == 'time':
             ax.set_ylabel("Time [hr]", fontsize='large')
-            ax.set_xlabel(r"Δv [km/s]", fontsize='large')
+            ax.set_xlabel(dvlabel, fontsize='large')
         elif specriverorient == 'phase':
             ax.set_ylabel("Phase, φ", fontsize='large')
-            ax.set_xlabel(r"Δv [km/s]", fontsize='large')
+            ax.set_xlabel(dvlabel, fontsize='large')
         elif specriverorient == 'vertphase':
-            ax.set_ylabel(r"Δv [km/s]", fontsize='large')
+            ax.set_ylabel(dvlabel, fontsize='large')
             ax.set_xlabel("Phase, φ", fontsize='large')
 
         xmin, xmax = ax.get_xlim()
@@ -5405,6 +5414,8 @@ def plot_movie_specriver(
             s += '_wob'
         if removeavg:
             s += '_remove25pct'
+        if norm_by_veq:
+            s += '_normbyveq'
 
         tstr = str(time_index).zfill(4)
 
