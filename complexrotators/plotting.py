@@ -5065,7 +5065,8 @@ def plot_movie_specriver(
     verticallayout=0,
     specriverorient='vertphase', # "time", "phase", or "vertphase"
     removeavg=0,
-    norm_by_veq=1
+    norm_by_veq=1,
+    showlinecoresum=1
     ):
     """
     As in plot_phase
@@ -5135,7 +5136,7 @@ def plot_movie_specriver(
     # get spec data #
     #################
     from complexrotators.getters import get_specriver_data
-    specpaths, spectimes, xvals, yvals = get_specriver_data(
+    specpaths, spectimes, xvals, yvals, yvalsnonorm, norm_flxs = get_specriver_data(
         ticid, linestr, dlambda=dlambda, usespectype='reduced'
     )
 
@@ -5157,6 +5158,17 @@ def plot_movie_specriver(
     for ix, yval in enumerate(yvals):
         flux_arr[:, ix] = yval
 
+    # sum line colors for experiment...
+    if norm_by_veq:
+        linecore_sums = []
+        for time_index, (spectime, specphase, specpath, xval, yval) in enumerate(zip(
+            spectimes, specphases, specpaths, xvals, yvals
+        )):
+            # sum up flux within v/v_eq < 1
+            sel = np.abs(xval) <= 1
+            linecore_sum = np.sum( yval[sel] )
+            linecore_sums.append(linecore_sum)
+
     if removeavg:
         # subtract a gausian-smoothed "mean spectrum" over the full time-series.
         # NOTE: looking at the mean shows a "blue excess" - not surprising
@@ -5175,8 +5187,8 @@ def plot_movie_specriver(
         plt.close("all")
         fig, ax = plt.subplots()
         ax.plot(xvals[0], smoothmeanflux, c='k', lw=0.5)
-        ax.update({'xlabel':'Δv [km/s]', 'ylabel':"$f_\lambda$"})
-        fig.savefig(outpath, bbox_inches='tight')
+        ax.update({'xlabel':'Δv/v_eq', 'ylabel':"$f_\lambda$"})
+        fig.savefig(outpath, bbox_inches='tight', dpi=300)
 
         for yval in yvals:
             yval -= smoothmeanflux
@@ -5245,7 +5257,38 @@ def plot_movie_specriver(
             pass
         ax.set_ylim(ylim)
 
-        ax.set_ylabel(r"$\Delta$ Flux [%]", fontsize='large')
+        if showlinecoresum:
+            linecore_rel = linecore_sums / np.nanmedian(linecore_sums)
+            # you are plotting after normalizing to the flux outside the line.
+            # this can give changes in Ha, relative to the continuum.
+            # to estimate the uncertainties on those changes, you need to know
+            # the absolute number of counts, or at least an estimate of it --
+            # hence the multiplication by med_normflx.
+            med_normflx = np.nanmedian(norm_flxs)
+            linecore_err = (
+                np.sqrt(nparr(linecore_sums)*med_normflx) /
+                (nparr(linecore_sums)*med_normflx)
+            )
+            linecore_rel_pct = 100 * (linecore_rel - np.nanmedian(linecore_rel))
+            linecorr_err_pct = 100 * linecore_err
+            ax2 = ax.twinx()
+            phi0 = 0.065
+            specphases = (
+                (spectimes - t0) / period
+                - np.nanmin((spectimes - t0) / period)
+                - phi0
+            )
+            xerr = np.nanmedian(np.diff(spectimes)/period) / 2
+            ax2.errorbar(specphases, linecore_rel_pct,
+                         yerr=linecorr_err_pct,
+                         xerr=xerr,
+                         lw=1, ls=':', marker='.', c='gold', markersize=2)
+            ax2.set_ylabel(r" $\Sigma$ $f$$_{\mathrm{\lambda,|v/v_{\mathrm{eq}}|<1}}$ [%]",
+                           fontsize='large', color='gold')
+            ax2.tick_params(axis='y', labelcolor='gold')
+
+
+        ax.set_ylabel(r"$\Delta$ TESS Flux [%]", fontsize='large')
         ax.set_xlabel(r"Phase, φ", fontsize='large')
 
         if specriverorient == 'vertphase':
@@ -5278,6 +5321,10 @@ def plot_movie_specriver(
         ax.set_ylim(lamylim)
         if removeavg:
             ax.set_ylim((-0.5, 1))
+        if specriverorient == 'vertphase' and removeavg:
+            for _x in [-1, 1]:
+                ax.vlines(_x, -0.5, 1, colors='darkgray', alpha=0.9,
+                          linestyles='-', zorder=2, linewidths=0.5)
 
         fluxlabel = "$f_\lambda$"
         if removeavg:
@@ -5416,6 +5463,8 @@ def plot_movie_specriver(
             s += '_remove25pct'
         if norm_by_veq:
             s += '_normbyveq'
+        if showlinecoresum:
+            s += '_showlinecoresum'
 
         tstr = str(time_index).zfill(4)
 
