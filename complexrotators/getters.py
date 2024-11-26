@@ -529,6 +529,8 @@ def get_specriver_data(
     assert len(specpaths) > 0
 
     yvals, xvals, spectimes = [], [], []
+    yvalsnonorm = []
+    norm_flxs = []
 
     # NOTE hack in case you opt for "REDUCED" only..
     deblazepaths = np.sort(glob(join(deblazedir, f"{chip}{datestr}*.fits")))
@@ -605,6 +607,8 @@ def get_specriver_data(
         # NOTE : by default you are doing some gaussian smoothing...
         fn = lambda x: gaussian_filter1d(x, sigma=2)
         yvals.append(fn(flx/norm_flx))
+        yvalsnonorm.append(fn(flx))
+        norm_flxs.append(norm_flx) # floating normalization due to seeing
         xvals.append(vels)
 
         hl = fits.open(specpath)
@@ -629,4 +633,4 @@ def get_specriver_data(
         ].iloc[0]
         spectimes.append(jumptime_bjd_tdb - 2457000) # to TJD
 
-    return specpaths, np.array(spectimes), xvals, yvals
+    return specpaths, np.array(spectimes), xvals, yvals, yvalsnonorm, norm_flxs
