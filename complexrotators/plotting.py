@@ -5141,7 +5141,8 @@ def plot_movie_specriver(
     )
 
     if norm_by_veq:
-        xvals = np.array(xvals) / 130 # km/s
+        ADOPTED_VEQ = 130 # km/s
+        xvals = np.array(xvals) / ADOPTED_VEQ
 
     t0 = t0s[0]
     period = periods[0]
@@ -5193,7 +5194,26 @@ def plot_movie_specriver(
         for yval in yvals:
             yval -= smoothmeanflux
 
+        orig_flux_arr = flux_arr * 1.
+
         flux_arr = flux_arr - smoothmeanflux[:,None]
+
+        pklpath = join(outdir, f"{ticid}_specriver_cache.pkl")
+        cached = {
+            'spec_flux_arr':orig_flux_arr,
+            'smooth_mean_flux':smoothmeanflux,
+            'spec_minus_smooth_flux_arr':flux_arr,
+            'xvals':xvals, # Δv/v_eq
+            'yvals':yvals, # the flux
+            'specpaths':specpaths,
+            'spectimes':spectimes,
+            'specphases':specphases,
+            't0': t0,
+            'period': period
+        }
+        with open(pklpath, 'wb') as f:
+            pickle.dump(cached, f)
+            print(f'Made {pklpath}')
 
 
     ##########################################
