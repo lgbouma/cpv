@@ -19,7 +19,7 @@ class ModelFitter:
     def __init__(self, xval, yval, flux_arr, err_flux_arr,
                  modelid='1_gaussians', N_samples=1000, N_cores=2, N_chains=2,
                  plotdir=None, overwrite=False, guessdict=None,
-                 map_guess_method='raw'):
+                 map_guess_method='raw', velmask=1.):
         """
         Initialize the ModelFitter class with data and parameters.
 
@@ -27,6 +27,7 @@ class ModelFitter:
         - xval: array-like, phase normalized from 0 to 1 (one orbital period)
         - yval: array-like, velocity in units of equatorial velocity
         - flux_arr: 2D array, flux values with shape (len(xval), len(yval))
+        - velmask: float, fit only yval < velmask
         - err_flux_arr: 2D array, uncertainties with the same shape as flux_arr
         - modelid: str, specifies the model to use ('1_gaussians', '2_gaussians', etc.)
         - N_samples: int, number of samples for MCMC
@@ -36,6 +37,9 @@ class ModelFitter:
         - overwrite: bool, whether to overwrite existing results
         - guessdict: dict, keys 'period','K','phi','A','sigma' values the ndarr guesses
         """
+
+        assert velmask >= 1. # don't fit data within line core
+        self.VELMASK = velmask
         self.xval = xval
         self.yval = yval
         self.flux_arr = flux_arr
@@ -46,6 +50,8 @@ class ModelFitter:
         self.plotdir = plotdir
         self.overwrite = overwrite
         self.modelid = modelid
+        self.map_guess_method = map_guess_method
+        self.guessdict = guessdict
 
         # Determine the number of Gaussians (N) from modelid
         self.N = int(self.modelid.split('_')[0])
@@ -67,7 +73,7 @@ class ModelFitter:
         Set up and run the model summing N gaussians using pymc3.
         """
 
-        yval_mask = np.abs(self.yval) >= 1  # Shape: (len(self.yval),)
+        yval_mask = np.abs(self.yval) >= self.VELMASK  # Shape: (len(self.yval),)
 
         # Apply the mask to flux_arr and err_flux_arr
         flux_arr_filtered = self.flux_arr[:, yval_mask] # Shape: (len(self.xval), N_filtered_yval)
