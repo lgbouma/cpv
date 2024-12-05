@@ -44,7 +44,7 @@ xval = (d['spectimes']-d['t0'])/d['period']
 xval -= np.min(np.ceil(xval))
 flux_arr = d['spec_flux_arr']
 
-mask = np.abs(yval) < 1.
+mask = np.abs(yval) < 1.2
 
 flux_arr_masked = deepcopy(flux_arr) - 1
 flux_arr_maskedinv = deepcopy(flux_arr) -1
@@ -87,16 +87,35 @@ fig.savefig(
     bbox_inches='tight'
 )
 
+# define guessdict
+N_gaussians = 3
 
-err_flux_arr *= 1e6
+if N_gaussians == 2:
+    K_n_guess = nparr([2.3, 4])
+    phi_n_guess = nparr([0.1, 3.1])
+    sigma_n_guess = nparr([0.1, 0.1])
+    A_n_guess = nparr([0.4, 0.4])
+    period_guess = nparr([1.0]*2)
+elif N_gaussians == 3:
+    K_n_guess = nparr([2.1, 2.6, 4])
+    phi_n_guess = nparr([0.1, 0.1, 3.1])
+    sigma_n_guess = nparr([0.1, 0.1, 0.1])
+    A_n_guess = nparr([0.2, 0.2, 0.4])
+    period_guess = nparr([1.0]*3)
 
-#TODO TODO : define guessdict
+guessdict = {
+    'K': K_n_guess,
+    'phi': phi_n_guess,
+    'sigma': sigma_n_guess,
+    'A': A_n_guess,
+    'period': period_guess,
+}
 
-# fit dataaaa
+# fit data
 from complexrotators.modelfitter import ModelFitter
 m = ModelFitter(
     xval, yval, flux_arr_masked.T, err_flux_arr.T,
-    modelid='1_gaussians', N_samples=1000, N_cores=2, N_chains=2,
+    modelid=f'{N_gaussians}_gaussians', N_samples=1000, N_cores=2, N_chains=2,
     plotdir=plotdir, overwrite=False, guessdict=guessdict, map_guess_method='handtuned'
 )
 
