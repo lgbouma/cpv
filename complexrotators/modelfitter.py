@@ -93,7 +93,7 @@ class ModelFitter:
             for n in range(self.N):
 
                 # Prior for the orbital period
-                period = pm.Uniform(f'period_{n}', lower=0.5, upper=1.5, initval=1)
+                period = pm.Uniform(f'period_{n}', lower=0.7, upper=1.3, initval=1)
                 period_n.append(period)
 
                 # K_n: Amplitude scaling of the mean position
@@ -111,7 +111,9 @@ class ModelFitter:
                 A_n.append(A)
 
                 # σ_n: Width of the Gaussian (constant over time)
-                sigma = pm.Uniform(f'sigma_{n}', lower=0.01, upper=1, initval=0.1)
+                #sigma = pm.Uniform(f'sigma_{n}', lower=0.01, upper=1, initval=0.1)
+                sigma = pm.TruncatedNormal(f'sigma_{n}', mu=0.1, sigma=0.01,
+                                           initval=0.1, lower=0.01)
                 sigma_n.append(sigma)
 
             # Initialize the expected flux model
@@ -126,9 +128,13 @@ class ModelFitter:
                 yval_reshaped = yval_filtered[None, :]  # Shape: (1, N_filtered_yval)
 
                 # Gaussian flux contribution from the nth component
-                gaussian_n = A_n[n] * pm.math.exp(
-                    -0.5 * ((yval_reshaped - mu_n_t_reshaped) / sigma_n[n]) ** 2
-                ) / (sigma_n[n] * np.sqrt(2 * np.pi))
+                # Fitted to only the yval >= 1 data...
+                gaussian_n = (
+                    A_n[n]
+                    * pm.math.exp(
+                        -0.5 * ((yval_reshaped - mu_n_t_reshaped) / sigma_n[n]) ** 2
+                    ) / (sigma_n[n] * np.sqrt(2 * np.pi))
+                )
 
                 flux_model += gaussian_n
 
@@ -143,59 +149,18 @@ class ModelFitter:
             # use "raw"
             print("Finding MAP estimate...")
 
-            if map_guess_method == 'raw':
+            if self.map_guess_method == 'raw':
                 map_soln = pm.find_MAP(method='Nelder-Mead')
 
-            elif map_guess_method == 'handtuned':
+            elif self.map_guess_method == 'handtuned':
 
                 freeparams = 'period,K,phi,A,sigma'.split(",")
                 start = {}
                 for n in range(self.N):
                     for param in freeparams:
-                        start[f"{param}_{n}"] = guessdict[param][n]
+                        start[f"{param}_{n}"] = self.guessdict[param][n]
 
                 map_soln = pm.find_MAP(start=start)
-
-            #TRY_SIMULATED_ANNEALING = 1
-            #if TRY_SIMULATED_ANNEALING:
-            #    bounds = [
-            #        (0.5, 1.5),  # period_0
-            #        (1, 5),      # K_0
-            #        (0, 2 * np.pi),  # phi_0
-            #        (0.1, 2),    # A_0
-            #        (0.01, 1),   # sigma_0
-            #    ]
-            #    bounds *= self.N
-
-            #    # Define the negative log-probability function
-            #    def neg_log_prob(params):
-            #        for value, var in zip(params, model.free_RVs):
-            #            var.tag.test_value = value
-            #        return -model.logp()
-
-            #    # Perform simulated annealing to find initial values
-            #    result = dual_annealing(neg_log_prob, bounds)
-
-            #    # Extract the initial values
-            #    initial_values = {var.name: val for var, val in zip(model.free_RVs, result.x)}
-
-            #    # Use the result as initialization for find_MAP
-            #    with model:
-            #        map_estimate = pm.find_MAP(start=initial_values)
-
-
-            #start = model.initial_point()
-
-            #if self.N == 1:
-            #    map_soln = pm.find_MAP(
-            #        start=start, vars=[ K_n[0], phi_n[0], sigma_n[0], A_n[0] ]
-            #    )
-            #if self.N > 1:
-            #    map_soln = pm.find_MAP(
-            #        start = start,
-            #        vars=[ K_n[0], phi_n[0], sigma_n[0], A_n[0],
-            #               K_n[1], phi_n[1], sigma_n[1], A_n[1] ]
-            #    )
 
             self.map_estimate = map_soln
 
@@ -271,23 +236,46 @@ class ModelFitter:
 
         # Compute the expected flux for each Gaussian component
         for n in range(self.N):
-            # Mean position μ_N(t) for each time point in the high-res grid
+
             omega_n = 2*np.pi / period_n[n]
+
             mu_n_t = K_n[n] * np.sin(omega_n * xval_model + phi_n[n])  # Shape: (100,)
             mu_n_t_reshaped = mu_n_t[:, None]  # Shape: (100, 1)
             yval_reshaped = yval_model[None, :]  # Shape: (1, 200)
 
-            # Interpolate A_n_t over the high-res xval grid
-            #A_n_interp = np.interp(xval_model, self.xval, A_n[n])  # Shape: (100,)
-            #A_n_reshaped = A_n_interp[:, None]  # Shape: (100, 1)
+            t_tra = phi_n[n] / (2*np.pi)
+            t_sec_ecl = t_tra + period_n[n]/2
+            half_tdur = 0.1
+
+            # Mask velocities behind or in front of the star
+            mask0 = (np.abs(yval_reshaped) <= 1)
+
+            # Mask for times outside the secondary eclipse
+            phase_model = (
+                (xval_model - t_tra) / period_n[n]
+                -
+                np.floor((xval_model - t_tra) / period_n[n])
+            )
+            mask1 = (
+                (phase_model[:, None] > 0.5-half_tdur) &
+                (phase_model[:, None] < 0.5+half_tdur)
+            )
+
+            # Combine masks
+            mask = ~( mask0 & mask1 )
 
             # Gaussian flux contribution from the nth component
             gaussian_n = A_n[n] * np.exp(
                 -0.5 * ((yval_reshaped - mu_n_t_reshaped) / sigma_n[n]) ** 2
             ) / (sigma_n[n] * np.sqrt(2 * np.pi))
 
+            # Apply mask
+            #import IPython; IPython.embed()
+            #assert 0
+            mask_gaussian_n = gaussian_n * mask
+
             # Sum the contributions
-            flux_model += gaussian_n
+            flux_model += mask_gaussian_n
 
         # Interpolate the model flux onto the data grid
         from scipy.interpolate import RegularGridInterpolator
@@ -360,7 +348,7 @@ def generate_synthetic_data_specific_params(K_n_true, phi_n_true, sigma_n_true, 
     N = len(K_n_true)
 
     # Generate xval and yval
-    xval = np.linspace(0, period_true, num_time_points)
+    xval = np.linspace(0, 1.3*period_true, num_time_points)
     yval = np.linspace(-5, 5, num_velocity_points)
 
     # Compute omega_n
