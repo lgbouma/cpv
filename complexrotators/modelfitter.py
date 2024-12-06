@@ -12,14 +12,16 @@ import pymc as pm
 import pickle
 import os
 from os.path import join
+
 from scipy.interpolate import RegularGridInterpolator
 from scipy.optimize import differential_evolution, dual_annealing
+from scipy.ndimage import gaussian_filter1d
 
 class ModelFitter:
     def __init__(self, xval, yval, flux_arr, err_flux_arr,
                  modelid='1_gaussians', N_samples=1000, N_cores=2, N_chains=2,
                  plotdir=None, overwrite=False, guessdict=None,
-                 map_guess_method='raw', velmask=1.):
+                 map_guess_method='raw', velmask=1., flux_arr_nomask=None):
         """
         Initialize the ModelFitter class with data and parameters.
 
@@ -52,6 +54,8 @@ class ModelFitter:
         self.modelid = modelid
         self.map_guess_method = map_guess_method
         self.guessdict = guessdict
+
+        self.flux_arr_nomask = flux_arr_nomask
 
         # Determine the number of Gaussians (N) from modelid
         self.N = int(self.modelid.split('_')[0])
@@ -245,7 +249,7 @@ class ModelFitter:
 
             t_tra = phi_n[n] / (2*np.pi)
             t_sec_ecl = t_tra + period_n[n]/2
-            half_tdur = 0.1
+            half_tdur = 0.05
 
             # Mask velocities behind or in front of the star
             mask0 = (np.abs(yval_reshaped) <= 1)
@@ -270,8 +274,6 @@ class ModelFitter:
             ) / (sigma_n[n] * np.sqrt(2 * np.pi))
 
             # Apply mask
-            #import IPython; IPython.embed()
-            #assert 0
             mask_gaussian_n = gaussian_n * mask
 
             # Sum the contributions
@@ -297,7 +299,19 @@ class ModelFitter:
         flux_model_on_data_grid = flux_model_on_data_grid_flat.reshape(xi.shape)
 
         # Compute the residuals
-        residuals = self.flux_arr - flux_model_on_data_grid
+        residuals = self.flux_arr_nomask - flux_model_on_data_grid
+
+
+        #plt.close("all")
+        #f_50 = np.nanpercentile(
+        #    residuals[:, (np.abs(self.yval) < 1) ], 50, axis=0
+        #)
+        #fn = lambda x: gaussian_filter1d(x, sigma=5)
+        #plt.plot(self.yval[np.abs(self.yval) < 1], fn(f_50), c='k', lw=0.5)
+        #plt.show()
+        #import IPython; IPython.embed()
+        #assert 0
+
 
         # Plotting
         fig, axs = plt.subplots(1, 3, figsize=(18, 6))
@@ -305,13 +319,13 @@ class ModelFitter:
         # Plot the data
         ax = axs[0]
         cmap = plt.get_cmap('Greys')
-        c = ax.pcolor(self.xval, self.yval, self.flux_arr.T, cmap=cmap,
+        c = ax.pcolor(self.xval, self.yval, self.flux_arr_nomask.T, cmap=cmap,
                       shading='auto', rasterized=True)
         cb = fig.colorbar(c, ax=ax)
         cb.set_label('Flux (Data)')
         ax.set_xlabel('Time (P)')
         ax.set_ylabel('Δv / v_eq')
-        ax.set_title('Data')
+        ax.set_title('Data (only Δv/veq>1 fitted)')
 
         # Plot the model
         ax = axs[1]
@@ -320,7 +334,7 @@ class ModelFitter:
         cb = fig.colorbar(c, ax=ax)
         cb.set_label('Flux (Model)')
         ax.set_xlabel('Time (P)')
-        ax.set_title('Model')
+        ax.set_title('Model*mask')
 
         # Plot the residuals
         ax = axs[2]
