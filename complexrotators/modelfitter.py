@@ -54,7 +54,6 @@ class ModelFitter:
         self.modelid = modelid
         self.map_guess_method = map_guess_method
         self.guessdict = guessdict
-
         self.flux_arr_nomask = flux_arr_nomask
 
         # Determine the number of Gaussians (N) from modelid
@@ -169,24 +168,28 @@ class ModelFitter:
             self.map_estimate = map_soln
 
             self.visualize_map_estimate()
+            self.visualize_map_estimate(masktype='mask_sececlipse')
 
-            import IPython; IPython.embed()
-            assert 0 #FIXME
+            return
+            # TODO: implement sampling?!
 
-            # Sample from the posterior distribution
-            print("Sampling from posterior...")
-            self.trace = pm.sample(
-                self.N_samples,
-                cores=self.N_cores,
-                chains=self.N_chains,
-                return_inferencedata=False
-            )
+            #  import IPython; IPython.embed()
+            #  assert 0 #FIXME
 
-            # Cache the results
-            with open(self.result_file, 'wb') as f:
-                pickle.dump({'map_estimate': self.map_estimate, 'trace': self.trace}, f)
+            #  # Sample from the posterior distribution
+            #  print("Sampling from posterior...")
+            #  self.trace = pm.sample(
+            #      self.N_samples,
+            #      cores=self.N_cores,
+            #      chains=self.N_chains,
+            #      return_inferencedata=False
+            #  )
 
-            print(f"Results saved to {self.result_file}")
+            #  # Cache the results
+            #  with open(self.result_file, 'wb') as f:
+            #      pickle.dump({'map_estimate': self.map_estimate, 'trace': self.trace}, f)
+
+            #  print(f"Results saved to {self.result_file}")
 
     def load_results(self):
         """
@@ -202,9 +205,11 @@ class ModelFitter:
             print("No results found. Please run the model first.")
 
 
-    def visualize_map_estimate(self):
+    def visualize_map_estimate(self, masktype=None):
         """
         Visualize the MAP estimate by plotting the data, model, and residual.
+
+        masktype: 'mask_sececlipse' or None.
         """
 
         # Check if MAP estimate is available
@@ -274,7 +279,10 @@ class ModelFitter:
             ) / (sigma_n[n] * np.sqrt(2 * np.pi))
 
             # Apply mask
-            mask_gaussian_n = gaussian_n * mask
+            if masktype == 'mask_sececlipse':
+                mask_gaussian_n = gaussian_n * mask
+            else:
+                mask_gaussian_n = gaussian_n
 
             # Sum the contributions
             flux_model += mask_gaussian_n
@@ -299,7 +307,12 @@ class ModelFitter:
         flux_model_on_data_grid = flux_model_on_data_grid_flat.reshape(xi.shape)
 
         # Compute the residuals
-        residuals = self.flux_arr_nomask - flux_model_on_data_grid
+        if masktype == 'mask_sececlipse':
+            flux_arr = self.flux_arr_nomask
+        else:
+            flux_arr = self.flux_arr
+
+        residuals = flux_arr - flux_model_on_data_grid
 
 
         #plt.close("all")
@@ -319,7 +332,7 @@ class ModelFitter:
         # Plot the data
         ax = axs[0]
         cmap = plt.get_cmap('Greys')
-        c = ax.pcolor(self.xval, self.yval, self.flux_arr_nomask.T, cmap=cmap,
+        c = ax.pcolor(self.xval, self.yval, flux_arr.T, cmap=cmap,
                       shading='auto', rasterized=True)
         cb = fig.colorbar(c, ax=ax)
         cb.set_label('Flux (Data)')
@@ -346,7 +359,8 @@ class ModelFitter:
         ax.set_title('Residuals (Data - Model)')
 
         plt.tight_layout()
-        savpath = join(self.plotdir, f"{self.modelid}_map_viz.png")
+        _s = 'mask_sececlipse' if masktype == 'mask_sececlipse' else ''
+        savpath = join(self.plotdir, f"{self.modelid}_map_viz{_s}.png")
         plt.savefig(savpath, bbox_inches='tight')
         print(f"wrote {savpath}")
 
