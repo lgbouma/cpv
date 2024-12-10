@@ -30,6 +30,8 @@ from complexrotators.paths import RESULTSDIR
 plotdir = join(RESULTSDIR, "emission_modelfitter")
 if not os.path.exists(plotdir): os.mkdir(plotdir)
 
+from complexrotators.modelfitter import ModelFitter
+
 # Pre-requisite: running plot_movie_specriver.py
 # NOTE: if you change v_eq, this requires a rerun.
 pklpath = (
@@ -89,54 +91,33 @@ fig.savefig(
 
 # define guessdict
 N_gaussians = 3
+for N_gaussians in [2,3]:
 
-if N_gaussians == 2:
-    K_n_guess = nparr([2.3, 4])
-    phi_n_guess = nparr([0.1, 3.1])
-    sigma_n_guess = nparr([0.1, 0.1])
-    A_n_guess = nparr([0.4, 0.4])
-    period_guess = nparr([1.0]*2)
-elif N_gaussians == 3:
-    K_n_guess = nparr([2.1, 2.6, 4])
-    phi_n_guess = nparr([0.1, 0.1, 3.1])
-    sigma_n_guess = nparr([0.1, 0.1, 0.1])
-    A_n_guess = nparr([0.2, 0.2, 0.4])
-    period_guess = nparr([1.0]*3)
+    if N_gaussians == 2:
+        K_n_guess = nparr([2.3, 4])
+        phi_n_guess = nparr([0.1, 3.1])
+        sigma_n_guess = nparr([0.1, 0.1])
+        A_n_guess = nparr([0.4, 0.4])
+        period_guess = nparr([1.0]*2)
+    elif N_gaussians == 3:
+        K_n_guess = nparr([2.1, 2.6, 4])
+        phi_n_guess = nparr([0.1, 0.1, 3.1])
+        sigma_n_guess = nparr([0.1, 0.1, 0.1])
+        A_n_guess = nparr([0.2, 0.2, 0.4])
+        period_guess = nparr([1.0]*3)
 
-guessdict = {
-    'K': K_n_guess,
-    'phi': phi_n_guess,
-    'sigma': sigma_n_guess,
-    'A': A_n_guess,
-    'period': period_guess,
-}
+    guessdict = {
+        'K': K_n_guess,
+        'phi': phi_n_guess,
+        'sigma': sigma_n_guess,
+        'A': A_n_guess,
+        'period': period_guess,
+    }
 
-# fit data
-from complexrotators.modelfitter import ModelFitter
-m = ModelFitter(
-    xval, yval, flux_arr_masked.T, err_flux_arr.T,
-    modelid=f'{N_gaussians}_gaussians', N_samples=1000, N_cores=2, N_chains=2,
-    plotdir=plotdir, overwrite=False, guessdict=guessdict, map_guess_method='handtuned'
-)
-
-
-import IPython; IPython.embed()
-#  cached = {
-#      'spec_flux_arr':orig_flux_arr,
-#      'smooth_mean_flux':smoothmeanflux,
-#      'spec_minus_smooth_flux_arr':flux_arr,
-#      'xvals':xvals, # Δv/v_eq
-#      'yvals':yvals, # the flux
-#      'specpaths':specpaths,
-#      'spectimes':spectimes,
-#      'specphases':specphases
-#  }
-
-# TODO probably need to implement a likelihood!
-# TODO probably need to implement a likelihood!
-# TODO probably need to implement a likelihood!
-# TODO probably need to implement a likelihood!
-# TODO probably need to implement a likelihood!
-# TODO probably need to implement a likelihood!
-# TODO probably need to implement a likelihood!
-# TODO probably need to implement a likelihood!
+    # fit data
+    m = ModelFitter(
+        xval, yval, flux_arr_masked.T, err_flux_arr.T,
+        modelid=f'{N_gaussians}_gaussians', N_samples=1000, N_cores=2, N_chains=2,
+        plotdir=plotdir, overwrite=False, guessdict=guessdict,
+        map_guess_method='handtuned', flux_arr_nomask=flux_arr.T
+    )
