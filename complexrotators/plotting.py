@@ -19,6 +19,7 @@ Contents:
     Movies:
         | plot_movie_phase_timegroups
         | plot_movie_specriver
+        | plot_movie_sixpanel_specriver
 
     Single-object:
         | plot_tic4029_segments
@@ -363,6 +364,71 @@ def _get_cpv_lclist(lc_cadences, ticid):
     lclist = lclist_20sec + lclist_2min
 
     return lclist
+
+
+def prepare_local_lc(ticid, lcpath, outdir):
+
+    hdul = fits.open(lcpath)
+
+    hdr = hdul[0].header
+    data = hdul[1].data
+
+    # assumed
+    author = 'SPOC'
+
+    # metadata
+    sector = hdr['SECTOR']
+
+    # light curve data
+    time = data['TIME']
+    flux = data['PDCSAP_FLUX']
+    qual = data['QUALITY']
+
+    # remove non-zero quality flags
+    sel = (qual == 0)
+
+    x_obs = time[sel]
+    y_obs = flux[sel]
+
+    # normalize around 1
+    y_obs /= np.nanmedian(y_obs)
+
+    # what is the cadence?
+    cadence_sec = int(np.round(np.nanmedian(np.diff(x_obs))*24*60*60))
+
+    starid = f'{ticid}_S{str(sector).zfill(4)}_{author}_{cadence_sec}sec'
+
+    #
+    # "light" detrending by default. (& cache it)
+    #
+    pklpath = join(outdir, f"{starid}_dtr_lightcurve.pkl")
+    if os.path.exists(pklpath):
+        print(f"Found {pklpath}, loading and continuing.")
+        with open(pklpath, 'rb') as f:
+            lcd = pickle.load(f)
+        y_flat = lcd['y_flat']
+        y_trend = lcd['y_trend']
+        x_trend = lcd['x_trend']
+    else:
+        y_flat, y_trend = dtr.detrend_flux(
+            x_obs, y_obs, method='biweight', cval=2, window_length=4.0,
+            break_tolerance=0.5
+        )
+        x_trend = deepcopy(x_obs)
+        lcd = {
+            'y_flat':y_flat,
+            'y_trend':y_trend,
+            'x_trend':x_trend
+        }
+        with open(pklpath, 'wb') as f:
+            pickle.dump(lcd, f)
+            print(f'Made {pklpath}')
+
+    return (
+        time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend,
+        cadence_sec, sector, starid
+    )
+
 
 
 def prepare_given_lightkurve_lc(lc, ticid, outdir):
@@ -5080,7 +5146,7 @@ def plot_movie_specriver(
     assert isinstance(sector, int)
     sector_range = [sector]
 
-    lclist = _get_cpv_lclist(lc_cadences, "TIC "+ticid)
+    #lclist = _get_cpv_lclist(lc_cadences, "TIC "+ticid)
 
     if len(lclist) == 0:
         print(f'WRN! Did not find light curves for {ticid}. Escaping.')
@@ -5477,6 +5543,477 @@ def plot_movie_specriver(
             s += "_rasterized"
         if verticallayout:
             s += "_verticallayout"
+        if 'wob' in style:
+            s += '_wob'
+        if removeavg:
+            s += '_remove25pct'
+        if norm_by_veq:
+            s += '_normbyveq'
+        if showlinecoresum:
+            s += '_showlinecoresum'
+
+        tstr = str(time_index).zfill(4)
+
+        outpath = join(
+            outdir,
+            f"specriver_{ticid}_{linestr}_{tstr}_{lc_cadences}{s}.png"
+        )
+
+        fig.savefig(outpath, bbox_inches='tight', dpi=450)
+        print(f"saved {outpath}")
+
+
+def plot_movie_sixpanel_specriver(
+    outdir,
+    lcpath,
+    ticid=None,
+    linestr='Hα',
+    lc_cadences='2min',
+    manual_period=None,
+    t0='binmin',
+    ylim=None,
+    binsize_phase=0.005,
+    xlim=[-0.6,0.6],
+    showtitle=1,
+    figsize_y=7,
+    rasterized=False,
+    sector: int=None,
+    style='science',
+    arial_font=0,
+    lamylim=None,
+    cb_ticks=[1,2,3],
+    dlambda=20,
+    lognorm=True,
+    figsize=(8,3),
+    showhline=1,
+    specriverorient='vertphase', # "time", "phase", or "vertphase"
+    removeavg=0,
+    norm_by_veq=1,
+    showlinecoresum=1
+    ):
+    """
+    As in plot_phase
+
+    NOTE: no savepdf option, b/c the image does not render
+    """
+
+    ###############
+    # get LC data #
+    ###############
+    assert isinstance(sector, int)
+    sector_range = [sector]
+
+    # for each light curve (sector / cadence specific), detrend if needed, get
+    # the best period.
+    _times, _fluxs, _t0s, _periods, _titlestrs, _sectorstrs = [],[],[],[],[],[]
+
+    for _ in [0]:
+
+        (time, flux, qual, x_obs, y_obs, y_flat,
+         y_trend, x_trend, cadence_sec, sector,
+         starid) = prepare_local_lc(ticid, lcpath, outdir)
+
+        # get t0, period, lsp
+        if not isinstance(t0, float) and isinstance(manual_period, float):
+            d = cpv_periodsearch(x_obs, y_flat, starid, outdir, t0=t0)
+        else:
+            d = {'times': x_obs, 'fluxs': y_flat,
+                 't0': t0, 'period': manual_period}
+
+        _t0 = d['t0']
+        if isinstance(t0, float):
+            _t0 = t0
+        period = d['period']
+        if isinstance(manual_period, float):
+            period = manual_period
+        titlestr = starid.replace('_',' ')
+
+        _times.append(d['times'])
+        _fluxs.append(d['fluxs'])
+        _t0s.append(_t0)
+        _periods.append(period)
+        _titlestrs.append(titlestr)
+        _sectorstrs.append(np.repeat(sector, len(d['times'])))
+
+    # merge lightcurve data, and split before making the plot.
+    times = np.hstack(_times)
+    fluxs = np.hstack(_fluxs)
+    t0s = np.hstack(_t0s)
+    periods = np.hstack(_periods)
+    titlestrs = np.hstack(_titlestrs)
+    sectorstrs = np.hstack(_sectorstrs)
+
+    #################
+    # get spec data #
+    #################
+    from complexrotators.getters import get_specriver_data
+    specpaths, spectimes, xvals, yvals, yvalsnonorm, norm_flxs = get_specriver_data(
+        ticid, linestr, dlambda=dlambda, usespectype='reduced'
+    )
+
+    if norm_by_veq:
+        ADOPTED_VEQ = 130 # km/s
+        xvals = np.array(xvals) / ADOPTED_VEQ
+
+    t0 = t0s[0]
+    period = periods[0]
+    t0 += 0.15*period # NOTE: manual "phi0" tuning to make it physical...
+
+    _pd = phase_magseries(spectimes, np.ones(len(spectimes)), period, t0,
+                          wrap=0, sort=False)
+    specphases = _pd['phase']
+    specphases[specphases > 0.5] -= 1
+
+    flux_arr = np.zeros(
+        (len(xvals[0]), len(spectimes))
+    )
+    for ix, yval in enumerate(yvals):
+        flux_arr[:, ix] = yval
+
+    # sum line colors for experiment...
+    if norm_by_veq:
+        linecore_sums = []
+        for time_index, (spectime, specphase, specpath, xval, yval) in enumerate(zip(
+            spectimes, specphases, specpaths, xvals, yvals
+        )):
+            # sum up flux within v/v_eq < 1
+            sel = np.abs(xval) <= 1
+            linecore_sum = np.sum( yval[sel] )
+            linecore_sums.append(linecore_sum)
+
+    if removeavg:
+        # subtract a gausian-smoothed "mean spectrum" over the full time-series.
+        # NOTE: looking at the mean shows a "blue excess" - not surprising
+        # given the amount of blue emission at many x vsini.  Somewhere in the
+        # 10-25th percentile seems better. --> Adopting 25th percentile.
+
+        meanflux = np.nanmean(flux_arr, axis=1)
+        pctflux = np.nanpercentile(flux_arr, 25, axis=1)
+        fn = lambda x: gaussian_filter1d(x, sigma=10)
+        smoothmeanflux = fn(pctflux)
+
+        outpath = join(
+            outdir,
+            f"tic1411_gaussianfilter_25pctile.png"
+        )
+        plt.close("all")
+        fig, ax = plt.subplots()
+        ax.plot(xvals[0], smoothmeanflux, c='k', lw=0.5)
+        ax.update({'xlabel':'Δv/v_eq', 'ylabel':"$f_\lambda$"})
+        fig.savefig(outpath, bbox_inches='tight', dpi=300)
+
+        orig_yvals = deepcopy(yvals)
+        for yval in yvals:
+            yval -= smoothmeanflux
+
+        orig_flux_arr = flux_arr * 1.
+
+        flux_arr = flux_arr - smoothmeanflux[:,None]
+
+        pklpath = join(outdir, f"{ticid}_specriver_cache.pkl")
+        cached = {
+            'spec_flux_arr':orig_flux_arr,
+            'smooth_mean_flux':smoothmeanflux,
+            'spec_minus_smooth_flux_arr':flux_arr,
+            'xvals':xvals, # Δv/v_eq
+            'yvals':yvals, # the flux (potentially median subtracted)
+            'orig_yvals':orig_yvals,
+            'specpaths':specpaths,
+            'spectimes':spectimes,
+            'specphases':specphases,
+            't0': t0,
+            'period': period
+        }
+        with open(pklpath, 'wb') as f:
+            pickle.dump(cached, f)
+            print(f'Made {pklpath}')
+
+    ##########################################
+    # Begin the plot
+
+    for time_index, (spectime, specphase, specpath, xval, yval, orig_yval) in enumerate(zip(
+        spectimes, specphases, specpaths, xvals, yvals, orig_yvals
+    )):
+
+        plt.close("all")
+        set_style(style)
+        if arial_font:
+            rcParams['font.family'] = 'Arial'
+
+        fig = plt.figure(figsize=(6,6))
+        axd = fig.subplot_mosaic(
+            """
+            AD
+            AD
+            AD
+            BE
+            BE
+            BE
+            CF
+            CF
+            """
+            #"""
+            #AD
+            #BE
+            #CF
+            #"""
+        )
+
+        ##########################################
+        # flux vs phase
+        for ax, showlinecoresum in zip(
+            [axd['A'], axd['D']],
+            [False, True]
+        ):
+
+            txt = ''
+            c0 = 'darkgray'
+            c1 = 'k' if 'wob' not in style else 'white'
+            if specriverorient == 'vertphase':
+                phasewrap, longwrap = False, True
+                xlim = None
+            else:
+                phasewrap, longwrap = True, False
+                xlim = xlim
+
+            plot_phased_light_curve(
+                times, fluxs, t0, period, None, fig=fig, ax=ax, titlestr=None,
+                binsize_phase=binsize_phase, xlim=xlim, yoffset=0, showtext=txt,
+                savethefigure=False, dy=0, rasterized=rasterized, c0=c0, c1=c1,
+                phasewrap=phasewrap, longwrap=longwrap
+            )
+            if isinstance(ylim, (list, tuple)):
+                ax.set_ylim(ylim)
+            if isinstance(xlim, (list, tuple)):
+                ax.set_xlim(xlim)
+            ylim = ax.get_ylim()
+            if specriverorient != 'vertphase':
+                ax.vlines(specphase, ylim[0], ylim[1], colors='darkgray', alpha=0.5,
+                          linestyles='--', zorder=-10, linewidths=0.5)
+            else:
+                pass
+            ax.set_ylim(ylim)
+
+            if showlinecoresum:
+                linecore_rel = linecore_sums / np.nanmedian(linecore_sums)
+                # you are plotting after normalizing to the flux outside the line.
+                # this can give changes in Ha, relative to the continuum.
+                # to estimate the uncertainties on those changes, you need to know
+                # the absolute number of counts, or at least an estimate of it --
+                # hence the multiplication by med_normflx.
+                med_normflx = np.nanmedian(norm_flxs)
+                linecore_err = (
+                    np.sqrt(nparr(linecore_sums)*med_normflx) /
+                    (nparr(linecore_sums)*med_normflx)
+                )
+                linecore_rel_pct = 100 * (linecore_rel - np.nanmedian(linecore_rel))
+                linecorr_err_pct = 100 * linecore_err
+                ax2 = ax.twinx()
+                phi0 = 0.065
+                _specphases = (
+                    (spectimes - t0) / period
+                    - np.nanmin((spectimes - t0) / period)
+                    - phi0
+                )
+                xerr = np.nanmedian(np.diff(spectimes)/period) / 2
+
+                c2 = 'darkgreen' if 'wob' not in style else 'gold'
+                ax2.errorbar(_specphases, linecore_rel_pct,
+                             yerr=linecorr_err_pct, xerr=xerr,
+                             lw=1, ls=':', marker='.', c=c2, markersize=2)
+                ax2.set_ylabel(r"$\Delta$ $f$$_{\mathrm{H\alpha\ core}}$ [%]",
+                               fontsize='large', color=c2)
+                #ax2.set_ylabel(r"$\Sigma$ $f$$_{\mathrm{H\alpha,|v/v_{\mathrm{eq}}|<1}}$ [%]",
+                #               fontsize='large', color=c2)
+                ax2.tick_params(axis='y', labelcolor=c2)
+
+            ax.set_ylabel(r"$\Delta$ TESS Flux [%]", fontsize='large')
+            ax.set_xlabel(r"Phase, φ", fontsize='large')
+
+            if specriverorient == 'vertphase':
+                ax.set_xticks([0, 0.5, 1])
+                ax.set_xticklabels(['0.0', '0.5', '1.0'])
+
+        #format_ax(ax)
+
+        ##########################################
+        # flux vs wavelength
+        for _ix, (ax, removeavg) in enumerate(zip(
+            [axd['C'], axd['F']],
+            [False, True]
+        )):
+
+            c = 'k' if 'wob' not in style else 'white'
+            if removeavg:
+                ax.plot(xval, yval, c=c, lw=0.5)
+            else:
+                ax.plot(xval, orig_yval, c=c, lw=0.5)
+                ax.plot(xval, smoothmeanflux, c=c, lw=0.3, zorder=-99,
+                        alpha=0.7, ls=':')
+
+
+            if specriverorient != 'vertphase':
+                txt = f't={24*(spectime-min(spectimes)):.1f}hr, φ={specphase:.2f}'
+            else:
+                txt = f't={24*(spectime-min(spectimes)):.1f}hr'
+            ax.text(
+                0.96, 0.92, txt, ha='right', va='top', transform=ax.transAxes
+            )
+            txt = linestr
+            ax.text(
+                0.04, 0.92, txt, ha='left', va='top', transform=ax.transAxes
+            )
+
+            assert isinstance(lamylim, (list, tuple))
+            ax.set_ylim(lamylim)
+            if removeavg:
+                ax.set_ylim((-0.5, 1))
+            if specriverorient == 'vertphase' and removeavg:
+                for _x in [-1, 1]:
+                    ax.vlines(_x, -0.5, 1, colors='darkgray', alpha=0.9,
+                              linestyles=':', zorder=2, linewidths=0.5)
+
+            fluxlabel = "$f_\lambda$"
+            if _ix == 1 and removeavg:
+                fluxlabel = r"$f_\lambda$ - $f_{\langle t \rangle}$"
+            ax.set_ylabel(fluxlabel, fontsize='large')
+            dvlabel = r"Δv [km/s]" if not norm_by_veq else r"Δ$v$/$v_\mathrm{eq}$"
+            ax.set_xlabel(dvlabel, fontsize='large')
+
+        ##########################################
+        # specriver: phase vs wavelength, color by flux
+        for _ix, (ax, removeavg) in enumerate(zip(
+            [axd['B'], axd['E']],
+            [False, True]
+        )):
+
+            cb_ticks = None
+
+            if 'wob' in style:
+                cmap = 'Greys_r'
+            else:
+                cmap = 'Greys'
+            if removeavg:
+                cmap = 'Spectral'
+                cmap = 'bwr'
+
+            vmin = lamylim[0]
+            vmax = lamylim[1]
+
+            if lognorm:
+                # NOTE: this generates buggy behavior with the colorbar ticks and
+                # ticklabels below.  use only if needed?
+                norm = colors.LogNorm(vmin=0.9, vmax=vmax)
+            else:
+                norm = colors.Normalize(vmin=0.9, vmax=vmax)
+
+            if _ix == 0:
+                norm = colors.Normalize(vmin=0.9, vmax=2.1)
+            if removeavg and _ix==1:
+                _vmin, _vmax = -0.2, 0.8
+                norm = colors.Normalize(vmin=_vmin, vmax=_vmax)
+
+
+            if specriverorient == 'vertphase':
+                if _ix == 0: # dont remove avg
+                    yval = 1.*xval
+                    xval = (spectimes-t0)/period
+                    xval -= np.min(np.ceil(xval))
+                    cval = orig_flux_arr
+                else: # remove avg
+                    cval = flux_arr
+
+            c = ax.pcolor(xval,
+                          yval,
+                          cval,
+                          cmap=cmap,
+                          norm=norm,
+                          shading='auto', rasterized=True)
+
+            dvlabel = r"Δv [km/s]" if not norm_by_veq else r"Δ$v$/$v_\mathrm{eq}$"
+            if specriverorient == 'time':
+                ax.set_ylabel("Time [hr]", fontsize='large')
+                ax.set_xlabel(dvlabel, fontsize='large')
+            elif specriverorient == 'phase':
+                ax.set_ylabel("Phase, φ", fontsize='large')
+                ax.set_xlabel(dvlabel, fontsize='large')
+            elif specriverorient == 'vertphase':
+                ax.set_ylabel(dvlabel, fontsize='large')
+                ax.set_xlabel("Phase, φ", fontsize='large')
+
+            xmin, xmax = ax.get_xlim()
+            ymin, ymax = ax.get_ylim()
+            if showhline:
+                if specriverorient == 'time':
+                    ax.hlines(24*(spectime-min(spectimes)), xmin, xmax,
+                              colors='darkgray', alpha=0.9, linestyles='--', zorder=2,
+                              linewidths=0.5)
+                elif specriverorient == 'phase':
+                    _yvals = (spectimes-t0)/period
+                    _yval = (spectime-t0)/period - np.min(np.ceil(_yvals))
+                    ax.hlines(_yval, xmin, xmax,
+                              colors='darkgray', alpha=0.9, linestyles='--', zorder=2,
+                              linewidths=0.5)
+                elif specriverorient == 'vertphase':
+                    _xvals = (spectimes-t0)/period
+                    _xval = (spectime-t0)/period - np.min(np.ceil(_xvals))
+                    ax.vlines(_xval, ymin, ymax,
+                              colors='darkgray', alpha=0.9, linestyles='--', zorder=2,
+                              linewidths=0.5)
+                    # NOTE annoying mod 0.5 wrap issue
+                    for _ax in [axd['A'], axd['D']]:
+                        _ax.vlines(
+                            _xval, ylim[0], ylim[1], colors='darkgray', alpha=0.5,
+                            linestyles='--', zorder=-10, linewidths=0.5
+                        )
+
+            ax.set_xlim((xmin, xmax))
+            ax.set_ylim((ymin, ymax))
+            if specriverorient == 'vertphase':
+                for _ax in [axd['A'], axd['D']]:
+                    _ax.set_xlim((xmin, xmax))
+
+            # sick inset colorbar
+            if specriverorient in ['time', 'phase']:
+                x0,y0,dx,dy = 1.02, -0.09, 0.3, 0.02
+                orientation = 'horizontal'
+                loc = 'bottom right'
+            elif specriverorient == 'vertphase':
+                x0,y0,dx,dy = 1.09, 0.03, 0.02, 0.3
+                orientation = 'vertical'
+                loc = 'center right'
+            axins1 = inset_axes(ax, width="100%", height="100%",
+                                bbox_to_anchor=(x0,y0,dx,dy),
+                                loc=loc,
+                                bbox_transform=ax.transAxes)
+            cb = fig.colorbar(c, cax=axins1, orientation=orientation,
+                              extend="both")
+
+            rotation = 0 if specriverorient != 'vertphase' else 90
+
+            fluxlabel = "$f_\lambda$"
+            if _ix == 1 and removeavg:
+                fluxlabel = r"$f_\lambda$ - $f_{\langle t \rangle}$"
+
+            cb.set_label(fluxlabel, rotation=rotation, labelpad=3)
+            if _ix == 1 and removeavg:
+                #cb_ticks = [0, 0.5]
+                cb_ticks = [_vmin, _vmax]
+
+            if cb_ticks is not None:
+                cb.set_ticks(cb_ticks)
+                cb.set_ticklabels(cb_ticks)
+            else:
+                cb.ax.yaxis.set_tick_params(left=False, labelleft=False)
+                cb.ax.xaxis.set_tick_params(left=False, labelleft=False)
+                cb.ax.xaxis.set_tick_params(bottom=False, labelbottom=False)
+            cb.update_ticks()
+
+        fig.tight_layout(w_pad=3, h_pad=1)
+
+        s = ''
+        if rasterized:
+            s += "_rasterized"
         if 'wob' in style:
             s += '_wob'
         if removeavg:
