@@ -366,7 +366,7 @@ def _get_cpv_lclist(lc_cadences, ticid):
     return lclist
 
 
-def prepare_local_lc(ticid, lcpath, outdir):
+def prepare_local_lc(ticid, lcpath, outdir, fluxkey='PDCSAP_FLUX'):
 
     hdul = fits.open(lcpath)
 
@@ -381,7 +381,7 @@ def prepare_local_lc(ticid, lcpath, outdir):
 
     # light curve data
     time = data['TIME']
-    flux = data['PDCSAP_FLUX']
+    flux = data[fluxkey]
     qual = data['QUALITY']
 
     # remove non-zero quality flags
@@ -401,28 +401,32 @@ def prepare_local_lc(ticid, lcpath, outdir):
     #
     # "light" detrending by default. (& cache it)
     #
-    pklpath = join(outdir, f"{starid}_dtr_lightcurve.pkl")
-    if os.path.exists(pklpath):
-        print(f"Found {pklpath}, loading and continuing.")
-        with open(pklpath, 'rb') as f:
-            lcd = pickle.load(f)
-        y_flat = lcd['y_flat']
-        y_trend = lcd['y_trend']
-        x_trend = lcd['x_trend']
-    else:
-        y_flat, y_trend = dtr.detrend_flux(
-            x_obs, y_obs, method='biweight', cval=2, window_length=4.0,
-            break_tolerance=0.5
-        )
-        x_trend = deepcopy(x_obs)
-        lcd = {
-            'y_flat':y_flat,
-            'y_trend':y_trend,
-            'x_trend':x_trend
-        }
-        with open(pklpath, 'wb') as f:
-            pickle.dump(lcd, f)
-            print(f'Made {pklpath}')
+    y_flat = None
+    y_trend = None
+    x_trend = None
+    if outdir is not None:
+        pklpath = join(outdir, f"{starid}_dtr_lightcurve.pkl")
+        if os.path.exists(pklpath):
+            print(f"Found {pklpath}, loading and continuing.")
+            with open(pklpath, 'rb') as f:
+                lcd = pickle.load(f)
+            y_flat = lcd['y_flat']
+            y_trend = lcd['y_trend']
+            x_trend = lcd['x_trend']
+        else:
+            y_flat, y_trend = dtr.detrend_flux(
+                x_obs, y_obs, method='biweight', cval=2, window_length=4.0,
+                break_tolerance=0.5
+            )
+            x_trend = deepcopy(x_obs)
+            lcd = {
+                'y_flat':y_flat,
+                'y_trend':y_trend,
+                'x_trend':x_trend
+            }
+            with open(pklpath, 'wb') as f:
+                pickle.dump(lcd, f)
+                print(f'Made {pklpath}')
 
     return (
         time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend,
