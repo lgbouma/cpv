@@ -141,6 +141,51 @@ def plot_ew_timeseries(
     outpath = join(outdir, f'{targetid}_{inst}_{linename}_vs_time_{utcdatestr}.png')
     savefig(fig, outpath)
 
+    # bonus: tess overlap for LP 12-502
+    if utcdatestr in [
+        '20241104', '20241105', '20241106', '20241107', '20241108'
+    ]:
+
+        plt.close("all")
+
+        # get tess data
+        TESSDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess'
+        fitspath = join(
+            TESSDIR,
+            'tess2024300212641-s0085-0000000402980664-0282-s_lc.fits'
+        )
+        hdul = fits.open(fitspath)
+        d = hdul[1].data
+        time = d['TIME'] + 2457000 # btjd -> bjd_tdb
+        flux = d['PDCSAP_FLUX']
+        flux_err = d['PDCSAP_FLUX_ERR']
+        med_flux = np.nanmedian(flux)
+        flux /= med_flux
+        flux_err /= med_flux
+
+        set_style('clean')
+        fig, axs = plt.subplots(figsize=(4,6), nrows=2)
+
+        ax = axs[0]
+        ax.errorbar(t_bjd_tdb - 2457000, fitted_ews, yerr=0.75*errs)
+        ax.set_ylabel(f'{linekey} EW [mA]')
+        xmin, xmax = ax.get_xlim()
+
+        ax = axs[1]
+        ax.errorbar(time - 2457000, flux, yerr=flux_err, lw=0, elinewidth=0.5)
+        ax.set_ylabel(f'tess flux')
+        ax.set_xlabel(f'BTJD')
+        ax.set_xlim((xmin, xmax))
+        ax.set_ylim((0.96, 1.03))
+
+        outdir = join(RESULTSDIR, 'EW_results')
+        if not os.path.exists(outdir): os.mkdir(outdir)
+        outpath = join(
+            outdir,
+            f'{targetid}_{inst}_{linename}_vs_time_{utcdatestr}_withtess.png'
+        )
+        savefig(fig, outpath)
+
     ptimes, pews, perrs = t_bjd_tdb - t_offset, fitted_ews, 0.75*errs
     return ptimes, pews, perrs, keys, csvpaths, speccsvpaths
 
@@ -245,7 +290,7 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, targetid):
                 ptimes, pews, perrs, __keys, __rescsvpaths, __fittedcsvpaths = ewi
 
                 if targetid == 'LP_12-502':
-                    t_offset = 2460255
+                    t_offset = 2460255 # set in plot_ew_timeseries
                 elif targetid == 'DG_CVn':
                     t_offset = 2460428
                 t = ptimes + t_offset # convert to bjdtdb
@@ -275,19 +320,24 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, targetid):
             else:
                 TIERRASDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/TIERRAS'
                 KEPLERCAMDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/KeplerCam'
+                TESSDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess'
                 if utcdatestr == '20231111':
+                    inst == 'tierras'
                     df = pd.read_csv(
                         join(TIERRASDIR, "20231111_TIC402980664_circular_fixed_ap_phot_13.csv")
                     )
                 elif utcdatestr == '20231112':
+                    inst == 'tierras'
                     df = pd.read_csv(
                         join(TIERRASDIR, "20231112_TIC402980664_circular_fixed_ap_phot_21.csv")
                     )
                 elif utcdatestr == '20231203':
+                    inst == 'tierras'
                     df = pd.read_csv(
                         join(TIERRASDIR, "20231203_TIC402980664_circular_fixed_ap_phot_18.csv")
                     )
                 elif utcdatestr == '20231207':
+                    inst == 'keplercam'
                     df = pd.read_csv(
                         join(KEPLERCAMDIR, "LP12-502_20231208_KeplerCam_g.dat"),
                         delim_whitespace=True
@@ -296,6 +346,7 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, targetid):
                     df['Target Relative Flux'] = df['rel_flux_T1_n']
                     df['Target Relative Flux Error'] = df['rel_flux_err_T1_n']
                 elif utcdatestr == '20240428':
+                    inst == 'tierras'
                     df = pd.read_csv(
                         join(TIERRASDIR, "TIC368129164_global_lc.csv"),
                         comment='#'
@@ -310,14 +361,37 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, targetid):
                         'Flux Error': 'Target Relative Flux Error'
                     }, axis='columns')
                     assert len(df) > 0
+                elif utcdatestr in [
+                    '20241104', '20241105', '20241106', '20241107', '20241108'
+                ]:
+                    inst = 'tess'
+                    fitspath = join(
+                        TESSDIR,
+                        'tess2024300212641-s0085-0000000402980664-0282-s_lc.fits'
+                    )
+                    hdul = fits.open(fitspath)
+                    d = hdul[1].data
+                    time = d['TIME'] + 2457000 # btjd -> bjd
+                    flux = d['PDCSAP_FLUX']
+                    flux_err = d['PDCSAP_FLUX_ERR']
+                    med_flux = np.nanmedian(flux)
+                    flux /= med_flux
+                    flux_err /= med_flux
+                    sel = (d['TIME'] > 3618) & (d['TIME'] < 3623)
+                    df = pd.DataFrame({
+                        'BJD TDB': time[sel],
+                        'Target Relative Flux': flux[sel],
+                        'Target Relative Flux Error': flux_err[sel]
+                    })
                 else:
                     continue
+
                 t = np.array(df['BJD TDB'])
                 phase = t_to_phase(t, targetid, dofloor=1)
                 flux = np.array(df['Target Relative Flux'])
                 flux_err = np.array(df['Target Relative Flux Error'])
 
-                if utcdatestr not in ['20231207', '20240428']:
+                if utcdatestr not in ['20231207', '20240428'] and inst=='tierras':
                     x0 = 73
                     yval = 1e3*flux - x0
                     yerr = 1e3*flux_err
