@@ -34,7 +34,7 @@ def main(RUNDICT, fitsdir, VBROAD, starid, chip, run_in_parallel):
             f'.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits'
         )
 
-        df = get_naive_rv(spectrum_path, synth_path, outdir, make_plot=1,
+        df = get_naive_rv(spectrum_path, synth_path, outdir, chip, make_plot=1,
                           run_in_parallel=run_in_parallel, vbroad=VBROAD)
 
         # recalculate!
@@ -44,12 +44,15 @@ def main(RUNDICT, fitsdir, VBROAD, starid, chip, run_in_parallel):
         rvs = rvs - bc + ZP  # this is the systemic RV!!! (at the order level)
 
         # good for TIC402980664
-        rchip_good_orders = [0,1,2,3,4,7,8,13,14,15] # default for ZP calc: [0,2,3,4,5,6,11]
+        #rchip_good_orders = [0,1,2,3,4,7,8,13,14,15] # default for ZP calc: [0,2,3,4,5,6,11]
 
         # TIC141146667
-        rchip_good_orders = [2,6,13] # default for ZP calc: [0,2,3,4,5,6,11]
+        if chip == 'r':
+            chip_good_orders = [2,6,13] # default for ZP calc: [0,2,3,4,5,6,11]
+        elif chip == 'i':
+            chip_good_orders = [4,8]
 
-        sel_rvs = rvs[np.array(rchip_good_orders)]
+        sel_rvs = rvs[np.array(chip_good_orders)]
         df['meangoodorder_rv_chisq_minus_bc_kms'] = np.round(np.nanmean(sel_rvs), 4)
 
         rv_std = np.round(np.nanstd(sel_rvs), 4)
@@ -97,7 +100,7 @@ if __name__ == "__main__":
     starid = 'TIC141146667'
     VBROAD = 130
     fitsdir = join(DATADIR, 'spectra/HIRES/TIC141146667_DEBLAZED')
-    chip = 'r'
+    chip = 'i'
     fitspaths = np.sort(glob(join(fitsdir, f"{chip}j*fits")))
     RUNDICT = {}
     for fitspath in fitspaths:
@@ -106,7 +109,6 @@ if __name__ == "__main__":
         # file name, grid teff, %2f grid logg, expected RV (if there is one)
         val = [os.path.basename(fitspath), 3000, 4.00, 0]
         RUNDICT[key] = val
-
 
     ## file name, grid teff, %2f grid logg, expected RV (if there is one)
     #RUNDICT = {'TIC402980664': ['rj520.93.fits', 3300, 5.00, -12.33] }
