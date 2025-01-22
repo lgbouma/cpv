@@ -8,7 +8,7 @@ from complexrotators.paths import DATADIR, RESULTSDIR
 outdir = join(RESULTSDIR, 'HIRES_systemic_velocities')
 if not os.path.exists(outdir): os.mkdir(outdir)
 
-def main(RUNDICT, fitsdir, VBROAD, starid, run_in_parallel):
+def main(RUNDICT, fitsdir, VBROAD, starid, chip, run_in_parallel):
 
     rv_list = []
     drvs = []
@@ -83,7 +83,7 @@ def main(RUNDICT, fitsdir, VBROAD, starid, run_in_parallel):
         df.std_rv_zp ** 2
     )
 
-    outpath = join(outdir, f'{starid}_systemic_velocities.csv')
+    outpath = join(outdir, f'{starid}_systemic_velocities_{chip}chip.csv')
     df.to_csv(outpath, index=False)
     print(f'Wrote {outpath}')
 
@@ -111,4 +111,4 @@ if __name__ == "__main__":
     ## file name, grid teff, %2f grid logg, expected RV (if there is one)
     #RUNDICT = {'TIC402980664': ['rj520.93.fits', 3300, 5.00, -12.33] }
 
-    main(RUNDICT, fitsdir, VBROAD, starid, run_in_parallel)
+    main(RUNDICT, fitsdir, VBROAD, starid, chip, run_in_parallel)
