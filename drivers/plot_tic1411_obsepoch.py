@@ -24,7 +24,7 @@ lcpath = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess/mastDownload/TESS/te
  y_trend, x_trend, cadence_sec, sector,
  starid) = prepare_local_lc(ticid, lcpath, None, fluxkey='SAP_FLUX')
 
-sel = ~( (time > 3359.4) & (time < 3360.15) )
+sel = ~( (time > 3359.4) & (time < 3360.13) )
 time, flux = time[sel], flux[sel]
 
 flux /= np.nanmedian(flux)
@@ -64,18 +64,18 @@ axd = fig.subplot_mosaic(
     BBCC
     """
 )
-fig = plt.figure(figsize=(6,5))
-axd = fig.subplot_mosaic(
-    """
-    AAAA
-    AAAA
-    BBCC
-    BBCC
-    BBCC
-    DDDD
-    DDDD
-    """
-)
+#fig = plt.figure(figsize=(6,5))
+#axd = fig.subplot_mosaic(
+#    """
+#    AAAA
+#    AAAA
+#    BBCC
+#    BBCC
+#    BBCC
+#    DDDD
+#    DDDD
+#    """
+#)
 
 
 # the light curve
@@ -143,19 +143,19 @@ ax.set_xlabel(r"Phase, φ")
 ax.set_ylim([-10, 6])
 #ax.set_xlim([-0.1, 1.3])
 
-# way after; evolving scatter
-ax = axd['D']
-
-ax.scatter(time, flux,
-           c='lightgray', s=1, zorder=1, rasterized=True)
-ax.scatter(bd['binnedtimes'], bd['binnedmags'],
-           c='k', s=0.2, zorder=2, rasterized=True)
-ax.update({
-    'xlim': [3360.3, 3363.7],
-    'ylim': [-10, 6],
-    'xlabel': 'Time [BTJD]',
-    'ylabel': '$\Delta$ Flux [%]'
-})
+## way after; evolving scatter
+#ax = axd['D']
+#
+#ax.scatter(time, flux,
+#           c='lightgray', s=1, zorder=1, rasterized=True)
+#ax.scatter(bd['binnedtimes'], bd['binnedmags'],
+#           c='k', s=0.2, zorder=2, rasterized=True)
+#ax.update({
+#    'xlim': [3360.3, 3363.7],
+#    'ylim': [-10, 6],
+#    'xlabel': 'Time [BTJD]',
+#    'ylabel': '$\Delta$ Flux [%]'
+#})
 
 
 fig.tight_layout()
