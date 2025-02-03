@@ -5378,7 +5378,7 @@ def plot_movie_specriver(
             ax2.tick_params(axis='y', labelcolor='gold')
 
 
-        ax.set_ylabel(r"$\Delta$ TESS Flux [%]", fontsize='large')
+        ax.set_ylabel(r"$\Delta$ Flux [%]", fontsize='large')
         ax.set_xlabel(r"Phase, φ", fontsize='large')
 
         if specriverorient == 'vertphase':
@@ -5744,10 +5744,9 @@ def plot_movie_sixpanel_specriver(
         if arial_font:
             rcParams['font.family'] = 'Arial'
 
-        fig = plt.figure(figsize=(6,6))
+        fig = plt.figure(figsize=(6.5,6))
         axd = fig.subplot_mosaic(
             """
-            AD
             AD
             AD
             BE
@@ -5831,7 +5830,7 @@ def plot_movie_sixpanel_specriver(
                 #               fontsize='large', color=c2)
                 ax2.tick_params(axis='y', labelcolor=c2)
 
-            ax.set_ylabel(r"$\Delta$ TESS Flux [%]", fontsize='large')
+            ax.set_ylabel(r"$\Delta$ Flux [%]", fontsize='large')
             ax.set_xlabel(r"Phase, φ", fontsize='large')
 
             if specriverorient == 'vertphase':
@@ -5860,13 +5859,16 @@ def plot_movie_sixpanel_specriver(
                 txt = f't={24*(spectime-min(spectimes)):.1f}hr, φ={specphase:.2f}'
             else:
                 txt = f't={24*(spectime-min(spectimes)):.1f}hr'
+            # plot the time
             ax.text(
                 0.96, 0.92, txt, ha='right', va='top', transform=ax.transAxes
             )
+            # plot the line
             txt = linestr
-            ax.text(
-                0.04, 0.92, txt, ha='left', va='top', transform=ax.transAxes
-            )
+            if _ix == 0:
+                ax.text(
+                    0.04, 0.92, txt, ha='left', va='top', transform=ax.transAxes
+                )
 
             assert isinstance(lamylim, (list, tuple))
             ax.set_ylim(lamylim)
@@ -5900,6 +5902,9 @@ def plot_movie_sixpanel_specriver(
             if removeavg:
                 cmap = 'Spectral'
                 cmap = 'bwr'
+                if 'wob' in style:
+                    cmap = 'berlin'
+                    cmap = 'Spectral_r'
 
             vmin = lamylim[0]
             vmax = lamylim[1]
@@ -5914,7 +5919,7 @@ def plot_movie_sixpanel_specriver(
             if _ix == 0:
                 norm = colors.Normalize(vmin=0.9, vmax=2.1)
             if removeavg and _ix==1:
-                _vmin, _vmax = -0.2, 0.8
+                _vmin, _vmax = -0.2, 0.8 #-0.4, 0.4
                 norm = colors.Normalize(vmin=_vmin, vmax=_vmax)
 
 
@@ -5970,6 +5975,15 @@ def plot_movie_sixpanel_specriver(
                             _xval, ylim[0], ylim[1], colors='darkgray', alpha=0.5,
                             linestyles='--', zorder=-10, linewidths=0.5
                         )
+
+            # plot the line
+            if _ix == 0:
+                txt = linestr
+            else:
+                txt = 'Hα - Avg.'
+            ax.text(
+                0.04, 0.95, txt, ha='left', va='top', transform=ax.transAxes
+            )
 
             ax.set_xlim((xmin, xmax))
             ax.set_ylim((ymin, ymax))
