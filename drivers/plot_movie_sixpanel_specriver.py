@@ -32,7 +32,7 @@ def main():
         '141146667': [0.163762133*24,
                       3339.9326,
                       [-10, 6], 75,
-                      {'Hα':[0.7, 3.6], 'Hγ': [0.7, 7], 'CaH': [0.7, 10]}, 17],
+                      {'Hα':[0.7, 3.6], 'Hγ': [0.7, 7], 'CaH': [0.7, 10]}, 15],
     }
     cb_tickd = {
         '141146667': {
@@ -49,7 +49,7 @@ def main():
         lamylim = paramdict[ticid][4][linestr]
         dlambda = paramdict[ticid][5]
 
-        style = 'science' # "science_wob" or "science"
+        style = 'science_wob' # "science_wob" or "science"
 
         outdir = os.path.join(PLOTDIR, f'TIC_{ticid}_{style}')
         if not os.path.exists(outdir): os.mkdir(outdir)
