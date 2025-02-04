@@ -37,18 +37,18 @@ def plot_ew_timeseries(
     linekey = 'Hγ',
     utcdatestr = '20231112',
     inst = 'DBSP',
+    photinst = 'tess',
     targetid = None,
     ra = None,
     dec = None,
-    # FOR LP-12-502
-    #targetid='LP_12-502'
-    #ra = 16.733175*u.deg,
-    #dec = 80.45945*u.deg,
+    style = None,
 ):
 
     assert isinstance(targetid, str)
     assert not (ra is None)
     assert not (dec is None)
+    if style is None:
+        style = 'clean'
 
     # parse input
     if inst == 'HIRES' and linekey == 'Hβ':
@@ -74,12 +74,14 @@ def plot_ew_timeseries(
         side = 'red'
 
     if inst == 'DBSP':
-        fitsdir = f'/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/{utcdatestr}/p200_dbsp_{side}_A/Science'
-        ewdir = f'/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/{utcdatestr}/p200_dbsp_{side}_A/Balmer_EWs'
+        dbdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/'
+        fitsdir = join(dbdir, f'{utcdatestr}/p200_dbsp_{side}_A/Science')
+        ewdir = join(dbdir, f'{utcdatestr}/p200_dbsp_{side}_A/Balmer_EWs')
         fitspaths = np.sort(glob(join(fitsdir, f"spec1d_{side}*{targetid}*fits")))
 
     elif inst == 'HIRES':
-        fitsdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC402980664_RDX'
+        hrdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/'
+        fitsdir = join(hrdir, 'TIC402980664_RDX')
         ewdir = '/Users/luke/Dropbox/proj/cpv/results/HIRES_results/Balmer_EWs'
         fitspaths = np.sort(glob(join(fitsdir, f"{chip}{hiresdate}*fits")))
 
@@ -108,8 +110,7 @@ def plot_ew_timeseries(
 
     dfs = [pd.read_csv(f) for f in csvpaths]
 
-    #FIXME FIXME TODO TODO
-    # The "Fitted EWs" seem janky!
+    # NOTE: The "Fitted EWs" seem janky!
     # fitted_ews = [df['Fitted_EW_mA'].iloc[0] for df in dfs] # milliangstr
     fitted_ews = [np.abs(df['EW_mA'].iloc[0]) for df in dfs] # milliangstr
     perr = [df['Fitted_EW_mA_perr'].iloc[0] for df in dfs]
@@ -124,66 +125,137 @@ def plot_ew_timeseries(
         t, ra, dec, observatory='earthcenter', get_barycorr=0
     )
 
-    set_style('clean')
+    ##########################################
+    ##########################################
+    set_style(style)
     fig, ax = plt.subplots()
     if targetid == 'LP_12-502':
-        t_offset = 2460255
+        t_offset = 2460255 # 0 #min(t_bjd_tdb) # 2460255
     elif targetid == 'DG_CVn':
-        t_offset = int(np.floor(min(t_bjd_tdb)))
+        t_offset = 0 # int(np.floor(min(t_bjd_tdb)))
     else:
         raise NotImplementedError
 
     ax.errorbar(t_bjd_tdb - t_offset, fitted_ews, yerr=0.75*errs)
-    ax.set_ylabel(f'{linekey} EW [mA]')
-    ax.set_xlabel(f'BJD_TDB - {t_offset}')
+    ax.set_ylabel(f'{linekey} EW [m$\AA$]')
+    ax.set_xlabel('BJD$_{\mathrm{TDB}}$ - '+f'{t_offset}')
+    #ax.set_xlabel('Time [hours]')
+
     outdir = join(RESULTSDIR, 'EW_results')
     if not os.path.exists(outdir): os.mkdir(outdir)
-    outpath = join(outdir, f'{targetid}_{inst}_{linename}_vs_time_{utcdatestr}.png')
+    outpath = join(
+        outdir,
+        f'{targetid}_{inst}_{linename}_vs_time_{utcdatestr}_{style}.png'
+    )
     savefig(fig, outpath)
 
-    # bonus: tess overlap for LP 12-502
+    # bonus: phot overlap
     if utcdatestr in [
-        '20241104', '20241105', '20241106', '20241107', '20241108'
+        '20240428', # tierras
+        '20241104', '20241105', '20241106', '20241107', '20241108' # lp12-502
     ]:
 
         plt.close("all")
 
         # get tess data
-        TESSDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess'
-        fitspath = join(
-            TESSDIR,
-            'tess2024300212641-s0085-0000000402980664-0282-s_lc.fits'
-        )
-        hdul = fits.open(fitspath)
-        d = hdul[1].data
-        time = d['TIME'] + 2457000 # btjd -> bjd_tdb
-        flux = d['PDCSAP_FLUX']
-        flux_err = d['PDCSAP_FLUX_ERR']
-        med_flux = np.nanmedian(flux)
-        flux /= med_flux
-        flux_err /= med_flux
+        if photinst == 'tess':
+            TESSDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess'
+            fitspath = join(
+                TESSDIR,
+                'tess2024300212641-s0085-0000000402980664-0282-s_lc.fits'
+            )
+            hdul = fits.open(fitspath)
+            d = hdul[1].data
+            time = d['TIME'] + 2457000 # btjd -> bjd_tdb
+            flux = d['PDCSAP_FLUX']
+            flux_err = d['PDCSAP_FLUX_ERR']
+            med_flux = np.nanmedian(flux)
+            flux /= med_flux
+            flux_err /= med_flux
+            ms = 0.5
+        elif photinst == 'tierras':
+            TIERRASDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/TIERRAS'
+            KEPLERCAMDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/KeplerCam'
+            TESSDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess'
+            if utcdatestr == '20231111':
+                inst == 'tierras'
+                df = pd.read_csv(
+                    join(TIERRASDIR, "20231111_TIC402980664_circular_fixed_ap_phot_13.csv")
+                )
+            elif utcdatestr == '20231112':
+                inst == 'tierras'
+                df = pd.read_csv(
+                    join(TIERRASDIR, "20231112_TIC402980664_circular_fixed_ap_phot_21.csv")
+                )
+            elif utcdatestr == '20231203':
+                inst == 'tierras'
+                df = pd.read_csv(
+                    join(TIERRASDIR, "20231203_TIC402980664_circular_fixed_ap_phot_18.csv")
+                )
+            elif utcdatestr == '20231207':
+                inst == 'keplercam'
+                df = pd.read_csv(
+                    join(KEPLERCAMDIR, "LP12-502_20231208_KeplerCam_g.dat"),
+                    delim_whitespace=True
+                )
+                df['BJD TDB'] = df['BJD_TDB_B']
+                df['Target Relative Flux'] = df['rel_flux_T1_n']
+                df['Target Relative Flux Error'] = df['rel_flux_err_T1_n']
+            elif utcdatestr == '20240428':
+                df = pd.read_csv(
+                    join(TIERRASDIR, "TIC368129164_global_lc.csv"),
+                    comment='#'
+                )
+                sel = (
+                    (df['BJD TDB'] > 2460428.81) &
+                    (df['BJD TDB'] < 2460429.2)
+                )
+                df = df[sel]
+                df = df.rename({
+                    'Flux': 'Target Relative Flux',
+                    'Flux Error': 'Target Relative Flux Error'
+                }, axis='columns')
 
-        set_style('clean')
-        fig, axs = plt.subplots(figsize=(4,6), nrows=2)
+            assert len(df) > 0
+            time = np.array(df['BJD TDB'])
+            flux = np.array(df['Target Relative Flux'])
+            flux_err = np.array(df['Target Relative Flux Error'])
+            ms = 0.5
+
+        set_style(style)
+        fig, axs = plt.subplots(figsize=(2,2.5), nrows=2, sharex=1)
 
         ax = axs[0]
-        ax.errorbar(t_bjd_tdb - 2457000, fitted_ews, yerr=0.75*errs)
-        ax.set_ylabel(f'{linekey} EW [mA]')
+        x0 = np.nanmin(t_bjd_tdb - 2457000)
+        c = 'k' if 'wob' not in style else 'white'
+        ax.errorbar(
+            24*(t_bjd_tdb - 2457000 - x0), 1e-3*np.array(fitted_ews),
+            yerr=1e-3*0.75*np.array(errs),
+            fmt='o', color=c, ecolor=c,
+            elinewidth=0.5, capsize=0, capthick=0, markersize=1
+        )
+        ax.set_ylabel(f'{linekey} EW '+'[$\mathrm{\AA}$]')
         xmin, xmax = ax.get_xlim()
 
         ax = axs[1]
-        ax.errorbar(time - 2457000, flux, yerr=flux_err, lw=0, elinewidth=0.5)
-        ax.set_ylabel(f'tess flux')
-        ax.set_xlabel(f'BTJD')
+        #fn2 = lambda y: 100*(y - np.nanmedian(y))
+        ax.errorbar(24*(time - 2457000 - x0),
+                    100*(flux-np.nanmedian(flux)),
+                    yerr=100*flux_err,
+                    fmt='o', color=c, ecolor=c, mfc=c,
+                    elinewidth=0.2, capsize=0, capthick=0, markersize=ms, mew=0)
+        ax.set_ylabel(f'Δ Flux [%]')
+        ax.set_xlabel(f'Time [hours]')
         ax.set_xlim((xmin, xmax))
-        ax.set_ylim((0.96, 1.03))
+        ax.set_ylim((-3.1, 3.1))
 
         outdir = join(RESULTSDIR, 'EW_results')
         if not os.path.exists(outdir): os.mkdir(outdir)
         outpath = join(
             outdir,
-            f'{targetid}_{inst}_{linename}_vs_time_{utcdatestr}_withtess.png'
+            f'{targetid}_{inst}_{linename}_vs_time_{utcdatestr}_with{photinst}_{style}.png'
         )
+        fig.tight_layout()
         savefig(fig, outpath)
 
     ptimes, pews, perrs = t_bjd_tdb - t_offset, fitted_ews, 0.75*errs
@@ -346,7 +418,7 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, targetid):
                     df['Target Relative Flux'] = df['rel_flux_T1_n']
                     df['Target Relative Flux Error'] = df['rel_flux_err_T1_n']
                 elif utcdatestr == '20240428':
-                    inst == 'tierras'
+                    inst = 'tierras'
                     df = pd.read_csv(
                         join(TIERRASDIR, "TIC368129164_global_lc.csv"),
                         comment='#'
@@ -856,13 +928,17 @@ if __name__ == "__main__":
     targetid = 'LP_12-502'
     ra = 16.733175*u.deg
     dec = 80.45945*u.deg
-
-    #targetid = 'DG_CVn'
-    #ra = 202.94307059819*u.deg
-    #dec = 29.27621104174*u.deg
-
+    photinst = 'tess'
     utcdatestrs = ["20241108"]
     utcdatestrs = "20241104,20241105,20241106,20241107,20241108".split(",")
+
+    targetid = 'DG_CVn'
+    ra = 202.94307059819*u.deg
+    dec = 29.27621104174*u.deg
+    utcdatestrs = ["20240428"]
+    photinst = 'tierras'
+
+    style = 'clean_wob'
     insts = ["DBSP"]*len(utcdatestrs)
 
     uinsts = "_".join(np.unique(insts))
@@ -873,16 +949,16 @@ if __name__ == "__main__":
     for d,i in zip(utcdatestrs, insts):
         ha = plot_ew_timeseries(
             linename='HAlpha', linekey='Hα', utcdatestr=d, inst=i,
-            targetid=targetid, ra=ra, dec=dec
+            targetid=targetid, ra=ra, dec=dec, style=style, photinst=photinst
         )
         if i == 'DBSP':
             hb = plot_ew_timeseries(
                 linename='HBeta', linekey='Hβ', utcdatestr=d, inst=i,
-                targetid=targetid, ra=ra, dec=dec
+                targetid=targetid, ra=ra, dec=dec, style=style, photinst=photinst
             )
         hc = plot_ew_timeseries(
             linename='HGamma', linekey='Hγ', utcdatestr=d, inst=i,
-            targetid=targetid, ra=ra, dec=dec
+            targetid=targetid, ra=ra, dec=dec, style=style, photinst=photinst
         )
         plot_stack_ew_timeseries(ha, hb, hc, d, uinsts, targetid)
         has.append(ha)
