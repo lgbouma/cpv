@@ -5029,7 +5029,8 @@ def plot_movie_phase_timegroups(
         try:
             _sector = gsectors[0]
         except IndexError:
-            pass
+            print(f'{t_start:.1f}-{t_stop:.1f}: IndexError skip')
+            continue
 
         plt.close('all')
         set_style(style)
@@ -5150,7 +5151,7 @@ def plot_movie_specriver(
     assert isinstance(sector, int)
     sector_range = [sector]
 
-    #lclist = _get_cpv_lclist(lc_cadences, "TIC "+ticid)
+    lclist = _get_cpv_lclist(lc_cadences, "TIC "+ticid)
 
     if len(lclist) == 0:
         print(f'WRN! Did not find light curves for {ticid}. Escaping.')
