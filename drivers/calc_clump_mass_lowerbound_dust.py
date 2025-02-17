@@ -17,6 +17,7 @@ def calculate_cpv_mass(star_radius, dip_depth, particle_radius, particle_density
 
     # Calculate number density for optical depth >= 1
     n = 1 / (sigma * L)
+    print(f"Number density n: {n:.2e}")
 
     # Calculate total number of particles
     N = n * area_obscuring * L

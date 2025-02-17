@@ -35,7 +35,8 @@ def get_ylimguess(y):
 def make_plot(ticid, sector=None, showtitles=0, showphase=1,
               showtext=1, lcpipeline='spoc2min', style='clean', xlim=None,
               do_quality_trim=1, period=None, edge_trim=0, bincadence=None,
-              arial_font=0):
+              arial_font=1, xticklabels=None, xticks=None, ylim=None,
+              yticks=None, yticklabels=None):
 
     # get data
     if lcpipeline in ['spoc2min', 'tess-spoc']:
@@ -80,7 +81,8 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
     #    bd = time_bin_magseries(d['times'][_sel], d['fluxs'][_sel], binsize=1200, minbinelems=1)
 
     #ylim = get_ylimguess(1e2*(bd['binnedmags']-np.nanmean(bd['binnedmags'])))
-    ylim = get_ylimguess(y_flat)
+    if ylim is None:
+        ylim = get_ylimguess(y_flat)
 
     if showtitles:
         titlestr = f'{ticid}, s{sector}, {d["period"]*24:.1f}h'
@@ -102,7 +104,7 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
                                 constrained_layout=True)
         axs = axs.flatten()
     else:
-        fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(0.6666*1.2*4.5, 1.2*1.25),
+        fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(0.35*1.5*4.5, 0.65*1.2*1.25),
                                 constrained_layout=True)
         axs = [axs]
 
@@ -110,11 +112,12 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
     c2 = 'lightgray'
 
 
+    s = 1
     if bincadence is None:
         x_offset = np.nanmin(x_obs)
         if ticid == '314847177':
             x_offset = np.nanmin(x_obs) + 15
-        axs[0].scatter(x_obs-x_offset, y_flat, c=c, s=0.5, linewidths=0, zorder=10)
+        axs[0].scatter(x_obs-x_offset, y_flat, c=c, s=s, linewidths=0, zorder=10)
         _, _groups = find_lc_timegroups(x_obs, mingap=0.5/24)
         for _g in _groups:
             axs[0].plot(x_obs[_g]-x_offset, y_flat[_g], c=c2, zorder=8, lw=0.2, alpha=0.25)
@@ -122,7 +125,7 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
         _bd = time_bin_magseries(x_obs, y_flat, binsize=bincadence, minbinelems=1)
         _x, _y = _bd['binnedtimes'], _bd['binnedmags']
         _x_offset = np.nanmin(_x)
-        axs[0].scatter(_x-_x_offset, _y, c=c, s=0.5, linewidths=0, zorder=10)
+        axs[0].scatter(_x-_x_offset, _y, c=c, s=s, linewidths=0, zorder=10)
         _, _groups = find_lc_timegroups(_x, mingap=0.5/24)
         for _g in _groups:
             axs[0].plot(_x[_g]-_x_offset, _y[_g], c=c2, zorder=8, lw=0.2, alpha=0.25)
@@ -136,6 +139,11 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
     axs[0].set_xlim([-0.2,10.2])
     if isinstance(xlim, (list, tuple)):
         axs[0].set_xlim(xlim)
+        if xticklabels is not None and xticks is not None:
+            # manual tick override
+            axs[0].set_xticks(xticks)
+            axs[0].set_xticklabels(xticklabels)
+
     if ticid == '220599904':
         axs[0].set_xlim([14, 24])
 
@@ -162,36 +170,50 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
     outdir = join(RESULTSDIR, "normal_stars")
     if not os.path.exists(outdir): os.mkdir(outdir)
 
+    fig.patch.set_alpha(0)  # Make the figure background transparent
+    ax.patch.set_alpha(0)   # Make the axes background transparent
+
     s = '' if 'wob' not in style else '_wob'
     p = '' if showphase else '_nophase'
     outpath = join(outdir, f"TIC{ticid}_s{str(sector).zfill(4)}{s}{p}.png")
     savefig(fig, outpath, dpi=400)
 
+
 if __name__ == "__main__":
 
-    # Sep2024 JWST/LCO CPVs
-    make_plot("141146667", sector=41, style='clean', showtext=0,
-              arial_font=1)
-    make_plot("402980664", sector=58, style='clean', showtext=0,
-              arial_font=1)
-    make_plot("300651846", sector=66, style='clean', showtext=0,
-              arial_font=1)
+    #  # Sep2024 JWST/LCO CPVs
+    #  make_plot("141146667", sector=41, style='clean', showtext=0,
+    #            arial_font=1)
+    #  make_plot("402980664", sector=58, style='clean', showtext=0,
+    #            arial_font=1)
+    #  make_plot("300651846", sector=66, style='clean', showtext=0,
+    #            arial_font=1)
 
-    styles = ['clean', 'clean_wob']
+    styles = ['clean_wob']
 
     for style in styles:
 
-        # LP 12-502 cpv
-        #for sector in [18, 19, 25, 26, 53, 58, 73]:
-        for sector in [58]:
-            make_plot("402980664", sector=sector, style=style)
-            make_plot("402980664", sector=sector, style=style, showphase=0,
-                      bincadence=600)
+        #  # LP 12-502 cpv
+        #  #for sector in [18, 19, 25, 26, 53, 58, 73, 85]:
+        #for sector in [58]:
+        #    make_plot("402980664", sector=sector, style=style)
+        #    make_plot("402980664", sector=sector, style=style, showphase=0,
+        #              bincadence=600)
+
+        make_plot("402980664", sector=85, style=style, showphase=0,
+                  bincadence=600, xlim=[16-0.2, 20+0.2], xticks=[16,18,20],
+                  xticklabels=[0,2,4], ylim=[0.95, 1.021], yticks=[0.96, 1.0],
+                  yticklabels=[0.96, 1.0])
+        assert 0
+
+        make_plot("402980664", sector=58, style=style, showphase=0,
+                  bincadence=600, xlim=[-0.2, 4.8])
+
 
         # AB Dor, great rotator
         make_plot('149248196', sector=7, style=style)
         make_plot('149248196', sector=7, style=style, showphase=0,
-                  xlim=[-0.2, 6.2])
+                  xlim=[-0.2, 3.2])
 
         # OO Peg, great EB
         make_plot('314847177', sector=55, lcpipeline='tess-spoc', style=style,
@@ -206,11 +228,16 @@ if __name__ == "__main__":
 
         # nice rotator (secretly cpv sometimes)
         make_plot('177309964', sector=67, style=style)
-        make_plot('177309964', sector=67, style=style, showphase=0)
+        make_plot('177309964', sector=67, style=style, showphase=0,
+                  xlim=[-0.2, 4.2])
 
         ## nice eb
-        #make_plot('281498280', sector=1, style=style)
-        #make_plot('281498280', sector=1, style=style, showphase=0)
+        make_plot('281498280', sector=1, style=style)
+        make_plot('281498280', sector=1, style=style, showphase=0,
+                  xlim=[-0.2, 2.6])
+
+        # AU Mic
+        make_plot('441420236', sector=1, style=style, showphase=0)
 
         assert 0
         # qlp cpv
@@ -222,11 +249,12 @@ if __name__ == "__main__":
         # qlp cpv
         make_plot("220599904", sector=31, lcpipeline='qlp', showphase=0)
 
-        # AU Mic
-        make_plot('441420236', sector=1)
-
         # HIP 67522
         make_plot("166527623")
+
+        # ptfo 8-8695
+        make_plot("264461976", sector=6, style='clean_wob', showphase=0,
+                  xlim=[-0.2, 23.2], bincadence=600)
 
     # # # shape-changing rotator
     # make_plot("93839949")

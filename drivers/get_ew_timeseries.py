@@ -172,7 +172,7 @@ def plot_ew_timeseries(
             med_flux = np.nanmedian(flux)
             flux /= med_flux
             flux_err /= med_flux
-            ms = 0.5
+            ms = 1
         elif photinst == 'tierras':
             TIERRASDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/TIERRAS'
             KEPLERCAMDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/KeplerCam'
@@ -220,7 +220,7 @@ def plot_ew_timeseries(
             time = np.array(df['BJD TDB'])
             flux = np.array(df['Target Relative Flux'])
             flux_err = np.array(df['Target Relative Flux Error'])
-            ms = 0.5
+            ms = 1
 
         set_style(style)
         fig, axs = plt.subplots(figsize=(2,2.5), nrows=2, sharex=1)
@@ -394,22 +394,22 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, targetid):
                 KEPLERCAMDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/KeplerCam'
                 TESSDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess'
                 if utcdatestr == '20231111':
-                    inst == 'tierras'
+                    inst = 'tierras'
                     df = pd.read_csv(
                         join(TIERRASDIR, "20231111_TIC402980664_circular_fixed_ap_phot_13.csv")
                     )
                 elif utcdatestr == '20231112':
-                    inst == 'tierras'
+                    inst = 'tierras'
                     df = pd.read_csv(
                         join(TIERRASDIR, "20231112_TIC402980664_circular_fixed_ap_phot_21.csv")
                     )
                 elif utcdatestr == '20231203':
-                    inst == 'tierras'
+                    inst = 'tierras'
                     df = pd.read_csv(
                         join(TIERRASDIR, "20231203_TIC402980664_circular_fixed_ap_phot_18.csv")
                     )
                 elif utcdatestr == '20231207':
-                    inst == 'keplercam'
+                    inst = 'keplercam'
                     df = pd.read_csv(
                         join(KEPLERCAMDIR, "LP12-502_20231208_KeplerCam_g.dat"),
                         delim_whitespace=True
@@ -498,8 +498,8 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, targetid):
     savefig(fig, outpath)
 
 
-def plot_movie_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, show_vel=0,
-                                 noline=0):
+def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
+                                 show_vel=0, noline=0):
 
     linekeys = 'f,Hα,Hβ,Hγ'.split(',')
 
@@ -552,7 +552,7 @@ def plot_movie_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, show_vel=0,
                 ptimes, pews, perrs, _keys, _resultscsvpaths, _fittedcsvpaths, = ewi
 
                 t = ptimes + 2460255 # convert to bjdtdb
-                phase = t_to_phase(t, dofloor=1)
+                phase = t_to_phase(t, targetid, dofloor=1)
 
                 alltimes[f"{utcdatestr}_{i}"][lk] = ptimes
                 allkeys[f"{utcdatestr}_{i}"][lk] = _keys
@@ -574,6 +574,20 @@ def plot_movie_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, show_vel=0,
                 ax.errorbar(phase, nparr(pews)/(1e3), yerr=nparr(perrs)/(1e3),
                             c=datec, ecolor=datec, elinewidth=0.5, lw=0, alpha=0.5,
                             zorder=1)
+
+                WRITEOUT = 1
+                if WRITEOUT:
+                    csvname = f'{targetid}_{lk}_{utcdatestr}_{ix}.csv'
+                    outdf = pd.DataFrame(
+                        {'t':nparr(t),
+                         'phase':nparr(phase),
+                         'ew':nparr(pews)/(1e3),
+                         'ew_merr': nparr(perrs)[0,:]/(1e3),
+                         'ew_perr': nparr(perrs)[1,:]/(1e3)
+                        }
+                    )
+                    outdf.to_csv(csvname, index=False)
+                    print(f"wrote {csvname}")
 
                 ax.set_ylabel(f'{lk} EW [$\AA$]')
                 if lk == 'Hα':
@@ -610,7 +624,7 @@ def plot_movie_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, show_vel=0,
                 else:
                     continue
                 t = np.array(df['BJD TDB'])
-                phase = t_to_phase(t, dofloor=1)
+                phase = t_to_phase(t, targetid, dofloor=1)
                 flux = np.array(df['Target Relative Flux'])
                 flux_err = np.array(df['Target Relative Flux Error'])
 
@@ -627,6 +641,19 @@ def plot_movie_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, show_vel=0,
                 ax.errorbar(phase, yval, yerr=yerr,
                             c=datec, ecolor=datec, elinewidth=0.5, lw=0, alpha=0.5,
                             zorder=1)
+
+                WRITEOUT = 1
+                if WRITEOUT:
+                    csvname = f'{targetid}_{lk}_{utcdatestr}_{ix}.csv'
+                    outdf = pd.DataFrame(
+                        {'t':nparr(t),
+                         'phase':nparr(phase),
+                         'flux':nparr(yval),
+                         'flux_err': nparr(yerr)
+                        }
+                    )
+                    outdf.to_csv(csvname, index=False)
+                    print(f"wrote {csvname}")
 
                 ax.set_ylabel('Relative flux [%]')
                 ax.set_ylim([-5, 5])
@@ -713,7 +740,7 @@ def plot_movie_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, show_vel=0,
             else:
                 continue
             t = np.array(df['BJD TDB'])
-            phase = t_to_phase(t, dofloor=1)
+            phase = t_to_phase(t, targetid, dofloor=1)
             flux = np.array(df['Target Relative Flux'])
             flux_err = np.array(df['Target Relative Flux Error'])
 
@@ -757,7 +784,7 @@ def plot_movie_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, show_vel=0,
                 ptimes, pews, perrs, _keys, _csvpaths, _fittedcsvpaths = ewi
 
                 t = ptimes + 2460255 # convert to bjdtdb
-                phase = t_to_phase(t, dofloor=1)
+                phase = t_to_phase(t, targetid, dofloor=1)
 
                 # FIXME HACK CLEANING
                 # FIXME HACK CLEANING
@@ -928,15 +955,19 @@ if __name__ == "__main__":
     targetid = 'LP_12-502'
     ra = 16.733175*u.deg
     dec = 80.45945*u.deg
+
     photinst = 'tess'
     utcdatestrs = ["20241108"]
     utcdatestrs = "20241104,20241105,20241106,20241107,20241108".split(",")
 
-    targetid = 'DG_CVn'
-    ra = 202.94307059819*u.deg
-    dec = 29.27621104174*u.deg
-    utcdatestrs = ["20240428"]
-    photinst = 'tierras'
+    #photinst = 'tierras'
+    #utcdatestrs = "20231111,20231112".split(",")
+
+    #targetid = 'DG_CVn'
+    #ra = 202.94307059819*u.deg
+    #dec = 29.27621104174*u.deg
+    #utcdatestrs = ["20240428"]
+    #photinst = 'tierras'
 
     style = 'clean_wob'
     insts = ["DBSP"]*len(utcdatestrs)
@@ -969,12 +1000,12 @@ if __name__ == "__main__":
 
     if utcdatestrs == "20231111,20231112".split(","):
         plot_movie_stack_ew_vs_phase(
-            has, hbs, hcs, utcdatestrs, insts, show_vel=0, noline=1
+            targetid, has, hbs, hcs, utcdatestrs, insts, show_vel=0, noline=1
         )
         assert 0
         plot_movie_stack_ew_vs_phase(
-            has, hbs, hcs, utcdatestrs, insts, show_vel=1
+            targetid, has, hbs, hcs, utcdatestrs, insts, show_vel=1
         )
         plot_movie_stack_ew_vs_phase(
-            has, hbs, hcs, utcdatestrs, insts
+            targetid, has, hbs, hcs, utcdatestrs, insts
         )
