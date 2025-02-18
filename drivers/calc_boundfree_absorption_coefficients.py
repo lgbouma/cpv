@@ -79,7 +79,7 @@ def main():
 
         # Gray Fig 8.2, 'alpha_bound-free for hydrogen'
         plt.close("all")
-        set_style("clean")
+        set_style("science")
         fig, ax = plt.subplots(figsize=(4,3))
         for n in range(1,6):
             ax.plot(λ, α_0*g_bf(λ,n)*λ**3/(n**5) / (1e-17), label=f'n={n}')
@@ -92,7 +92,7 @@ def main():
 
         # convert to opacity
         plt.close("all")
-        set_style("clean")
+        set_style("science")
         fig, ax = plt.subplots(figsize=(4,3))
         κ_max = np.zeros_like(λ)
 
