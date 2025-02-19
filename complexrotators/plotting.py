@@ -5029,8 +5029,10 @@ def plot_movie_phase_timegroups(
         try:
             _sector = gsectors[0]
         except IndexError:
-            print(f'{t_start:.1f}-{t_stop:.1f}: IndexError skip')
-            continue
+            print(f'{t_start:.1f}-{t_stop:.1f}: timegap')
+            #NOTE: this is how the timegap_counter increments
+            #entirely normal for it to be raised!
+            pass
 
         plt.close('all')
         set_style(style)
