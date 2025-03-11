@@ -578,6 +578,16 @@ def get_banyan_result(gdr2_df):
         age_refs = 'Dobbie2010'
         adopted_age_ref = 'Dobbie2010'
 
+    if str(dr2_source_id) == '860453786736413568':
+        assocs = 'FIELD'
+        adopted_assoc = 'FIELD'
+        banyan_prob = 0
+        adopted_prob = 1
+        ages = '$16^{+19}_{-6}$'
+        adopted_age_float = 16
+        age_refs = 'Bouma2025'
+        adopted_age_ref = 'Bouma2025'
+
     # MANUAL CASES WITH UNLIKELY MEMBERSHIPS (<1% and couldn't manually verify)
     if dr2_source_id in ['3311867153305660288', '5295268619510973056']:
         adopted_assoc = adopted_assoc + "(?)"
@@ -875,7 +885,22 @@ def get_cpvtable_row(ticid, overwrite=0):
     row['Rcr'] = (
         (const.G * float(row['mass_parsec'])*u.Msun / omega**2)**(1/3)
     ).to(u.Rsun).value
+
+    mass_err = np.nanmean([float(row['mass_parsec_perr']),
+                           float(row['mass_parsec_merr'])])
+    row['Rcr_err'] = float(row['Rcr']) * (
+        (1/3) * (mass_err / float(row['mass_parsec']) )
+    )
+
     row['Rcr_over_Rstar'] = row['Rcr'] / row['rstar_sedfit']
+
+    rstar_sedfit_err = np.nanmean([float(row['rstar_sedfit_perr']),
+                                   float(row['rstar_sedfit_merr'])])
+    row['Rcr_over_Rstar_err'] = float(row['Rcr_over_Rstar']) * np.sqrt(
+        (row['Rcr_err'] / row['Rcr'])**2
+        +
+        (rstar_sedfit_err / row['rstar_sedfit'] )**2
+    )
 
     # TODO
     # TODO
@@ -891,7 +916,7 @@ def get_cpvtable_row(ticid, overwrite=0):
     row.to_csv(cachecsv, index=False, sep="|")
     print(f"Wrote {cachecsv}")
 
-    if not row.shape == (1, 325):
+    if not row.shape == (1, 327):
         import IPython; IPython.embed()
         assert 0
 
@@ -899,4 +924,8 @@ def get_cpvtable_row(ticid, overwrite=0):
 
 
 if __name__ == "__main__":
+    ticid = '141146667'
+    r = get_cpvtable_row(ticid, overwrite=0)
+    import IPython; IPython.embed()
+    assert 0
     main(overwrite=0)
