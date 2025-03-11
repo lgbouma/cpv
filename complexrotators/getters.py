@@ -363,6 +363,12 @@ def get_2min_cadence_spoc_tess_lightcurve(
          )
     ]
 
+    tstarts = [_lc.meta['TSTART'] for _lc in lcc]
+
+    sorted_inds = np.argsort(tstarts)
+
+    lc_list = [lc_list[i] for i in sorted_inds]
+
     return lc_list
 
 
