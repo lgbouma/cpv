@@ -36,7 +36,7 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
               showtext=1, lcpipeline='spoc2min', style='clean', xlim=None,
               do_quality_trim=1, period=None, edge_trim=0, bincadence=None,
               arial_font=1, xticklabels=None, xticks=None, ylim=None,
-              yticks=None, yticklabels=None):
+              yticks=None, yticklabels=None, s=1):
 
     # get data
     if lcpipeline in ['spoc2min', 'tess-spoc']:
@@ -112,7 +112,6 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
     c2 = 'lightgray'
 
 
-    s = 1
     if bincadence is None:
         x_offset = np.nanmin(x_obs)
         if ticid == '314847177':
@@ -193,6 +192,14 @@ if __name__ == "__main__":
 
     for style in styles:
 
+        # CR Dra amazing flares
+        # 16, 25, 23.
+        sectors = [16,23,24,25,49,50,52,51, 76,77,78,79]
+        for _s in sectors:
+            make_plot('207436278', sector=_s, style=style, showphase=0,
+                      ylim=[0.98, 1.03], xlim=[-0.2, 10.2], s=0.3)
+
+        assert 0
         #  # LP 12-502 cpv
         #  #for sector in [18, 19, 25, 26, 53, 58, 73, 85]:
         #for sector in [58]:
