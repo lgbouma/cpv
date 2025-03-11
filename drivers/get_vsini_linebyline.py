@@ -10,6 +10,16 @@ from complexrotators.paths import DATADIR, RESULTSDIR
 from astropy import units as u
 from aesthetic.plot import set_style, savefig
 
+from cdips.utils.lcutils import p2p_rms
+from cdips.utils.statsutils import (
+    compute_median_and_uncertainty_given_param,
+    compute_median_and_uncertainty_given_chisq
+)
+
+from cdips_followup.spectools import (
+    get_synth_spectrum, degrade_spectrum, broaden_spectrum
+)
+
 outdir = join(RESULTSDIR, 'HIRES_vsini_linebyline')
 if not os.path.exists(outdir): os.mkdir(outdir)
 
@@ -40,13 +50,13 @@ def get_vsini_linebyline():
             ind = os.path.basename(fitspath).rstrip(".fits").lstrip(f"{chip}")
             key = f'TIC141146667_{ind}'
             # file name, grid teff, %2f grid logg, expected RV (if there is one)
-            val = [os.path.basename(fitspath), 3000, 4.50, 0]
+            val = [os.path.basename(fitspath), 3000, 4.50, 0, mjd]
             RUNDICT[key] = val
 
-
+        outdicts = []
         for starname,v in RUNDICT.items():
 
-            fitsname, teff, logg, rv_expected = v
+            fitsname, teff, logg, rv_expected, mjd = v
 
             dirstarname = starname
             if "_" in starname:
@@ -77,9 +87,6 @@ def get_vsini_linebyline():
                 f'.PHOENIX-ACES-AGSS-COND-2011-HiRes.fits'
             )
 
-            from cdips_followup.spectools import (
-                get_synth_spectrum, degrade_spectrum, broaden_spectrum
-            )
             syn_flx, syn_wav = get_synth_spectrum(synth_path1)
 
             min_wav, max_wav = np.nanmin(wav), np.nanmax(wav)
@@ -99,7 +106,7 @@ def get_vsini_linebyline():
 
             # the template / synthetic spectrum observed at a range of
             # vsini's
-            vsinis = np.arange(130, 170+10, 10)
+            vsinis = np.arange(100, 180+1, 1)
             sflx_vsinis = []
             for vsini in vsinis:
                 epsilon = 1.5 # linear limb darkening coeff
@@ -122,7 +129,7 @@ def get_vsini_linebyline():
             set_style('science')
             plt.close('all')
 
-            f = 1
+            f = 1.2
             fig, ax = plt.subplots(figsize=(f*4,f*3))
 
             # broaden the data spectrum by much less than the target
@@ -140,6 +147,7 @@ def get_vsini_linebyline():
 
             ax.plot(wav-dlam, bflx, c='k', lw=1.5, zorder=99)
 
+            mses = []
             for ix, (sflx_vsini, vsini, c) in enumerate(
                 zip(sflx_vsinis, vsinis, colors)
             ):
@@ -160,20 +168,53 @@ def get_vsini_linebyline():
 
                 offset = (factor*sflx_vsini)[s_ind_lo] - bflx[ind_lo]
 
-                print(f'{ix}: factor={factor:.3f}, offset={offset:.3f}')
+                scaled_synthflx = factor*sflx_vsini - offset
 
-                ax.plot(wav, factor*sflx_vsini - offset, c=c, lw=1,
-                        label=f'{vsini}', zorder=ix)
-            #TODO FIXME OK GREAT; ONCE THIS IS DONE, DO CHISQ  OR LSQ
-            #ERR FOR EACH OF THESE BTWN YOUR WAVELENGTH REGIONS...
-            #TODO FIXME OK GREAT; ONCE THIS IS DONE, DO CHISQ  OR LSQ
-            #ERR FOR EACH OF THESE BTWN YOUR WAVELENGTH REGIONS...
-            #TODO FIXME OK GREAT; ONCE THIS IS DONE, DO CHISQ  OR LSQ
-            #ERR FOR EACH OF THESE BTWN YOUR WAVELENGTH REGIONS...
-            #TODO FIXME OK GREAT; ONCE THIS IS DONE, DO CHISQ  OR LSQ
-            #ERR FOR EACH OF THESE BTWN YOUR WAVELENGTH REGIONS...
+                if vsini % 10 == 0:
+                    print(f'{ix}: factor={factor:.3f}, offset={offset:.3f}')
+                    if vsini % 30 == 0:
+                        ax.plot(wav, scaled_synthflx, c=c, lw=1,
+                                label=f'{vsini}', zorder=ix)
+                    else:
+                        ax.plot(wav, scaled_synthflx, c=c, lw=1,
+                                zorder=ix)
 
-            ax.legend(fontsize='xx-small')
+                _w0, _w1 = 7698, 7704
+                _sel = (wav > _w0) & (wav < _w1)
+
+                # NOTE: MSE seems to perform better than chisq
+                synth_err = np.ones_like(scaled_synthflx)*p2p_rms(scaled_synthflx)
+                chisq = (
+                  np.sum(
+                     ( scaled_synthflx[_sel] - bflx[_sel] ) ** 2
+                     /
+                     synth_err[_sel] ** 2
+                  )
+                )
+
+                mse = np.sum(np.abs( scaled_synthflx[_sel] - bflx[_sel] ))
+
+                N = len(bflx[_sel])
+
+                mses.append(mse)
+
+            vsinis = np.array(vsinis)
+            mses = np.array(mses)
+            mses -= np.polyval(np.polyfit(vsinis, mses, 1), vsinis)
+
+            inset_ax = fig.add_axes([0.75, 0.25, 0.15, 0.15])  # [left, bottom, width, height]
+            inset_ax.plot(vsinis, mses, color="k")
+            inset_ax.set_xlabel('vsini')
+            inset_ax.set_ylabel(r'MSE')
+
+            med, errlo, errhi = compute_median_and_uncertainty_given_chisq(vsinis, mses)
+            ind_lowest = np.argmin(mses)
+            min_vsini = vsinis[ind_lowest]
+
+            titlestr = f"{min_vsini:.1f} +{errhi:.1f} -{errlo:.1f}"
+            inset_ax.set_title(titlestr, fontsize='x-small')
+
+            ax.legend(fontsize='xx-small', loc='upper right')
             ax.update({'xlabel':'λ', 'ylabel':'f'})
 
             ax.set_xlim([7695.5, 7713])
@@ -184,13 +225,47 @@ def get_vsini_linebyline():
             odir = os.path.join(outdir, tname+"_v_"+sname)
             if not os.path.exists(odir): os.mkdir(odir)
 
+            fig.tight_layout()
+
             savpath = join(
                 odir, f'vsini_ord{str(order).zfill(2)}_{tname}.png'
             )
             savefig(fig, savpath)
 
+            outdict = {
+                'vsini_min': min_vsini,
+                'vsini_med': med,
+                'vsini_errlo': errlo,
+                'vsini_errhi': errhi,
+                'mjd': mjd,
+                'fitsname': fitsname
+            }
+
+            outdicts.append(outdict)
+
+        df = pd.DataFrame(outdicts)
+        sel = df['vsini_min'] > 110
+        sdf = df[sel]
+
+        med, merr, perr = compute_median_and_uncertainty_given_param(
+            np.array(df['vsini_min'])
+        )
+        stdev = float(np.std(sdf['vsini_min']))
+        print(f'{med:.1f} +{perr:.1f} -{merr:.1f} +/-{stdev:.1f}')
+
+        df.attrs['vsini_med'] = med
+        df.attrs['vsini_merr'] = merr
+        df.attrs['vsini_perr'] = perr
+        df.attrs['vsini_std'] = stdev
+
+        # requires fastparquet or pyarrow to be installed to read, but
+        # will cache the attrs metadata
+        parquetpath = join(
+            outdir, 'vsini_results_merged.parquet'
+        )
+        df.to_parquet(parquetpath, index=False)
+        print(f'Wrote {parquetpath}')
+
 
 if __name__ == "__main__":
     get_vsini_linebyline()
-
-
