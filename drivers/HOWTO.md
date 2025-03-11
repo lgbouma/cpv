@@ -15,6 +15,8 @@ _8_ For getting all the QLP data and their Gaia xmatch
 _9_ To search for transiting planets
 _10_ To collect and homogenize all known TESS + literature CPVs
 
+_11_ To measure (systemic) radial velocities from HIRES spectra
+
 ----------
 _0_ To get all 2-minute SPOC light curves, and xmatch metadata against Gaia
 
@@ -169,3 +171,8 @@ _9_ To search for transiting planets
 _10_ To collect and homogenize all known TESS + literature CPVs
 
 1. `process_literature_cpvs.py`
+
+----------
+_11_ To measure (systemic) radial velocities from HIRES spectra
+
+1. `calc_HIRES_systemic_velocities.py`
