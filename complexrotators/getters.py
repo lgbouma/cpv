@@ -60,7 +60,7 @@ import os, csv
 from os.path import join
 from glob import glob
 import subprocess
-from complexrotators.paths import LKCACHEDIR, LOCALDIR, RESULTSDIR
+from complexrotators.paths import LKCACHEDIR, LOCALDIR, RESULTSDIR, DATADIR
 
 from astropy.io import fits
 from astropy import units as u, constants as const
@@ -645,3 +645,83 @@ def get_specriver_data(
         spectimes.append(jumptime_bjd_tdb - 2457000) # to TJD
 
     return specpaths, np.array(spectimes), xvals, yvals, yvalsnonorm, norm_flxs
+
+
+def get_bochanski2007_m_standard(
+    sptype=None, getactive=False
+    ) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Bochanski+2007 constructed M dwarf spectral templates from SDSS DR3.
+    They span M0V to M9V (really even L0).
+
+    They include both "active" and "non-active" stars, classified based on
+    amount of H-alpha.
+
+    kwargs:
+
+        sptype (str): e.g. "M2".
+        getactive (bool): False to mean by default return the non-active cases.
+
+    returns:
+
+        tuple of wavelength and flux from the spectral standard.
+    """
+
+    def build_wavelength_array(header: fits.Header, n_pixels: int) -> np.ndarray:
+        """Build a wavelength array from linear WCS keywords in a FITS header.
+
+        Args:
+            header (fits.Header): FITS header containing CRVAL1, CRPIX1, and CD1_1.
+            n_pixels (int): Number of pixels along the wavelength axis.
+
+        Returns:
+            np.ndarray: 1D array of wavelengths corresponding to each pixel.
+        """
+        crval1 = header["CRVAL1"]
+        crpix1 = header["CRPIX1"]
+        cd1_1 = header["CD1_1"]
+
+        pixel_indices = np.arange(n_pixels, dtype=float)
+        # Note: FITS pixels are 1-based, so we do (pixel + 1 - crpix1)
+        wavelength = crval1 + (pixel_indices + 1.0 - crpix1) * cd1_1
+
+        return wavelength
+
+
+    def read_spectrum(filename: str) -> Tuple[np.ndarray, np.ndarray]:
+        """Read a multi-plane 1D spectrum from a FITS file and build the wavelength.
+
+        This assumes that the first axis is wavelength and the second axis
+        contains the different flux planes (e.g., mean flux, median flux, S/N, etc).
+
+        Args:
+            filename (str): Path to the FITS file.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]:
+                A tuple of (wavelength, flux_data) where:
+                - wavelength is a 1D array of wavelengths.
+                - flux_data is a 2D array with shape (n_planes, n_pixels).
+        """
+        with fits.open(filename) as hdul:
+            header = hdul[0].header
+            flux_data = hdul[0].data
+
+        n_pixels = flux_data.shape[1]
+        wavelength = build_wavelength_array(header, n_pixels)
+
+        # return median-normalized coadded flux
+        return wavelength, flux_data[1,:]
+
+    assert sptype in [f"M{i}" for i in range(10)], f"Invalid spectral type: {sptype}"
+
+    datadir = join(DATADIR, 'spectra', 'SDSS', 'Bochanski2007')
+
+    activestr = 'active' if getactive else 'nactive'
+    namestr = f'{sptype.lower()}.{activestr}.na.k.fits'
+    fitspath = join(datadirk, namestr)
+    assert os.path.exdists(fitspath)
+
+    wav, flx = read_spectrum(fitspath)
+
+    return wav, flx
