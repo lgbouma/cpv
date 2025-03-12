@@ -57,6 +57,7 @@ LOGEXCEPTION = LOGGER.exception
 import numpy as np, pandas as pd
 import lightkurve as lk
 import os, csv
+from typing import Tuple
 from os.path import join
 from glob import glob
 import subprocess
@@ -719,8 +720,9 @@ def get_bochanski2007_m_standard(
 
     activestr = 'active' if getactive else 'nactive'
     namestr = f'{sptype.lower()}.{activestr}.na.k.fits'
-    fitspath = join(datadirk, namestr)
-    assert os.path.exdists(fitspath)
+    fitspath = join(datadir, namestr)
+    print(f'Searching for {fitspath}')
+    assert os.path.exists(fitspath)
 
     wav, flx = read_spectrum(fitspath)
 
