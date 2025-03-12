@@ -1,22 +1,27 @@
 """
 Contents:
 
-| get_tic8_row
-| get_2min_cadence_spoc_tess_lightcurve
-| get_20sec_cadence_spoc_tess_lightcurve
-| _get_lcpaths_given_ticid
-| _get_local_lcpaths_given_ticid
-| _get_lcpaths_fromlightkurve_given_ticid
+General:
 
-| get_cqv_search_sample
+    | get_tic8_row
+    | get_2min_cadence_spoc_tess_lightcurve
+    | get_20sec_cadence_spoc_tess_lightcurve
+
+    | _get_lcpaths_given_ticid
+    | _get_local_lcpaths_given_ticid
+    | _get_lcpaths_fromlightkurve_given_ticid
+
+    | get_cqv_search_sample
 
 tic4029 specialized:
-| get_tic4029_lc_and_mask
-| get_4029_manual_mask
 
-spectra:
-| get_specriver_data
+    | get_tic4029_lc_and_mask
+    | get_4029_manual_mask
 
+Spectra:
+
+    | get_specriver_data
+    | get_bochanski2007_m_standard
 """
 #############
 ## LOGGING ##
