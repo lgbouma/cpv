@@ -649,19 +649,19 @@ def get_specriver_data(
 
 
 def get_bochanski2007_m_standard(
-    sptype=None, getactive=False
+    sptype=None, activestr='nactive'
     ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Bochanski+2007 constructed M dwarf spectral templates from SDSS DR3.
     They span M0V to M9V (really even L0).
 
     They include both "active" and "non-active" stars, classified based on
-    amount of H-alpha.
+    amount of H-alpha.  Optionally, a composite of both (highest SN)
 
     kwargs:
 
         sptype (str): e.g. "M2".
-        getactive (bool): False to mean by default return the non-active cases.
+        activestr (str): "active", "nactive", or "all"
 
     returns:
 
@@ -718,10 +718,8 @@ def get_bochanski2007_m_standard(
 
     datadir = join(DATADIR, 'spectra', 'SDSS', 'Bochanski2007')
 
-    activestr = 'active' if getactive else 'nactive'
     namestr = f'{sptype.lower()}.{activestr}.na.k.fits'
     fitspath = join(datadir, namestr)
-    print(f'Searching for {fitspath}')
     assert os.path.exists(fitspath)
 
     wav, flx = read_spectrum(fitspath)
