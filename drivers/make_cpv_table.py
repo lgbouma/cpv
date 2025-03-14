@@ -578,13 +578,14 @@ def get_banyan_result(gdr2_df):
         age_refs = 'Dobbie2010'
         adopted_age_ref = 'Dobbie2010'
 
+    # TIC 141146667: field star with a range of possible ages
     if str(dr2_source_id) == '860453786736413568':
         assocs = 'FIELD'
         adopted_assoc = 'FIELD'
         banyan_prob = 0
         adopted_prob = 1
-        ages = '$16^{+19}_{-6}$'
-        adopted_age_float = 16
+        ages = '$35-150$'
+        adopted_age_float = 80
         age_refs = 'Bouma2025'
         adopted_age_ref = 'Bouma2025'
 

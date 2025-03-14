@@ -29,6 +29,10 @@ time, flux = time[sel], flux[sel]
 
 flux /= np.nanmedian(flux)
 
+from cdips.utils.lcutils import compute_duty_cycle
+duty_cycle = compute_duty_cycle(time, flux)
+print(f"Duty cycle: {duty_cycle:.3f}")
+
 # light detrending...
 y_flat, y_trend = dtr.detrend_flux(
     time, flux, method='biweight', cval=2, window_length=4.0,

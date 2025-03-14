@@ -5,7 +5,6 @@ from astropy.io import fits
 from glob import glob
 from os.path import join
 import numpy as np, matplotlib.pyplot as plt, pandas as pd
-from cdips_followup.spectools import get_naive_rv
 from complexrotators.paths import DATADIR, RESULTSDIR
 from astropy import units as u
 from aesthetic.plot import set_style, savefig
@@ -17,6 +16,7 @@ from cdips.utils.statsutils import (
 )
 
 from cdips_followup.spectools import (
+    get_naive_rv,
     get_synth_spectrum, degrade_spectrum, broaden_spectrum
 )
 
