@@ -99,7 +99,7 @@ def main(RUNDICT, fitsdir, VBROAD, starid, chip, run_in_parallel,
 
     wmean = np.sum(sdf.systemic_rv * weights) / np.sum(weights)
     wstd = np.sqrt(1.0 / np.sum(weights))
-    print(f'RV_sys = {wmean:.2f} +/- {wstd:.2f} km/s')
+    print(f'{starid} {chip} {chip_good_orders}: RV_sys = {wmean:.2f} +/- {wstd:.2f} km/s')
 
     cstr = "_".join([str(c) for c in chip_good_orders])
     outpath = join(outdir, f'{starid}_systemic_velocities_{chip}chip_orders_{cstr}.csv')
@@ -187,9 +187,12 @@ if __name__ == "__main__":
         np.sqrt(mdf.groupby('mjd')['rel_rv'].transform('count'))
     ).iloc[:len(_df)])
 
+    weights = 1 / std_rel_rv**2
+    wmean = np.sum(mean_rel_rv * weights) / np.sum(weights)
+
     outdf = pd.DataFrame({
         'mjd': mjds,
-        'mean_rel_rv': np.round(mean_rel_rv, 2),
+        'mean_rel_rv': np.round(mean_rel_rv - wmean, 2),
         'count': count,
         'std_rel_rv': np.round(std_rel_rv, 2),
     })
