@@ -1054,7 +1054,7 @@ def plot_phased_light_curve(
 
     if not plotnotscatter:
         ax.scatter(x_fold, norm(y), color=c0, marker='.',
-                   s=1, rasterized=True, alpha=alpha0, linewidths=0)
+                   s=0.5*BINMS, rasterized=True, alpha=alpha0, linewidths=0)
     else:
         ax.plot(x_fold, norm(y), color=c0,
                 lw=0.5, rasterized=True, alpha=alpha0)
@@ -4892,6 +4892,7 @@ def plot_movie_phase_timegroups(
     t0='binmin',
     ylim=None,
     binsize_phase=0.005,
+    bin_marker_size=2,
     xlim=[-0.6,0.6],
     yoffset=5,
     showtitle=1,
@@ -5050,6 +5051,7 @@ def plot_movie_phase_timegroups(
             plot_phased_light_curve(
                 gtime, gflux, plot_t0, plot_period, None,
                 fig=fig, ax=ax,
+                BINMS=bin_marker_size,
                 binsize_phase=binsize_phase,
                 xlim=xlim,
                 #showtext=txt,
@@ -5099,6 +5101,10 @@ def plot_movie_phase_timegroups(
 
         fig.savefig(outpath, bbox_inches='tight', dpi=450)
         print(f"saved {outpath}")
+
+        if int(time_index) == 81:
+            fig.savefig(outpath.replace(".png",".pdf"), bbox_inches='tight', dpi=450)
+            print(f"saved {outpath}")
 
         time_index += 1
         if not FLAG_TIMEGAP:
