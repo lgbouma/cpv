@@ -14,16 +14,23 @@ Q_em = 1  # Emission efficiency (assumed to be 1 for simplicity)
 # Calculate the area of the annulus
 R_in = 2.9 * R_star
 R_out = 3.2 * R_star
-A_annulus = np.pi * (R_out**2 - R_in**2)
+F_ratio = 0.0064
+
+# F_ratio = (T_dust / T_star)**4 * (A_dust / (np.pi * R_star**2))
+# so
+# A_dust = F_ratio * pi Rstar^2 * (Tstar / Tdust) ** 4
+A_dust = F_ratio * np.pi * R_star**2  * (T_star / T_dust)**4
+
+#A_annulus = np.pi * (R_out**2 - R_in**2)
 
 # Calculate the luminosity of the star
 L_star = 4 * np.pi * R_star**2 * sigma_sb * T_star**4
 
 # Calculate the luminosity of the dust
-L_dust = A_annulus * sigma_sb * T_dust**4
+LL_dust = A_dust * sigma_sb * T_dust**4
 
 # Calculate the ratio of luminosities
-L_ratio = (T_dust / T_star)**4 * (A_annulus / (4 * np.pi * R_star**2))
+#F_ratio = (T_dust / T_star)**4 * (A_annulus / (4 * np.pi * R_star**2))
 
 # Calculate the cross-sectional area of a single dust grain
 A_dust_grain = np.pi * a**2
@@ -55,7 +62,7 @@ print(
     f"T_dust = {T_dust}\n"
     f"L_star = {L_star.to(u.Lsun):.1e},\n"
     f"L_dust = {L_dust.to(u.Lsun):.1e},\n"
-    f"L_ratio = {L_ratio:.3f},\n"
+    f"F_ratio = {F_ratio:.3f},\n"
     f"N_dust_grains = {N_dust_grains.cgs:.1e}\n"
     f"M_dust = {M_dust.to(u.kg):.1e},\n"
     f"M_dust = {M_dust.to(u.Mearth):.1e}\n"
