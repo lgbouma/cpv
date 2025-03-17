@@ -58,7 +58,8 @@ plt.close("all")
 set_style('science')
 rcParams['font.family'] = 'Arial'
 
-fig = plt.figure(figsize=(6,4))
+f = 0.88
+fig = plt.figure(figsize=(f*6,f*4))
 axd = fig.subplot_mosaic(
     """
     AAAA
@@ -86,7 +87,7 @@ axd = fig.subplot_mosaic(
 ax = axd['A']
 
 ax.scatter(time, flux,
-           c='lightgray', s=1, zorder=1, rasterized=True)
+           c='lightgray', s=0.2, zorder=1, rasterized=True)
 ax.scatter(bd['binnedtimes'], bd['binnedmags'],
            c='k', s=0.2, zorder=2, rasterized=True)
 
@@ -97,7 +98,7 @@ add_gradient_patch(ax, xmin, xmax, ymin, ymax, resolution=100,
                    color0='lime', color1='lime')
 ax.update({
     'xlim': [3351, 3363.7],
-    'ylim': [-10, 6],
+    'ylim': [-12, 8],
     'xlabel': 'Time [BTJD]',
     'ylabel': '$\Delta$ Flux [%]'
 })
@@ -118,6 +119,7 @@ phasewrap, longwrap = False, True#False
 plot_phased_light_curve(
     time[mask], flux[mask]/100, t0, period, None, fig=fig, ax=ax,
     titlestr='BTJD 3352 - 3356', binsize_phase=binsize_phase,
+    BINMS=3, alpha0=0.6,
     xlim=xlim, yoffset=0,
     showtext=None,
     savethefigure=False, dy=0, rasterized=True, c0=c0, c1=c1,
@@ -138,6 +140,7 @@ mask = (
 plot_phased_light_curve(
     time[mask], flux[mask]/100, t0, period, None, fig=fig, ax=ax,
     titlestr='BTJD 3358 - 3363', binsize_phase=binsize_phase,
+    BINMS=3, alpha0=0.6,
     xlim=xlim, yoffset=0, showtext=None,
     savethefigure=False, dy=0, rasterized=True, c0=c0, c1=c1,
     phasewrap=phasewrap, longwrap=longwrap
