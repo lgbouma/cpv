@@ -19,10 +19,10 @@ def main():
     ]
 
     paramdict = {
-        # period in hr, t0, ylim, sector range, N_cyclestobin, binsize_phase
-        '402980664': [18.5611, 1791.12, [-4.8,3], None, 3, 0.005],  #1791.15 default?
-        '300651846': [8.254, 2170.+12*(8.254/24), [-9.6, 4.9], range(61,70), 5, 0.005],
-        '141146667': [3.930, 2420, [-8, 8], None, 3, 0.01]
+        # period in hr, t0, ylim, sector range, N_cyclestobin, binsize_phase, bin_marker_size
+        '402980664': [18.5611, 1791.12, [-4.8,3], None, 3, 0.005, 2],  #1791.15 default?
+        '300651846': [8.254, 2170.+12*(8.254/24), [-9.6, 4.9], range(61,70), 5, 0.005, 2],
+        '141146667': [3.930, 2420, [-8, 8], None, 3, 0.01, 3]
     }
 
     for ticid in ticids:
@@ -36,6 +36,7 @@ def main():
         sector_range = paramdict[ticid][3]
         N_cyclestobin = paramdict[ticid][4]
         binsize_phase = paramdict[ticid][5]
+        bin_marker_size = paramdict[ticid][6]
 
         for r in [0]:
             cp.plot_movie_phase_timegroups(
@@ -43,6 +44,7 @@ def main():
                 ticid=f'TIC_{ticid}',
                 lc_cadences='2min',
                 binsize_phase=binsize_phase,
+                bin_marker_size=bin_marker_size,
                 t0=t0,
                 manual_period=manual_period/24,
                 ylim=ylim,
@@ -50,7 +52,7 @@ def main():
                 rasterized=r,
                 sector_range=sector_range,
                 N_cyclestobin=N_cyclestobin,
-                style='science',
+                style='science_wob',
                 arial_font=1
             )
 
