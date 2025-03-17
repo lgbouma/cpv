@@ -58,8 +58,9 @@ def calculate_flux_ratio(teff_star, teff_dust):
 
     ratio = flux_star[ind] / flux_dust[ind]
 
-    dust_bb_scaling_factor = 0.05*ratio.cgs.value
-    print(dust_bb_scaling_factor)
+    dust_bb_scaling_factor = 0.02 * ratio.cgs.value
+
+    print(f'dust_bb_scaling_factor: {dust_bb_scaling_factor:.4f} at {wavelengths[ind]:.1f}')
 
     return dust_bb_scaling_factor
 
@@ -96,9 +97,10 @@ def plot_blackbodies(teff_star, teff_dust, dust_bb_scaling_factor, output_file):
     plt.grid(True, which="both", ls="--")
     plt.savefig(output_file)
 
-def calc_flux_ratio_at_2microns(teff_star, teff_dust, dust_bb_scaling_factor):
+def calc_flux_ratio_at_wavelength(teff_star, teff_dust, dust_bb_scaling_factor,
+                                  wavelength_micron):
     """
-    Calculate the flux ratio at 2 microns (20000 angstroms).
+    Calculate the flux ratio at N microns.
 
     Args:
         teff_star (float): Effective temperature of the star in Kelvin.
@@ -108,32 +110,12 @@ def calc_flux_ratio_at_2microns(teff_star, teff_dust, dust_bb_scaling_factor):
     Returns:
         float: Flux ratio at 2 microns.
     """
-    wavelength_2microns = 2e-6 * u.m
-    flux_star, _ = blackbody_flux(teff_star, wavelength_2microns)
-    flux_dust, _ = blackbody_flux(teff_dust, wavelength_2microns)
+    wavelength_Nmicrons = wavelength_micron * 1e-6 * u.m
+    flux_star, _ = blackbody_flux(teff_star, wavelength_Nmicrons)
+    flux_dust, _ = blackbody_flux(teff_dust, wavelength_Nmicrons)
     flux_dust *= dust_bb_scaling_factor
     flux_total = flux_star + flux_dust
     return (flux_star / flux_total).value
-
-def calc_flux_ratio_at_10microns(teff_star, teff_dust, dust_bb_scaling_factor):
-    """
-    Calculate the flux ratio at 10 microns (20000 angstroms).
-
-    Args:
-        teff_star (float): Effective temperature of the star in Kelvin.
-        teff_dust (float): Effective temperature of the dust in Kelvin.
-        dust_bb_scaling_factor (float): Scaling factor for the dust blackbody luminosity.
-
-    Returns:
-        float: Flux ratio at 2 microns.
-    """
-    wavelength_2microns = 10e-6 * u.m
-    flux_star, _ = blackbody_flux(teff_star, wavelength_2microns)
-    flux_dust, _ = blackbody_flux(teff_dust, wavelength_2microns)
-    flux_dust *= dust_bb_scaling_factor
-    flux_total = flux_star + flux_dust
-    return (flux_star / flux_total).value
-
 
 
 def bol_flux_ratio(teff_star, teff_dust, dust_bb_scaling_factor):
@@ -223,15 +205,14 @@ def main():
     dust_bb_scaling_factor = calculate_flux_ratio(teff_star, teff_dust)
     plot_blackbodies(teff_star, teff_dust, dust_bb_scaling_factor, output_file)
 
-    flux_ratio_at_2microns = calc_flux_ratio_at_2microns(
-        teff_star, teff_dust, dust_bb_scaling_factor
-    )
-    print(f"Flux ratio at 2 microns (3000 K / total): {flux_ratio_at_2microns:.4f}")
-    flux_ratio_at_10microns = calc_flux_ratio_at_10microns(
-        teff_star, teff_dust, dust_bb_scaling_factor
-    )
-    print(f"Flux ratio at 10 microns (3000 K / total): {flux_ratio_at_10microns:.4f}")
-
+    # two wavelengthsn, then WISE W1 - W4 effective
+    # http://svo2.cab.inta-csic.es/theory/fps/index.php?mode=browse&gname=WISE&asttype=
+    wavelengths = [2, 10, 3.3526, 4.6028, 11.56, 22.08]
+    for w in wavelengths:
+        flux_ratio_at_Nmicrons = calc_flux_ratio_at_wavelength(
+            teff_star, teff_dust, dust_bb_scaling_factor, w
+        )
+        print(f"Flux ratio at {w} microns (3000 K / total): {flux_ratio_at_Nmicrons:.4f}")
 
     dust_to_star_bol_flux_ratio = bol_flux_ratio(teff_star, teff_dust, dust_bb_scaling_factor)
     print(f"Bol flux ratio (scaled 1500 K / 3000 K): "
