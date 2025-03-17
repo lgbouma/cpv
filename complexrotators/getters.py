@@ -461,7 +461,8 @@ def get_tic8_row(ticid, cachedir):
 def get_specriver_data(
     ticid, linestr, specdir='/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/',
     dlambda=20,
-    usespectype='deblazed'
+    usespectype='deblazed',
+    gaussian_filter_sigma=2
 ):
     """
     Get flux vs wavelength cutouts for your desired line, given HIRES .fits
@@ -507,15 +508,19 @@ def get_specriver_data(
     sel = timedf.observation_id.str.contains(datedict[ticid])
     seltimedf = timedf[sel]
 
-    assert linestr in ['Hα', 'Hγ', 'CaK']
+    assert linestr in ['Hα', 'Hγ', 'Hδ', 'He', 'Ca[K]', 'K', 'Li']
     infodict = {
         # λ0, chip, order, normpoint(km/s)
         'Hα': [6562.8, 'i', 0, normpointdict[ticid]],
         'Hγ': [4340.47, 'b', 15, None],
-        'CaK': [3933.66, 'b', 6, None]
+        'Hδ': [4101.75, 'b', 10, None],
+        'Ca[K]': [3933.66, 'b', 6, None],
+        'He': [5875.62, 'r', 10, None],
+        'K': [7699, 'i', 8, None],
+        'Li': [6708, 'i', 1, None],
     }
 
-    if linestr != 'Hα':
+    if linestr != 'Hα' and usespectype == 'reduced':
         print(
             42*'!'+'\n'+
             'WARNING: BLAZE FUNCTION NOT REMOVED\n'+
@@ -596,10 +601,10 @@ def get_specriver_data(
                 df = pd.read_csv(csvpath)
                 blaze_flx = np.array(df.blz_flx)
                 assert len(blaze_flx) == len(flx)
-                #blz_flx_2d = reduc_flx_2d / deblz_flx_2d
-                # -> deblz_flx_2d = reduc_flx_2d / blz_flx_2d
+                # NOTE:
+                # blz_flx_2d = reduc_flx_2d / deblz_flx_2d
+                #  -> deblz_flx_2d = reduc_flx_2d / blz_flx_2d
                 flx = flx / blaze_flx
-
 
         sel = (wav > λmin) & (wav < λmax)
         wav = wav[sel]
@@ -607,19 +612,28 @@ def get_specriver_data(
 
         vels = get_vel(wav, λ0)
 
-        # FIXME might want to specify elsewhere...
-        # TODO : fit like a polynomial...
+        # Normalize flux to 1 at whatever normatvel is given at.
+        # This might mean the median flux in the selected wavelength
+        # region.  It might mean a particular specified velocity, if
+        # `normatvel` is non-null.  NB: there is no actual smoothing
+        # happening in this step.
         if normatvel is None:
             norm_flx = np.nanmedian(flx)
         else:
-            # Normalize flux to 1 at whatever normatvel is given at.
             fn = lambda x: gaussian_filter1d(x, sigma=5)
             norm_flx = fn(flx)[ np.argmin(abs(vels - normatvel)) ]
 
         # NOTE : by default you are doing some gaussian smoothing...
-        fn = lambda x: gaussian_filter1d(x, sigma=2)
-        yvals.append(fn(flx/norm_flx))
-        yvalsnonorm.append(fn(flx))
+        if gaussian_filter_sigma is not None:
+            fn = lambda x: gaussian_filter1d(
+                x, sigma=gaussian_filter_sigma
+            )
+            yvals.append(fn(flx/norm_flx))
+            yvalsnonorm.append(fn(flx))
+        else:
+            yvals.append(flx/norm_flx)
+            yvalsnonorm.append(flx)
+
         norm_flxs.append(norm_flx) # floating normalization due to seeing
         xvals.append(vels)
 
@@ -635,10 +649,11 @@ def get_specriver_data(
         )
         print(f"barycorr is {bary_corr*24*60:.1f} minutes")
 
-        # this t_bjd_tdb is just from the "MJD" header keyword... i am not even
-        # sure if this is file cretaion time, midtime, or what.  use the jump
-        # time instead, which i think might even be photon weighted
-        #spectimes.append(t_bjd_tdb - 2457000) # to TJD
+        # The above t_bjd_tdb is from the "MJD" header keyword... I am not even
+        # sure if this is file creation time, midtime, or what.  Use the jump
+        # time instead, which I think is photon weighted
+
+        # spectimes.append(t_bjd_tdb - 2457000) # to TJD
 
         jumptime_bjd_tdb = seltimedf.loc[
             seltimedf.observation_id==obs_id, 'bjd'
