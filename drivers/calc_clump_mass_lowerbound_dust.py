@@ -3,6 +3,7 @@ import astropy.units as u
 import astropy.constants as const
 
 def calculate_cpv_mass(star_radius, dip_depth, particle_radius, particle_density):
+
     # Convert inputs to cgs units
     R_star = star_radius.to(u.cm)
     r_particle = particle_radius.to(u.cm)
@@ -17,7 +18,11 @@ def calculate_cpv_mass(star_radius, dip_depth, particle_radius, particle_density
 
     # Calculate number density for optical depth >= 1
     n = 1 / (sigma * L)
-    print(f"Number density n: {n:.2e}")
+    print(f"Number density n: {n.cgs:.2e}")
+
+    # Calculate associated columnd ensity
+    N_col = 1 / sigma
+    print(f"Column density N_col: {N_col.cgs:.2e}" )
 
     # Calculate total number of particles
     N = n * area_obscuring * L
