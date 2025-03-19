@@ -5831,9 +5831,10 @@ def plot_movie_sixpanel_specriver(
                 )
                 xerr = np.nanmedian(np.diff(spectimes)/period) / 2
 
-                c2 = 'darkgreen' if 'wob' not in style else 'gold'
+                c2 = 'forestgreen' if 'wob' not in style else 'gold'
+                FUDGE = 2
                 ax2.errorbar(_specphases, linecore_rel_pct,
-                             yerr=linecorr_err_pct, xerr=xerr,
+                             yerr=FUDGE*linecorr_err_pct, xerr=xerr,
                              lw=1, ls=':', marker='.', c=c2, markersize=2)
                 ax2.set_ylabel(r"$\Delta$ $f$$_{\mathrm{H\alpha\ core}}$ [%]",
                                fontsize='large', color=c2)
@@ -5911,11 +5912,7 @@ def plot_movie_sixpanel_specriver(
             else:
                 cmap = 'Greys'
             if removeavg:
-                cmap = 'Spectral'
-                cmap = 'bwr'
-                if 'wob' in style:
-                    cmap = 'berlin'
-                    cmap = 'Spectral_r'
+                cmap = 'Spectral_r'
 
             vmin = lamylim[0]
             vmax = lamylim[1]
@@ -5992,8 +5989,15 @@ def plot_movie_sixpanel_specriver(
                 txt = linestr
             else:
                 txt = 'Hα - Avg.'
+            color = 'white' if 'wob' in style else 'k'
+            if 'wob' not in style:
+                bbox = {"facecolor": "white", "alpha": 0.5, "edgecolor": "none",
+                       "pad":0.4}
+            else:
+                bbox = None
             ax.text(
-                0.04, 0.95, txt, ha='left', va='top', transform=ax.transAxes
+                0.04, 0.95, txt, ha='left', va='top', transform=ax.transAxes,
+                color=color, bbox=bbox
             )
 
             ax.set_xlim((xmin, xmax))
@@ -6003,20 +6007,30 @@ def plot_movie_sixpanel_specriver(
                     _ax.set_xlim((xmin, xmax))
 
             # sick inset colorbar
-            if specriverorient in ['time', 'phase']:
-                x0,y0,dx,dy = 1.02, -0.09, 0.3, 0.02
-                orientation = 'horizontal'
-                loc = 'bottom right'
-            elif specriverorient == 'vertphase':
-                x0,y0,dx,dy = 1.09, 0.03, 0.02, 0.3
-                orientation = 'vertical'
-                loc = 'center right'
-            axins1 = inset_axes(ax, width="100%", height="100%",
-                                bbox_to_anchor=(x0,y0,dx,dy),
-                                loc=loc,
-                                bbox_transform=ax.transAxes)
-            cb = fig.colorbar(c, cax=axins1, orientation=orientation,
-                              extend="both")
+            DO_INSET = 0
+            if DO_INSET:
+                if specriverorient in ['time', 'phase']:
+                    x0,y0,dx,dy = 1.02, -0.09, 0.3, 0.02
+                    orientation = 'horizontal'
+                    loc = 'bottom right'
+                elif specriverorient == 'vertphase':
+                    x0,y0,dx,dy = 1.09, 0.03, 0.02, 0.3
+                    orientation = 'vertical'
+                    loc = 'center right'
+                axins1 = inset_axes(ax, width="100%", height="100%",
+                                    bbox_to_anchor=(x0,y0,dx,dy),
+                                    loc=loc,
+                                    bbox_transform=ax.transAxes)
+                cb = fig.colorbar(c, cax=axins1, orientation=orientation,
+                                  extend="both")
+            else:
+                if _ix == 0:
+                    cax = fig.add_axes([0.43, 0.385, 0.006, 0.077])  # [left, bottom, width, height]
+                elif _ix == 1:
+                    cax = fig.add_axes([0.905, 0.385, 0.006, 0.077])  # [left, bottom, width, height]
+
+                cb = fig.colorbar(c, cax=cax, orientation="vertical",
+                                  extend="both")
 
             rotation = 0 if specriverorient != 'vertphase' else 90
 
@@ -6061,3 +6075,6 @@ def plot_movie_sixpanel_specriver(
 
         fig.savefig(outpath, bbox_inches='tight', dpi=450)
         print(f"saved {outpath}")
+        if int(time_index) == 12:
+            fig.savefig(outpath.replace(".png", ".pdf"), bbox_inches='tight', dpi=450)
+            print(f"saved {outpath}")
