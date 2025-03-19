@@ -192,6 +192,7 @@ if __name__ == "__main__":
 
     outdf = pd.DataFrame({
         'mjd': mjds,
+        'jd': 2400000.5 + mjds,
         'mean_rel_rv': np.round(mean_rel_rv - wmean, 2),
         'count': count,
         'std_rel_rv': np.round(std_rel_rv, 2),
@@ -232,7 +233,7 @@ if __name__ == "__main__":
         formatters[k] = lambda x: np.round(x, v)
 
     texpath = join(outdir, f'tab_{starid}_rel_rv.tex')
-    outdf[['mjd','mean_rel_rv','std_rel_rv']].to_latex(
+    outdf[['jd','mean_rel_rv','std_rel_rv']].to_latex(
         texpath, index=False, formatters=formatters
     )
     print(f'wrote {texpath}')
