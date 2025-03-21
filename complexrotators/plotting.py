@@ -972,6 +972,7 @@ def plot_quicklook_cr(x_obs, y_obs, x_trend, y_trend, x_flat, y_flat, outpath,
 def plot_phased_light_curve(
     time, flux, t0, period, outpath,
     ylim=None, xlim=[-0.6,0.6], binsize_phase=0.005, BINMS=2, titlestr=None,
+    SMALLMS=None,
     showtext=True, showtitle=False, figsize=None,
     c0='darkgray', alpha0=0.3,
     c1='k', alpha1=1, phasewrap=True, plotnotscatter=False,
@@ -984,6 +985,7 @@ def plot_phased_light_curve(
     Non-obvious args:
         binsize_phase (float): binsize in units of phase.
         BINMS (float): markersize for binned points.
+        SMALLMS (float): markersize for raw points. Default 0.5*BINMS
         c0 (str): color of non-binned points.
         alpha0 (float): alpha for non-binned points.
         c1 (str): color of binned points.
@@ -1053,8 +1055,10 @@ def plot_phased_light_curve(
         norm = lambda x: x
 
     if not plotnotscatter:
+        if SMALLMS is None:
+            SMALLMS = 0.5 * BINMS
         ax.scatter(x_fold, norm(y), color=c0, marker='.',
-                   s=0.5*BINMS, rasterized=True, alpha=alpha0, linewidths=0)
+                   s=SMALLMS, rasterized=True, alpha=alpha0, linewidths=0)
     else:
         ax.plot(x_fold, norm(y), color=c0,
                 lw=0.5, rasterized=True, alpha=alpha0)
@@ -4893,6 +4897,7 @@ def plot_movie_phase_timegroups(
     ylim=None,
     binsize_phase=0.005,
     bin_marker_size=2,
+    raw_marker_size=None,
     alpha0=0.3,
     xlim=[-0.6,0.6],
     yoffset=5,
@@ -5053,6 +5058,7 @@ def plot_movie_phase_timegroups(
                 gtime, gflux, plot_t0, plot_period, None,
                 fig=fig, ax=ax,
                 BINMS=bin_marker_size,
+                SMALLMS=raw_marker_size,
                 alpha0=alpha0,
                 binsize_phase=binsize_phase,
                 xlim=xlim,
