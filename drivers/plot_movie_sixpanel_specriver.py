@@ -49,7 +49,7 @@ def main():
         lamylim = paramdict[ticid][4][linestr]
         dlambda = paramdict[ticid][5]
 
-        style = 'science_wob' # "science_wob" or "science"
+        style = 'science' # "science_wob" or "science"
 
         outdir = os.path.join(PLOTDIR, f'TIC_{ticid}_{style}')
         if not os.path.exists(outdir): os.mkdir(outdir)

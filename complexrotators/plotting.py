@@ -5608,8 +5608,6 @@ def plot_movie_sixpanel_specriver(
     ):
     """
     As in plot_phase
-
-    NOTE: no savepdf option, b/c the image does not render
     """
 
     ###############
@@ -5766,11 +5764,6 @@ def plot_movie_sixpanel_specriver(
             CF
             CF
             """
-            #"""
-            #AD
-            #BE
-            #CF
-            #"""
         )
 
         ##########################################
@@ -5838,8 +5831,6 @@ def plot_movie_sixpanel_specriver(
                              lw=1, ls=':', marker='.', c=c2, markersize=2)
                 ax2.set_ylabel(r"$\Delta$ $f$$_{\mathrm{H\alpha\ core}}$ [%]",
                                fontsize='large', color=c2)
-                #ax2.set_ylabel(r"$\Sigma$ $f$$_{\mathrm{H\alpha,|v/v_{\mathrm{eq}}|<1}}$ [%]",
-                #               fontsize='large', color=c2)
                 ax2.tick_params(axis='y', labelcolor=c2)
 
             ax.set_ylabel(r"$\Delta$ Flux [%]", fontsize='large')
@@ -5848,8 +5839,6 @@ def plot_movie_sixpanel_specriver(
             if specriverorient == 'vertphase':
                 ax.set_xticks([0, 0.5, 1])
                 ax.set_xticklabels(['0.0', '0.5', '1.0'])
-
-        #format_ax(ax)
 
         ##########################################
         # flux vs wavelength
@@ -5860,10 +5849,12 @@ def plot_movie_sixpanel_specriver(
 
             c = 'k' if 'wob' not in style else 'white'
             if removeavg:
-                ax.plot(xval, yval, c=c, lw=0.5)
+                ax.plot(xval, yval, c=c, lw=0.6)
+                ax.plot(xval, smoothmeanflux-smoothmeanflux, c=c, lw=0.5,
+                        zorder=-99, alpha=0.7, ls=':')
             else:
-                ax.plot(xval, orig_yval, c=c, lw=0.5)
-                ax.plot(xval, smoothmeanflux, c=c, lw=0.3, zorder=-99,
+                ax.plot(xval, orig_yval, c=c, lw=0.6)
+                ax.plot(xval, smoothmeanflux, c=c, lw=0.5, zorder=-99,
                         alpha=0.7, ls=':')
 
 
@@ -6025,9 +6016,11 @@ def plot_movie_sixpanel_specriver(
                                   extend="both")
             else:
                 if _ix == 0:
-                    cax = fig.add_axes([0.43, 0.385, 0.006, 0.077])  # [left, bottom, width, height]
+                    # [left, bottom, width, height]
+                    cax = fig.add_axes([0.43, 0.385, 0.006, 0.077])
                 elif _ix == 1:
-                    cax = fig.add_axes([0.905, 0.385, 0.006, 0.077])  # [left, bottom, width, height]
+                    # [left, bottom, width, height]
+                    cax = fig.add_axes([0.905, 0.385, 0.006, 0.077])
 
                 cb = fig.colorbar(c, cax=cax, orientation="vertical",
                                   extend="both")
