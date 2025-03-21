@@ -119,7 +119,7 @@ phasewrap, longwrap = False, True#False
 plot_phased_light_curve(
     time[mask], flux[mask]/100, t0, period, None, fig=fig, ax=ax,
     titlestr='BTJD 3352 - 3356', binsize_phase=binsize_phase,
-    BINMS=3, alpha0=0.6,
+    BINMS=3, SMALLMS=2, alpha0=0.7,
     xlim=xlim, yoffset=0,
     showtext=None,
     savethefigure=False, dy=0, rasterized=True, c0=c0, c1=c1,
@@ -140,7 +140,7 @@ mask = (
 plot_phased_light_curve(
     time[mask], flux[mask]/100, t0, period, None, fig=fig, ax=ax,
     titlestr='BTJD 3358 - 3363', binsize_phase=binsize_phase,
-    BINMS=3, alpha0=0.6,
+    BINMS=3, SMALLMS=2, alpha0=0.7,
     xlim=xlim, yoffset=0, showtext=None,
     savethefigure=False, dy=0, rasterized=True, c0=c0, c1=c1,
     phasewrap=phasewrap, longwrap=longwrap
@@ -163,6 +163,15 @@ ax.set_ylim([-10, 6])
 #    'xlabel': 'Time [BTJD]',
 #    'ylabel': '$\Delta$ Flux [%]'
 #})
+
+
+from complexrotators.plotting import label_panels_figure
+labels = {
+    "a": (0.03, 0.99),
+    "b": (0.03, 0.6),
+    "c": (0.53, 0.6),
+}
+label_panels_figure(fig, labels)
 
 
 fig.tight_layout()
