@@ -6078,11 +6078,11 @@ def plot_movie_sixpanel_specriver(
         if int(time_index) == 12:
 
             labels = {
-                "a": (0.07, 0.99),
+                "a": (0.055, 0.99),
                 "d": (0.52, 0.99),
-                "b": (0.07, 0.70),
+                "b": (0.055, 0.70),
                 "e": (0.52, 0.70),
-                "c": (0.07, 0.31),
+                "c": (0.055, 0.31),
                 "f": (0.52, 0.31),
             }
             label_panels_figure(fig, labels, fontsize='large')
