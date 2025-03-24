@@ -168,8 +168,8 @@ ax.set_ylim([-10, 6])
 from complexrotators.plotting import label_panels_figure
 labels = {
     "a": (0.03, 0.99),
-    "b": (0.03, 0.6),
-    "c": (0.53, 0.6),
+    "b": (0.03, 0.57),
+    "c": (0.53, 0.57),
 }
 label_panels_figure(fig, labels)
 
