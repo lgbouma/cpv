@@ -176,6 +176,5 @@ label_panels_figure(fig, labels)
 
 fig.tight_layout()
 
-outpath = join(outdir, f'tic1411_obsepoch.pdf')
+outpath = join(outdir, f'tic1411_obsepoch.png')
 savefig(fig, outpath, dpi=400)
-
