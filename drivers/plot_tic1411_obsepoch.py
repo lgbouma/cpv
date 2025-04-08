@@ -125,6 +125,13 @@ plot_phased_light_curve(
     savethefigure=False, dy=0, rasterized=True, c0=c0, c1=c1,
     phasewrap=phasewrap, longwrap=longwrap
 )
+# tdur = 0.22 # but it's asymmetric!
+for phi0 in [0, 1]:
+    xmin = phi0 - 0.1
+    xmax = phi0 + 0.12
+    ymin, ymax = -9, -8
+    add_gradient_patch(ax, xmin, xmax, ymin, ymax, resolution=100,
+                       color0='orange', color1='orange', alpha=0.5)
 ax.set_ylabel(r"$\Delta$ Flux [%]")
 ax.set_xlabel(r"Phase, φ")
 ax.set_ylim([-10, 6])
@@ -145,6 +152,12 @@ plot_phased_light_curve(
     savethefigure=False, dy=0, rasterized=True, c0=c0, c1=c1,
     phasewrap=phasewrap, longwrap=longwrap
 )
+for phi0 in [0, 1]:
+    xmin = phi0 - 0.1
+    xmax = phi0 + 0.12
+    ymin, ymax = -9, -8
+    add_gradient_patch(ax, xmin, xmax, ymin, ymax, resolution=100,
+                       color0='orange', color1='orange', alpha=0.5)
 ax.set_ylabel(r"$\Delta$ Flux [%]")
 ax.set_xlabel(r"Phase, φ")
 ax.set_ylim([-10, 6])
