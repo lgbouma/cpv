@@ -260,6 +260,9 @@ ccf_resid_obs = (
 
 t_fn = lambda x: x*24
 
+show_vlines = 0
+show_hlines = 0
+
 for plotid, _t, ccf_resid in zip(
     ['model', 'synthdata'],
     [t, t_obs],
@@ -281,9 +284,10 @@ for plotid, _t, ccf_resid in zip(
                   cmap='Spectral', vmin=vmin, vmax=vmax,
                   shading='auto')
 
-    #ax.vlines(
-    #    [-vsini, +vsini], t_fn(_t.min()), t_fn(_t.max()), zorder=10, lw=1, colors='k'
-    #)
+    if show_vlines:
+        ax.vlines(
+            [-vsini, +vsini], t_fn(_t.min()), t_fn(_t.max()), zorder=10, lw=1, colors='k'
+        )
 
     colors = ['C0', 'C3', 'C2']
     for ix, (dip_ix, dip_vals) in enumerate(dip_dict.items()):
@@ -299,14 +303,15 @@ for plotid, _t, ccf_resid in zip(
             colors=_c
         )
 
-        #ax.hlines(
-        #    [t_fn(dip_dict[dip_ix]['t_ing']), t_fn(dip_dict[dip_ix]['t_egr'])],
-        #    velocity_grid.min(),
-        #    velocity_grid.max(),
-        #    zorder=10,
-        #    lw=1,
-        #    colors=_c
-        #)
+        if show_hlines:
+            ax.hlines(
+                [t_fn(dip_dict[dip_ix]['t_ing']), t_fn(dip_dict[dip_ix]['t_egr'])],
+                velocity_grid.min(),
+                velocity_grid.max(),
+                zorder=10,
+                lw=1,
+                colors=_c
+            )
 
     cb0 = fig.colorbar(c, ax=ax, extend='both',
                        location='top', shrink=0.5, pad=0.01,
