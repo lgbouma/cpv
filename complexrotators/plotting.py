@@ -5611,7 +5611,8 @@ def plot_movie_sixpanel_specriver(
     specriverorient='vertphase', # "time", "phase", or "vertphase"
     removeavg=0,
     norm_by_veq=1,
-    showlinecoresum=1
+    showlinecoresum=1,
+    showsinusoid=0
     ):
     """
     As in plot_phase
@@ -5945,6 +5946,21 @@ def plot_movie_sixpanel_specriver(
                           norm=norm,
                           shading='auto', rasterized=True)
 
+            if showsinusoid:
+                # made via /hotcold/drivers/fit_orbits.py
+                xlim = ax.get_xlim()
+                for ix in range(3):
+                    csvpath = join(
+                        '/Users/luke/Dropbox/proj/hotcold/drivers',
+                        'results/halpha_to_rv_timerseries',
+                        f'circular_fit_compt_{ix}.csv'
+                    )
+                    _colors = ['violet', '#E69F00', '#009E73']
+                    df = pd.read_csv(csvpath)
+                    ax.plot(df['phase'], df['rv'], '-', c=_colors[ix],
+                            zorder=2, alpha=0.9, lw=0.8)
+                ax.set_xlim(xlim)
+
             dvlabel = r"Δv [km/s]" if not norm_by_veq else r"Δ$v$/$v_\mathrm{eq}$"
             if specriverorient == 'time':
                 ax.set_ylabel("Time [hr]", fontsize='large')
@@ -6065,6 +6081,8 @@ def plot_movie_sixpanel_specriver(
             s += '_normbyveq'
         if showlinecoresum:
             s += '_showlinecoresum'
+        if showsinusoid:
+            s += '_showsinusoid'
 
         tstr = str(time_index).zfill(4)
 
