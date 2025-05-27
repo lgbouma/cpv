@@ -192,6 +192,12 @@ if __name__ == "__main__":
 
     for style in styles:
 
+        # AB Dor, great rotator
+        make_plot('149248196', sector=7, style=style)
+        make_plot('149248196', sector=7, style=style, showphase=0,
+                  xlim=[-0.2, 3.2])
+        assert 0
+
         # CR Dra amazing flares
         # 16, 25, 23.
         sectors = [16,23,24,25,49,50,52,51, 76,77,78,79]
@@ -216,11 +222,6 @@ if __name__ == "__main__":
         make_plot("402980664", sector=58, style=style, showphase=0,
                   bincadence=600, xlim=[-0.2, 4.8])
 
-
-        # AB Dor, great rotator
-        make_plot('149248196', sector=7, style=style)
-        make_plot('149248196', sector=7, style=style, showphase=0,
-                  xlim=[-0.2, 3.2])
 
         # OO Peg, great EB
         make_plot('314847177', sector=55, lcpipeline='tess-spoc', style=style,

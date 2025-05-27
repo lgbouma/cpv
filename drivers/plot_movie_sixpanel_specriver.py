@@ -74,7 +74,8 @@ def main():
             cb_ticks=cb_tickd[ticid][linestr],
             arial_font=1,
             dlambda=dlambda,
-            lognorm=0
+            lognorm=0,
+            showsinusoid=1
         )
 
 if __name__ == "__main__":
