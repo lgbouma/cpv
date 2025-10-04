@@ -5612,7 +5612,8 @@ def plot_movie_sixpanel_specriver(
     removeavg=0,
     norm_by_veq=1,
     showlinecoresum=1,
-    showsinusoid=0
+    showsinusoid=0,
+    datestr=None
     ):
     """
     As in plot_phase
@@ -5669,16 +5670,22 @@ def plot_movie_sixpanel_specriver(
     #################
     from complexrotators.getters import get_specriver_data
     specpaths, spectimes, xvals, yvals, yvalsnonorm, norm_flxs = get_specriver_data(
-        ticid, linestr, dlambda=dlambda, usespectype='reduced'
+        ticid, linestr, dlambda=dlambda, usespectype='reduced', datestr=datestr
     )
 
     if norm_by_veq:
-        ADOPTED_VEQ = 130 # km/s
+        if ticid == '141146667':
+            ADOPTED_VEQ = 130 # km/s
+        elif ticid == '402980664':
+            ADOPTED_VEQ = 24.2 # km/s, 2piRstar/Prot
+        else:
+            raise NotImplementedError
         xvals = np.array(xvals) / ADOPTED_VEQ
 
     t0 = t0s[0]
     period = periods[0]
-    t0 += 0.15*period # NOTE: manual "phi0" tuning to make it physical...
+    if ticid == '141146667':
+        t0 += 0.15*period # NOTE: manual "phi0" tuning to make it physical...
 
     _pd = phase_magseries(spectimes, np.ones(len(spectimes)), period, t0,
                           wrap=0, sort=False)
@@ -5710,12 +5717,15 @@ def plot_movie_sixpanel_specriver(
 
         meanflux = np.nanmean(flux_arr, axis=1)
         pctflux = np.nanpercentile(flux_arr, 25, axis=1)
-        fn = lambda x: gaussian_filter1d(x, sigma=10)
+        if ticid == '141146667':
+            fn = lambda x: gaussian_filter1d(x, sigma=10)
+        elif ticid == '402980664':
+            fn = lambda x: gaussian_filter1d(x, sigma=5)
         smoothmeanflux = fn(pctflux)
 
         outpath = join(
             outdir,
-            f"tic1411_gaussianfilter_25pctile.png"
+            f"TIC{ticid}_gaussianfilter_25pctile.png"
         )
         plt.close("all")
         fig, ax = plt.subplots()
@@ -5926,7 +5936,12 @@ def plot_movie_sixpanel_specriver(
             if _ix == 0:
                 norm = colors.Normalize(vmin=0.9, vmax=2.1)
             if removeavg and _ix==1:
-                _vmin, _vmax = -0.2, 0.8 #-0.4, 0.4
+                # NOTE: gotta fix for TIC1411 vs LP12-502 dif...
+                if ticid == '141146667':
+                    _vmin, _vmax = -0.2, 0.8 #-0.4, 0.4
+                elif ticid == '402980664':
+                    _vmin, _vmax = -0.6, 0.3 #-0.4, 0.4
+
                 norm = colors.Normalize(vmin=_vmin, vmax=_vmax)
 
 
@@ -5947,6 +5962,7 @@ def plot_movie_sixpanel_specriver(
                           shading='auto', rasterized=True)
 
             if showsinusoid:
+                assert ticid == '141146667'
                 # made via /hotcold/drivers/fit_orbits.py
                 xlim = ax.get_xlim()
                 for ix in range(3):
