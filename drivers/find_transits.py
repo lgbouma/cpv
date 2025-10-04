@@ -1,6 +1,10 @@
 """
 Once you have a CPV, fit out the "mean signal", subtract, and look for transits
 in the residual.
+
+Contents:
+    find_transits
+    remove_quasiperiodic_signal
 """
 
 #############
@@ -114,7 +118,8 @@ def find_transits(ticid, sample_id, lcpipeline='spoc2min'):
 
         # get the relevant light curve data
         (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
-         sector, starid) = prepare_cpv_light_curve(lcpath, cachedir)
+         sector, starid) = prepare_cpv_light_curve(lcpath, cachedir, rotmode=0,
+                                                  lcpipeline=lcpipeline)
 
         # get period, t0, and periodogram (PDM or LombScargle)
         d = cpv_periodsearch(
@@ -125,16 +130,16 @@ def find_transits(ticid, sample_id, lcpipeline='spoc2min'):
         cachepath = join(cachedir, f'{starid}_quasiperiodicremoval_{method}.pkl')
         r = remove_quasiperiodic_signal(
             d['times'], d['fluxs'], d['t0'], d['period'], cachepath,
-            starid, method=method, pgdict=d
+            starid, method=method, pgdict=d, binsize_minutes=30
         )
 
-        # TODO FIXME: now find planets in the residual
-
+        #TODO run BLS ?
 
 def remove_quasiperiodic_signal(
     time, flux, t0, period, cachepath, starid,
-    method=None, make_diagnostic_plot=1, pgdict=None
-):
+    method=None, make_diagnostic_plot=1, pgdict=None,
+    binsize_minutes=10
+    ):
     """
     Given np.ndarray time/flux, the period and phase, and a `cachepath` to
     store the output
@@ -187,7 +192,6 @@ def remove_quasiperiodic_signal(
     time_sw = np.concatenate((x[sortorder], x[sortorder]))
     cyclenum_sw = np.floor( (time_sw - t0) / period)
 
-    binsize_minutes = 10
     bs_days = (binsize_minutes / (60*24))
     bd = phase_bin_magseries(x_sw, y_sw, binsize=bs_days, minbinelems=3)
 
@@ -300,25 +304,18 @@ def remove_quasiperiodic_signal(
 
 def main():
 
-    #sample_id = 'debug'
-    #ticids = ["402980664", "224283342", "254612758"]
-
-    sample_id = '20230613_LGB_RJ_selfnapplied'
-    csvpath = join(
-        TABLEDIR, "2023_catalog_table",
-        "20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied_BACKUP.csv"
-    )
-    df = pd.read_csv(csvpath, sep="|")
-    ticids = np.array(df.ticid).astype(str)
-
     sample_id = 'debug'
-    ticids = ['245902096']
-    ticids = ['416538839']
+
+    ticids = ['342456426']
+    lcpipeline = 'spoc2min'
+
+    #ticids = ['466376085']
+    #lcpipeline = 'qlp'
 
     for ticid in ticids:
         LOGINFO(42*'-')
         LOGINFO(f"Beginning find_transits for {ticid}...")
-        find_transits(ticid, sample_id)
+        find_transits(ticid, sample_id, lcpipeline=lcpipeline)
 
 if __name__ == "__main__":
     main()
