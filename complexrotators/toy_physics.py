@@ -83,6 +83,7 @@ def dust_transit_depth_detailedopacity(
         A_clump_ratio (float): Ratio of clump area to star area.
         opacitysource (str):
             "Draine2003",  ISM from Draine's website
+            "Suh1999",  AGB wind from Suh+1999
             "G23",  Gordon2023 ISM
             "G29_pl",  Powerlaw+ G29-38 Alycia Weinberger fit
             "G29_cr",  Powerlaw+ G29-38 Alycia Weinberger with cranked up crystalline olivine
@@ -100,7 +101,8 @@ def dust_transit_depth_detailedopacity(
     A_star = np.pi * (r_star * 6.96e8)**2  # Convert solar radii to meters
 
     assert opacitysource in [
-        "Draine2003", "DL03", "C11", "J13", "G23", "G29_pl", "G29_cr"
+        "Draine2003", "DL03", "C11", "J13", "G23", "G29_pl", "G29_cr",
+        "Suh1999"
     ]
 
     from scipy.interpolate import interp1d
@@ -112,6 +114,15 @@ def dust_transit_depth_detailedopacity(
         # Absorption + scattering  cross section per mass of dust [opacity] in cm^2/g
         fn = interp1d(df[xkey], df[ykey])
         kappa = fn(wavelength)
+
+    elif opacitysource == 'Suh1999':
+        from gasvsdust.getters import get_suh_1999_agb_wind
+        df = get_suh_1999_agb_wind()
+        xkey, ykey = 'wvlen_micron', 'Q_abs'
+        fn = interp1d(np.log(df[xkey]), np.log(df[ykey]),
+                      kind='slinear', bounds_error=False,
+                      fill_value=np.nan)
+        kappa = np.exp(fn(np.log(wavelength)))
 
     elif opacitysource == 'G23':
         from dust_extinction.parameter_averages import G23
