@@ -4,7 +4,6 @@
 # USAGE: From within /cpv/data/spectra/MIKE/RAW/2025XXYY/, launch CarPy
 # installation and update the science indices (and target info) below.
 #
-
 set -euo pipefail
 
 DB="mike_20250102_RDXMIKE.db"
@@ -12,7 +11,8 @@ DB_TEMPLATE="mike_20250102_RDXMIKE_TEMPLATE.db"
 
 # Cleanup function
 cleanup() {
-  rm targ* || true
+  rm -rf -- targ* || true
+  rm -rf -- tic3006* || true
   rm -f -- *.fits || true
   rm -f -- Makefile* || true
   rm -rf -- flatblue slitblue lampblue flatred slitred lampred || true
@@ -22,7 +22,7 @@ cleanup() {
 mkdir -p Final-Science-Products
 
 # Loop over science indices: 0079, 0081, ..., 0117
-for i in $(seq 79 2 117); do
+for i in $(seq 75 2 117); do
   SCIENCE_INDEX=$(printf "%04d" "$i")
   THAR_INDEX=$(printf "%04d" $((i-1)))
 
