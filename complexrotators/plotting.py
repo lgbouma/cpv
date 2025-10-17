@@ -5669,8 +5669,12 @@ def plot_movie_sixpanel_specriver(
     # get spec data #
     #################
     from complexrotators.getters import get_specriver_data
+    if ticid in ['141146667', '402980664']:
+        usespectype = 'reduced'
+    else:
+        usespectype = 'mike'
     specpaths, spectimes, xvals, yvals, yvalsnonorm, norm_flxs = get_specriver_data(
-        ticid, linestr, dlambda=dlambda, usespectype='reduced', datestr=datestr
+        ticid, linestr, dlambda=dlambda, usespectype=usespectype, datestr=datestr
     )
 
     if norm_by_veq:
@@ -5678,6 +5682,8 @@ def plot_movie_sixpanel_specriver(
             ADOPTED_VEQ = 130 # km/s
         elif ticid == '402980664':
             ADOPTED_VEQ = 24.2 # km/s, 2piRstar/Prot
+        elif ticid == '300651846':
+            ADOPTED_VEQ = 89.65 # km/s, 2piRstar/Prot
         else:
             raise NotImplementedError
         xvals = np.array(xvals) / ADOPTED_VEQ
@@ -5720,6 +5726,8 @@ def plot_movie_sixpanel_specriver(
         if ticid == '141146667':
             fn = lambda x: gaussian_filter1d(x, sigma=10)
         elif ticid == '402980664':
+            fn = lambda x: gaussian_filter1d(x, sigma=5)
+        elif ticid == '300651846':
             fn = lambda x: gaussian_filter1d(x, sigma=5)
         smoothmeanflux = fn(pctflux)
 
@@ -5934,13 +5942,21 @@ def plot_movie_sixpanel_specriver(
                 norm = colors.Normalize(vmin=0.9, vmax=vmax)
 
             if _ix == 0:
-                norm = colors.Normalize(vmin=0.9, vmax=2.1)
+                if ticid == '141146667':
+                    norm = colors.Normalize(vmin=0.9, vmax=2.1)
+                elif ticid == '300651846':
+                    if linestr == 'Hα':
+                        norm = colors.Normalize(vmin=0.9, vmax=4.6)
+                    elif linestr == 'Hβ':
+                        norm = colors.Normalize(vmin=0.9, vmax=2.1)
             if removeavg and _ix==1:
                 # NOTE: gotta fix for TIC1411 vs LP12-502 dif...
                 if ticid == '141146667':
                     _vmin, _vmax = -0.2, 0.8 #-0.4, 0.4
                 elif ticid == '402980664':
                     _vmin, _vmax = -0.6, 0.3 #-0.4, 0.4
+                elif ticid == '300651846':
+                    _vmin, _vmax = -0.1, 0.1
 
                 norm = colors.Normalize(vmin=_vmin, vmax=_vmax)
 
@@ -6018,13 +6034,14 @@ def plot_movie_sixpanel_specriver(
             if _ix == 0:
                 txt = linestr
             else:
-                txt = 'Hα - Avg.'
+                txt = f'{linestr} - Avg.'
             color = 'white' if 'wob' in style else 'k'
             if 'wob' not in style:
                 bbox = {"facecolor": "white", "alpha": 0.5, "edgecolor": "none",
                        "pad":0.4}
             else:
-                bbox = None
+                bbox = {"facecolor": "black", "alpha": 0.5, "edgecolor": "none",
+                       "pad":0.4}
             ax.text(
                 0.04, 0.95, txt, ha='left', va='top', transform=ax.transAxes,
                 color=color, bbox=bbox
