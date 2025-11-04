@@ -576,7 +576,7 @@ def get_tess_obstable_row(ticid, indir, overwrite=0):
         return pd.read_csv(cachecsv, sep="|", dtype={'tic8_GAIA':str})
 
     # NOTE: a few DR2 source_id's missing->dont pull gaia data, for now.
-    #gdr2_df = get_gaia_dr2_rows(ticid, allcols=1)
+    gdr2_df = get_gaia_dr2_rows(ticid, allcols=1)
     #gdr3_df = get_gaia_dr3_rows(ticid)
 
     from complexrotators.getters import get_tic8_row
