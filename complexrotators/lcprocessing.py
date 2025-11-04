@@ -536,7 +536,7 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         'tess-spoc': 'TIME',
         'unpopular': 'time',
     }
-    time = d[TIMEKEYDICT[lcpipeline]]
+    time = nparr(d[TIMEKEYDICT[lcpipeline]])
     FLUXKEYDICT = {
         'spoc2min': 'PDCSAP_FLUX',
         # As of 11/21/2023, the QLP has switched from "KSPSAP_FLUX" to
@@ -560,7 +560,7 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         }
 
     if lcpipeline in ['spoc2min', 'cdips', 'tess-spoc', 'unpopular']:
-        flux = d[FLUXKEYDICT[lcpipeline]]
+        flux = nparr(d[FLUXKEYDICT[lcpipeline]])
     elif lcpipeline == 'qlp':
         if not rotmode:
             if 'KSPSAP_FLUX' in d.names:
@@ -585,7 +585,7 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
     }
 
     if QUALITYKEYDICT[lcpipeline] is not None:
-        qual = d[QUALITYKEYDICT[lcpipeline]]
+        qual = nparr(d[QUALITYKEYDICT[lcpipeline]])
 
     if lcpipeline in ['spoc2min', 'qlp', 'tess-spoc']:
         cadenceno = d['CADENCENO']
@@ -622,8 +622,10 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         return (None, None, None, None, None, None, None, None,
                 None, None, None)
 
-    # normalize around 1
-    y_obs /= np.nanmedian(y_obs)
+    # unpopular is already zero-normalized
+    if lcpipeline != 'unpopular':
+        # normalize around 1
+        y_obs /= np.nanmedian(y_obs)
 
     # NOTE: you could consider removing flares using a time-windowed slider
     # here.  however, for purposes of finding the periods, they are a small
