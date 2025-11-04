@@ -49,6 +49,7 @@ import os, multiprocessing, pickle
 from complexrotators.paths import RESULTSDIR, DATADIR
 
 from astropy.io import fits
+from astropy.stats import sigma_clip, mad_std
 
 from scipy.signal import find_peaks
 
@@ -594,9 +595,16 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         sel = (qual == 'G')
 
     elif lcpipeline == 'unpopular':
-        # for unpopular, sigma clip
-        flux_std = float(np.nanstd(flux))
-        sel = (np.abs(flux) <= 4 * dtr_flux_std)
+        # for unpopular, sigma clip (iteratively)
+        clipped = sigma_clip(
+            flux,
+            sigma=4.0,
+            maxiters=5,
+            cenfunc=np.nanmedian,
+            stdfunc=mad_std  # robust scale
+        )
+        sel = ~clipped.mask
+        qual = sel.astype(int)
 
     # remove non-zero quality flags
     if do_quality_trim:
