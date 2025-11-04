@@ -1929,7 +1929,7 @@ def plot_cpvvetter(
     savefig(fig, outpath)
 
 
-def dss_overlay(fig, axd, ra, dec):
+def dss_overlay(fig, axd, ra, dec, key='C'):
 
     from astrobase.plotbase import skyview_stamp
     from astropy.wcs import WCS
@@ -1956,10 +1956,10 @@ def dss_overlay(fig, axd, ra, dec):
                      format(ra, dec, repr(e)))
             return None, None
 
-    ss = axd['C'].get_subplotspec()
-    axd['C'].remove()
-    axd['C'] = fig.add_subplot(ss, projection=WCS(dss_hdr))
-    ax = axd['C']
+    ss = axd[key].get_subplotspec()
+    axd[key].remove()
+    axd[key] = fig.add_subplot(ss, projection=WCS(dss_hdr))
+    ax = axd[key]
 
     cset = ax.imshow(dss, origin='lower', cmap=plt.cm.gray_r, zorder=-2)
 
