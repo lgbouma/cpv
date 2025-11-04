@@ -509,13 +509,23 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         x_trend, y_flat, y_trend: are the subsequent flattened light curve.
     """
 
-    hl = fits.open(lcpath)
-    hdr = hl[0].header
-    d = hl[1].data
+    if lcpath.endswith(".fits"):
+        # SPOC and QLP
+        hl = fits.open(lcpath)
+        hdr = hl[0].header
+        d = hl[1].data
+        # metadata
+        sector = hdr["SECTOR"]
+        ticid = hdr["TICID"]
 
-    # metadata
-    sector = hdr["SECTOR"]
-    ticid = hdr["TICID"]
+    elif lcpath.endswith(".csv"):
+        # UNPOPULAR
+        hdr = None
+        d = pd.read_csv(lcpath)
+        # metadata
+        fname = os.path.basename(lcpath)
+        sector = int(fname.split("_")[1].lstrip("s0"))
+        ticid = str(fname.split("_")[0].lstrip("TIC"))
 
     # light curve data
     TIMEKEYDICT = {
@@ -523,6 +533,7 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         'spoc2min': 'TIME',
         'cdips': 'TMID_BJD',
         'tess-spoc': 'TIME',
+        'unpopular': 'time',
     }
     time = d[TIMEKEYDICT[lcpipeline]]
     FLUXKEYDICT = {
@@ -533,6 +544,7 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         'qlp': ['KSPSAP_FLUX', 'DET_FLUX'],
         'cdips': 'PCA3',
         'tess-spoc': 'SAP_FLUX',
+        'unpopular': 'dtr_flux',
     }
     if rotmode:
         FLUXKEYDICT = {
@@ -542,10 +554,11 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
             # "DET_FLUX".  This is because they "changed their detrending
             # algorithm".  Qualitatively similar flattening in the latter.
             'qlp': 'SAP_FLUX',
-            'cdips': 'IRM3'
+            'cdips': 'IRM3',
+            'unpopular': 'dtr_flux',
         }
 
-    if lcpipeline in ['spoc2min', 'cdips', 'tess-spoc']:
+    if lcpipeline in ['spoc2min', 'cdips', 'tess-spoc', 'unpopular']:
         flux = d[FLUXKEYDICT[lcpipeline]]
     elif lcpipeline == 'qlp':
         if not rotmode:
@@ -566,10 +579,12 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         'spoc2min': 'QUALITY',
         'tess-spoc': 'QUALITY',
         'qlp': 'QUALITY',
-        'cdips': 'IRQ3'
+        'cdips': 'IRQ3',
+        'unpopular': None
     }
 
-    qual = d[QUALITYKEYDICT[lcpipeline]]
+    if QUALITYKEYDICT[lcpipeline] is not None:
+        qual = d[QUALITYKEYDICT[lcpipeline]]
 
     if lcpipeline in ['spoc2min', 'qlp', 'tess-spoc']:
         cadenceno = d['CADENCENO']
@@ -577,6 +592,11 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
 
     elif lcpipeline == 'cdips':
         sel = (qual == 'G')
+
+    elif lcpipeline == 'unpopular':
+        # for unpopular, sigma clip
+        flux_std = float(np.nanstd(flux))
+        sel = (np.abs(flux) <= 4 * dtr_flux_std)
 
     # remove non-zero quality flags
     if do_quality_trim:
