@@ -4966,7 +4966,7 @@ def plot_lineevolnpanel(outdir, starid=None, jstr=None):
 def plot_movie_phase_timegroups(
     outdir,
     ticid=None,
-    lc_cadences='2min',
+    lcpipeline='spoc2min',
     manual_period=None,
     t0='binmin',
     ylim=None,
@@ -4989,49 +4989,92 @@ def plot_movie_phase_timegroups(
     As in plot_phase
     """
 
-    lclist = _get_cpv_lclist(lc_cadences, ticid)
-
-    if len(lclist) == 0:
-        print(f'WRN! Did not find light curves for {ticid}. Escaping.')
-        return 0
-
     # for each light curve (sector / cadence specific), detrend if needed, get
     # the best period.
     _times, _fluxs, _t0s, _periods, _titlestrs, _sectorstrs = [],[],[],[],[],[]
 
-    for lc in lclist:
+    if lcpipeline == 'spoc2min':
 
-        if sector_range is not None:
-            sector = lc.sector
-            ok_sector_list = list(sector_range)
-            if sector not in ok_sector_list:
-                continue
+        lc_cadences = '2min'
+        lclist = _get_cpv_lclist(lc_cadences, ticid)
 
-        (time, flux, qual, x_obs, y_obs, y_flat,
-         y_trend, x_trend, cadence_sec, sector,
-         starid) = prepare_given_lightkurve_lc(lc, ticid, outdir)
+        if len(lclist) == 0:
+            print(f'WRN! Did not find light curves for {ticid}. Escaping.')
+            return 0
 
-        # get t0, period, lsp
-        if not isinstance(t0, float) and isinstance(manual_period, float):
-            d = cpv_periodsearch(x_obs, y_flat, starid, outdir, t0=t0)
-        else:
-            d = {'times': x_obs, 'fluxs': y_flat,
-                 't0': t0, 'period': manual_period}
+        for lc in lclist:
 
-        _t0 = d['t0']
-        if isinstance(t0, float):
-            _t0 = t0
-        period = d['period']
-        if isinstance(manual_period, float):
-            period = manual_period
-        titlestr = starid.replace('_',' ')
+            if sector_range is not None:
+                sector = lc.sector
+                ok_sector_list = list(sector_range)
+                if sector not in ok_sector_list:
+                    continue
 
-        _times.append(d['times'])
-        _fluxs.append(d['fluxs'])
-        _t0s.append(_t0)
-        _periods.append(period)
-        _titlestrs.append(titlestr)
-        _sectorstrs.append(np.repeat(sector, len(d['times'])))
+            (time, flux, qual, x_obs, y_obs, y_flat,
+             y_trend, x_trend, cadence_sec, sector,
+             starid) = prepare_given_lightkurve_lc(lc, ticid, outdir)
+
+            # get t0, period, lsp
+            if not isinstance(t0, float) and isinstance(manual_period, float):
+                d = cpv_periodsearch(x_obs, y_flat, starid, outdir, t0=t0)
+            else:
+                d = {'times': x_obs, 'fluxs': y_flat,
+                     't0': t0, 'period': manual_period}
+
+            _t0 = d['t0']
+            if isinstance(t0, float):
+                _t0 = t0
+            period = d['period']
+            if isinstance(manual_period, float):
+                period = manual_period
+            titlestr = starid.replace('_',' ')
+
+            _times.append(d['times'])
+            _fluxs.append(d['fluxs'])
+            _t0s.append(_t0)
+            _periods.append(period)
+            _titlestrs.append(titlestr)
+            _sectorstrs.append(np.repeat(sector, len(d['times'])))
+
+    elif lcpipeline == 'tars':
+
+        from complexrotators.getters import _get_lcpaths_fromlightkurve_given_ticid
+        from complexrotators.lcprocessing import (
+            cpv_periodsearch, prepare_cpv_light_curve
+        )
+
+        lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline)
+
+        cachedir = outdir
+
+        for lcpath in np.sort(lcpaths):
+
+            (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
+             sector, starid) = prepare_cpv_light_curve(
+                 lcpath, cachedir, lcpipeline=lcpipeline
+             )
+
+            # get t0, period, lsp
+            if not isinstance(t0, float) and isinstance(manual_period, float):
+                d = cpv_periodsearch(x_obs, y_flat, starid, outdir, t0=t0)
+            else:
+                d = {'times': x_obs, 'fluxs': y_flat,
+                     't0': t0, 'period': manual_period}
+
+            _t0 = d['t0']
+            if isinstance(t0, float):
+                _t0 = t0
+            period = d['period']
+            if isinstance(manual_period, float):
+                period = manual_period
+            titlestr = starid.replace('_',' ')
+
+            _times.append(d['times'])
+            _fluxs.append(d['fluxs'])
+            _t0s.append(_t0)
+            _periods.append(period)
+            _titlestrs.append(titlestr)
+            _sectorstrs.append(np.repeat(sector, len(d['times'])))
 
     # merge lightcurve data, and split before making the plot.
     times = np.hstack(_times)
@@ -5091,8 +5134,12 @@ def plot_movie_phase_timegroups(
         if VERBOSE:
             print(time_index, t_start, t_stop, N_times, last_e_end, e_end, timegap_counter)
 
+        cadence_minutes = np.nanmedian(np.diff(times[sel]))*24*60
+        if pd.isnull(cadence_minutes):
+            cadence_minutes = 30.
+
         FLAG_TIMEGAP = 0
-        if N_times <= 0.9*plot_period*24*60/2:
+        if N_times <= 0.9*plot_period*24*60/cadence_minutes:
             if e_end - last_e_end > 30 and timegap_counter < N_frames_for_gaps:
                 # in this instance, there is a time gap.
                 FLAG_TIMEGAP = 1
@@ -5114,6 +5161,8 @@ def plot_movie_phase_timegroups(
             print(f'{t_start:.1f}-{t_stop:.1f}: timegap')
             #NOTE: this is how the timegap_counter increments
             #entirely normal for it to be raised!
+            if '_sector' not in locals():
+                continue
             pass
 
         plt.close('all')
@@ -5179,7 +5228,7 @@ def plot_movie_phase_timegroups(
 
         outpath = join(
             outdir,
-            f"{ticid}_{tstr}_{lc_cadences}_phase_timegroups{s}.png"
+            f"{ticid}_{tstr}_{lcpipeline}_phase_timegroups{s}.png"
         )
 
         fig.savefig(outpath, bbox_inches='tight', dpi=450)
