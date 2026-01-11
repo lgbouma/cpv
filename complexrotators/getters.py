@@ -174,6 +174,11 @@ def _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline, require_lc=1,
 
     assert isinstance(ticid, str)
     if ticid.startswith("TIC"):
+        ticid = ticid.lstrip("TIC_")
+        ticid = ticid.lstrip("TIC ")
+        ticid = ticid.lstrip("TIC")
+
+    if ticid.startswith("TIC"):
         ticid_str = ticid
     else:
         ticid_str = f"TIC {ticid}"
@@ -203,7 +208,7 @@ def _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline, require_lc=1,
         from tehsors.tess import get_tars_lcs
         tarslcdir = join(TARSCACHEDIR, f'tic_{ticid}')
         time_dict, flux_dict = get_tars_lcs(ticid, cache_dir=tarslcdir)
-        tarspaths = glob(join(tarslcdir, f'tic_{ticid}_s*.csv'))
+        tarspaths = np.sort(glob(join(tarslcdir, f'tic_{ticid}_s*.csv')))
 
     if lcpipeline == 'spoc2min':
         lcpaths = glob(
