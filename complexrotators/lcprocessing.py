@@ -486,9 +486,9 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
                             lcpipeline='spoc2min', runmedianfilter=1,
                             rotmode=0, do_quality_trim=1):
     """
-    Given a light curve (SPOC 2-minute or QLP), remove non-zero quality flags,
-    median-normalize, and (optionally) run a 5-day median filter over the light
-    curve.  Cache the output.
+    Given a light curve (SPOC 2-minute, QLP, or TARS), remove non-zero quality
+    flags, median-normalize, and (optionally) run a 5-day median filter over
+    the light curve.  Cache the output.
 
     If "rotmode" is given, will select flux columns appropriate for rotation
     ("SAP_FLUX" for SPOC; analogous for QLP).
@@ -519,14 +519,23 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         sector = hdr["SECTOR"]
         ticid = hdr["TICID"]
 
-    elif lcpath.endswith(".csv"):
-        # UNPOPULAR
+    elif lcpath.endswith(".csv") and lcpipeline == 'unpopular':
+        # unpopular / TARS
         hdr = None
         d = pd.read_csv(lcpath)
         # metadata
         fname = os.path.basename(lcpath)
         sector = int(fname.split("_")[1].lstrip("s0"))
         ticid = str(fname.split("_")[0].lstrip("TIC"))
+
+    elif lcpath.endswith(".csv") and lcpipeline == 'tars':
+        # unpopular / TARS
+        hdr = None
+        d = pd.read_csv(lcpath)
+        # metadata
+        fname = os.path.basename(lcpath)
+        sector = int(fname.split("_")[2].replace('.csv','').lstrip("s"))
+        ticid = str(fname.split("_")[1])
 
     # light curve data
     TIMEKEYDICT = {
@@ -535,6 +544,7 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         'cdips': 'TMID_BJD',
         'tess-spoc': 'TIME',
         'unpopular': 'time',
+        'tars': 'time',
     }
     time = nparr(d[TIMEKEYDICT[lcpipeline]])
     FLUXKEYDICT = {
@@ -546,6 +556,7 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         'cdips': 'PCA3',
         'tess-spoc': 'SAP_FLUX',
         'unpopular': 'dtr_flux',
+        'tars': 'flux',
     }
     if rotmode:
         FLUXKEYDICT = {
@@ -557,9 +568,10 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
             'qlp': 'SAP_FLUX',
             'cdips': 'IRM3',
             'unpopular': 'dtr_flux',
+            'tars': 'flux',
         }
 
-    if lcpipeline in ['spoc2min', 'cdips', 'tess-spoc', 'unpopular']:
+    if lcpipeline in ['spoc2min', 'cdips', 'tess-spoc', 'unpopular', 'tars']:
         flux = nparr(d[FLUXKEYDICT[lcpipeline]])
     elif lcpipeline == 'qlp':
         if not rotmode:
@@ -581,7 +593,8 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         'tess-spoc': 'QUALITY',
         'qlp': 'QUALITY',
         'cdips': 'IRQ3',
-        'unpopular': None
+        'unpopular': None,
+        'tars': None,
     }
 
     if QUALITYKEYDICT[lcpipeline] is not None:
@@ -594,7 +607,7 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
     elif lcpipeline == 'cdips':
         sel = (qual == 'G')
 
-    elif lcpipeline == 'unpopular':
+    elif lcpipeline in ['unpopular', 'tars']:
         # for unpopular, sigma clip (iteratively)
         clipped = sigma_clip(
             flux,
