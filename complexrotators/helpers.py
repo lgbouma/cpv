@@ -7,16 +7,88 @@ import numpy as np, pandas as pd
 from numpy import array as nparr
 
 import os, multiprocessing, pickle
+import time
+import logging
+from typing import Dict
 from complexrotators.paths import RESULTSDIR, DATADIR
 
 from astropy.io import fits
 from astrobase import periodbase, checkplot
+from astroquery.mast import Catalogs
 
 nworkers = multiprocessing.cpu_count()
 
-from cdips_followup.quicklooktools import (
-    get_tess_data, explore_flux_lightcurves, make_periodogram
-)
+#from cdips_followup.quicklooktools import (
+#    get_tess_data, explore_flux_lightcurves, make_periodogram
+#)
+
+LOGGER = logging.getLogger(__name__)
+
+
+def get_tic_columns(ticid: str) -> Dict[str, float]:
+    """Return TIC TESSMAG, PMRA, PMDEC, and TEFF for a TIC ID via MAST.
+
+    Args:
+        ticid (str): TIC identifier, with or without the "TIC" prefix.
+
+    Returns:
+        dict: Dictionary with keys {"TESSMAG", "PMRA", "PMDEC", "TEFF"}.
+
+    Raises:
+        RuntimeError: If the TIC query fails after retries.
+        ValueError: If no TIC entry is found for the given ID.
+        KeyError: If expected TIC columns are missing in the response.
+    """
+    tic_label = str(ticid).strip()
+    if tic_label.upper().startswith("TIC"):
+        tic_label = tic_label[3:].strip()
+    tic_label = f"TIC {tic_label}"
+
+    table = None
+    last_exc: Exception | None = None
+    for attempt in range(3):
+        try:
+            table = Catalogs.query_object(tic_label, catalog="TIC", radius=0.0001)
+            break
+        except Exception as exc:  # pragma: no cover - network failures
+            last_exc = exc
+            LOGGER.warning(
+                "Attempt %d to query TIC %s failed: %s",
+                attempt + 1,
+                tic_label,
+                exc,
+            )
+            if attempt == 2:
+                raise
+            time.sleep(30)
+    if table is None or len(table) == 0:
+        if last_exc:
+            raise RuntimeError(
+                f"Failed to load TIC data for {tic_label}"
+            ) from last_exc
+        raise ValueError(f"No TIC entry found for {tic_label}.")
+
+    column_map = {
+        "TESSMAG": "Tmag",
+        "PMRA": "pmRA",
+        "PMDEC": "pmDEC",
+        "TEFF": "Teff",
+    }
+    missing = [col for col in column_map.values() if col not in table.colnames]
+    if missing:
+        raise KeyError(
+            f"Missing TIC columns {missing} in MAST response for {tic_label}."
+        )
+
+    result: Dict[str, float] = {}
+    for out_key, tic_key in column_map.items():
+        value = table[0][tic_key]
+        if hasattr(value, "mask") and value.mask:
+            result[out_key] = np.nan
+        else:
+            result[out_key] = float(value)
+
+    return result
 
 def get_complexrot_data(ticid, kicid=None, hardcsv=None):
     """
