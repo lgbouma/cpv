@@ -61,7 +61,9 @@ from typing import Tuple
 from os.path import join
 from glob import glob
 import subprocess
-from complexrotators.paths import LKCACHEDIR, LOCALDIR, RESULTSDIR, DATADIR
+from complexrotators.paths import (
+    LKCACHEDIR, LOCALDIR, RESULTSDIR, DATADIR, TARSCACHEDIR
+)
 
 from astropy.io import fits
 from astropy import units as u, constants as const
@@ -178,18 +180,30 @@ def _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline, require_lc=1,
 
     lcset = lk.search_lightcurve(ticid_str)
 
-    if lcpipeline == 'spoc2min':
-        sel = (lcset.author=='SPOC') & (lcset.exptime.value == 120)
-    elif lcpipeline == 'qlp':
-        sel = (lcset.author=='QLP')
-    elif lcpipeline == 'cdips':
-        sel = (lcset.author=='CDIPS')
-    elif lcpipeline == 'tess-spoc':
-        sel = (lcset.author=='TESS-SPOC')
-    lcc = lcset[sel].download_all(download_dir=cachedir)
+    if lcpipeline not in 'tars':
+
+        if lcpipeline == 'spoc2min':
+            sel = (lcset.author=='SPOC') & (lcset.exptime.value == 120)
+        elif lcpipeline == 'qlp':
+            sel = (lcset.author=='QLP')
+        elif lcpipeline == 'cdips':
+            sel = (lcset.author=='CDIPS')
+        elif lcpipeline == 'tess-spoc':
+            sel = (lcset.author=='TESS-SPOC')
+        elif lcpipeline == 'spoc2min_tars':
+            # TARS to be appended
+            sel = (lcset.author=='SPOC') & (lcset.exptime.value == 120)
+
+        lcc = lcset[sel].download_all(download_dir=cachedir)
 
     if cachedir is None:
         cachedir = LKCACHEDIR
+
+    if 'tars' in lcpipeline:
+        from tehsors.tess import get_tars_lcs
+        tarslcdir = join(TARSCACHEDIR, f'tic_{ticid}')
+        time_dict, flux_dict = get_tars_lcs(ticid, cache_dir=tarslcdir)
+        tarspaths = glob(join(tarslcdir, f'tic_{ticid}_s*.csv'))
 
     if lcpipeline == 'spoc2min':
         lcpaths = glob(
@@ -199,6 +213,12 @@ def _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline, require_lc=1,
         lcpaths = glob(
             join(cachedir.replace("TESS","HLSP"), f'hlsp_{lcpipeline}*{ticid}*', f'*{ticid}*.fits')
         )
+    elif lcpipeline == 'tars':
+        lcpaths = tarspaths
+    elif lcpipeline == 'spoc2min_tars':
+        lcpaths = glob(
+            join(cachedir, f'tess*{ticid}*-s', f'tess*{ticid}*-s_lc.fits')
+        ) + tarspaths
 
     if require_lc:
         msg = f'{ticid}: did not get LC'
