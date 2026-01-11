@@ -81,8 +81,9 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
     #    bd = time_bin_magseries(d['times'][_sel], d['fluxs'][_sel], binsize=1200, minbinelems=1)
 
     #ylim = get_ylimguess(1e2*(bd['binnedmags']-np.nanmean(bd['binnedmags'])))
+    n = lambda x : 100*(x - 1)
     if ylim is None:
-        ylim = get_ylimguess(y_flat)
+        ylim = get_ylimguess(n(y_flat))
 
     if showtitles:
         titlestr = f'{ticid}, s{sector}, {d["period"]*24:.1f}h'
@@ -100,8 +101,10 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
         rcParams['font.family'] = 'Arial'
 
     if showphase:
-        fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(0.6666*1.2*4.5, 1.2*1.25),
-                                constrained_layout=True)
+        fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(1.2*4.5, 1.5*1.25),
+                                constrained_layout=True, width_ratios=[2.333,1])
+        #fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(0.6666*1.2*4.5, 1.2*1.25),
+        #                        constrained_layout=True)
         axs = axs.flatten()
     else:
         fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(0.35*1.5*4.5, 0.65*1.2*1.25),
@@ -111,29 +114,28 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
     c = 'k' if 'wob' not in style else 'white'
     c2 = 'lightgray'
 
-
     if bincadence is None:
         x_offset = np.nanmin(x_obs)
         if ticid == '314847177':
             x_offset = np.nanmin(x_obs) + 15
-        axs[0].scatter(x_obs-x_offset, y_flat, c=c, s=s, linewidths=0, zorder=10)
+        axs[0].scatter(x_obs-x_offset, n(y_flat), c=c, s=s, linewidths=0, zorder=10)
         _, _groups = find_lc_timegroups(x_obs, mingap=0.5/24)
         for _g in _groups:
-            axs[0].plot(x_obs[_g]-x_offset, y_flat[_g], c=c2, zorder=8, lw=0.2, alpha=0.25)
+            axs[0].plot(x_obs[_g]-x_offset, n(y_flat[_g]), c=c2, zorder=8, lw=0.2, alpha=0.25)
     else:
         _bd = time_bin_magseries(x_obs, y_flat, binsize=bincadence, minbinelems=1)
         _x, _y = _bd['binnedtimes'], _bd['binnedmags']
         _x_offset = np.nanmin(_x)
-        axs[0].scatter(_x-_x_offset, _y, c=c, s=s, linewidths=0, zorder=10)
+        axs[0].scatter(_x-_x_offset, n(_y), c=c, s=s, linewidths=0, zorder=10)
         _, _groups = find_lc_timegroups(_x, mingap=0.5/24)
         for _g in _groups:
-            axs[0].plot(_x[_g]-_x_offset, _y[_g], c=c2, zorder=8, lw=0.2, alpha=0.25)
+            axs[0].plot(_x[_g]-_x_offset, n(_y[_g]), c=c2, zorder=8, lw=0.2, alpha=0.25)
 
 
     axs[0].set_xlabel('Time [days]')
-    axs[0].set_ylabel('Relative flux')
+    axs[0].set_ylabel('ΔFlux [%]', labelpad=-1.5)
     if showphase:
-        axs[1].set_ylabel('Relative flux')
+        axs[1].set_ylabel('ΔFlux [%]', labelpad=-1.5)
 
     axs[0].set_xlim([-0.2,10.2])
     if isinstance(xlim, (list, tuple)):
@@ -149,7 +151,7 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
     if showphase:
         c1 = 'k' if 'wob' not in style else 'white'
         plot_phased_light_curve(
-            d['times'], d['fluxs'], d['t0'], d['period'], None, ylim=ylim,
+            d['times'], n(d['fluxs']), d['t0'], d['period'], None, ylim=ylim,
             xlim=[-0.6,0.6], binsize_phase=binsize_phase, BINMS=BINMS, titlestr=titlestr,
             showtext=False, showtitle=False, figsize=None, c0='darkgray',
             alpha0=alpha0, c1=c1, alpha1=1, phasewrap=True, plotnotscatter=False,
@@ -171,6 +173,7 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
 
     fig.patch.set_alpha(0)  # Make the figure background transparent
     ax.patch.set_alpha(0)   # Make the axes background transparent
+    fig.tight_layout()
 
     s = '' if 'wob' not in style else '_wob'
     p = '' if showphase else '_nophase'
@@ -191,6 +194,10 @@ if __name__ == "__main__":
     styles = ['clean_wob']
 
     for style in styles:
+
+        make_plot("402980664", sector=58, style=style, showphase=1,
+                  bincadence=600, xlim=[-0.2, 10.2])
+        assert 0
 
         # AB Dor, great rotator
         make_plot('149248196', sector=7, style=style)
@@ -218,9 +225,6 @@ if __name__ == "__main__":
                   xticklabels=[0,2,4], ylim=[0.95, 1.021], yticks=[0.96, 1.0],
                   yticklabels=[0.96, 1.0])
         assert 0
-
-        make_plot("402980664", sector=58, style=style, showphase=0,
-                  bincadence=600, xlim=[-0.2, 4.8])
 
 
         # OO Peg, great EB
