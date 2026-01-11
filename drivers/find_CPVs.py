@@ -235,7 +235,7 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
         exitcode 9: lcpath found but corrupted
     """
 
-    assert lcpipeline in ["qlp", "spoc2min", "cdips"]
+    assert lcpipeline in ["qlp", "spoc2min", "spoc2min_tars"]
 
     cachedir = join(LOCALDIR, "cpv_finding")
     if not os.path.exists(cachedir): os.mkdir(cachedir)
@@ -261,7 +261,7 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
         MINIMUM_EXITCODE = 1
     #1 if any kind of exit means do not rerun
     #2 if only a periodogram or not enoigh dip exit means dont rerun
-    if minexitcode >= MINIMUM_EXITCODE:
+    if minexitcode >= MINIMUM_EXITCODE and not forcepdf:
         LOGINFO(f"TIC{ticid}: found log for {ticid} with exitcode {minexitcode}. skip.")
         return 1
 
@@ -269,20 +269,12 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
     # get the light curves for all desired sectors and cadences
     #
     if LOCAL_DEBUG:
-        lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid)
+        lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline)
     else:
-        dr2_source_id = None
-        if lcpipeline == 'cdips':
-            from astrobase.services.identifiers import tic_to_gaiadr2
-            dr2_source_id = tic_to_gaiadr2(ticid)
-            LOGINFO(f"Got DR2 source id {dr2_source_id} for TIC {ticid}")
-
-        lcpaths = _get_local_lcpaths_given_ticid(
-            ticid, lcpipeline, dr2_source_id=dr2_source_id
-        )
+        lcpaths = _get_local_lcpaths_given_ticid(ticid, lcpipeline)
 
     if sample_id == 'debug':
-        LOGWARNING("Found debug: taking only a single sector.")
+        #LOGWARNING("Found debug: taking only a single sector.")
         #lcpaths = [np.sort(lcpaths)[0]]
         lcpaths = np.sort(lcpaths)
 
@@ -292,20 +284,19 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
     #
     for lcpath in lcpaths:
 
-        if not os.path.exists(lcpath) and lcpipeline in ['qlp', 'cdips']:
+        if not os.path.exists(lcpath) and lcpipeline=='qlp':
             LOGWARNING(f'Did not find {lcpath}')
             LOGWARNING(f'Trying to curl it directly...')
             # if the light curve does not exist... we will try to curl it...
             searchstr = "/".join(lcpath.split("/")[4:])
             os.popen(
-                f"curl -C - -f --create-dirs --output '{lcpath}' 'https://mast.stsci.edu/api/v0.1/Download/file/?uri=mast:HLSP/{lcpipeline}/{searchstr}'"
+                f"curl -C - -f --create-dirs --output '{lcpath}' 'https://mast.stsci.edu/api/v0.1/Download/file/?uri=mast:HLSP/qlp/{searchstr}'"
             )
             # ...and it'll take some time.
             # this is 100% as janky as it looks.  however, unlike the (many)
             # stackoverflow answers that suggest requests, and json, and
             # whatever... this one will work!
             timemod.sleep(10)
-
 
         # instantiate the log
         lcpbase = os.path.basename(lcpath).replace(".fits", "")
@@ -491,24 +482,21 @@ def main():
     #################
     # begin options #
     #################
-    forcepdf = 0
+    forcepdf = 1 # if yes, perhaps also have "LOCALDEBUG" set true..
 
-    lcpipeline = 'cdips' # "qlp", "spoc2min", or "cdips"
+    # lcpipeline: "qlp", "spoc2min", or "spoc2min_tars"
+    lcpipeline = 'spoc2min_tars'
 
     sample_ids = [
-        'debug'
+        'jan2026_knownCPVs'
+        #'debug',
+        #'dovi'
         # ### samples for the next CPV project:
         #'1to20pc'
-        #'20to30pc'
-        #'30to40pc'
-        #'40to50pc'
-        #'50to60pc'
-        #'60to70pc'
+        # '20to40pc'
         # '40to60pc'
         # '60to80pc'
         # '80to100pc'
-        # ### cluster samples (cdips reductions)
-        'Hyades_Melotte25_20240111_cdips_selxn'
         # ### samples for CPV paper #1:
         #'2023catalog_LGB_RJ_concat'
         #'30pc_mkdwarf',
@@ -532,16 +520,13 @@ def main():
 
         ticids = get_ticids(sample_id, lcpipeline)
 
-        if len(ticids) > 100 and forcepdf:
+        if len(ticids) > 1000 and forcepdf:
             raise NotImplementedError
 
         for ticid in ticids:
             LOGINFO(42*'-')
             LOGINFO(f"Beginning {ticid}...")
-            try:
-                find_CPV(ticid, sample_id, forcepdf=forcepdf, lcpipeline=lcpipeline)
-            except Exception as e:
-                LOGWARNING('FAILURE, {ticid} with {e}')
+            find_CPV(ticid, sample_id, forcepdf=forcepdf, lcpipeline=lcpipeline)
 
     LOGINFO("Finished 🎉🎉🎉")
 
