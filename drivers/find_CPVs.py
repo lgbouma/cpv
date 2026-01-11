@@ -61,31 +61,43 @@ def get_ticids(sample_id, lcpipeline):
 
     if sample_id == 'debug':
         ticids = [
+            #"5714469",
+            #"219790149"
             #'243499565' # missed, in Sco-Cen from Stauffer2021
-            #"245902096"
-            #"274127413"
-            "368129164",
-            "405754448",
-            "167664935",
-            "311092148",
-            "402980664",
-            "50745567",
-            "59836633",
-            "425933644",
-            "142173958",
-            "146539195",
-            "206544316",
-            "335598085",
-            "405910546"
-            "272248916",
-            "178155030",
-            "224283342",
-            "89026133",
-            "234295610",
-            "118449916",
-            "67897871",
-            "353730181"
+            #"57528302" # great TWA disk
+            #"234284556"  # tuchor cpv??
+            #"407001106" # 3.5d EB or CPV?
+            #"260268310" # nice one
+            #"359892714" # UCD CPV from 2406.07154, they just plotted poorly
+            #'120355394' # yet another odd B star, HD 176582 from Oleg
+            #'125843782' # 2M0437
+            '219117956'
         ]
+
+        N_stars_to_search = len(ticids)
+        N_lcs_to_search = -1
+
+    elif sample_id == 'dovi':
+        df = pd.read_csv(
+            join(TARGETSDIR, 'Dovi_20240609_ticids.txt')
+        )
+        get_ticid = lambda x: x.split("_")[0]
+        df['ticid'] = df['ticid_sstr'].apply(get_ticid)
+        ticids = np.unique(df['ticid'])
+
+        N_stars_to_search = len(ticids)
+        N_lcs_to_search = -1
+
+    elif sample_id == 'jan2026_knownCPVs':
+        df = pd.read_csv(
+            join(
+                TABLEDIR, 'jan2026_compilation',
+                'concat_R16_S17_S18_B20_S21_Z19_G22_P23_B24_qlp_0to100pc.csv'
+            ), sep="|"
+        )
+        # 167 CPVs
+        df = df.drop_duplicates(subset=['ticid'], keep='first')
+        ticids = np.unique(list(df["ticid"].astype(str)))
 
         N_stars_to_search = len(ticids)
         N_lcs_to_search = -1
@@ -129,10 +141,10 @@ def get_ticids(sample_id, lcpipeline):
         ticids = np.unique(list(sdf["ticid"].astype(str)))
 
         N_stars_to_search = len(ticids)
-        N_lcs_to_search = len(sdf)
+        N_lcs_to_search = len(sdf) # this is incorrect; in 2023, it's ~3x N_stars_to_search
 
+    # e.g., 30to50pc_mkdwarf, 50to60pc_mkdwarf, etc.
     elif 'pc_mkdwarf' in sample_id and 'to' in sample_id and lcpipeline=='spoc2min':
-        # e.g., 30to50pc_mkdwarf, 50to60pc_mkdwarf, etc.
 
         lower = int(sample_id.split("to")[0])
         upper = int(sample_id.split("to")[1].split("pc")[0])
@@ -173,31 +185,6 @@ def get_ticids(sample_id, lcpipeline):
                 '20230613_LGB_RJ_CPV_TABLE_supplemental_selfnapplied_BACKUP.csv'
             ), sep="|"
         )
-        ticids = np.unique(df.ticid.astype(str))
-
-        N_stars_to_search = len(ticids)
-        N_lcs_to_search = -1
-
-    elif 'cdips' in sample_id:
-
-        from complexrotators.paths import CDIPSDIR
-        targetcsv = join(CDIPSDIR, f"{sample_id}_with_TICID.csv")
-        if not os.path.exists(targetcsv):
-            from complexrotators.getters import fix_cdips_lcpaths
-            # this file contains the selected subset of the CDIPS catalog
-            df = pd.read_csv(join(CDIPSDIR, "{sample_id}.csv"))
-            ticids = []
-            for l in df.lcpath:
-                lcpaths = fix_cdips_lcpaths([l])
-                hl = fits.open(lcpaths[0])
-                hdr = hl[0].header
-                ticid = hdr['TICID']
-                ticids.append(ticid)
-                hl.close()
-            df['ticid'] = ticids
-            df.to_csv(targetcsv)
-
-        df = pd.read_csv(targetcsv)
         ticids = np.unique(df.ticid.astype(str))
 
         N_stars_to_search = len(ticids)
