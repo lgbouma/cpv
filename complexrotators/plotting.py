@@ -1793,9 +1793,11 @@ def plot_cpvvetter(
     Rpmag = f"{gdf['phot_rp_mean_mag'].iloc[0]:.1f}"
     Bpmag = f"{gdf['phot_bp_mean_mag'].iloc[0]:.1f}"
     bp_rp = f"{gdf['bp_rp'].iloc[0]:.2f}"
-    plx = f"{gdf['parallax'].iloc[0]:.2f}"
-    plx_err = f"{gdf['parallax_error'].iloc[0]:.2f}"
-    dist_pc = 1/(float(plx)*1e-3)
+    plx_value = float(gdf['parallax'].iloc[0])
+    plx_err_value = float(gdf['parallax_error'].iloc[0])
+    plx = f"{plx_value:.2f}"
+    plx_err = f"{plx_err_value:.2f}"
+    dist_pc = 1 / (plx_value * 1e-3)
     dist = f"{dist_pc:.1f}"
 
     # nbhr info
@@ -1886,10 +1888,12 @@ def plot_cpvvetter(
     sys.path.append(BANYANDIR)
     from core import membership_probability
 
-    ra, dec = float(gdf.ra), float(gdf.dec)
-    pmra, pmdec = float(gdf.pmra), float(gdf.pmdec)
-    epmra, epmdec = float(gdf.pmra_error), float(gdf.pmdec_error)
-    plx, eplx = float(gdf.parallax), float(gdf.parallax_error)
+    ra, dec = float(gdf.ra.iloc[0]), float(gdf.dec.iloc[0])
+    pmra, pmdec = float(gdf.pmra.iloc[0]), float(gdf.pmdec.iloc[0])
+    epmra = float(gdf.pmra_error.iloc[0])
+    epmdec = float(gdf.pmdec_error.iloc[0])
+    plx = float(gdf.parallax.iloc[0])
+    eplx = float(gdf.parallax_error.iloc[0])
     output = membership_probability(ra=ra, dec=dec, pmra=pmra, pmdec=pmdec,
                                     epmra=epmra, epmdec=epmdec, plx=plx, eplx=eplx,
                                     use_plx=True, use_rv=False)
