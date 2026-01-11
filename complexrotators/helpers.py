@@ -1,5 +1,6 @@
 """
-Contents (mostly deprecated because each tries to do too much):
+Contents (mostly one-time use because they're all too specific):
+    | get_tic_columns
     | get_complexrot_data
     | get_complexrot_twentysec_data
 """
