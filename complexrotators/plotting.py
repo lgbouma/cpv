@@ -1481,22 +1481,83 @@ def plot_cpvvetter(
     # get data
     d = periodsearch_result
     r = findpeaks_result
-    hdul = fits.open(lcpath)
-    hdr = hdul[0].header
-    data = hdul[1].data
-    hdul.close()
+    if lcpath.endswith(".fits"):
+        hdul = fits.open(lcpath)
+        hdr = hdul[0].header
+        data = hdul[1].data
+        hdul.close()
+    elif lcpath.endswith(".csv") and lcpipeline == 'tars':
+        data = pd.read_csv(lcpath)
+
+        # reconstruct header
+        from tehsors.tess import check_tesspoint, get_ra_dec_from_tic
+        fname = os.path.basename(lcpath)
+        sector = int(fname.split("_")[2].replace('.csv','').lstrip("s"))
+        ticid = str(fname.split("_")[1])
+        ra, dec = get_ra_dec_from_tic(ticid)
+        sectors, cams, ccds, _, _ = check_tesspoint(ra, dec, ticid, return_tuple=True)
+        sel = (sectors == sector)
+        cam, ccd = cams[sel], ccds[sel]
+        hdr = {
+            'TICID': ticid,
+            'SECTOR': sector,
+            'CAMERA': cam,
+            'CCD': ccd,
+            'RA_OBJ': ra,
+            'DEC_OBJ': dec,
+        }
+
+        # get TESSMAG, PMRA, PMDEC, TEFF from TIC8, given ticid
+        from complexrotators.helpers import get_tic_columns
+        ticdict = get_tic_columns(ticid)
+        for k,v in ticdict.items():
+            hdr[k] = v
+
+    else:
+        raise NotImplementedError
+
+    FLUXKEYDICT = {
+        'spoc2min': 'PDCSAP_FLUX',
+        # As of 11/21/2023, the QLP has switched from "KSPSAP_FLUX" to
+        # "DET_FLUX".  This is because they "changed their detrending
+        # algorithm".  Qualitatively similar flattening in the latter.
+        'qlp': ['KSPSAP_FLUX', 'DET_FLUX'],
+        'cdips': 'PCA3',
+        'tess-spoc': 'SAP_FLUX',
+        'unpopular': 'dtr_flux',
+        'tars': 'flux',
+    }
+    if lcpipeline in ['spoc2min', 'cdips', 'tess-spoc', 'unpopular', 'tars']:
+        _flux = nparr(data[FLUXKEYDICT[lcpipeline]])
 
     # quality flags
     QUALITYKEYDICT = {
         'spoc2min': 'QUALITY',
+        'tess-spoc': 'QUALITY',
         'qlp': 'QUALITY',
-        'cdips': 'IRQ3'
+        'cdips': 'IRQ3',
+        'unpopular': None,
+        'tars': None,
     }
-    qual = data[QUALITYKEYDICT[lcpipeline]]
+    if QUALITYKEYDICT[lcpipeline] is not None:
+        qual = nparr(data[QUALITYKEYDICT[lcpipeline]])
+
     if lcpipeline in ['spoc2min', 'qlp']:
         sel = (qual == 0)
     elif lcpipeline == 'cdips':
         sel = (qual == 'G')
+    elif lcpipeline in ['unpopular', 'tars']:
+        # for unpopular, sigma clip (iteratively)
+        from astropy.stats import sigma_clip, mad_std
+        clipped = sigma_clip(
+            _flux,
+            sigma=4.0,
+            maxiters=5,
+            cenfunc=np.nanmedian,
+            stdfunc=mad_std  # robust scale
+        )
+        sel = ~clipped.mask
+        qual = sel.astype(int)
 
     # centroid data
     CENTRKEYDICT = {
@@ -1513,8 +1574,11 @@ def plot_cpvvetter(
             'YIC' # row
         ]
     }
-    xc = data[CENTRKEYDICT[lcpipeline][0]][sel] # column
-    yc = data[CENTRKEYDICT[lcpipeline][1]][sel] # row
+    if lcpipeline != 'tars':
+        xc = data[CENTRKEYDICT[lcpipeline][0]][sel] # column
+        yc = data[CENTRKEYDICT[lcpipeline][1]][sel] # row
+    else:
+        xc, yc = 1.*np.ones_like(d['times']), 1.*np.ones_like(d['times'])
 
     # background data
     BKGDKEYDICT = {
@@ -1522,7 +1586,10 @@ def plot_cpvvetter(
         'qlp': 'SAP_BKG',
         'cdips': 'BGV'
     }
-    bgv = data[BKGDKEYDICT[lcpipeline]][sel]
+    if lcpipeline != 'tars':
+        bgv = data[BKGDKEYDICT[lcpipeline]][sel]
+    else:
+        bgv = 1.*np.ones_like(d['times'])
 
     assert len(xc) == len(d['times'])
 
@@ -1723,17 +1790,20 @@ def plot_cpvvetter(
     TEFFKEYDICT = {
         'spoc2min': 'TEFF',
         'qlp': 'TEFF',
-        'cdips': 'TICTEFF'
+        'cdips': 'TICTEFF',
+        'tars': 'TEFF',
     }
     PMRAKEYDICT = {
         'spoc2min': 'PMRA',
         'qlp': 'PMRA',
-        'cdips': 'PM_RA[mas/yr]'
+        'cdips': 'PM_RA[mas/yr]',
+        'tars': 'PMRA',
     }
     PMDECKEYDICT = {
         'spoc2min': 'PMDEC',
         'qlp': 'PMDEC',
-        'cdips': 'PM_Dec[mas/year]'
+        'cdips': 'PM_Dec[mas/year]',
+        'tars': 'PMDEC',
     }
 
     ticid = str(hdr['TICID'])
