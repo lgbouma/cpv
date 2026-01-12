@@ -11,7 +11,7 @@ Contents:
 import logging
 from complexrotators import log_sub, log_fmt, log_date_fmt
 
-LOCAL_DEBUG = 0
+LOCAL_DEBUG = 1
 DEBUG = False
 if DEBUG:
     level = logging.DEBUG
@@ -61,7 +61,8 @@ def get_ticids(sample_id, lcpipeline):
 
     if sample_id == 'debug':
         ticids = [
-            #"5714469",
+            #"300651846",
+            "268971806",
             #"219790149"
             #'243499565' # missed, in Sco-Cen from Stauffer2021
             #"57528302" # great TWA disk
@@ -71,7 +72,7 @@ def get_ticids(sample_id, lcpipeline):
             #"359892714" # UCD CPV from 2406.07154, they just plotted poorly
             #'120355394' # yet another odd B star, HD 176582 from Oleg
             #'125843782' # 2M0437
-            '219117956'
+            #'219117956'
         ]
 
         N_stars_to_search = len(ticids)
@@ -235,7 +236,7 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
         exitcode 9: lcpath found but corrupted
     """
 
-    assert lcpipeline in ["qlp", "spoc2min", "spoc2min_tars"]
+    assert lcpipeline in ["qlp", "spoc2min", "tars"]
 
     cachedir = join(LOCALDIR, "cpv_finding")
     if not os.path.exists(cachedir): os.mkdir(cachedir)
@@ -328,8 +329,8 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
             exitcode = {'exitcode': 8}
             pu.save_status(logpath, 'exitcode', exitcode)
             continue
-        except TypeError:
-            LOGWARNING(f"Got corrupt lcpath {lcpath}.")
+        except TypeError as e:
+            LOGWARNING(f"Got corrupt lcpath {lcpath} with {e}.")
             exitcode = {'exitcode': 9}
             pu.save_status(logpath, 'exitcode', exitcode)
             continue
@@ -484,12 +485,12 @@ def main():
     #################
     forcepdf = 1 # if yes, perhaps also have "LOCALDEBUG" set true..
 
-    # lcpipeline: "qlp", "spoc2min", or "spoc2min_tars"
-    lcpipeline = 'spoc2min_tars'
+    # lcpipeline: "qlp", "spoc2min", "tars", or "spoc2min_tars"
+    lcpipeline = 'spoc2min'
 
     sample_ids = [
-        'jan2026_knownCPVs'
-        #'debug',
+        #'jan2026_knownCPVs'
+        'debug',
         #'dovi'
         # ### samples for the next CPV project:
         #'1to20pc'

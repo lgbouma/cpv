@@ -16,15 +16,22 @@ def main():
     ##########################################
     # USER CHOICE
 
-    # TIC 141146667: j531, j533
-    # ticid = "141146667"
+    # TIC 141146667: j537
+    ticid = "141146667"
+    datestr = 'j537'
 
-    # LP 12-5602: j546, j547
+    # LP 12-502: j531, j533, j546, j547
     # ticid = "402980664"
     # datestr = 'j547'
 
-    ticid = '300651846'
-    datestr = '20250102'
+    #ticid = '300651846'
+    #datestr = '20250102'
+
+    linestr = 'Hα' # "Hγ"
+    dlambda = 15
+
+    #linestr = 'Hβ' # "Hγ"
+    #dlambda = 15
     ##########################################
 
     if ticid == '141146667':
@@ -52,12 +59,6 @@ def main():
         lcpath = join(
             lcdir, 'tess2024353092137-s0087-0000000300651846-0284-s_lc.fits'
         )
-
-    linestr = 'Hα' # "Hγ"
-    dlambda = 15
-
-    linestr = 'Hβ' # "Hγ"
-    dlambda = 15
 
     paramdict = {
         # period in hr, t0, flux ylim, sector number, lambdaylim, dlambda
@@ -116,7 +117,7 @@ def main():
             showtitle=0,
             rasterized=0, # rasterize as pdf?  janky cbars
             sector=sector,
-            #showhline=0,
+            showhline=0,
             removeavg=1,
             style=style,
             cb_ticks=cb_tickd[ticid][linestr],

@@ -1029,11 +1029,9 @@ def plot_phased_light_curve(
     # phase units
     # phase = (times - epoch)/period - floor((times - epoch)/period)
     if plotnotscatter:
-        _pd = phase_magseries(x, y, period, t0, wrap=phasewrap,
-                              sort=False)
+        _pd = phase_magseries(x, y, period, t0, wrap=phasewrap, sort=False)
     else:
-        _pd = phase_magseries(x, y, period, t0, wrap=phasewrap,
-                              sort=True)
+        _pd = phase_magseries(x, y, period, t0, wrap=phasewrap, sort=True)
     x_fold = _pd['phase']
     y = _pd['mags']
 
@@ -1511,8 +1509,10 @@ def plot_cpvvetter(
         from complexrotators.helpers import get_tic_columns
         ticdict = get_tic_columns(ticid)
         for k,v in ticdict.items():
-            hdr[k] = v
-
+            if not pd.isnull(v):
+                hdr[k] = v
+            else:
+                hdr[k] = 'nan'
     else:
         raise NotImplementedError
 
@@ -5161,8 +5161,6 @@ def plot_movie_phase_timegroups(
             print(f'{t_start:.1f}-{t_stop:.1f}: timegap')
             #NOTE: this is how the timegap_counter increments
             #entirely normal for it to be raised!
-            if '_sector' not in locals():
-                continue
             pass
 
         plt.close('all')
