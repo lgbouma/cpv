@@ -61,8 +61,13 @@ def get_ticids(sample_id, lcpipeline):
 
     if sample_id == 'debug':
         ticids = [
+            "350519637"
+            #"220476785"
+            #"55664696"
+            #"397791443"
+            #"230395228"
             #"300651846",
-            "268971806",
+            #"268971806",
             #"219790149"
             #'243499565' # missed, in Sco-Cen from Stauffer2021
             #"57528302" # great TWA disk
@@ -486,7 +491,7 @@ def main():
     forcepdf = 1 # if yes, perhaps also have "LOCALDEBUG" set true..
 
     # lcpipeline: "qlp", "spoc2min", "tars", or "spoc2min_tars"
-    lcpipeline = 'spoc2min'
+    lcpipeline = 'tars'
 
     sample_ids = [
         #'jan2026_knownCPVs'

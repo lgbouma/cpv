@@ -13,14 +13,17 @@ if not os.path.exists(PLOTDIR): os.mkdir(PLOTDIR)
 def main():
 
     lcpipeline = 'tars'
-    lcpipeline = 'spoc2min'
+    #lcpipeline = 'spoc2min'
 
     ticids = [
         #"402980664" # LP 12-502
         #"300651846" # CPV in CZV
         #"141146667" # spectral torus
         #'294328887' # CPV in CVZ
-        '268971806' # B star
+        #'268971806' # B star
+        #'55664696'
+        #'220476785'
+        '350519637'
     ]
 
     # period in hr, t0, ylim, sector range, N_cyclestobin, binsize_phase, bin_marker_size, smallms
@@ -32,7 +35,10 @@ def main():
         '300651846': [8.254, 1325.4461206, [-8.6, 4.9], range(1,96), 5, 0.01, 4, 0.5, None],
         '141146667': [3.930, 2420, [-8, 8], None, 3, 0.01, 6, 0.6, 6],
         '294328887': [8.50804, 1325.446, [-8.6, 4.1], range(1,96), 5, 0.01, 4, 0.5, None],
-        '268971806': [31.925761, 1492.7986, [-0.2, 0.2], range(1,96), 2, 0.005, 2, 0.3, None]
+        '268971806': [31.925761, 1492.7986, [-0.2, 0.2], range(1,96), 2, 0.005, 2, 0.3, None],
+        '55664696': [19.73260, 1324.9951, [-8,6], range(1,96), 3, 0.01, 4, 0.5, None],
+        '220476785': [6.826901315, 1326, [-1.5,1.5], range(1,96), 7, 0.01, 4, 0.5, None],
+        '350519637': [17.8161986, 1326, [-7,7], range(1,96), 5, 0.01, 4, 0.5, None],
     }
 
     for ticid in ticids:

@@ -4989,6 +4989,8 @@ def plot_movie_phase_timegroups(
     As in plot_phase
     """
 
+    passed_t0 = t0 * 1.
+
     # for each light curve (sector / cadence specific), detrend if needed, get
     # the best period.
     _times, _fluxs, _t0s, _periods, _titlestrs, _sectorstrs = [],[],[],[],[],[]
@@ -5044,10 +5046,10 @@ def plot_movie_phase_timegroups(
         )
 
         lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline)
-
         cachedir = outdir
 
-        for lcpath in np.sort(lcpaths):
+        for ix, lcpath in enumerate(np.sort(lcpaths)):
+            print(f'{ix}/{len(lcpaths)}: {lcpath}')
 
             (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
              sector, starid) = prepare_cpv_light_curve(
@@ -5097,7 +5099,11 @@ def plot_movie_phase_timegroups(
     # determine break times and groups
     #
     plot_period = np.nanmean(_periods)
-    plot_t0 = t0s[0]
+    #plot_t0 = t0s[0]
+    plot_t0 = t0
+    if plot_t0 < np.nanmin(times) - plot_period:
+        msg = f'need t0 > min time, got mintime={np.nanmin(times)}, and t0 {plot_t0}'
+        raise NotImplementedError(msg)
 
     min_cycle = 0 # NOTE: this might cut depending on t0
     max_cycle = int(np.ceil((np.nanmax(times) - plot_t0)/plot_period))

@@ -15,6 +15,9 @@ PAPERDIR = join(os.path.dirname(__path__[0]), 'papers', 'paper')
 LKCACHEDIR = join(
     os.path.expanduser('~'), '.lightkurve', 'cache', 'mastDownload', 'TESS'
 )
+TARSCACHEDIR = join(
+    os.path.expanduser('~'), '.tars_cache'
+)
 
 # system-dependent.
 # this directory contain the following sub-directories:
@@ -31,10 +34,15 @@ LKCACHEDIR = join(
 SPOCDIR = '/nfs/phtess2/ar0/TESS/SPOCLC'
 #SPOCDIR = '/ar1/TESS/SPOCLC'
 QLPDIR = '/ar1/TESS/QLP'
-CDIPSDIR = '/ar1/TESS/CDIPS'
 
 # banyan-sigma needs to be installed here
-BANYANDIR = '/ar1/PROJ/luke/proj/banyan_sigma'
+if socket.gethostname() == 'marduk.home':
+    BANYANDIR = '/Users/luke/Dropbox/proj/banyan_sigma'
+elif socket.gethostname() in ['wh1','wh2','wh3']:
+    BANYANDIR = '/ar1/PROJ/luke/proj/banyan_sigma'
+else:
+    raise Warning('Did not find BANYANDIR; BANYAN-Σ import will fail.')
 
 LOCALDIR = join(os.path.expanduser('~'), 'local', 'complexrotators')
-if not os.path.exists(LOCALDIR): os.mkdir(LOCALDIR)
+for d in [LOCALDIR, TARSCACHEDIR]:
+    if not os.path.exists(d): os.mkdir(d)
