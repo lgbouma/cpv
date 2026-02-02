@@ -183,9 +183,9 @@ def _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline, require_lc=1,
     else:
         ticid_str = f"TIC {ticid}"
 
-    lcset = lk.search_lightcurve(ticid_str)
-
     if lcpipeline not in 'tars':
+
+        lcset = lk.search_lightcurve(ticid_str)
 
         if lcpipeline == 'spoc2min':
             sel = (lcset.author=='SPOC') & (lcset.exptime.value == 120)
