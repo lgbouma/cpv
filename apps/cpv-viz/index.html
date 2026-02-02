@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CPV Viz | Literature Compilation</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div class="hero-badge">cpv-viz</div>
+        <h1>Complex Periodic Variables</h1>
+        <div class="hero-meta">
+          Source: 20240304_CPV_lit_compilation_R16_S17_S18_B20_S21_Z19_G22_P23_B24_TIC8_obs_supplemented.csv
+        </div>
+      </header>
+
+      <section class="controls">
+        <div class="control-card">
+          <div class="card-header">
+            <h2>Filters</h2>
+            <p>Buttons cover categorical columns. Search scans all fields.</p>
+          </div>
+
+          <div class="filter-block">
+            <label for="search-input">Search all fields</label>
+            <input id="search-input" type="search" placeholder="Type a ticid, cluster, or bibcode" />
+          </div>
+
+          <div class="filter-block">
+            <label class="checkbox-label">
+              <input id="toggle-sectors" type="checkbox" />
+              Show sectors column
+            </label>
+          </div>
+
+          <div class="filter-block">
+            <h3>Cluster</h3>
+            <div id="filter-cluster" class="chip-row"></div>
+          </div>
+
+          <div class="filter-block">
+            <h3>Quality</h3>
+            <div id="filter-quality" class="chip-row"></div>
+          </div>
+
+          <div class="filter-block">
+            <h3>Telescope</h3>
+            <div id="filter-telescope" class="chip-row"></div>
+          </div>
+
+          <div class="filter-actions">
+            <button id="reset-filters" class="action-button">Reset filters</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="table-card">
+        <div class="table-header">
+          <div>
+            <h2>Filtered results</h2>
+            <p class="table-subtitle">
+              Showing the curated fields for complex periodic variables.<br />
+              <span id="data-updated">Sector counts last updated —</span>
+              <span id="current-sector">Current TESS sector —</span>
+            </p>
+          </div>
+          <div class="table-meta">
+            <div id="row-count" class="meta-pill">0 rows</div>
+            <div id="active-sort" class="meta-pill">Sort: original_id (asc)</div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr id="table-headers"></tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

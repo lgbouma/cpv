@@ -1,0 +1,349 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap");
+
+:root {
+  --bg: #0b0b0b;
+  --surface: #111111;
+  --surface-alt: #151515;
+  --ink: #f5f5f5;
+  --muted: #b3b3b3;
+  --accent: #7ad7c7;
+  --accent-soft: rgba(122, 215, 199, 0.14);
+  --accent-warm: #f2c94c;
+  --shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+  --border: rgba(255, 255, 255, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Space Grotesk", "Helvetica Neue", sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 24px 90px;
+  position: relative;
+}
+
+.page::before {
+  content: "";
+  position: absolute;
+  top: -140px;
+  right: -120px;
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, rgba(122, 215, 199, 0.18), transparent 70%);
+  filter: blur(6px);
+  z-index: 0;
+}
+
+.hero {
+  position: relative;
+  padding: 36px 40px;
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  z-index: 1;
+  animation: rise 0.8s ease-out;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.hero h1 {
+  margin: 16px 0 8px;
+  font-family: "Fraunces", "Georgia", serif;
+  font-size: clamp(2rem, 3vw, 3rem);
+}
+
+.hero-meta {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.controls {
+  margin-top: 32px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.control-card {
+  background: var(--surface);
+  border-radius: 24px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  animation: rise 0.8s ease-out;
+}
+
+.control-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.card-header h2 {
+  margin: 0 0 6px;
+  font-family: "Fraunces", "Georgia", serif;
+  font-size: 1.4rem;
+}
+
+.card-header p {
+  margin: 0 0 18px;
+  color: var(--muted);
+}
+
+button {
+  font-family: inherit;
+}
+
+.chip-button,
+.action-button,
+.header-button {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.header-button {
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+}
+
+.header-button:hover {
+  transform: none;
+  color: var(--accent);
+}
+
+.chip-button.active,
+.header-button.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: rgba(122, 215, 199, 0.6);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+.header-button.active {
+  background: transparent;
+  box-shadow: none;
+  border-color: transparent;
+}
+
+.chip-button:hover,
+.action-button:hover,
+.header-button:hover {
+  transform: translateY(-2px);
+}
+
+.filter-block {
+  margin-bottom: 18px;
+}
+
+.filter-block label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.checkbox-label input {
+  width: 16px;
+  height: 16px;
+}
+
+.filter-block input[type="search"],
+.filter-block input[type="number"] {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  background: #0f0f0f;
+  color: var(--ink);
+}
+
+.filter-block input::placeholder {
+  color: rgba(245, 245, 245, 0.5);
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.action-button {
+  background: var(--accent-warm);
+  color: #111;
+  padding: 10px 18px;
+  border-color: rgba(242, 201, 76, 0.6);
+}
+
+.table-card {
+  margin-top: 28px;
+  background: var(--surface);
+  border-radius: 24px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  animation: rise 0.8s ease-out;
+  animation-delay: 0.2s;
+}
+
+.table-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.table-header h2 {
+  margin: 0 0 6px;
+  font-family: "Fraunces", "Georgia", serif;
+}
+
+.table-subtitle {
+  margin: 0;
+  color: var(--muted);
+}
+
+#data-updated {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.9rem;
+}
+
+#current-sector {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.9rem;
+}
+
+.table-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.meta-pill {
+  background: var(--surface-alt);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1000px;
+}
+
+thead th {
+  text-align: left;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: var(--surface-alt);
+  padding: 12px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+tbody td {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  font-size: 0.92rem;
+}
+
+tbody tr:hover {
+  background: rgba(122, 215, 199, 0.08);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 24px;
+  color: var(--muted);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 800px) {
+  .hero {
+    padding: 28px;
+  }
+
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 32px 18px 70px;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  table {
+    min-width: 650px;
+  }
+}
