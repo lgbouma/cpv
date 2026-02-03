@@ -1492,6 +1492,10 @@ def plot_cpvvetter(
         fname = os.path.basename(lcpath)
         sector = int(fname.split("_")[2].replace('.csv','').lstrip("s"))
         ticid = str(fname.split("_")[1])
+        if ticid.startswith('s0'):
+            # Failed; unpopular naming convention in merged pipeline
+            sector = int(fname.split("_")[1].lstrip("s0"))
+            ticid = str(fname.split("_")[0].lstrip("TIC"))
         ra, dec = get_ra_dec_from_tic(ticid)
         sectors, cams, ccds, _, _ = check_tesspoint(ra, dec, ticid, return_tuple=True)
         sel = (sectors == sector)
@@ -1528,7 +1532,10 @@ def plot_cpvvetter(
         'tars': 'flux',
     }
     if lcpipeline in ['spoc2min', 'cdips', 'tess-spoc', 'unpopular', 'tars']:
-        _flux = nparr(data[FLUXKEYDICT[lcpipeline]])
+        if FLUXKEYDICT[lcpipeline] in d:
+            _flux = nparr(data[FLUXKEYDICT[lcpipeline]])
+        else:
+            _flux = nparr(data['dtr_flux'])
 
     # quality flags
     QUALITYKEYDICT = {
