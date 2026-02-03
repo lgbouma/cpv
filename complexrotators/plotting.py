@@ -1971,23 +1971,28 @@ def plot_cpvvetter(
     epmdec = float(gdf.pmdec_error.iloc[0])
     plx = float(gdf.parallax.iloc[0])
     eplx = float(gdf.parallax_error.iloc[0])
-    output = membership_probability(ra=ra, dec=dec, pmra=pmra, pmdec=pmdec,
-                                    epmra=epmra, epmdec=epmdec, plx=plx, eplx=eplx,
-                                    use_plx=True, use_rv=False)
+    try:
+        output = membership_probability(ra=ra, dec=dec, pmra=pmra, pmdec=pmdec,
+                                        epmra=epmra, epmdec=epmdec, plx=plx, eplx=eplx,
+                                        use_plx=True, use_rv=False)
+        probs = np.array(output['ALL'].iloc[0].round(4))
+        assocs = np.array(output['ALL'].iloc[0].index)
+        banyan_df = pd.DataFrame({"prob": probs}, index=assocs)
 
-    probs = np.array(output['ALL'].iloc[0].round(4))
-    assocs = np.array(output['ALL'].iloc[0].index)
-    banyan_df = pd.DataFrame({"prob": probs}, index=assocs)
+        sel = banyan_df.prob > 1e-4
+        sdf = banyan_df[sel].sort_values(by='prob', ascending=False)
 
-    sel = banyan_df.prob > 1e-4
-    sdf = banyan_df[sel].sort_values(by='prob', ascending=False)
+        csvdir = os.path.dirname(outpath)
+        csvname = f"TIC{ticid}_GDR2{dr2_source_id}_banyan_result.csv"
+        csvpath = join(csvdir, csvname)
+        sdf.to_csv(csvpath)
 
-    csvdir = os.path.dirname(outpath)
-    csvname = f"TIC{ticid}_GDR2{dr2_source_id}_banyan_result.csv"
-    csvpath = join(csvdir, csvname)
-    sdf.to_csv(csvpath)
+        txt = sdf.__repr__()
+    except ValueError as e:
+        txt = 'BANYAN failed.'
+        print(e)
+        pass
 
-    txt = sdf.__repr__()
     txt_x = 0.5
     txt_y = 0.5
     ax.text(txt_x, txt_y, txt, ha='center', va='center', fontsize='small', zorder=2,
