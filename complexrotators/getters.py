@@ -7,9 +7,8 @@ General:
     | get_2min_cadence_spoc_tess_lightcurve
     | get_20sec_cadence_spoc_tess_lightcurve
 
-    | _get_lcpaths_given_ticid
     | _get_local_lcpaths_given_ticid
-    | _get_lcpaths_fromlightkurve_given_ticid
+    | _get_lcpaths_given_ticid
 
     | get_cqv_search_sample
 
@@ -154,22 +153,7 @@ def get_4029_manual_mask(times, fluxs, cadencenos, get_full=0):
 
 
 
-def _get_lcpaths_given_ticid(ticid):
-    # TODO: this getter will need to be updated when running at scale on wh1
-    SPOCDIR = "/Users/luke/local/SPOCLC"
-    lcpaths = glob(join(SPOCDIR, "lightcurves", f"*{ticid}*.fits"))
-
-    if len(lcpaths) == 0:
-        p = subprocess.call([
-            "scp", f"luke@wh1:/ar1/TESS/SPOCLC/sector*/*{ticid}*.fits",
-            join(SPOCDIR, "lightcurves")
-        ])
-        assert 0
-    return lcpaths
-
-
-def _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline, require_lc=1,
-                                            cachedir=None):
+def _get_lcpaths_given_ticid(ticid, lcpipeline, require_lc=1, cachedir=None):
     # ticid like "289840928"
 
     assert isinstance(ticid, str)
@@ -205,10 +189,12 @@ def _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline, require_lc=1,
         cachedir = LKCACHEDIR
 
     if 'tars' in lcpipeline:
-        from tehsors.tess import get_tars_lcs
+        from tehsors.tess import get_tars_lcs_add_wrapunpopular
         tarslcdir = join(TARSCACHEDIR, f'tic_{ticid}')
-        time_dict, flux_dict = get_tars_lcs(ticid, cache_dir=tarslcdir)
+        time_dict, flux_dict = get_tars_lcs_add_wrapunpopular(ticid, tars_cache_dir=tarslcdir)
         tarspaths = np.sort(glob(join(tarslcdir, f'tic_{ticid}_s*.csv')))
+        ffi_dir = os.path.expanduser("~/.unpopular_cache")
+        wrapunpoppaths = np.sort(glob(join(ffi_dir, f'TIC{ticid}*llc.csv')))
 
     if lcpipeline == 'spoc2min':
         lcpaths = glob(
@@ -219,11 +205,11 @@ def _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline, require_lc=1,
             join(cachedir.replace("TESS","HLSP"), f'hlsp_{lcpipeline}*{ticid}*', f'*{ticid}*.fits')
         )
     elif lcpipeline == 'tars':
-        lcpaths = tarspaths
+        lcpaths = list(tarspaths) + list(wrapunpoppaths)
     elif lcpipeline == 'spoc2min_tars':
-        lcpaths = glob(
+        lcpaths = list(glob(
             join(cachedir, f'tess*{ticid}*-s', f'tess*{ticid}*-s_lc.fits')
-        ) + tarspaths
+        )) + list(tarspaths)
 
     if require_lc:
         msg = f'{ticid}: did not get LC'
