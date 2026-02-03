@@ -60,7 +60,9 @@ def get_ticids(sample_id, lcpipeline):
 
     if sample_id == 'debug':
         ticids = [
-            "300651846"
+            "67897871"
+            #"161734785"
+            #"300651846"
             #"206544316"
             #"350519637"
         ]
@@ -88,6 +90,9 @@ def get_ticids(sample_id, lcpipeline):
         )
         # 167 CPVs
         df = df.drop_duplicates(subset=['ticid'], keep='first')
+        # NOTE: good until Sector 115/116, sometime spring 2027.
+        sel = (np.array(df.ticid).astype(str) != '220765024')
+        df = df[sel]
         ticids = np.unique(list(df["ticid"].astype(str)))
 
         N_stars_to_search = len(ticids)
@@ -479,8 +484,8 @@ def main():
     lcpipeline = 'tars'
 
     sample_ids = [
-        #'jan2026_knownCPVs'
-        'debug',
+        'jan2026_knownCPVs'
+        #'debug',
         #'dovi'
         # ### samples for the next CPV project:
         #'1to20pc'
