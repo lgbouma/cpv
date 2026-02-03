@@ -536,6 +536,10 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         fname = os.path.basename(lcpath)
         sector = int(fname.split("_")[2].replace('.csv','').lstrip("s"))
         ticid = str(fname.split("_")[1])
+        if ticid.startswith('s0'):
+            # Failed; unpopular naming convention in merged pipeline
+            sector = int(fname.split("_")[1].lstrip("s0"))
+            ticid = str(fname.split("_")[0].lstrip("TIC"))
 
     # light curve data
     TIMEKEYDICT = {
@@ -572,7 +576,10 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         }
 
     if lcpipeline in ['spoc2min', 'cdips', 'tess-spoc', 'unpopular', 'tars']:
-        flux = nparr(d[FLUXKEYDICT[lcpipeline]])
+        if FLUXKEYDICT[lcpipeline] in d:
+            flux = nparr(d[FLUXKEYDICT[lcpipeline]])
+        else:
+            flux = nparr(d['dtr_flux'])
     elif lcpipeline == 'qlp':
         if not rotmode:
             if 'KSPSAP_FLUX' in d.names:
@@ -611,7 +618,8 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         # for unpopular, sigma clip (iteratively)
         clipped = sigma_clip(
             flux,
-            sigma=4.0,
+            sigma_upper=5.0,
+            sigma_lower=10.0,
             maxiters=5,
             cenfunc=np.nanmedian,
             stdfunc=mad_std  # robust scale
@@ -662,6 +670,16 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
             y_flat = lcd['y_flat']
             y_trend = lcd['y_trend']
             x_trend = lcd['x_trend']
+
+            if not len(y_obs) == len(y_flat) == len(x_obs):
+                y_flat, y_trend = flatten(x_obs, y_obs, window_length=5.0,
+                                          return_trend=True, method='median')
+                x_trend = deepcopy(x_obs)
+                lcd = {'y_flat':y_flat, 'y_trend':y_trend, 'x_trend':x_trend }
+                with open(pklpath, 'wb') as f:
+                    pickle.dump(lcd, f)
+                    LOGINFO(f'Made {pklpath}')
+
         else:
             y_flat, y_trend = flatten(x_obs, y_obs, window_length=5.0,
                                       return_trend=True, method='median')
