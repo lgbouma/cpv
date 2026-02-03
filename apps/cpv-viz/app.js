@@ -132,9 +132,28 @@ function buildFilterButtons(container, key, values) {
   });
 }
 
+function buildFilterSelect(selectEl, key, values) {
+  selectEl.innerHTML = "";
+  const allOption = document.createElement("option");
+  allOption.value = "All";
+  allOption.textContent = "All";
+  selectEl.appendChild(allOption);
+
+  values.forEach((value) => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = value;
+    selectEl.appendChild(option);
+  });
+
+  selectEl.addEventListener("change", (event) => {
+    state.filters[key] = event.target.value;
+    render();
+  });
+}
+
 function updateFilterUI() {
   const buttonGroups = [
-    { container: dom.filterCluster, key: "cluster" },
     { container: dom.filterQuality, key: "quality" },
     { container: dom.filterTelescope, key: "telescope" },
   ];
@@ -145,6 +164,10 @@ function updateFilterUI() {
       button.classList.toggle("active", isActive);
     });
   });
+
+  if (dom.filterCluster) {
+    dom.filterCluster.value = state.filters.cluster;
+  }
 
   dom.searchInput.value = state.searchQuery;
   dom.toggleSectors.checked = state.showSectors;
@@ -344,7 +367,7 @@ async function init() {
   }
 
   buildTableHeaders();
-  buildFilterButtons(dom.filterCluster, "cluster", uniqueValues("cluster"));
+  buildFilterSelect(dom.filterCluster, "cluster", uniqueValues("cluster"));
   buildFilterButtons(dom.filterQuality, "quality", uniqueValues("quality"));
   buildFilterButtons(dom.filterTelescope, "telescope", uniqueValues("telescope"));
   bindInputs();
