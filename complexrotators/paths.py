@@ -38,8 +38,10 @@ QLPDIR = '/ar1/TESS/QLP'
 # banyan-sigma needs to be installed here
 if socket.gethostname() == 'marduk.home':
     BANYANDIR = '/Users/luke/Dropbox/proj/banyan_sigma'
-elif socket.gethostname() in ['wh1','wh2','wh3']:
+elif socket.gethostname() in ['wh1']:
     BANYANDIR = '/ar1/PROJ/luke/proj/banyan_sigma'
+elif socket.gethostname() in ['wh2', 'wh3']:
+    BANYANDIR = '/ar0/PROJ/luke/proj/banyan_sigma'
 else:
     raise Warning('Did not find BANYANDIR; BANYAN-Σ import will fail.')
 
