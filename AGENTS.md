@@ -19,7 +19,7 @@ This guide exists for Codex agents working in the complex periodic variable repo
 
 ## Workflow expectations
 
-- Begin sessions by loading all `*.py`, `*.txt`, and `*.md` files into the context window.
+- Begin sessions by loading all `*.py` and `*.md` files into the context window.
 - Commit directly to `main`; branches and pull requests are unnecessary for this solo workflow.
 - Keep commits focused, describing the problem solved and mentioning tests run.
 - Avoid rewriting history (no rebases on published work) unless the user explicitly requests it.
