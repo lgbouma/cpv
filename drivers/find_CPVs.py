@@ -46,7 +46,6 @@ from complexrotators.paths import (
 )
 from complexrotators.getters import (
     _get_lcpaths_given_ticid, _get_local_lcpaths_given_ticid,
-    _get_lcpaths_fromlightkurve_given_ticid
 )
 from complexrotators.lcprocessing import (
     cpv_periodsearch, count_phased_local_minima, prepare_cpv_light_curve
@@ -61,23 +60,9 @@ def get_ticids(sample_id, lcpipeline):
 
     if sample_id == 'debug':
         ticids = [
-            "350519637"
-            #"220476785"
-            #"55664696"
-            #"397791443"
-            #"230395228"
-            #"300651846",
-            #"268971806",
-            #"219790149"
-            #'243499565' # missed, in Sco-Cen from Stauffer2021
-            #"57528302" # great TWA disk
-            #"234284556"  # tuchor cpv??
-            #"407001106" # 3.5d EB or CPV?
-            #"260268310" # nice one
-            #"359892714" # UCD CPV from 2406.07154, they just plotted poorly
-            #'120355394' # yet another odd B star, HD 176582 from Oleg
-            #'125843782' # 2M0437
-            #'219117956'
+            "300651846"
+            #"206544316"
+            #"350519637"
         ]
 
         N_stars_to_search = len(ticids)
@@ -275,7 +260,7 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
     # get the light curves for all desired sectors and cadences
     #
     if LOCAL_DEBUG:
-        lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline)
+        lcpaths = _get_lcpaths_given_ticid(ticid, lcpipeline)
     else:
         lcpaths = _get_local_lcpaths_given_ticid(ticid, lcpipeline)
 
