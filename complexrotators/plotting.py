@@ -1532,7 +1532,7 @@ def plot_cpvvetter(
         'tars': 'flux',
     }
     if lcpipeline in ['spoc2min', 'cdips', 'tess-spoc', 'unpopular', 'tars']:
-        if FLUXKEYDICT[lcpipeline] in d:
+        if FLUXKEYDICT[lcpipeline] in data:
             _flux = nparr(data[FLUXKEYDICT[lcpipeline]])
         else:
             _flux = nparr(data['dtr_flux'])
