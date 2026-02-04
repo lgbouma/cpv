@@ -43,6 +43,19 @@ The script writes a date-stamped JSON file plus
 find the latest asset and display the last-updated date.
 It also updates `apps/cpv-viz/data/cpv_lit_subset.json` as a stable fallback.
 
+## PDF manifest
+
+To enable per-star PDF browsing, expose the CPV vetter PDFs via the app and
+build a manifest:
+
+```bash
+ln -s /Users/luke/local/complexrotators/tars_jan2026_knownCPVs /Users/luke/Dropbox/proj/cpv/apps/cpv-viz/pdfs
+/Users/luke/local/miniconda3/envs/cpv/bin/python /Users/luke/Dropbox/proj/cpv/apps/cpv-viz/scripts/build_pdf_manifest.py --base-url ./pdfs
+```
+
+If the PDFs live under `LOCALDIR/cpv_finding/tars_jan2026_knownCPVs`, pass that
+directory explicitly with `--pdf-dir`.
+
 ## Local preview
 
 Serve the repository root and open the app in a browser:
