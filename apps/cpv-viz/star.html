@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CPV Viz | Star PDFs</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div class="hero-badge">cpv-viz</div>
+        <h1 id="star-title">CPV Vetting PDFs</h1>
+        <div class="hero-meta" id="star-meta">Loading star metadata...</div>
+        <div class="hero-actions">
+          <a class="action-link" href="index.html">Back to table</a>
+        </div>
+      </header>
+
+      <section class="viewer-card">
+        <div class="viewer-header">
+          <div>
+            <h2>Available PDFs</h2>
+            <p class="table-subtitle" id="pdf-subtitle">Sorted by sector.</p>
+          </div>
+          <div class="table-meta">
+            <div id="pdf-count" class="meta-pill">0 PDFs</div>
+          </div>
+        </div>
+        <div id="pdf-empty" class="empty-state" hidden>
+          No PDFs found for this TIC ID.
+        </div>
+        <div id="pdf-list" class="pdf-list"></div>
+      </section>
+    </div>
+
+    <script src="star.js"></script>
+  </body>
+</html>
