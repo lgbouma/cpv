@@ -1,9 +1,11 @@
 const MANIFEST_URL = "./data/cpv_lit_subset_manifest.json";
 const FALLBACK_DATA_URL = "./data/cpv_lit_subset.json";
+const PDF_MANIFEST_URL = "./data/cpv_pdf_manifest.json";
 
 const columnDefs = [
   { key: "original_id", label: "Original ID", type: "string" },
   { key: "ticid", label: "TIC ID", type: "number" },
+  { key: "pdf_count", label: "PDFs", type: "number" },
   { key: "sectors", label: "Sectors", type: "string" },
   { key: "N_sectors", label: "N_sectors", type: "number" },
   { key: "distance_pc", label: "Distance (pc)", type: "number" },
@@ -272,7 +274,16 @@ function renderTable(rows) {
     const tr = document.createElement("tr");
     visibleColumns.forEach((column) => {
       const td = document.createElement("td");
-      td.textContent = formatValue(row[column.key], column.type, column.key);
+      const cellValue = row[column.key];
+      if (column.key === "ticid" && cellValue !== null && cellValue !== undefined && cellValue !== "") {
+        const link = document.createElement("a");
+        link.href = `star.html?ticid=${encodeURIComponent(cellValue)}`;
+        link.textContent = formatValue(cellValue, column.type, column.key);
+        link.className = "table-link";
+        td.appendChild(link);
+      } else {
+        td.textContent = formatValue(cellValue, column.type, column.key);
+      }
       tr.appendChild(td);
     });
     fragment.appendChild(tr);
@@ -345,8 +356,23 @@ async function loadManifest() {
   return dataUrl;
 }
 
+async function loadPdfManifest() {
+  const response = await fetch(PDF_MANIFEST_URL);
+  if (!response.ok) {
+    throw new Error(`Failed to load PDF manifest: ${response.status}`);
+  }
+  return response.json();
+}
+
 async function init() {
   const dataUrl = await loadManifest();
+  let pdfManifest = null;
+
+  try {
+    pdfManifest = await loadPdfManifest();
+  } catch (error) {
+    pdfManifest = null;
+  }
 
   try {
     const response = await fetch(dataUrl);
@@ -364,6 +390,22 @@ async function init() {
     errorRow.appendChild(errorCell);
     dom.tableBody.appendChild(errorRow);
     return;
+  }
+
+  if (pdfManifest && pdfManifest.pdfs) {
+    const pdfCounts = new Map(
+      Object.entries(pdfManifest.pdfs).map(([ticid, pdfs]) => [ticid, pdfs.length])
+    );
+    state.rows = state.rows.map((row) => {
+      const ticid = row.ticid;
+      if (ticid === null || ticid === undefined || ticid === "") {
+        return { ...row, pdf_count: 0 };
+      }
+      const count = pdfCounts.get(String(ticid)) ?? 0;
+      return { ...row, pdf_count: count };
+    });
+  } else {
+    state.rows = state.rows.map((row) => ({ ...row, pdf_count: null }));
   }
 
   buildTableHeaders();
