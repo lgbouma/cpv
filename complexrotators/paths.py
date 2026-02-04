@@ -36,7 +36,7 @@ SPOCDIR = '/nfs/phtess2/ar0/TESS/SPOCLC'
 QLPDIR = '/ar1/TESS/QLP'
 
 # banyan-sigma needs to be installed here
-if socket.gethostname() == 'marduk.home':
+if 'marduk' in socket.gethostname():
     BANYANDIR = '/Users/luke/Dropbox/proj/banyan_sigma'
 elif socket.gethostname() in ['wh1']:
     BANYANDIR = '/ar1/PROJ/luke/proj/banyan_sigma'
