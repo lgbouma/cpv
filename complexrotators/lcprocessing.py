@@ -606,6 +606,14 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
 
     if QUALITYKEYDICT[lcpipeline] is not None:
         qual = nparr(d[QUALITYKEYDICT[lcpipeline]])
+        # Some older TESS FITS files return QUALITY as a structured/void array;
+        # view the raw bytes as uint32 to recover a plain integer array.
+        if qual.dtype.kind == 'V' or (
+            hasattr(qual.dtype, 'names') and qual.dtype.names
+        ):
+            qual = qual.view(np.uint8).reshape(len(qual), -1)[:, :4].view(
+                np.uint32
+            ).ravel()
 
     if lcpipeline in ['spoc2min', 'qlp', 'tess-spoc']:
         cadenceno = d['CADENCENO']

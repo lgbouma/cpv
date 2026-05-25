@@ -19,20 +19,16 @@ This guide exists for Codex agents working in the complex periodic variable repo
 
 ## Workflow expectations
 
-- Begin sessions by loading all `*.py` and `*.md` files into the context window.
-- Commit directly to `main`; branches and pull requests are unnecessary for this solo workflow.
-- Keep commits focused, describing the problem solved and mentioning tests run.
-- Avoid rewriting history (no rebases on published work) unless the user explicitly requests it.
+- Keep `TODO.txt` as the authoritative roadmap: update it whenever new tasks are identified or completed, and mirror finished work in `DONE.txt` to maintain a running history.
+- Do not rewrite history (no rebases on published work) unless explicitly requested.
 
 ## Testing and quality gates
 
 - Use `pytest` for automated testing; add or update tests whenever behavior changes.
 - Before committing, run the relevant subset of `pytest` locally inside the `cpv` environment and fix regressions.
-- Expect GitHub Actions to run after pushes; keep the main branch green by ensuring local tests mirror CI targets.
 
 ## Additional guidance
 
 - Prefer readable logging and error handling over silent failures; this service has multiple daily stages where diagnostics matter.
 - Document assumptions in code comments only when the implementation is non-obvious or relies on domain details (avoid noise).
 - Coordinate deployment steps through GitHub pushes; no extra tooling is currently defined.
-- Keep `TODO.txt` as the authoritative roadmap: update it whenever new tasks are identified or completed, and mirror finished work in `DONE.txt` to maintain a running history.
