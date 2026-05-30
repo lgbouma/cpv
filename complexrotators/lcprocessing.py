@@ -576,15 +576,15 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
         }
 
     if lcpipeline in ['spoc2min', 'cdips', 'tess-spoc', 'unpopular', 'tars']:
-        if FLUXKEYDICT[lcpipeline] in d:
+        if FLUXKEYDICT[lcpipeline] in d.dtype.names:
             flux = nparr(d[FLUXKEYDICT[lcpipeline]])
         else:
             flux = nparr(d['dtr_flux'])
     elif lcpipeline == 'qlp':
         if not rotmode:
-            if 'KSPSAP_FLUX' in d.names:
+            if 'KSPSAP_FLUX' in d.dtype.names:
                 flux = d['KSPSAP_FLUX']
-            elif 'DET_FLUX' in d.names:
+            elif 'DET_FLUX' in d.dtype.names:
                 flux = d['DET_FLUX']
             else:
                 raise NotImplementedError
