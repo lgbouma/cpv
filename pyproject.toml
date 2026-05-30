@@ -27,6 +27,7 @@ dependencies = [
     "ipython",
     "lightkurve",
     "pyarrow",
+    "aesthetic",
 ]
 
 [project.urls]
