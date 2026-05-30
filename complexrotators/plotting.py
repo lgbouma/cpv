@@ -1532,7 +1532,7 @@ def plot_cpvvetter(
         'tars': 'flux',
     }
     if lcpipeline in ['spoc2min', 'cdips', 'tess-spoc', 'unpopular', 'tars']:
-        if FLUXKEYDICT[lcpipeline] in data:
+        if FLUXKEYDICT[lcpipeline] in data.dtype.names:
             _flux = nparr(data[FLUXKEYDICT[lcpipeline]])
         else:
             _flux = nparr(data['dtr_flux'])
@@ -5519,7 +5519,7 @@ def plot_movie_specriver(
             linecore_rel_pct = 100 * (linecore_rel - np.nanmedian(linecore_rel))
             linecorr_err_pct = 100 * linecore_err
             ax2 = ax.twinx()
-            phi0 = 0.065
+            phi0 = 0. #0.065
             specphases = (
                 (spectimes - t0) / period
                 - np.nanmin((spectimes - t0) / period)
@@ -5810,8 +5810,11 @@ def plot_movie_sixpanel_specriver(
     from complexrotators.getters import get_specriver_data
     if ticid in ['141146667', '402980664']:
         usespectype = 'reduced'
-    else:
+    elif ticid in ['300651846'] and '20250102' in outdir:
         usespectype = 'mike'
+    elif ticid in ['300651846']:
+        usespectype = 'mage'
+
     specpaths, spectimes, xvals, yvals, yvalsnonorm, norm_flxs = get_specriver_data(
         ticid, linestr, dlambda=dlambda, usespectype=usespectype, datestr=datestr
     )
@@ -5860,19 +5863,22 @@ def plot_movie_sixpanel_specriver(
         # given the amount of blue emission at many x vsini.  Somewhere in the
         # 10-25th percentile seems better. --> Adopting 25th percentile.
 
+        PCTILE = 25
         meanflux = np.nanmean(flux_arr, axis=1)
-        pctflux = np.nanpercentile(flux_arr, 25, axis=1)
+        pctflux = np.nanpercentile(flux_arr, PCTILE, axis=1)
         if ticid == '141146667':
             fn = lambda x: gaussian_filter1d(x, sigma=10)
         elif ticid == '402980664':
             fn = lambda x: gaussian_filter1d(x, sigma=5)
-        elif ticid == '300651846':
+        elif ticid == '300651846' and usespectype == 'mike':
             fn = lambda x: gaussian_filter1d(x, sigma=5)
+        elif ticid == '300651846' and usespectype == 'mage':
+            fn = lambda x: gaussian_filter1d(x, sigma=1)
         smoothmeanflux = fn(pctflux)
 
         outpath = join(
             outdir,
-            f"TIC{ticid}_gaussianfilter_25pctile.png"
+            f"TIC{ticid}_{datestr}_gaussianfilter_{PCTILE}pctile.png"
         )
         plt.close("all")
         fig, ax = plt.subplots()
@@ -5888,7 +5894,7 @@ def plot_movie_sixpanel_specriver(
 
         flux_arr = flux_arr - smoothmeanflux[:,None]
 
-        pklpath = join(outdir, f"{ticid}_specriver_cache.pkl")
+        pklpath = join(outdir, f"{ticid}_{datestr}_specriver_cache.pkl")
         cached = {
             'spec_flux_arr':orig_flux_arr,
             'smooth_mean_flux':smoothmeanflux,
@@ -5981,16 +5987,19 @@ def plot_movie_sixpanel_specriver(
                 linecore_rel_pct = 100 * (linecore_rel - np.nanmedian(linecore_rel))
                 linecorr_err_pct = 100 * linecore_err
                 ax2 = ax.twinx()
-                phi0 = 0.065
-                _specphases = (
-                    (spectimes - t0) / period
-                    - np.nanmin((spectimes - t0) / period)
-                    - phi0
-                )
+                phi0 = 0.
+                #_specphases = (
+                #    (spectimes - t0) / period
+                #    - np.nanmin((spectimes - t0) / period)
+                #    - phi0
+                #)
+                _specphases = (spectimes-t0)/period
+                _specphases -=np.min(np.ceil(_specphases))
                 xerr = np.nanmedian(np.diff(spectimes)/period) / 2
 
                 c2 = 'forestgreen' if 'wob' not in style else 'gold'
                 FUDGE = 2
+                if datestr == '20250119': _specphases = _specphases[1:]
                 ax2.errorbar(_specphases, linecore_rel_pct,
                              yerr=FUDGE*linecorr_err_pct, xerr=xerr,
                              lw=1, ls=':', marker='.', c=c2, markersize=2)
@@ -6083,22 +6092,30 @@ def plot_movie_sixpanel_specriver(
             if _ix == 0:
                 if ticid == '141146667':
                     norm = colors.Normalize(vmin=0.9, vmax=2.1)
-                elif ticid == '300651846':
+                elif ticid == '300651846' and datestr == '20250102':
                     if linestr == 'Hα':
                         norm = colors.Normalize(vmin=0.9, vmax=4.6)
                     elif linestr == 'Hβ':
                         norm = colors.Normalize(vmin=0.9, vmax=2.1)
+                elif ticid == '300651846' and datestr in ['20250118', '20250119', '20250120', '20250121']:
+                    if linestr == 'Hα':
+                        norm = colors.Normalize(vmin=0.9, vmax=2.1)
+                    elif linestr == 'Hβ':
+                        norm = colors.Normalize(vmin=0.9, vmax=2.1)
             if removeavg and _ix==1:
-                # NOTE: gotta fix for TIC1411 vs LP12-502 dif...
                 if ticid == '141146667':
                     _vmin, _vmax = -0.2, 0.8 #-0.4, 0.4
                 elif ticid == '402980664':
                     _vmin, _vmax = -0.6, 0.3 #-0.4, 0.4
-                elif ticid == '300651846':
+                elif ticid == '300651846' and datestr == '20250102':
                     _vmin, _vmax = -0.1, 0.1
+                elif ticid == '300651846' and datestr in ['20250118']:
+                    _vmin, _vmax = -0.2, 0.6
+                elif ticid == '300651846' and datestr in ['20250118', '20250119', '20250120', '20250121']:
+                    _vmin, _vmax = -0.2, 0.6
+                    #_vmin, _vmax = -0.2, 0.2
 
                 norm = colors.Normalize(vmin=_vmin, vmax=_vmax)
-
 
             if specriverorient == 'vertphase':
                 if _ix == 0: # dont remove avg
@@ -6210,13 +6227,9 @@ def plot_movie_sixpanel_specriver(
                 cb = fig.colorbar(c, cax=axins1, orientation=orientation,
                                   extend="both")
             else:
-                if _ix == 0:
-                    # [left, bottom, width, height]
-                    cax = fig.add_axes([0.43, 0.385, 0.006, 0.077])
-                elif _ix == 1:
-                    # [left, bottom, width, height]
-                    cax = fig.add_axes([0.905, 0.385, 0.006, 0.077])
-
+                # axes-relative coords so colorbar moves with panel after tight_layout
+                # left bottom width height
+                cax = ax.inset_axes([1.03, 0.01, 0.02, 0.2])
                 cb = fig.colorbar(c, cax=cax, orientation="vertical",
                                   extend="both")
 
@@ -6248,7 +6261,7 @@ def plot_movie_sixpanel_specriver(
         if 'wob' in style:
             s += '_wob'
         if removeavg:
-            s += '_remove25pct'
+            s += f'_remove{PCTILE}pct'
         if norm_by_veq:
             s += '_normbyveq'
         if showlinecoresum:
