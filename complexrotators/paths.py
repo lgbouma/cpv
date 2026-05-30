@@ -36,14 +36,14 @@ SPOCDIR = '/nfs/phtess2/ar0/TESS/SPOCLC'
 QLPDIR = '/ar1/TESS/QLP'
 
 # banyan-sigma needs to be installed here
-if 'marduk' in socket.gethostname():
+if 'marduk' in socket.gethostname() or 'MacBookPro.lan' in socket.gethostname():
     BANYANDIR = '/Users/luke/Dropbox/proj/banyan_sigma'
 elif socket.gethostname() in ['wh1']:
     BANYANDIR = '/ar1/PROJ/luke/proj/banyan_sigma'
 elif socket.gethostname() in ['wh2', 'wh3']:
     BANYANDIR = '/ar0/PROJ/luke/proj/banyan_sigma'
 else:
-    raise Warning('Did not find BANYANDIR; BANYAN-Σ import will fail.')
+    print('WRN! Did not find BANYANDIR; BANYAN-Σ import will fail.')
 
 LOCALDIR = join(os.path.expanduser('~'), 'local', 'complexrotators')
 for d in [LOCALDIR, TARSCACHEDIR]:
