@@ -1,5 +1,7 @@
 """
 Make movie of CPV flux vs phase, spectrum river, and line cutout.
+
+env: py311 on miko
 """
 
 import os
@@ -17,15 +19,18 @@ def main():
     # USER CHOICE
 
     # TIC 141146667: j537
-    ticid = "141146667"
-    datestr = 'j537'
+    # ticid = "141146667"
+    # datestr = 'j537'
 
     # LP 12-502: j531, j533, j546, j547
     # ticid = "402980664"
     # datestr = 'j547'
 
-    #ticid = '300651846'
-    #datestr = '20250102'
+    ticid = '300651846'
+    #datestr = '20250118' # MIKE: 20250102;  MAGE: 20250118, 20250119, 20250120, 20250121
+    #datestr = '20250119' # MIKE: 20250102;  MAGE: 20250118, 20250119, 20250120, 20250121
+    #datestr = '20250120' # MIKE: 20250102;  MAGE: 20250118, 20250119, 20250120, 20250121
+    datestr = '20250121' # MIKE: 20250102;  MAGE: 20250118, 20250119, 20250120, 20250121
 
     linestr = 'Hα' # "Hγ"
     dlambda = 15
@@ -56,9 +61,14 @@ def main():
             raise NotImplementedError
     elif ticid == '300651846':
         lcdir = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess'
-        lcpath = join(
-            lcdir, 'tess2024353092137-s0087-0000000300651846-0284-s_lc.fits'
-        )
+        if datestr in ['20250102']:
+            lcpath = join(
+                lcdir, 'tess2024353092137-s0087-0000000300651846-0284-s_lc.fits'
+            )
+        else:
+            lcpath = join(
+                lcdir, 'tess2025014115807-s0088-0000000300651846-0285-s_lc.fits'
+            )
 
     paramdict = {
         # period in hr, t0, flux ylim, sector number, lambdaylim, dlambda
@@ -117,7 +127,7 @@ def main():
             showtitle=0,
             rasterized=0, # rasterize as pdf?  janky cbars
             sector=sector,
-            showhline=0,
+            showhline=1,
             removeavg=1,
             style=style,
             cb_ticks=cb_tickd[ticid][linestr],

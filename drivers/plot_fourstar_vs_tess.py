@@ -2,8 +2,10 @@ import numpy as np, matplotlib.pyplot as plt, pandas as pd
 import pickle
 from os.path import join
 from aesthetic.plot import set_style
+import os
 
-fourstardir = '/Users/luke/Dropbox/proj/cpv/data/photometry/FourStar_RAW_DATA/fourstar_20250210/PHOTOMETRY'
+fourstardir = join(os.path.expanduser("~"),
+                   "Dropbox/proj/cpv/data/photometry/FourStar_RAW_DATA/fourstar_20250210/PHOTOMETRY")
 photpath = join(fourstardir, 'TIC300651846_aperture_photometry.xls')
 
 t0_BJD_TDB = 2460693.243837336
@@ -17,7 +19,15 @@ t = fsdf['BJD_TDB'] + tcorr_day # time: units days
 f = fsdf['rel_flux_C1'] - 0.76
 mask = (t - 2460717) > 0.87 # drop the last ~half hour
 t, f = t[~mask], f[~mask]
+
+csv_path = join(os.path.expanduser("~"),
+                'Dropbox/proj/cpv/papers/paper/tables/phot_FourStar_20250210.csv')
+pd.DataFrame({'t_BJD_TDB': t.values,
+              'rel_flux': f.values - np.nanmean(f.values)}).to_csv(csv_path, index=False)
+
 phase = (t - t0_BJD_TDB) / period - np.floor( (t-t0_BJD_TDB) / period )
+
+import IPython; IPython.embed()
 
 # Time-bin FourStar flux at dt = 5 minutes
 dt_days = 6/(24*60)
@@ -88,7 +98,7 @@ phase_bin_center[phase_bin_center > 0.5] -= 1
 # Make plot overlaying raw and binned data
 set_style("science")
 plt.close('all')
-fig, ax = plt.subplots(figsize=(2.2,4))
+fig, ax = plt.subplots(figsize=(2.,4))
 
 # FourStar raw and time-binned, plotted vs phase
 ax.scatter(phase, f, s=1, color='maroon', alpha=0.15, marker='o', linewidths=0)

@@ -17,13 +17,13 @@ def main():
 
     ticids = [
         #"402980664" # LP 12-502
-        #"300651846" # CPV in CZV
+        "300651846" # CPV in CZV
         #"141146667" # spectral torus
         #'294328887' # CPV in CVZ
         #'268971806' # B star
         #'55664696'
         #'220476785'
-        '350519637'
+        #'350519637'
     ]
 
     # period in hr, t0, ylim, sector range, N_cyclestobin, binsize_phase, bin_marker_size, smallms

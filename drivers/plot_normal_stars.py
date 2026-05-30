@@ -8,7 +8,7 @@ from matplotlib import rcParams
 from aesthetic.plot import set_style, savefig
 
 from complexrotators.getters import (
-    _get_lcpaths_fromlightkurve_given_ticid, get_qlp_lcpaths
+    _get_lcpaths_given_ticid, get_qlp_lcpaths
 )
 from complexrotators.lcprocessing import (
     cpv_periodsearch, prepare_cpv_light_curve
@@ -34,13 +34,13 @@ def get_ylimguess(y):
 
 def make_plot(ticid, sector=None, showtitles=0, showphase=1,
               showtext=1, lcpipeline='spoc2min', style='clean', xlim=None,
-              do_quality_trim=1, period=None, edge_trim=0, bincadence=None,
+              do_quality_trim=1, period=None, t0=None, edge_trim=0, bincadence=None,
               arial_font=1, xticklabels=None, xticks=None, ylim=None,
               yticks=None, yticklabels=None, s=1):
 
     # get data
     if lcpipeline in ['spoc2min', 'tess-spoc']:
-        lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline)
+        lcpaths = _get_lcpaths_given_ticid(ticid, lcpipeline)
     elif lcpipeline == 'qlp':
         lcpaths = glob(join(
             LKCACHEDIR.replace("TESS","HLSP"),
@@ -71,6 +71,8 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
     )
     if period is not None:
         d['period'] = period
+    if t0 is not None:
+        d['t0'] = t0
 
     bd = time_bin_magseries(x_obs, y_flat, binsize=1200, minbinelems=1)
     #if not edge_trim:
@@ -145,9 +147,6 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
             axs[0].set_xticks(xticks)
             axs[0].set_xticklabels(xticklabels)
 
-    if ticid == '220599904':
-        axs[0].set_xlim([14, 24])
-
     if showphase:
         c1 = 'k' if 'wob' not in style else 'white'
         plot_phased_light_curve(
@@ -171,8 +170,8 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
     outdir = join(RESULTSDIR, "normal_stars")
     if not os.path.exists(outdir): os.mkdir(outdir)
 
-    fig.patch.set_alpha(0)  # Make the figure background transparent
-    ax.patch.set_alpha(0)   # Make the axes background transparent
+    #fig.patch.set_alpha(0)  # Make the figure background transparent
+    #ax.patch.set_alpha(0)   # Make the axes background transparent
     fig.tight_layout()
 
     s = '' if 'wob' not in style else '_wob'
@@ -190,6 +189,34 @@ if __name__ == "__main__":
     #            arial_font=1)
     #  make_plot("300651846", sector=66, style='clean', showtext=0,
     #            arial_font=1)
+
+    # plato CPVs
+    #for s in [7,8,33,34,35,87,89]:
+    #    make_plot("363963079", sector=s, lcpipeline='spoc2min', style='clean',
+    #              showphase=1, bincadence=600, xlim=[-0.2, 5.2], arial_font=1)
+
+    for s in [87]:
+    #for s in [87,88,89,93,94,95,96,97,98]: # spoc2min
+    #for s in range(61,70):  # 'tess-spoc'
+    #for s in range(27,40):  # 'tess-spoc'
+    #for s in [87,88]:
+        make_plot("260268310", sector=s, lcpipeline='spoc2min', style='clean',
+                  showphase=1, bincadence=1200, xlim=[-0.2, 5.2], arial_font=1,
+                  period=0.4829433952600632, t0=3666.8460988042884,
+                  ylim=[-8,6], s=3.5)
+
+    #for s in [31,32,33]:
+    #    make_plot("220599904", sector=s, lcpipeline='tess-spoc', style='clean',
+    #              showphase=1, bincadence=600, xlim=[-0.2, 26.2], ylim=[-6,3.5], arial_font=1,
+    #              #period=0.6291074515194917,
+    #              period=0.6287975192642163,
+    #              #period=0.629107,
+    #              t0=2145.16)
+
+
+    assert 0
+
+
 
     styles = ['clean_wob']
 
