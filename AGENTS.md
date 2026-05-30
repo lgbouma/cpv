@@ -1,6 +1,6 @@
 # AGENTS
 
-This guide exists for Codex agents working in the complex periodic variable repository.
+This guide exists for agents working in the complex periodic variable repository.
 
 ## Context
 
@@ -15,7 +15,7 @@ This guide exists for Codex agents working in the complex periodic variable repo
 
 ## Deployment
 
-- During testing and development, this code is deployed on local laptops and servers.  IMPORTANT: during development, use the `cpv` conda environment for all Python development, tests, and automation runs.  For instance, use /Users/luke/local/miniconda3/envs/cpv/bin/python and miniconda3/envs/cpv/bin/pytest directly.
+- During testing and development, this code is deployed on local laptops and servers.  IMPORTANT: during development, use the `cpv` conda environment for all Python development, tests, and automation runs.  For instance, use /Users/luke/local/miniconda3/envs/cpv/bin/python and miniconda3/envs/cpv/bin/pytest directly.  If it doesn't exist, make a suitable uv replacement, also called "cpv".
 
 ## Workflow expectations
 
