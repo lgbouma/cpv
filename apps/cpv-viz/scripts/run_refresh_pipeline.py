@@ -6,6 +6,7 @@ import argparse
 import json
 import logging
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -68,8 +69,8 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--python",
-        default="/Users/luke/local/miniconda3/envs/cpv/bin/python",
-        help="Python executable to use for pipeline steps.",
+        default=sys.executable,
+        help="Python executable to use for pipeline steps (default: the interpreter running this script).",
     )
     parser.add_argument(
         "--status-path",
