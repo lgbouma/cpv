@@ -21,13 +21,11 @@ mask = (t - 2460717) > 0.87 # drop the last ~half hour
 t, f = t[~mask], f[~mask]
 
 csv_path = join(os.path.expanduser("~"),
-                'Dropbox/proj/cpv/papers/paper/tables/phot_FourStar_20250210.csv')
+                'Dropbox/proj/cpv/papers/Bouma_2026_cgcd/tables/phot_FourStar_20250210.csv')
 pd.DataFrame({'t_BJD_TDB': t.values,
               'rel_flux': f.values - np.nanmean(f.values)}).to_csv(csv_path, index=False)
 
 phase = (t - t0_BJD_TDB) / period - np.floor( (t-t0_BJD_TDB) / period )
-
-import IPython; IPython.embed()
 
 # Time-bin FourStar flux at dt = 5 minutes
 dt_days = 6/(24*60)
@@ -114,18 +112,50 @@ if len(phase_bin_center):
     ax.scatter(phase_bin_center, flux_phase_binned, s=5, color='C0',
                alpha=0.9, marker='o', linewidths=0)
 
-ax.set_xlabel('Phase')
-ax.set_ylabel('Relative flux')
+ax.set_xlabel('Phase', fontsize=6)
+ax.set_ylabel('Relative flux', fontsize=6)
+ax.tick_params(axis='both', which='major', labelsize=5.5)
 ax.set_xlim(-0.55,0.55)
-ax.set_ylim(0.94, 1.11)
+ax.set_ylim(0.92, 1.11)
 ax.set_yticks([0.95, 1, 1.05, 1.1])
 ax.set_title('TIC 300651846 (P=8.3 hr)', fontsize=7)
 
 # Annotations for datasets
-ax.text(-0.49, 1.10, 'FourStar 2.09μm narrow\n2025/02/10', color='maroon', ha='left',
-        va='center', fontsize=5)
-ax.text(-0.49, 0.96, 'TESS 0.6-1μm\nAvg 01/14-02/11', color='C0', ha='left', va='top',
-        fontsize=5)
+ax.text(0.49, 1.10, 'FourStar\n2025/02/10', color='maroon', ha='right',
+        va='center', fontsize=4.5)
+ax.text(0.49, 0.995, 'TESS\nSimult.', color='C0', ha='right', va='top',
+        fontsize=4.5)
+
+# Filter response inset
+bandpass_dir = join(os.path.expanduser("~"),
+                    'Dropbox/proj/cpv/data/photometry/svo_bandpasses')
+nb209 = np.loadtxt(join(bandpass_dir, 'LCO_FourStar.NB209.dat'))
+tess_bp = np.loadtxt(join(bandpass_dir, 'TESS_TESS.Red.dat'))
+
+nb209_wave = nb209[:,0] * 1e-4   # Angstrom -> micron
+nb209_trans = nb209[:,1] / nb209[:,1].max()
+tess_wave = tess_bp[:,0] * 1e-4
+tess_trans = tess_bp[:,1] / tess_bp[:,1].max()
+
+axins = ax.inset_axes([0.025, 0.06, 0.38, 0.12])
+axins.set_facecolor('white')
+axins.fill_between(tess_wave, tess_trans, color='C0', alpha=0.8, lw=0)
+axins.fill_between(nb209_wave, nb209_trans, color='maroon', alpha=0.9, lw=0)
+axins.set_xlim(0.3, 2.3)
+axins.set_ylim(0, 1.3)
+axins.set_xticks([0.5, 1.0, 1.5, 2.0])
+axins.set_xticklabels(['0.5', '1', '1.5', '2'], fontsize=4.5)
+axins.minorticks_off()
+axins.tick_params(axis='x', which='major', direction='in', pad=1, length=2,
+                  bottom=True, top=False)
+axins.tick_params(axis='y', which='both', left=False, right=False)
+axins.set_yticks([])
+for _spine in ['top', 'left', 'right']:
+    axins.spines[_spine].set_visible(False)
+axins.set_xlabel('μm', fontsize=5, labelpad=1)
+axins.text(0.77, 1, 'TESS', color='C0', ha='center', va='bottom', fontsize=4)
+axins.text(2.09, 1, 'FourStar\n2.09μm', color='maroon', ha='center',
+           va='bottom', fontsize=4)
 
 fig.tight_layout()
 fig.savefig('../results/fourstar_vs_tess/fourstar_vs_tess_phase.png', dpi=300,
