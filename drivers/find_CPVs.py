@@ -60,11 +60,18 @@ def get_ticids(sample_id, lcpipeline):
 
     if sample_id == 'debug':
         ticids = [
-            "67897871"
+            #"425937691"
+            #"332861442"
+            #"67897871"
             #"161734785"
             #"300651846"
             #"206544316"
             #"350519637"
+            "328468855",
+            "404387832",
+            "405970436",
+            "191095009",
+            "66747411"
         ]
 
         N_stars_to_search = len(ticids)
@@ -481,11 +488,12 @@ def main():
     forcepdf = 1 # if yes, perhaps also have "LOCALDEBUG" set true..
 
     # lcpipeline: "qlp", "spoc2min", "tars", or "spoc2min_tars"
-    lcpipeline = 'tars'
+    lcpipeline = 'spoc2min'
+    #lcpipeline = 'tars'
 
     sample_ids = [
-        'jan2026_knownCPVs'
-        #'debug',
+        #'jan2026_knownCPVs'
+        'debug',
         #'dovi'
         # ### samples for the next CPV project:
         #'1to20pc'

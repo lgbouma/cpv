@@ -45,7 +45,6 @@ import numpy as np, pandas as pd, matplotlib.pyplot as plt
 from complexrotators.paths import LOCALDIR, SPOCDIR, TABLEDIR
 from complexrotators.getters import (
     _get_lcpaths_given_ticid, _get_local_lcpaths_given_ticid,
-    _get_lcpaths_fromlightkurve_given_ticid
 )
 from complexrotators.lcprocessing import (
     cpv_periodsearch, count_phased_local_minima, prepare_cpv_light_curve
@@ -88,7 +87,7 @@ def find_transits(ticid, sample_id, lcpipeline='spoc2min'):
     # get the light curves for all desired sectors and cadences
     #
     if LOCAL_DEBUG:
-        lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline)
+        lcpaths = _get_lcpaths_given_ticid(ticid, lcpipeline)
     else:
         lcpaths = _get_local_lcpaths_given_ticid(ticid)
 
@@ -306,7 +305,7 @@ def main():
 
     sample_id = 'debug'
 
-    ticids = ['342456426']
+    ticids = ['220599904']
     lcpipeline = 'spoc2min'
 
     #ticids = ['466376085']

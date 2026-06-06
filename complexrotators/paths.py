@@ -3,7 +3,7 @@ from complexrotators import __path__
 from os.path import join
 
 DATADIR = join(os.path.dirname(__path__[0]), 'data')
-PHOTDIR = join(DATADIR, 'photometry', 'ground')
+PHOTDIR = join(DATADIR, 'photometry')
 LITDIR = join(DATADIR, 'literature')
 CSVDIR = join(DATADIR, 'photometry', 'cdips_followup_csvs')
 TARGETSDIR = join(DATADIR, 'targetlists')
