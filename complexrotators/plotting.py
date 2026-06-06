@@ -1199,7 +1199,7 @@ def _get_all_tic262400835_data():
     # get median-filtered tess 20 second data. (4.5day blended rotation
     # removed).
     df0 = pd.read_csv(
-        '/Users/luke/Dropbox/proj/complexrotators/results/river/tic_262400835/'
+        '/Users/luke/Dropbox/proj/cpv/results/river/tic_262400835/'
         'HARDCOPY_spoc_tess_lightcurve_median_PDCSAP_FLUX_allsector_sigclipped.csv'
     )
     time, flux = np.array(df0.time), np.array(df0.flux)
@@ -1210,7 +1210,7 @@ def _get_all_tic262400835_data():
 
     # get MUSCAT1 data
     m1_files = glob(
-        join(PHOTDIR, 'TIC262400835_*muscat_*.csv')
+        join(PHOTDIR, 'MUSCAT', 'TIC262400835_*muscat_*.csv')
     )
     for m1_file in m1_files:
         color = os.path.basename(m1_file).split("_")[3]
@@ -1224,7 +1224,7 @@ def _get_all_tic262400835_data():
 
     # get MUSCAT2 data
     m2_files = glob(
-        join(PHOTDIR, 'tic262400835_*achromatic*.fits')
+        join(PHOTDIR, 'MUSCAT', 'tic262400835_*achromatic*.fits')
     )
     for m2_file in m2_files:
         timestamp = os.path.basename(m2_file).split("_")[1]
@@ -1244,7 +1244,7 @@ def _get_all_tic262400835_data():
     return datasets
 
 
-def plot_multicolor_phase(outdir, BINMS=2):
+def plot_multicolor_phase(outdir, BINMS=2.5):
     # currently hard-coded for TIC 262400835
 
     #keys: tess20sec, M1_g|r|z_201216, M2_g|r|z_201213|201215
@@ -1261,15 +1261,27 @@ def plot_multicolor_phase(outdir, BINMS=2):
 
     # initialize
     outpath = join(outdir, 'TIC262400835_multicolor_phase_stacked.png')
+    set_style("science")
+
     time, flux = datasets['tess20sec'][0], datasets['tess20sec'][1]
     fig, ax = plot_phased_light_curve(time, flux, t0, period, None,
-                                      savethefigure=False, figsize=(4,8),
-                                      showtext=False)
+                                      savethefigure=False,
+                                      figsize=(2.5,6),
+                                      showtext=False,
+                                      ylim=[-57.8, 6.5])
+    _,y = time, flux-np.nanmean(flux)
+    props = dict(boxstyle='square', facecolor='white', alpha=0.5, pad=0.15,
+                 linewidth=0)
+    ax.text(.535, 2.5 + np.nanmedian(1e2*(y)), 'TESS S32',
+            ha='right',va='center', color='k',
+            fontsize=5, bbox=props, zorder=1003)
+
     keylist = [
         'M2_g_201213', 'M2_r_201213', 'M2_z_201213',
         'M2_g_201215', 'M2_r_201215', 'M2_z_201215',
         'M1_g_201216', 'M1_r_201216', 'M1_z_201216'
     ]
+
     y_offset = -10
     BPTOCOLORDICT = {
         'g': 'b', 'r': 'g', 'z': 'r'
@@ -1295,19 +1307,26 @@ def plot_multicolor_phase(outdir, BINMS=2):
         )
         orb_bds[k] = orb_bd
 
+        if '_g_' in k:
+            txt = f'2020 Dec {k[-2:]}\nMuSCAT{k[1]} $'+f'{k[3]}'+'$'
+        else:
+            txt = '$'+f'{k[3]}'+'$'
         props = dict(boxstyle='square', facecolor='white', alpha=0.7, pad=0.15,
                      linewidth=0)
-        txt = k
-        ax.text(.95, 2.5+np.nanmedian(1e2*(y)+y_offset), txt,
+        ax.text(.535, 2.5+np.nanmedian(1e2*(y)+y_offset), txt,
                 ha='right',va='center', color='k',
-                fontsize='xx-small', bbox=props, zorder=1003)
+                fontsize=5, bbox=props, zorder=1003)
 
         if ix % 3 != 2:
-            y_offset -= 5
+            y_offset -= 4.5
         else:
-            y_offset -= 10
+            y_offset -= 8
 
         ix += 1
+
+    ax.set_ylim([-57.8, 6.5])
+    ax.set_ylabel(f'Relative flux (%)')
+    ax.set_xlabel(f'Phase ($P$=7.16 hr)')
 
     savefig(fig, outpath, dpi=350)
     plt.close('all')
@@ -1316,6 +1335,7 @@ def plot_multicolor_phase(outdir, BINMS=2):
     outpath = join(outdir, 'TIC262400835_multicolor_phase.png')
 
     time, flux = datasets['tess20sec'][0], datasets['tess20sec'][1]
+
     fig, ax = plot_phased_light_curve(time, flux, t0, period, None,
                                       savethefigure=False, figsize=(4,8),
                                       showtext=False)
@@ -1351,7 +1371,7 @@ def plot_multicolor_phase(outdir, BINMS=2):
         props = dict(boxstyle='square', facecolor='white', alpha=0.7, pad=0.15,
                      linewidth=0)
         txt = b0.split("_")[0] + "_" + b0.split("_")[-1] + "_"+ c0 + "/" + c1
-        ax.text(.95, 2.5+np.nanmedian(1e2*(y)+y_offset), txt,
+        ax.text(.45, 2.5+np.nanmedian(1e2*(y)+y_offset), txt,
                 ha='right',va='center', color='k',
                 fontsize='xx-small', bbox=props, zorder=1003)
 
