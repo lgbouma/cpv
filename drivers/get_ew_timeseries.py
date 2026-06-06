@@ -711,7 +711,11 @@ def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
             #
             ax = axd['A']
 
-            axd['A'].text(0.97,0.03+_id*0.05, utcdatestr,
+            kvdict = {
+            '20231111': '2023 Nov 11',
+            '20231112': '2023 Nov 12',
+            }
+            axd['A'].text(0.97,0.03+_id*0.05, kvdict[utcdatestr],
                           transform=axd['A'].transAxes, ha='right',va='bottom',
                           color=datec, fontsize='small')
 
@@ -816,8 +820,8 @@ def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
                               linestyles='--', zorder=-10, linewidths=0.5)
                 ax.set_ylim([ymin, ymax])
 
-        axd['A'].set_xlabel("Phase, φ")
-        axd['D'].set_xlabel("Phase, φ")
+        axd['A'].set_xlabel("Phase ($P$=18.6 hr)")
+        axd['D'].set_xlabel("Phase ($P$=18.6 hr)")
 
         #
         # E,F,G: spectra at each time!
@@ -856,49 +860,66 @@ def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
                     wav0 = 4861#.35
                 elif lk == 'Hγ':
                     wav0 = 4340#.47
+                V_EQ = 24.2 # LP 12-502
 
                 deltawvlen = ( (wav + dx) - wav0 )
                 delta_v = const.c * (deltawvlen / wav0)
                 delta_v_kms = delta_v.to(u.km/u.s)
 
-                ax.plot(delta_v_kms, flx, c='k', lw=0.5)
+                ax.plot(delta_v_kms/V_EQ, flx, c='k', lw=0.5)
 
             ax.update({'ylabel': f'{lk} flux'})
 
             if not show_vel:
                 if lk == 'Hα':
                     wav0 = 6563#2.8
-                    ax.set_ylim([0.5,5.6])
+                    ax.set_ylim([0.35,5.6])
                     x0 = 2
-                    ax.set_xlim([wav0-8, wav0+8])
-                    ax.set_xticks([wav0-5, wav0+5])
+                    ax.set_xlim([(wav0-8)/V_EQ, (wav0+8)/V_EQ])
+                    # +/- 250 in km/s
+                    ax.set_xticks([-10, 10])
                 elif lk == 'Hβ':
                     wav0 = 4861#.35
-                    ax.set_ylim([0.5,5.6])
-                    ax.set_xlim([wav0-8, wav0+8])
-                    ax.set_xticks([wav0-5, wav0+5])
+                    ax.set_ylim([0.35,5.6])
+                    ax.set_xlim([(wav0-8)/V_EQ, (wav0+8)/V_EQ])
+                    ax.set_xticks([-10, 10])
                 elif lk == 'Hγ':
-                    ax.set_ylim([0.5,5.6])
+                    ax.set_ylim([0.35,5.6])
                     wav0 = 4340#.47
-                    ax.set_xlim([wav0-8, wav0+8])
-                    ax.set_xticks([wav0-5, wav0+5])
+                    ax.set_xlim([(wav0-8)/V_EQ, (wav0+8)/V_EQ])
+                    ax.set_xticks([-10, 10])
             else:
                 if lk == 'Hα':
-                    ax.set_ylim([0.5,5.6])
+                    ax.set_ylim([0.35,5.6])
                 elif lk == 'Hβ':
-                    ax.set_ylim([0.5,5.6])
+                    ax.set_ylim([0.35,5.6])
                 elif lk == 'Hγ':
-                    ax.set_ylim([0.5,5.6])
+                    ax.set_ylim([0.35,5.6])
 
-                ax.set_xlim([-500, 500])
-                ax.set_xticks([-250, 0, 250])
+                ax.set_xlim([-500/V_EQ, 500/V_EQ])
+                # +/- 250 in km/s
+                ax.set_xticks([-10, 0, 10])
+                ax.set_xticklabels(['-10', '0', '10\u2009'])
+                #ax.set_xticklabels([r'$-10$', r'$\phantom{-}0$',
+                #                    r'$\phantom{-}10$'], usetex=True)
 
             ax.set_yticklabels([1,3,5])
             ax.set_yticks([1,3,5])
 
+            # horizontal bar spanning one velocity resolution element
+            _res_kms = {'Hα': 137.0, 'Hβ': 157.3, 'Hγ': 176.1}
+            if show_vel:
+                _bar_w = _res_kms[lk] / V_EQ
+                _x_ctr = 0.0
+            else:
+                _bar_w = _res_kms[lk] / 3e5 * wav0
+                _x_ctr = wav0
+            ax.plot([_x_ctr - _bar_w/2, _x_ctr + _bar_w/2], [0.8, 0.8],
+                    c='gray', lw=1, solid_capstyle='butt')
+
         axd['G'].set_xlabel('λ [$\mathrm{\AA}$]')
         if show_vel:
-            axd['G'].set_xlabel('v [km$\,$s$^{-1}$]')
+            axd['G'].set_xlabel('v/v$_\mathrm{eq}$')
 
         #fig.suptitle('LP 12-502, $P$ = 18.6 hr')
         fig.tight_layout(h_pad=0, w_pad=0.5)
@@ -922,6 +943,8 @@ def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
             f'{_time_index}_stackew_vs_phase_{uinsts}_{"_".join(utcdatestrs)}{s}.png'
         )
         savefig(fig, outpath, writepdf=0)
+        if "_0016_" in str(_time_index):
+            savefig(fig, outpath, writepdf=1)
 
 
 
@@ -940,8 +963,9 @@ if __name__ == "__main__":
     # utcdatestrs = "20231111,20231112,20231123".split(",")
     # insts = "DBSP,DBSP,HIRES".split(",")
 
-    #utcdatestrs = "20231111,20231112".split(",")
-    #insts = "DBSP,DBSP".split(",")
+    utcdatestrs = "20231111,20231112".split(",")
+    insts = "DBSP,DBSP".split(",")
+    photinst = 'tierras'
 
     # utcdatestrs = ["20240115"]
     # insts = ["DBSP"]
@@ -956,9 +980,9 @@ if __name__ == "__main__":
     ra = 16.733175*u.deg
     dec = 80.45945*u.deg
 
-    photinst = 'tess'
-    utcdatestrs = ["20241108"]
-    utcdatestrs = "20241104,20241105,20241106,20241107,20241108".split(",")
+    # photinst = 'tess'
+    # utcdatestrs = ["20241108"]
+    # utcdatestrs = "20241104,20241105,20241106,20241107,20241108".split(",")
 
     #photinst = 'tierras'
     #utcdatestrs = "20231111,20231112".split(",")
@@ -969,7 +993,7 @@ if __name__ == "__main__":
     #utcdatestrs = ["20240428"]
     #photinst = 'tierras'
 
-    style = 'clean_wob'
+    style = 'clean'
     insts = ["DBSP"]*len(utcdatestrs)
 
     uinsts = "_".join(np.unique(insts))
@@ -1000,12 +1024,12 @@ if __name__ == "__main__":
 
     if utcdatestrs == "20231111,20231112".split(","):
         plot_movie_stack_ew_vs_phase(
-            targetid, has, hbs, hcs, utcdatestrs, insts, show_vel=0, noline=1
-        )
-        assert 0
-        plot_movie_stack_ew_vs_phase(
             targetid, has, hbs, hcs, utcdatestrs, insts, show_vel=1
         )
-        plot_movie_stack_ew_vs_phase(
-            targetid, has, hbs, hcs, utcdatestrs, insts
-        )
+        assert 0
+        #plot_movie_stack_ew_vs_phase(
+        #    targetid, has, hbs, hcs, utcdatestrs, insts, show_vel=0, noline=1
+        #)
+        #plot_movie_stack_ew_vs_phase(
+        #    targetid, has, hbs, hcs, utcdatestrs, insts
+        #)
