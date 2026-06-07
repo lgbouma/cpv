@@ -1327,6 +1327,7 @@ def plot_multicolor_phase(outdir, BINMS=2.5):
     ax.set_ylim([-57.8, 6.5])
     ax.set_ylabel(f'Relative flux (%)')
     ax.set_xlabel(f'Phase ($P$=7.16 hr)')
+    ax.set_title('TIC 262400835: $grz$', fontsize='medium')
 
     savefig(fig, outpath, dpi=350)
     plt.close('all')
@@ -1378,6 +1379,224 @@ def plot_multicolor_phase(outdir, BINMS=2.5):
         y_offset -= 6
 
         ix += 1
+
+    savefig(fig, outpath, dpi=350)
+    plt.close('all')
+
+
+def plot_multicolor_phase_lp12502(outdir, BINMS=3, dates=None, suffix='',
+                                   xlim=None, label_dy=2.5,
+                                   group_dy_overrides=None,
+                                   full_keplercam_labels=False):
+    # Stacked phase-fold plot for LP 12-502 (TIC 402980664).
+    # dates: list of utcdatestrs to include (None = all three).
+    # suffix: appended to output filename stem, e.g. 'Dec08Dec15'.
+    # xlim: x-axis limits (default [-0.6, 0.6]).
+    # label_dy: vertical offset of text labels above layer median.
+    # group_dy_overrides: dict mapping utcstr -> scalar or list of per-layer dy.
+
+    from astropy.io import fits
+    from glob import glob
+
+    # Ephemeris (same as plot_chromaticity_keplercam_tierras.py); shifted
+    # forward by 0.45P to center the Dec 08/15 dips near phase 0.
+    t0 = 2450000 + 1791.12 + 0.5*18.5611/24
+    period = 18.5611/24  # days (~18.56 hr)
+    t0 += 0.45 * period
+
+    TESSDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess'
+    TIERRASDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/TIERRAS'
+    KEPLERCAMDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/KeplerCam'
+
+    # Load TESS S73 SAP_FLUX; use permissive quality filter
+    # (Dec 08 window has quality=4096 "CosmicRayInOptAp" but flux looks normal)
+    tesspath = join(TESSDIR,
+        'tess2023341045131-s0073-0000000402980664-0268-s_lc.fits')
+    hdul = fits.open(tesspath)
+    td = hdul[1].data
+    hdul.close()
+    tess_bjd = td['TIME'] + 2457000.0
+    tess_sap = td['SAP_FLUX']
+    tess_qual = td['QUALITY']
+    bad_bits = 2 | 4 | 8 | 128  # SafeMode, CoarsePoint, EarthPoint, ManualExclude
+    tess_good = ((tess_qual & bad_bits) == 0) & np.isfinite(tess_sap) & np.isfinite(tess_bjd)
+    tess_bjd = tess_bjd[tess_good]
+    tess_flux = tess_sap[tess_good] / np.nanmedian(tess_sap[tess_good])
+
+    def _get_tess_window(t_min, t_max, pad=0.05):
+        mask = (tess_bjd >= t_min - pad) & (tess_bjd <= t_max + pad)
+        return tess_bjd[mask], tess_flux[mask]
+
+    def _get_ground(inst, bp, utcstr):
+        if inst == 'Tierras':
+            csvpath = glob(join(TIERRASDIR,
+                f"{utcstr}_TIC402980664_circular_fixed_ap_phot_*.csv"))[0]
+            df = pd.read_csv(csvpath)
+            t = np.array(df['BJD TDB'])
+            flux = np.array(df['Target Relative Flux']) * 10
+            flux_err = np.array(df['Target Relative Flux Error']) * 10
+        elif inst == 'KeplerCam':
+            df = pd.read_csv(
+                join(KEPLERCAMDIR, f"LP12-502_{utcstr}_KeplerCam_{bp}.dat"),
+                sep=r'\s+')
+            t = np.array(df['BJD_TDB_B'])
+            flux = np.array(df['rel_flux_T1_n'])
+            flux_err = np.array(df['rel_flux_err_T1_n'])
+        return t, flux, flux_err
+
+    def _fold(t, f, fe=None):
+        # Manually replicate phase_magseries wrap=True behavior so that error
+        # arrays (if given) stay in sync with the doubled/sorted phase array.
+        fc = f - np.nanmedian(f)
+        raw_ph = (t - t0) / period - np.floor((t - t0) / period)
+        ph_full = np.concatenate([raw_ph, raw_ph - 1.0])
+        mag_full = np.concatenate([fc, fc])
+        sort_idx = np.argsort(ph_full)
+        ph_sorted = ph_full[sort_idx]
+        mag_sorted = mag_full[sort_idx]
+        if fe is not None:
+            err_sorted = np.concatenate([fe, fe])[sort_idx]
+            return ph_sorted, mag_sorted, err_sorted
+        return ph_sorted, mag_sorted
+
+    # Colors match plot_chromaticity_keplercam_tierras.py convention
+    COLORS = {
+        'TESS_raw': 'darkgray',
+        'TESS_bin': 'k',
+        'Tierras': 'C1',
+        'KeplerCam_g': 'C2',
+        'KeplerCam_B': 'C3',
+    }
+    props = dict(boxstyle='square', facecolor='white', alpha=0.7, pad=0.15, linewidth=0)
+    XLIM = [-0.6, 0.6] if xlim is None else xlim
+    DY = 6     # vertical spacing between layer medians (percent-flux units)
+    DGAP = 5   # extra gap between date groups beyond DY
+
+    groups = [
+        {
+            'date': '2023 Dec 08',
+            'utcstr': '20231208',
+            'dy': DY,
+            'layers': [('TESS', None), ('KeplerCam', 'g'), ('KeplerCam', 'B')],
+        },
+        {
+            'date': '2023 Dec 15',
+            'utcstr': '20231215',
+            'dy': 4,
+            'layers': [('TESS', None), ('Tierras', 'Tierras'),
+                       ('KeplerCam', 'g'), ('KeplerCam', 'B')],
+        },
+        {
+            'date': '2023 Dec 16',
+            'utcstr': '20231216',
+            'dy': DY,
+            'layers': [('TESS', None), ('KeplerCam', 'g'), ('KeplerCam', 'B')],
+        },
+    ]
+
+    if dates is not None:
+        groups = [g for g in groups if g['utcstr'] in dates]
+
+    # Outpath and figsize scale with selected groups
+    stem = 'LP12502_multicolor_phase_stacked'
+    outpath = join(outdir, f'{stem}_{suffix}.pdf' if suffix else f'{stem}.pdf')
+
+    def _resolve_dy(g):
+        spec = (group_dy_overrides or {}).get(g['utcstr'], g['dy'])
+        if isinstance(spec, (list, tuple)):
+            return sum(spec)
+        return len(g['layers']) * spec
+
+    total_dy = sum(_resolve_dy(g) for g in groups)
+    total_gap = DGAP * (len(groups) - 1)
+    fig_h = max(3.0, (total_dy + total_gap + 14) / 14)
+    fig_h = round(fig_h * 2) / 2  # round to nearest 0.5
+
+    set_style("science")
+    fig, ax = plt.subplots(figsize=(2.5, fig_h))
+    ax.set_title('LP 12-502: $B,g$,Tierras', fontsize='medium')
+
+    y_offset = 0
+    seen_keplercam = False  # for label abbreviation after first occurrence
+
+    for g_ix, group in enumerate(groups):
+        utcstr = group['utcstr']
+        dy_spec = (group_dy_overrides or {}).get(utcstr, group['dy'])
+        seen_keplercam = False  # reset per group
+
+        # Determine ground time window to select simultaneous TESS
+        t_all = []
+        for inst, bp in group['layers']:
+            if inst == 'TESS':
+                continue
+            tg, _, _ = _get_ground(inst, bp, utcstr)
+            t_all.extend(tg.tolist())
+        t_arr = np.array(t_all)
+        t_min, t_max = t_arr.min(), t_arr.max()
+
+        t_tess, f_tess = _get_tess_window(t_min, t_max)
+
+        for l_ix, (inst, bp) in enumerate(group['layers']):
+
+            if inst == 'TESS':
+                x_fold, y_fold = _fold(t_tess, f_tess)
+                ax.scatter(x_fold, 1e2*y_fold + y_offset,
+                           color=COLORS['TESS_raw'], s=0.5, alpha=0.5,
+                           linewidths=0, rasterized=True, zorder=1)
+                bs_phase = 15 / (24*60) / period  # 15-min bins
+                orb_bd = phase_bin_magseries(
+                    x_fold, y_fold, binsize=bs_phase, minbinelems=2)
+                ax.scatter(orb_bd['binnedphases'],
+                           1e2*orb_bd['binnedmags'] + y_offset,
+                           color=COLORS['TESS_bin'], s=BINMS,
+                           linewidths=0, alpha=1, zorder=1002)
+                txt = f"{group['date']}\nTESS"
+
+            elif inst == 'Tierras':
+                t_gnd, f_gnd, _ = _get_ground(inst, bp, utcstr)
+                x_fold, y_fold = _fold(t_gnd, f_gnd)
+                color = COLORS['Tierras']
+                ax.scatter(x_fold, 1e2*y_fold + y_offset,
+                           color=color, s=1, alpha=0.3,
+                           linewidths=0, rasterized=True, zorder=1)
+                bs_phase = 10 / (24*60) / period  # 10-min bins
+                orb_bd = phase_bin_magseries(
+                    x_fold, y_fold, binsize=bs_phase, minbinelems=2)
+                ax.scatter(orb_bd['binnedphases'],
+                           1e2*orb_bd['binnedmags'] + y_offset,
+                           color=color, s=BINMS, linewidths=0,
+                           alpha=1, zorder=1002)
+                txt = 'Tierras'
+
+            else:  # KeplerCam
+                t_gnd, f_gnd, fe_gnd = _get_ground(inst, bp, utcstr)
+                x_fold, y_fold, ye_fold = _fold(t_gnd, f_gnd, fe=fe_gnd)
+                color = COLORS[f'KeplerCam_{bp}']
+                ax.errorbar(x_fold, 1e2*y_fold + y_offset,
+                            yerr=1e2*ye_fold,
+                            fmt='o', ms=1.0, color=color,
+                            ecolor=color, elinewidth=0.5,
+                            lw=0, alpha=0.9, zorder=1002)
+                if not seen_keplercam or full_keplercam_labels:
+                    txt = f'KeplerCam ${bp}$'
+                    seen_keplercam = True
+                else:
+                    txt = f'${bp}$'
+
+            ax.text(XLIM[1] - 0.03, y_offset + label_dy, txt,
+                    ha='right', va='center', color='k',
+                    fontsize=5, bbox=props, zorder=1003)
+
+            dy_this = dy_spec[l_ix] if isinstance(dy_spec, (list, tuple)) else dy_spec
+            y_offset -= dy_this
+
+        if g_ix < len(groups) - 1:
+            y_offset -= DGAP
+
+    ax.set_xlim(XLIM)
+    ax.set_ylim([y_offset - 5, 8])
+    ax.set_xlabel(f'Phase ($P$ = {18.5611:.2f} hr)')
+    ax.set_ylabel('Relative flux (%)')
 
     savefig(fig, outpath, dpi=350)
     plt.close('all')
