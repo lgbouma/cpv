@@ -99,31 +99,31 @@ plt.close('all')
 fig, ax = plt.subplots(figsize=(2.,4))
 
 # FourStar raw and time-binned, plotted vs phase
-ax.scatter(phase, f, s=1, color='maroon', alpha=0.15, marker='o', linewidths=0)
+ax.scatter(phase, (f - 1)*100, s=1, color='maroon', alpha=0.15, marker='o', linewidths=0)
 if len(phase_binned):
     # Sort for line plotting
     srt_fs = np.argsort(phase_binned)
-    ax.scatter(phase_binned[srt_fs], f_binned[srt_fs], s=6, color='maroon',
+    ax.scatter(phase_binned[srt_fs], (f_binned[srt_fs] - 1)*100, s=6, color='maroon',
                alpha=0.9, marker='o', linewidths=0)
 
 # TESS raw and phase-binned
-ax.scatter(_phase, _f, s=0.08, color='C0', alpha=0.3, marker='o', linewidths=0)
+ax.scatter(_phase, (_f - 1)*100, s=0.08, color='C0', alpha=0.3, marker='o', linewidths=0)
 if len(phase_bin_center):
-    ax.scatter(phase_bin_center, flux_phase_binned, s=5, color='C0',
+    ax.scatter(phase_bin_center, (flux_phase_binned - 1)*100, s=5, color='C0',
                alpha=0.9, marker='o', linewidths=0)
 
-ax.set_xlabel('Phase', fontsize=6)
-ax.set_ylabel('Relative flux', fontsize=6)
+ax.set_xlabel('Phase ($P$=8.26 hr)', fontsize=6)
+ax.set_ylabel('Relative flux (%)', fontsize=6)
 ax.tick_params(axis='both', which='major', labelsize=5.5)
 ax.set_xlim(-0.55,0.55)
-ax.set_ylim(0.92, 1.11)
-ax.set_yticks([0.95, 1, 1.05, 1.1])
-ax.set_title('TIC 300651846 (P=8.3 hr)', fontsize=7)
+ax.set_ylim(-8, 11)
+ax.set_yticks([-5, 0, 5, 10])
+ax.set_title('TIC 300651846: 2.09$\mu$m', fontsize=7)
 
 # Annotations for datasets
-ax.text(0.49, 1.10, 'FourStar\n2025/02/10', color='maroon', ha='right',
+ax.text(0.49, 10, 'FourStar\n2025/02/10', color='maroon', ha='right',
         va='center', fontsize=4.5)
-ax.text(0.49, 0.995, 'TESS\nSimult.', color='C0', ha='right', va='top',
+ax.text(0.49, -0.5, 'TESS\nSimult.', color='C0', ha='right', va='top',
         fontsize=4.5)
 
 # Filter response inset

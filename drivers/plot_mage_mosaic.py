@@ -47,7 +47,7 @@ YLIM = [-8, 5]                       # flux vs phase ylim [%]
 ADOPTED_VEQ = 89.65                  # km/s
 PCTILE = 25                          # for removeavg gaussian smoothed percentile
 BINSIZE_PHASE = 0.005
-VMIN_RIVER, VMAX_RIVER = -0.2, 0.6  # specriver colormap range
+VMIN_RIVER, VMAX_RIVER = -0.2, 0.5  # specriver colormap range
 
 DATES = ['20250118', '20250119', '20250120', '20250121']
 DATE_LABELS = ['2025/01/18', '2025/01/19', '2025/01/20', '2025/01/21']
@@ -122,7 +122,7 @@ def _make_specriver_data(datestr):
     }
 
 
-def _plot_phase_linecore(ax, lc_times, lc_fluxs, sd, datestr):
+def _plot_phase_linecore(ax, lc_times, lc_fluxs, sd, datestr, show_simult=False):
     """Draw flux vs phase + Hα linecore twinx (sixpanel panel D) on ax.
 
     Replicates the axd['D'] + ax2 linecore logic from
@@ -130,6 +130,15 @@ def _plot_phase_linecore(ax, lc_times, lc_fluxs, sd, datestr):
 
     Returns the specriver phase limits (xmin, xmax) for use in panel G/H/I/J.
     """
+    if show_simult:
+        # normalize before filtering so the mean is over the full sector
+        lc_fluxs = 1e2 * (lc_fluxs - np.nanmean(lc_fluxs))
+        t_lo = sd['spectimes'].min()
+        t_hi = sd['spectimes'].max()
+        mask = (lc_times >= t_lo) & (lc_times <= t_hi)
+        lc_times = lc_times[mask]
+        lc_fluxs = lc_fluxs[mask]
+
     # ── linecore twinx (drawn first so TESS LC renders on top) ─────────────
     linecore_sums = sd['linecore_sums']
     norm_flxs = sd['norm_flxs']
@@ -168,21 +177,50 @@ def _plot_phase_linecore(ax, lc_times, lc_fluxs, sd, datestr):
     ax.patch.set_visible(False)   # keep ax2 background visible
 
     # ── phased LC ──────────────────────────────────────────────────────────
-    plot_phased_light_curve(
-        lc_times, lc_fluxs, T0, PERIOD, None,
-        fig=ax.get_figure(), ax=ax,
-        binsize_phase=BINSIZE_PHASE,
-        xlim=None,
-        ylim=YLIM,
-        showtext=None,
-        showtitle=False,
-        savethefigure=False,
-        c0='darkgray', alpha0=0.15,
-        c1='k', alpha1=1,
-        phasewrap=False,
-        longwrap=True,
-        BINMS=1.5,
-    )
+    if show_simult:
+        # Phase in the same coordinate system as specphases
+        phase_offset = np.min(np.ceil((sd['spectimes'] - T0) / PERIOD))
+        phases = (lc_times - T0) / PERIOD - phase_offset
+
+        # gray raw scatter
+        ax.scatter(phases, lc_fluxs, s=0.5, c='gray', linewidths=0,
+                   rasterized=True, zorder=1)
+
+        # 20-min time-binned black points (same cadence as panel A)
+        dt_bin = 20.0 / (24.0 * 60.0)
+        bin_idx = np.floor((lc_times - lc_times.min()) / dt_bin).astype(int)
+        t_bin, f_bin = [], []
+        for bi in np.unique(bin_idx):
+            m = bin_idx == bi
+            if m.sum() >= 2:
+                t_bin.append(lc_times[m].mean())
+                f_bin.append(lc_fluxs[m].mean())
+        t_bin = np.array(t_bin)
+        f_bin = np.array(f_bin)
+        fin = np.isfinite(t_bin) & np.isfinite(f_bin)
+        p_bin = (t_bin[fin] - T0) / PERIOD - phase_offset
+        ax.scatter(p_bin, f_bin[fin], s=3, c='k', linewidths=0, zorder=3)
+        gap_mask = np.concatenate(([True], np.diff(t_bin[fin]) > 0.1))
+        group_ids = np.cumsum(gap_mask)
+        for gid in np.unique(group_ids):
+            g = group_ids == gid
+            ax.plot(p_bin[g], f_bin[fin][g], '-', c='k', lw=0.5, zorder=2)
+    else:
+        plot_phased_light_curve(
+            lc_times, lc_fluxs, T0, PERIOD, None,
+            fig=ax.get_figure(), ax=ax,
+            binsize_phase=BINSIZE_PHASE,
+            xlim=None,
+            ylim=YLIM,
+            showtext=None,
+            showtitle=False,
+            savethefigure=False,
+            c0='darkgray', alpha0=0.15,
+            c1='k', alpha1=1,
+            phasewrap=False,
+            longwrap=True,
+            BINMS=1.5,
+        )
     ax.set_ylim(YLIM)
 
     xmin = specphases.min() - 0.05
@@ -234,7 +272,7 @@ def _plot_specriver(ax, fig, sd):
     return c, xmin, xmax
 
 
-def plot_mage_mosaic():
+def plot_mage_mosaic(show_simult=False):
 
     # ── load LC ────────────────────────────────────────────────────────────
     (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend,
@@ -357,13 +395,14 @@ def plot_mage_mosaic():
         sd = spec[datestr]
 
         # ── CDEF: flux vs phase + linecore ─────────────────────────────────
-        xmin_p, xmax_p, ax2 = _plot_phase_linecore(ax_p, lc_times, lc_fluxs, sd, datestr)
+        xmin_p, xmax_p, ax2 = _plot_phase_linecore(ax_p, lc_times, lc_fluxs, sd, datestr, show_simult=show_simult)
 
         # date title above the phase panel
         ax_p.set_title(datelabel, fontsize='x-small', pad=3)
 
-        # drop x-labels on all CDEF panels
+        # drop x-labels and tick labels on all CDEF panels
         ax_p.set_xlabel('')
+        ax_p.tick_params(axis='x', labelbottom=False)
 
         # drop primary (left) y-label on D, E, F (keep tick labels)
         if pk != 'C':
@@ -401,8 +440,14 @@ def plot_mage_mosaic():
     # enforce consistent ylim on panel B (must come after all other axes work)
     axd['B'].set_ylim(YLIM)
 
+    # tighten gap between CDEF and GHIJ rows
+    for key in ['G', 'H', 'I', 'J']:
+        pos = axd[key].get_position()
+        axd[key].set_position([pos.x0, pos.y0 + 0.04, pos.width, pos.height])
+
     # ── save ───────────────────────────────────────────────────────────────
-    outpath = join(PLOTDIR, 'mage_mosaic.png')
+    suffix = 'simult' if show_simult else 'avg'
+    outpath = join(PLOTDIR, f'mage_mosaic_{suffix}.png')
     savefig(fig, outpath, dpi=300)
     print(f'Saved {outpath}')
 
@@ -412,4 +457,5 @@ def plot_mage_mosaic():
 
 
 if __name__ == '__main__':
-    plot_mage_mosaic()
+    plot_mage_mosaic(show_simult=False)   # mage_mosaic_avg.png/pdf
+    plot_mage_mosaic(show_simult=True)    # mage_mosaic_simult.png/pdf
