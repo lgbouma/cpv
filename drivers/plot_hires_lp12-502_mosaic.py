@@ -40,7 +40,7 @@ ADOPTED_VEQ  = 24.2               # km/s  (2π R★ / P_rot)
 YLIM         = [-2.1, 2.1]       # Δ Flux [%]
 PCTILE       = 25
 SIGMA_SMOOTH = 5                  # gaussian_filter1d sigma for removeavg (HIRES)
-VMIN_RIVER, VMAX_RIVER = -0.2, 0.4
+VMIN_RIVER, VMAX_RIVER = -0.2, 0.5
 FUDGE        = 2                  # error-bar inflation for Hα linecore
 
 DATES       = ['j546',        'j547',        'j531'       ]
@@ -252,7 +252,7 @@ def _plot_specriver(ax, fig, sd):
 
 
 def plot_hires_mosaic():
-    """Produce the 3 × 2 HIRES mosaic for LP 12-502."""
+    """Produce the HIRES mosaic for LP 12-502 (avg-profile + 3 × 2 grid)."""
 
     print('Loading spectral data ...')
     spec = {d: _make_specriver_data(d) for d in DATES}
@@ -269,19 +269,42 @@ def plot_hires_mosaic():
             _lc_cache[key] = _load_tess_lc(lp, fk, quality_bitmask=qm)
         lc_data[d] = _lc_cache[key]
 
+    # median Hα profile across all dates/spectra = f_⟨t⟩
+    all_orig    = [yv for d in DATES for yv in spec[d]['orig_yvals']]
+    avg_profile = np.nanmedian(np.array(all_orig), axis=0)
+    vel_axis    = spec[DATES[0]]['xvals'][0]
+
     plt.close('all')
     set_style('science')
 
-    fig, axes = plt.subplots(
-        2, 3,
-        figsize=(5.6, 3.6),
-        gridspec_kw={'hspace': 0.2, 'wspace': 0.5,
-                     'height_ratios': [1, 1.5]},
+    from matplotlib.gridspec import GridSpec
+    fig = plt.figure(figsize=(5.6, 3.6))
+    gs  = GridSpec(
+        2, 4, figure=fig,
+        width_ratios=[0.23, 1, 1, 1],
+        height_ratios=[1, 1.5],
+        hspace=0.2, wspace=0.45,
+        left=-0.05,
     )
 
+    # axes: profile panel (bottom-left only) + top/bottom triplets
+    ax_prof  = fig.add_subplot(gs[1, 0])
+    axes_top = [fig.add_subplot(gs[0, c + 1]) for c in range(3)]
+    axes_bot = [fig.add_subplot(gs[1, c + 1], sharey=ax_prof) for c in range(3)]
+
+    # ── average Hα profile panel ─────────────────────────────────────────
+    ax_prof.plot(avg_profile, vel_axis, 'k-', lw=0.7)
+    ax_prof.set_ylim(-13, 13)
+    ax_prof.tick_params(labelsize='x-small')
+    ax_prof.set_xticks([1, 5])
+    ax_prof.invert_xaxis()
+    ax_prof.tick_params(axis='y', which='both', labelleft=False, labelright=False)
+    ax_prof.set_xlabel(r'$f_{\langle t \rangle}$', fontsize='x-small')
+
+    # ── main loop ────────────────────────────────────────────────────────
     for col, (datestr, datelabel) in enumerate(zip(DATES, DATE_LABELS)):
-        ax_p = axes[0, col]
-        ax_r = axes[1, col]
+        ax_p = axes_top[col]
+        ax_r = axes_bot[col]
         sd   = spec[datestr]
         x_obs, y_obs_pct = lc_data[datestr]
 
@@ -298,11 +321,17 @@ def plot_hires_mosaic():
         # bottom row: specriver
         c_mappable, xmin_r, xmax_r = _plot_specriver(ax_r, fig, sd)
 
-        # sync xlim: use specriver natural range
+        # sync xlim
         ax_p.set_xlim(xmin_r, xmax_r)
         ax2.set_xlim(xmin_r, xmax_r)
-        if col != 0:
+
+        # ylabel/ticks on first specriver only
+        if col == 0:
+            ax_r.set_ylabel(r"$\Delta v/v_\mathrm{eq}$", fontsize='x-small',
+                            labelpad=-1)
+        else:
             ax_r.set_ylabel('')
+            ax_r.tick_params(axis='y', labelleft=False)
 
         # inset colorbar on rightmost column only
         if col == 2:
@@ -316,10 +345,10 @@ def plot_hires_mosaic():
             cb.ax.tick_params(labelsize='xx-small')
             cb.update_ticks()
 
-    # tighten gap between top and bottom rows
-    for col in range(3):
-        pos = axes[1, col].get_position()
-        axes[1, col].set_position([pos.x0, pos.y0 + 0.04, pos.width, pos.height])
+    # tighten gap between top and bottom rows (shift entire bottom row up)
+    for ax in [ax_prof] + axes_bot:
+        pos = ax.get_position()
+        ax.set_position([pos.x0, pos.y0 + 0.04, pos.width, pos.height])
 
     outpath = join(PLOTDIR, 'hires_lp12502_mosaic.png')
     savefig(fig, outpath, dpi=300)
