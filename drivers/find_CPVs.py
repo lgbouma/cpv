@@ -67,11 +67,12 @@ def get_ticids(sample_id, lcpipeline):
             #"300651846"
             #"206544316"
             #"350519637"
-            "328468855",
-            "404387832",
-            "405970436",
-            "191095009",
-            "66747411"
+            #"328468855",
+            #"404387832",
+            #"405970436",
+            #"191095009",
+            #"66747411"
+            "262400835"
         ]
 
         N_stars_to_search = len(ticids)
@@ -488,7 +489,7 @@ def main():
     forcepdf = 1 # if yes, perhaps also have "LOCALDEBUG" set true..
 
     # lcpipeline: "qlp", "spoc2min", "tars", or "spoc2min_tars"
-    lcpipeline = 'spoc2min'
+    lcpipeline = 'qlp'
     #lcpipeline = 'tars'
 
     sample_ids = [

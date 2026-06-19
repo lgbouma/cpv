@@ -4,6 +4,7 @@ Contents:
     | count_phased_local_minima
     | prepare_cpv_light_curve: retrieve all relevant data from SPOC/FITS LC
     | p2p_rms
+    | subtract_secondary_sinusoid
 """
 
 #######################################
@@ -575,8 +576,13 @@ def prepare_cpv_light_curve(lcpath, cachedir, returncadenceno=0,
             'tars': 'flux',
         }
 
-    if lcpipeline in ['spoc2min', 'cdips', 'tess-spoc', 'unpopular', 'tars']:
+    if lcpipeline in ['spoc2min', 'cdips', 'tess-spoc', 'unpopular']:
         if FLUXKEYDICT[lcpipeline] in d.dtype.names:
+            flux = nparr(d[FLUXKEYDICT[lcpipeline]])
+        else:
+            flux = nparr(d['dtr_flux'])
+    elif lcpipeline == 'tars':
+        if FLUXKEYDICT[lcpipeline] in d:
             flux = nparr(d[FLUXKEYDICT[lcpipeline]])
         else:
             flux = nparr(d['dtr_flux'])
@@ -738,4 +744,46 @@ def p2p_rms(flux):
     p2p = np.nanmean([up_p2p, lo_p2p])
 
     return p2p
+
+
+def subtract_secondary_sinusoid(time, flux, period_range_hr=(2.58, 2.62),
+                                n_periods=2000, verbose=True):
+    """Grid-search for best secondary period in period_range_hr, subtract it.
+
+    Fits y = A*sin(ωt) + B*cos(ωt) + C via linear least-squares on
+    uncontaminated points (|flux-1| < 0.02), picks the period minimising
+    the residual sum-of-squares, then removes only the oscillatory
+    A*sin + B*cos component so the mean flux level is preserved.
+
+    Returns (cleaned_flux, best_period_hr).
+    """
+    sel = np.abs(flux - 1) < 0.02
+    t_fit, f_fit = time[sel], flux[sel]
+
+    period_grid = np.linspace(period_range_hr[0] / 24, period_range_hr[1] / 24, n_periods)
+
+    best_rss, best_p = np.inf, period_grid[0]
+    for p in period_grid:
+        omega = 2 * np.pi / p
+        X = np.column_stack([np.sin(omega * t_fit),
+                             np.cos(omega * t_fit),
+                             np.ones_like(t_fit)])
+        params, _, _, _ = np.linalg.lstsq(X, f_fit, rcond=None)
+        rss = np.sum((f_fit - X @ params) ** 2)
+        if rss < best_rss:
+            best_rss = rss
+            best_p = p
+
+    omega = 2 * np.pi / best_p
+    X_fit = np.column_stack([np.sin(omega * t_fit),
+                             np.cos(omega * t_fit),
+                             np.ones_like(t_fit)])
+    a, b, _ = np.linalg.lstsq(X_fit, f_fit, rcond=None)[0]
+    sinusoid = a * np.sin(omega * time) + b * np.cos(omega * time)
+    best_p_hr = best_p * 24
+    ampl_pct = np.sqrt(a**2 + b**2) * 1e2
+    if verbose:
+        print(f'Secondary sinusoid subtraction: best period = '
+              f'{best_p_hr:.4f} hr, amplitude = {ampl_pct:.3f}%')
+    return flux - sinusoid, best_p_hr
 

@@ -191,12 +191,18 @@ def _get_lcpaths_given_ticid(ticid, lcpipeline, require_lc=1, cachedir=None):
         cachedir = LKCACHEDIR
 
     if 'tars' in lcpipeline:
-        from tehsors.tess import get_tars_lcs_add_wrapunpopular
+        from tehsors.tess import (
+            get_tars_lcs_add_wrapunpopular, get_tars_lcs
+        )
         tarslcdir = join(TARSCACHEDIR, f'tic_{ticid}')
-        time_dict, flux_dict = get_tars_lcs_add_wrapunpopular(ticid, tars_cache_dir=tarslcdir)
+        ADD_UNPOPULAR = 0
+        if ADD_UNPOPULAR:
+            time_dict, flux_dict = get_tars_lcs_add_wrapunpopular(ticid, tars_cache_dir=tarslcdir)
+            ffi_dir = os.path.expanduser("~/.unpopular_cache")
+            wrapunpoppaths = np.sort(glob(join(ffi_dir, f'TIC{ticid}*llc.csv')))
+        else:
+            time_dict, flux_dict = get_tars_lcs(ticid, cache_dir=tarslcdir)
         tarspaths = np.sort(glob(join(tarslcdir, f'tic_{ticid}_s*.csv')))
-        ffi_dir = os.path.expanduser("~/.unpopular_cache")
-        wrapunpoppaths = np.sort(glob(join(ffi_dir, f'TIC{ticid}*llc.csv')))
 
     if lcpipeline == 'spoc2min':
         lcpaths = glob(
@@ -207,7 +213,10 @@ def _get_lcpaths_given_ticid(ticid, lcpipeline, require_lc=1, cachedir=None):
             join(cachedir.replace("TESS","HLSP"), f'hlsp_{lcpipeline}*{ticid}*', f'*{ticid}*.fits')
         )
     elif lcpipeline == 'tars':
-        lcpaths = list(tarspaths) + list(wrapunpoppaths)
+        if ADD_UNPOPULAR:
+            lcpaths = list(tarspaths) + list(wrapunpoppaths)
+        else:
+            lcpaths = list(tarspaths)
     elif lcpipeline == 'spoc2min_tars':
         lcpaths = list(glob(
             join(cachedir, f'tess*{ticid}*-s', f'tess*{ticid}*-s_lc.fits')

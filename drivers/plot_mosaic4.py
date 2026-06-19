@@ -1,5 +1,5 @@
 """
-Four-panel horizontal mosaic: LP 12-502, DG CVn, TIC 300651846, TIC 262400835.
+Four-panel 2x2 mosaic: LP 12-502, DG CVn, TIC 300651846, TIC 262400835.
 Light curves fetched via _get_lcpaths_given_ticid; periodsearch results cached in cachedir.
 """
 import os
@@ -15,7 +15,9 @@ from aesthetic.plot import set_style, savefig
 
 from complexrotators.paths import RESULTSDIR, LOCALDIR, LKCACHEDIR
 from complexrotators.getters import _get_lcpaths_given_ticid
-from complexrotators.lcprocessing import cpv_periodsearch, prepare_cpv_light_curve
+from complexrotators.lcprocessing import (
+    cpv_periodsearch, prepare_cpv_light_curve, subtract_secondary_sinusoid
+)
 from complexrotators.plotting import plot_phased_light_curve
 
 
@@ -24,45 +26,6 @@ def get_ylimguess(y):
     yhigh = np.nanpercentile(y, 97.5)
     ydiff = yhigh - ylow
     return [ylow - 0.35 * ydiff, yhigh + 0.35 * ydiff]
-
-
-def subtract_secondary_sinusoid(time, flux, period_range_hr=(2.58, 2.62), n_periods=2000):
-    """Grid-search for best secondary period in period_range_hr, subtract it.
-
-    Fits y = A*sin(ωt) + B*cos(ωt) + C via linear least-squares on
-    uncontaminated points (|flux-1| < 0.02), picks the period minimising
-    the residual sum-of-squares, then removes only the oscillatory
-    A*sin + B*cos component so the mean flux level is preserved.
-
-    Returns (cleaned_flux, best_period_hr).
-    """
-    sel = np.abs(flux - 1) < 0.02
-    t_fit, f_fit = time[sel], flux[sel]
-
-    period_grid = np.linspace(period_range_hr[0] / 24, period_range_hr[1] / 24, n_periods)
-
-    best_rss, best_p = np.inf, period_grid[0]
-    for p in period_grid:
-        omega = 2 * np.pi / p
-        X = np.column_stack([np.sin(omega * t_fit),
-                             np.cos(omega * t_fit),
-                             np.ones_like(t_fit)])
-        params, _, _, _ = np.linalg.lstsq(X, f_fit, rcond=None)
-        rss = np.sum((f_fit - X @ params) ** 2)
-        if rss < best_rss:
-            best_rss = rss
-            best_p = p
-
-    omega = 2 * np.pi / best_p
-    X_fit = np.column_stack([np.sin(omega * t_fit),
-                             np.cos(omega * t_fit),
-                             np.ones_like(t_fit)])
-    a, b, _ = np.linalg.lstsq(X_fit, f_fit, rcond=None)[0]
-    sinusoid = a * np.sin(omega * time) + b * np.cos(omega * time)
-    best_p_hr = best_p * 24
-    ampl_pct = np.sqrt(a**2 + b**2) * 1e2
-    print(f'DG CVn secondary subtraction: best period = {best_p_hr:.4f} hr, amplitude = {ampl_pct:.3f}%')
-    return flux - sinusoid, best_p_hr
 
 
 # (ticid, sector, lcpipeline): LP 12-502, DG CVn, TIC 300651846, TIC 262400835
@@ -90,7 +53,8 @@ def plot_mosaic4():
     plt.close('all')
     set_style('science')
 
-    fig, axs = plt.subplots(nrows=1, ncols=4, figsize=(1.2 * 4.67, 1.2 * 1.25),
+    fig, axs = plt.subplots(nrows=2, ncols=2,
+                            figsize=(1.2 * 4.67 / 2, 1.2 * 1.25 * 2),
                             constrained_layout=True)
     axs = axs.flatten()
 
@@ -175,11 +139,17 @@ def plot_mosaic4():
 
         ax.tick_params(axis='both', which='major', labelsize='small')
 
-    for ax in axs:
-        ax.set_xticklabels(['-0.5', '0', '0.5'])
+    bottom_row_ixs = [2, 3]
+    for ix, ax in enumerate(axs):
+        if ix in bottom_row_ixs:
+            ax.set_xticklabels(['-0.5', '0', '0.5'])
+        else:
+            ax.set_xticklabels([])
 
     fs = 'medium'
-    axs[0].set_ylabel(r"$\Delta$ Flux [%]", fontsize=fs)
+    left_col_ixs = [0, 2]
+    for ix in left_col_ixs:
+        axs[ix].set_ylabel(r"$\Delta$ Flux [%]", fontsize=fs)
     fig.supxlabel(r"Phase, $\varphi$", fontsize=fs)
 
     outpath = join(PLOTDIR, 'lc_mosaic_mosaic4.png')

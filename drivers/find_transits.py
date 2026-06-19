@@ -305,7 +305,7 @@ def main():
 
     sample_id = 'debug'
 
-    ticids = ['220599904']
+    ticids = ['262400835']
     lcpipeline = 'spoc2min'
 
     #ticids = ['466376085']

@@ -9,6 +9,7 @@ Contents:
         | plot_phase
         | plot_phase_timegroups
         | plot_multicolor_phase
+        | plot_multicolor_phase_lp12502
         | plot_phased_light_curve
         | plot_lc_mosaic
         | plot_full_lcmosaic
@@ -117,7 +118,9 @@ from aesthetic.plot import savefig, format_ax, set_style
 from complexrotators.paths import (
     DATADIR, PHOTDIR, SPOCDIR, LOCALDIR, TABLEDIR
 )
-from complexrotators.lcprocessing import cpv_periodsearch
+from complexrotators.lcprocessing import (
+    cpv_periodsearch, subtract_secondary_sinusoid
+)
 
 from astroquery.mast import Catalogs
 from cdips.lcproc import detrend as dtr
@@ -1140,7 +1143,11 @@ def plot_phased_light_curve(
         ax.set_title(txt, fontsize='small', pad=titlepad)
 
     if isinstance(titlestr,str):
-        ax.set_title(titlestr.replace("_"," "), fontsize=titlefontsize, pad=titlepad)
+        if "$" in titlestr:
+            tstr = titlestr
+        else:
+            tstr = titlestr.replace("_"," ")
+        ax.set_title(tstr, fontsize=titlefontsize, pad=titlepad)
 
     if savethefigure:
         ax.set_ylabel("$\Delta$ Flux [%]")
@@ -1276,15 +1283,20 @@ def plot_multicolor_phase(outdir, BINMS=2.5):
             ha='right',va='center', color='k',
             fontsize=5, bbox=props, zorder=1003)
 
+    #keylist = [
+    #    'M2_g_201213', 'M2_r_201213', 'M2_z_201213',
+    #    'M2_g_201215', 'M2_r_201215', 'M2_z_201215',
+    #    'M1_g_201216', 'M1_r_201216', 'M1_z_201216'
+    #]
     keylist = [
-        'M2_g_201213', 'M2_r_201213', 'M2_z_201213',
-        'M2_g_201215', 'M2_r_201215', 'M2_z_201215',
-        'M1_g_201216', 'M1_r_201216', 'M1_z_201216'
+        'M2_z_201213', 'M2_r_201213', 'M2_g_201213',
+        'M2_z_201215', 'M2_r_201215', 'M2_g_201215',
+        'M1_z_201216', 'M1_r_201216', 'M1_g_201216'
     ]
 
     y_offset = -10
     BPTOCOLORDICT = {
-        'g': 'b', 'r': 'g', 'z': 'r'
+        'g': 'g', 'r': 'r', 'z': 'purple'
     }
     ix = 0
     orb_bds = {}
@@ -1307,7 +1319,7 @@ def plot_multicolor_phase(outdir, BINMS=2.5):
         )
         orb_bds[k] = orb_bd
 
-        if '_g_' in k:
+        if '_z_' in k:
             txt = f'2020 Dec {k[-2:]}\nMuSCAT{k[1]} $'+f'{k[3]}'+'$'
         else:
             txt = '$'+f'{k[3]}'+'$'
@@ -1318,13 +1330,13 @@ def plot_multicolor_phase(outdir, BINMS=2.5):
                 fontsize=5, bbox=props, zorder=1003)
 
         if ix % 3 != 2:
-            y_offset -= 4.5
+            y_offset -= 4.2
         else:
-            y_offset -= 8
+            y_offset -= 7
 
         ix += 1
 
-    ax.set_ylim([-57.8, 6.5])
+    ax.set_ylim([-58, 6.5])
     ax.set_ylabel(f'Relative flux (%)')
     ax.set_xlabel(f'Phase ($P$=7.16 hr)')
     ax.set_title('TIC 262400835: $grz$', fontsize='medium')
@@ -1465,7 +1477,7 @@ def plot_multicolor_phase_lp12502(outdir, BINMS=3, dates=None, suffix='',
         'TESS_bin': 'k',
         'Tierras': 'C1',
         'KeplerCam_g': 'C2',
-        'KeplerCam_B': 'C3',
+        'KeplerCam_B': 'b',
     }
     props = dict(boxstyle='square', facecolor='white', alpha=0.7, pad=0.15, linewidth=0)
     XLIM = [-0.6, 0.6] if xlim is None else xlim
@@ -5234,10 +5246,18 @@ def plot_movie_phase_timegroups(
     N_cyclestobin=3,
     sector_range=None,
     style='science',
-    arial_font=0
+    arial_font=0,
+    title_head=None,
+    secondary_period_range_hr=None
     ):
     """
     As in plot_phase
+
+    secondary_period_range_hr: if not None, a (lo_hr, hi_hr) tuple giving the
+        period range over which to grid-search for, and subtract, a secondary
+        sinusoidal signal from each sector's flattened light curve before
+        phase-folding (see lcprocessing.subtract_secondary_sinusoid). Used for
+        e.g. DG CVn, which has a second short period superposed on the dips.
     """
 
     passed_t0 = t0 * 1.
@@ -5267,6 +5287,11 @@ def plot_movie_phase_timegroups(
              y_trend, x_trend, cadence_sec, sector,
              starid) = prepare_given_lightkurve_lc(lc, ticid, outdir)
 
+            if secondary_period_range_hr is not None:
+                y_flat, _ = subtract_secondary_sinusoid(
+                    x_obs, y_flat, period_range_hr=secondary_period_range_hr
+                )
+
             # get t0, period, lsp
             if not isinstance(t0, float) and isinstance(manual_period, float):
                 d = cpv_periodsearch(x_obs, y_flat, starid, outdir, t0=t0)
@@ -5289,14 +5314,14 @@ def plot_movie_phase_timegroups(
             _titlestrs.append(titlestr)
             _sectorstrs.append(np.repeat(sector, len(d['times'])))
 
-    elif lcpipeline == 'tars':
+    elif lcpipeline in ['tars', 'qlp', 'cdips', 'tess-spoc']:
 
-        from complexrotators.getters import _get_lcpaths_fromlightkurve_given_ticid
+        from complexrotators.getters import _get_lcpaths_given_ticid
         from complexrotators.lcprocessing import (
             cpv_periodsearch, prepare_cpv_light_curve
         )
 
-        lcpaths = _get_lcpaths_fromlightkurve_given_ticid(ticid, lcpipeline)
+        lcpaths = _get_lcpaths_given_ticid(ticid, lcpipeline)
         cachedir = outdir
 
         for ix, lcpath in enumerate(np.sort(lcpaths)):
@@ -5306,6 +5331,11 @@ def plot_movie_phase_timegroups(
              sector, starid) = prepare_cpv_light_curve(
                  lcpath, cachedir, lcpipeline=lcpipeline
              )
+
+            if secondary_period_range_hr is not None:
+                y_flat, _ = subtract_secondary_sinusoid(
+                    x_obs, y_flat, period_range_hr=secondary_period_range_hr
+                )
 
             # get t0, period, lsp
             if not isinstance(t0, float) and isinstance(manual_period, float):
@@ -5427,11 +5457,16 @@ def plot_movie_phase_timegroups(
         factor=1.
         fig, ax = plt.subplots(figsize=(factor*3, factor*3))
 
-        txt0 = f"{iso_t0}"+"$\,$-$\,$"+f"{iso_t1}"
-        txt1 = f"Cycle {e_start}"+"$\,$-$\,$"+f"{e_end}, Sector {_sector}"
-        txt = txt0 + '\n' + txt1
+        title_head = title_head
+        txt1 = f"{iso_t0}"+"$\,$–$\,$"+f"{iso_t1}"
+        txt2 = f"Cycle {e_start}"+"$\,$–$\,$"+f"{e_end}, Sector {_sector}"
+        if title_head is None:
+            txt = txt1 + '\n' + txt2
+        else:
+            txt = title_head + "\n" + txt1 + ', ' + txt2
 
         c1 = 'k' if 'wob' not in style else 'white'
+        titlepad = 4
         if not FLAG_TIMEGAP:
             plot_phased_light_curve(
                 gtime, gflux, plot_t0, plot_period, None,
@@ -5445,7 +5480,7 @@ def plot_movie_phase_timegroups(
                 c0='darkgray',
                 c1=c1,
                 titlestr=txt,
-                titlepad=0.1,
+                titlepad=titlepad,
                 showtext=False,
                 savethefigure=False,
                 titlefontsize='xx-small',
@@ -5461,7 +5496,7 @@ def plot_movie_phase_timegroups(
                 0.5, 0.5, 'Gap', ha='center', va='center',
                 fontsize='x-large', transform=ax.transAxes
             )
-            ax.set_title(txt, fontsize='xx-small', pad=0.1, color='k')
+            ax.set_title(txt, fontsize='xx-small', pad=titlepad, color='k')
             ax.set_xticks([-0.5, -0.25, 0, 0.25, 0.5])
             ax.set_xticklabels([-0.5, -0.25, 0, 0.25, 0.5])
 

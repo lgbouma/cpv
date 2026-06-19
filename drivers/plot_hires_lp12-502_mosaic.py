@@ -299,7 +299,7 @@ def plot_hires_mosaic():
     ax_prof.set_xticks([1, 5])
     ax_prof.invert_xaxis()
     ax_prof.tick_params(axis='y', which='both', labelleft=False, labelright=False)
-    ax_prof.set_xlabel(r'$f_{\langle t \rangle}$', fontsize='x-small')
+    ax_prof.set_xlabel(r'Avg. $f_{\langle t \rangle}$', fontsize='x-small')
 
     # ── main loop ────────────────────────────────────────────────────────
     for col, (datestr, datelabel) in enumerate(zip(DATES, DATE_LABELS)):
