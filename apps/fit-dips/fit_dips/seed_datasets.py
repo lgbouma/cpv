@@ -18,6 +18,7 @@ from . import registry, loaders
 P_LP12_502 = 18.5611 / 24.0
 P_TIC262 = 7.15735 / 24.0      # TIC 262400835
 P_TIC300 = 8.254 / 24.0        # TIC 300651846
+P_J1252 = 0.36335549605925627  # TIC 435899024 (Koen+2023), already in days
 
 MUSCAT = "data/photometry/MUSCAT"
 TIERRAS = "data/photometry/TIERRAS"
@@ -174,6 +175,39 @@ def build_resolved():
          "time_col": "t_minus_t0_hr", "flux_col": "relative_flux",
          "time_scale": 1.0 / 24.0},
         None, "Digitized from Yu+2015 Fig 6; time relative to mid-dip."))
+
+    # --- TIC 20178925, Gunther+2022 SPECULOOS-South (r', z') + TESS, 2019 Nov 07 ---
+    # Time is BJD_TDB - 2458795 (already days); flux is band-offset relative flux.
+    # Period left null (short single-dip windows) -> polynomial baselines only.
+    for band, did_band, fname, inst in (
+            ("r'", "rprime", "Gunther_2022_TIC20178925_rprime_firsthalf.csv",
+             "Gunther+2022 (SPECULOOS)"),
+            ("z'", "zprime", "Gunther_2022_TIC20178925_zprime_firsthalf.csv",
+             "Gunther+2022 (SPECULOOS)"),
+            ("TESS", "TESS", "Gunther_2022_TIC20178925_TESS_firsthalf.csv",
+             "Gunther+2022 (TESS)")):
+        out.append((
+            f"TIC20178925_20191107_{did_band}", "TIC 20178925", "2019-11-07",
+            band, inst, 4,
+            {"loader": "generic_csv", "path": f"{LIT}/{fname}",
+             "time_col": "bjdtdb_minus_2458795_days", "flux_col": "relative_flux",
+             "time_scale": 1.0},
+            None, "Digitized from Gunther+2022; BJD_TDB-2458795."))
+
+    # --- TIC 435899024 (J1252), Koen+2023 SAAO 1m, B/V/R/I, 2021 May 25-Jun 01 ---
+    # Phase-folded curves: x=phase -> days via time_scale=P; y=differential mag
+    # -> relative flux via flux_in_mag. Period field left null (narrow folded
+    # window -> polynomial baselines only).
+    for band in ("B", "V", "R", "I"):
+        out.append((
+            f"TIC435899024_20210525_{band}", "TIC 435899024", "2021-05-25",
+            band, "Koen+2023 (SAAO)", 5,
+            {"loader": "generic_csv",
+             "path": f"{LIT}/Koen_2023_J1252_{band}.csv",
+             "time_col": "phase", "flux_col": "magnitude",
+             "time_scale": P_J1252, "flux_in_mag": True},
+            None, "Digitized from Koen+2023; phase folded at "
+            f"P={P_J1252:.6f} d (phase->days), differential mag."))
 
     return out
 

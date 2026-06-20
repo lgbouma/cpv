@@ -125,13 +125,21 @@ def load_tess_pkl(path, window=None, time_offset=0.0, **_):
 
 
 def load_generic_csv(path, time_col, flux_col, fluxerr_col=None, window=None,
-                     sep=",", time_scale=1.0, **_):
+                     sep=",", time_scale=1.0, flux_in_mag=False, **_):
     """Generic CSV. ``time_scale`` multiplies the time column (e.g. 1/24 to
-    convert hours to days)."""
+    convert hours to days, or a rotation period to convert phase to days).
+
+    ``flux_in_mag``: treat ``flux_col`` as a (differential) magnitude and
+    convert to relative flux via 10**(-0.4*mag) before the median-1
+    normalization, so a brightness dip (mag increase) becomes a flux decrement.
+    """
     df = pd.read_csv(_abspath(path), sep=sep)
     t = np.asarray(df[time_col], dtype=float) * time_scale
+    flux = np.asarray(df[flux_col], dtype=float)
+    if flux_in_mag:
+        flux = 10.0 ** (-0.4 * flux)
     err = df[fluxerr_col] if fluxerr_col else None
-    return _finite_normalize(t, df[flux_col], err, window)
+    return _finite_normalize(t, flux, err, window)
 
 
 LOADERS = {

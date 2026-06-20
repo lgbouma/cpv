@@ -123,7 +123,7 @@ One row per fitted dip, from the BIC-preferred model of each `done` dataset.
 `ms.tex` should `\input{tables/dipdepths.tex}` (not yet wired — do this once
 real fits exist).
 
-## Status of datasets (27 of 27 ready)
+## Status of datasets (33 of 33 ready)
 
 All datasets have data on disk:
 - TIC 262400835: MuSCAT2 Dec 13 & 15 (g, r, i, z), MuSCAT1 Dec 16 (g, r, z),
@@ -137,6 +137,18 @@ All datasets have data on disk:
   Both nights are flat-bottomed and decisively prefer the `trap` profile over
   `sech` (I+z: poly1_trap, δ=2.18±0.07%, ΔBIC 57 over sech; H: poly1_trap,
   δ=1.36±0.02%, ΔBIC 368).
+
+Literature digitizations (all `generic_csv`, period left null → polynomial
+baselines only, as for PTFO 8-8695):
+- TIC 20178925 (Günther+2022, 2019 Nov 07): SPECULOOS-South r' & z' and
+  simultaneous TESS. Time is BJD_TDB − 2458795 (already days), flux is
+  band-offset relative flux (`time_scale=1`).
+- TIC 435899024 / J1252 (Koen+2023, SAAO 1m, 2021 May 25–Jun 01): B, V, R, I
+  phase-folded curves. The phase axis is converted to days via
+  `time_scale = P = 0.363355 d`, and the differential-magnitude flux is
+  converted to relative flux via the loader's `flux_in_mag` option
+  (10**(−0.4·mag)). All four prefer poly1_trap with a clear blue→red depth
+  gradient (B 12.44±0.40%, V 12.59±0.49%, R 11.04±0.31%, I 9.17±0.20%).
 
 ## Notes / TODO
 
