@@ -47,7 +47,8 @@ from complexrotators.getters import (
     _get_lcpaths_given_ticid, _get_local_lcpaths_given_ticid,
 )
 from complexrotators.lcprocessing import (
-    cpv_periodsearch, count_phased_local_minima, prepare_cpv_light_curve
+    cpv_periodsearch, count_phased_local_minima, prepare_cpv_light_curve,
+    subtract_secondary_sinusoid
 )
 from complexrotators.plotting import (
     plot_quasiperiodic_removal_diagnostic
@@ -119,6 +120,17 @@ def find_transits(ticid, sample_id, lcpipeline='spoc2min'):
         (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
          sector, starid) = prepare_cpv_light_curve(lcpath, cachedir, rotmode=0,
                                                   lcpipeline=lcpipeline)
+
+        # for TIC 262400835, remove the known ~4.3 day sinusoidal signal
+        # before the period search
+        if str(ticid) == '262400835':
+            y_flat, _ = subtract_secondary_sinusoid(
+                x_obs, y_flat, period_range_hr=(4.2*24, 4.4*24), tolerance=0.05
+            )
+            # also remove the known ~12.708 hour sinusoidal signal
+            y_flat, _ = subtract_secondary_sinusoid(
+                x_obs, y_flat, period_range_hr=(12.6, 12.8), tolerance=0.05
+            )
 
         # get period, t0, and periodogram (PDM or LombScargle)
         d = cpv_periodsearch(
@@ -307,6 +319,7 @@ def main():
 
     ticids = ['262400835']
     lcpipeline = 'spoc2min'
+    lcpipeline = 'qlp'
 
     #ticids = ['466376085']
     #lcpipeline = 'qlp'

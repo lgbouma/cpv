@@ -2999,7 +2999,7 @@ def plot_quasiperiodic_removal_diagnostic(d, pngpath):
                'title': f"P$_2$ = {period2*24:.3f} hr (2nd)"
               })
 
-    savefig(fig, pngpath, dpi=400, writepdf=0)
+    savefig(fig, pngpath, dpi=600, writepdf=0)
 
 
 def plot_lc_mosaic(outdir, subset_id=None, showtitles=0,
@@ -5248,19 +5248,34 @@ def plot_movie_phase_timegroups(
     style='science',
     arial_font=0,
     title_head=None,
-    secondary_period_range_hr=None
+    secondary_period_range_hr=None,
+    secondary_tolerance=0.02
     ):
     """
     As in plot_phase
 
-    secondary_period_range_hr: if not None, a (lo_hr, hi_hr) tuple giving the
-        period range over which to grid-search for, and subtract, a secondary
-        sinusoidal signal from each sector's flattened light curve before
-        phase-folding (see lcprocessing.subtract_secondary_sinusoid). Used for
-        e.g. DG CVn, which has a second short period superposed on the dips.
+    secondary_period_range_hr: if not None, a (lo_hr, hi_hr) tuple, or a list of
+        such tuples, giving the period range(s) over which to grid-search for,
+        and subtract, secondary sinusoidal signal(s) from each sector's
+        flattened light curve before phase-folding (see
+        lcprocessing.subtract_secondary_sinusoid). Used for e.g. DG CVn, which
+        has a second short period superposed on the dips. When a list is
+        passed, the signals are subtracted sequentially in the given order.
+
+    secondary_tolerance: continuum tolerance passed to
+        subtract_secondary_sinusoid; points with |flux-1| < tolerance are used
+        in the fit.
     """
 
     passed_t0 = t0 * 1.
+
+    # normalize secondary_period_range_hr to a list of (lo_hr, hi_hr) tuples
+    if secondary_period_range_hr is None:
+        secondary_period_ranges_hr = []
+    elif isinstance(secondary_period_range_hr[0], (int, float)):
+        secondary_period_ranges_hr = [secondary_period_range_hr]
+    else:
+        secondary_period_ranges_hr = list(secondary_period_range_hr)
 
     # for each light curve (sector / cadence specific), detrend if needed, get
     # the best period.
@@ -5287,9 +5302,10 @@ def plot_movie_phase_timegroups(
              y_trend, x_trend, cadence_sec, sector,
              starid) = prepare_given_lightkurve_lc(lc, ticid, outdir)
 
-            if secondary_period_range_hr is not None:
+            for _pr in secondary_period_ranges_hr:
                 y_flat, _ = subtract_secondary_sinusoid(
-                    x_obs, y_flat, period_range_hr=secondary_period_range_hr
+                    x_obs, y_flat, period_range_hr=_pr,
+                    tolerance=secondary_tolerance
                 )
 
             # get t0, period, lsp
@@ -5332,9 +5348,10 @@ def plot_movie_phase_timegroups(
                  lcpath, cachedir, lcpipeline=lcpipeline
              )
 
-            if secondary_period_range_hr is not None:
+            for _pr in secondary_period_ranges_hr:
                 y_flat, _ = subtract_secondary_sinusoid(
-                    x_obs, y_flat, period_range_hr=secondary_period_range_hr
+                    x_obs, y_flat, period_range_hr=_pr,
+                    tolerance=secondary_tolerance
                 )
 
             # get t0, period, lsp

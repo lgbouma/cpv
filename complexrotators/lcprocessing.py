@@ -747,17 +747,17 @@ def p2p_rms(flux):
 
 
 def subtract_secondary_sinusoid(time, flux, period_range_hr=(2.58, 2.62),
-                                n_periods=2000, verbose=True):
+                                n_periods=2000, tolerance=0.02, verbose=True):
     """Grid-search for best secondary period in period_range_hr, subtract it.
 
     Fits y = A*sin(ωt) + B*cos(ωt) + C via linear least-squares on
-    uncontaminated points (|flux-1| < 0.02), picks the period minimising
+    uncontaminated points (|flux-1| < tolerance), picks the period minimising
     the residual sum-of-squares, then removes only the oscillatory
     A*sin + B*cos component so the mean flux level is preserved.
 
     Returns (cleaned_flux, best_period_hr).
     """
-    sel = np.abs(flux - 1) < 0.02
+    sel = np.abs(flux - 1) < tolerance
     t_fit, f_fit = time[sel], flux[sel]
 
     period_grid = np.linspace(period_range_hr[0] / 24, period_range_hr[1] / 24, n_periods)

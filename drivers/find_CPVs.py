@@ -72,7 +72,8 @@ def get_ticids(sample_id, lcpipeline):
             #"405970436",
             #"191095009",
             #"66747411"
-            "262400835"
+            #"262400835"
+            "435899024"
         ]
 
         N_stars_to_search = len(ticids)

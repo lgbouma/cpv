@@ -57,10 +57,19 @@ def main():
                       4, 0.5, None, None],
     }
 
-    # ticid -> (lo_hr, hi_hr) period range of a secondary signal to fit and
-    # subtract before phase-folding; ticids absent here get no subtraction.
+    # ticid -> (lo_hr, hi_hr) period range, or list of such ranges, of
+    # secondary signal(s) to fit and subtract before phase-folding; ticids
+    # absent here get no subtraction.
     secondary_period_ranges = {
         '368129164': (2.58, 2.62),  # DG CVn: second period superposed on dips
+        '262400835': [(4.2*24, 4.4*24),  # ~4.3 day signal
+                      (12.6, 12.8)],     # ~12.708 hr signal
+    }
+
+    # ticid -> continuum tolerance for the secondary sinusoid fit; absent
+    # ticids use the subtract_secondary_sinusoid default (0.02).
+    secondary_tolerances = {
+        '262400835': 0.05,
     }
 
     for ticid in ticids:
@@ -101,7 +110,8 @@ def main():
                 style='science_wob',
                 arial_font=1,
                 title_head=title_head,
-                secondary_period_range_hr=secondary_period_ranges.get(ticid, None)
+                secondary_period_range_hr=secondary_period_ranges.get(ticid, None),
+                secondary_tolerance=secondary_tolerances.get(ticid, 0.02)
             )
 
 if __name__ == "__main__":
