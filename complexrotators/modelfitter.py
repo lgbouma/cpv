@@ -1,4 +1,9 @@
 """
+Use pymc to fit a model to a spectroscopic time-series dataset of time X
+velocity X flux.  The data are approximated as multiple emission lines varying
+(in velocity) sinusoidally, with the flux for each line core being drawn from a
+gaussian.
+
 Contents:
 
 ModelFitter
