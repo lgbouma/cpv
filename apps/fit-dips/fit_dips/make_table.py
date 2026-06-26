@@ -12,9 +12,11 @@ $\\delta\\pm\\sigma_\\delta$, to two decimals.  No FWHM column.  Rows are emitte
 in the manuscript's hand-curated order (the per-star band ordering is not
 alphabetical, so it is encoded explicitly in THIS_WORK below); a dataset that
 is not yet fitted prints an $X.XX\\pm X.XX$ placeholder, so the block always has
-the same shape as the inline table.  When a phase-folded `_pm2cycle` variant of
-a dataset exists and is done, its (better-constrained) depth is used in place of
-the single-cycle fit.
+the same shape as the inline table.  When a folded variant of a dataset exists
+and is done, its (better-constrained) depth is used in place of the single-cycle
+fit -- preferring the full-sector `_S88` fold, then `_pm2cycle` (see
+_resolve_id).  A dataset whose preferred model has several dips emits one row
+per dip (e.g. the three TIC 300651846 dips).
 
 The rows are injected DIRECTLY into ms.tex, between the sentinel comments
 
@@ -49,15 +51,21 @@ PLACEHOLDER = r"$X.XX\pm X.XX$"
 _MATH_BANDS = {"g", "r", "i", "z", "B"}
 
 # The "This work" block, in manuscript order. Each group is
-#   (star_display, date_display, id_prefix, [band keys in display order])
-# where the dataset id for a band is f"{id_prefix}_{band}".
+#   (star_display, date_display, id_prefix, [band entries in display order])
+# where the dataset id for a band is f"{id_prefix}_{key}". A band entry is
+# either a band string (key == display, rendered via _band_display) or a
+# (key, display_latex) tuple that overrides only the displayed label while
+# keeping the dataset-id lookup key. The 2020 Dec 16 epoch was observed
+# with MuSCAT, so its g/r/z datasets are shown as g', r', z_s (the
+# instrument-correct labels; see svo_filter column of
+# dipdepths_thiswork_and_literature.csv).
 THIS_WORK = [
     (r"TIC\,262400835", "2020 Dec 13", "TIC262400835_20201213",
      ["g", "r", "i", "z", "TESS"]),
     (r"TIC\,262400835", "2020 Dec 15", "TIC262400835_20201215",
      ["g", "r", "i", "z", "TESS"]),
     (r"TIC\,262400835", "2020 Dec 16", "TIC262400835_20201216",
-     ["g", "r", "z", "TESS"]),
+     [("g", r"$g'$"), ("r", r"$r'$"), ("z", r"$z_{\rm s}$"), "TESS"]),
     (r"LP\,12-502", "2023 Dec 08", "LP12-502_20231208",
      ["B", "g", "TESS"]),
     (r"LP\,12-502", "2023 Dec 15", "LP12-502_20231215",
@@ -74,12 +82,31 @@ def _band_display(band):
     return f"${band}$" if band in _MATH_BANDS else band
 
 
+def _parse_band(entry):
+    """Split a THIS_WORK band entry into (lookup_key, display_latex).
+
+    An entry is either a band string (key == display, rendered via
+    _band_display) or a (key, display_latex) tuple that overrides only
+    the display while preserving the dataset-id lookup key.
+    """
+    if isinstance(entry, tuple):
+        key, display = entry
+        return key, display
+    return entry, _band_display(entry)
+
+
 def _resolve_id(dataset_id):
-    """Prefer a done phase-folded `_pm2cycle` variant over the single-cycle base."""
-    variant = f"{dataset_id}_pm2cycle"
-    if registry.exists(variant) and \
-            registry.load(variant).get("status") == registry.STATUS_DONE:
-        return variant
+    """Prefer a done folded variant over the single-cycle base.
+
+    Order of preference: the full-sector `_S88` fold (most in-dip sampling),
+    then the `_pm2cycle` fold, then the base. Returns the first that exists and
+    is done.
+    """
+    for suffix in ("_S88", "_pm2cycle"):
+        variant = f"{dataset_id}{suffix}"
+        if registry.exists(variant) and \
+                registry.load(variant).get("status") == registry.STATUS_DONE:
+            return variant
     return dataset_id
 
 
@@ -109,13 +136,14 @@ def build_rows():
     rows = []
     for star, date, prefix, bands in THIS_WORK:
         first = True  # show star/date only on the first row of the group
-        for band in bands:
-            for depth in _depths(f"{prefix}_{band}"):
+        for entry in bands:
+            band_key, band_disp = _parse_band(entry)
+            for depth in _depths(f"{prefix}_{band_key}"):
                 s = star if first else ""
                 d = date if first else ""
                 rows.append(
                     f"{s:<{_W_STAR}} & {d:<{_W_DATE}} & "
-                    f"{_band_display(band):<{_W_BAND}} & "
+                    f"{band_disp:<{_W_BAND}} & "
                     f"{depth:<{_W_DEPTH}} & 1 \\\\")
                 first = False
     return rows

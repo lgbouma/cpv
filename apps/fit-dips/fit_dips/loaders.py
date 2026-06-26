@@ -94,13 +94,20 @@ def load_muscat2_fits(path, band, window=None, **_):
     return _finite_normalize(t, flux, None, window)
 
 
-def load_fourstar_xls(path, window=None, flux_offset=0.76, tcorr_min=60.0,
+def load_fourstar_xls(path, window=None, flux_offset=0.76, tcorr_min=0.0,
                       trim_after=None, **_):
     """FourStar NB2.09 aperture photometry (tab-separated .xls).
 
-    Replicates the reduction in drivers/plot_fourstar_vs_tess.py: a +tcorr_min
-    time correction, a -flux_offset additive correction to rel_flux_C1, and an
-    optional end-trim dropping points with t > trim_after.
+    Mirrors the flux reduction in drivers/plot_fourstar_vs_tess.py (a
+    -flux_offset additive correction to rel_flux_C1 and an optional end-trim
+    dropping points with t > trim_after), but NOT its ``tcorr_minute=60`` time
+    shift. That +60 min in the driver is a *compensation* for an unrelated bug
+    there (the driver phases the TESS curve from raw BTJD without the +2457000
+    BJD offset; the two cancel, so the driver figure is correct). Here the TESS
+    loader already converts to true BJD_TDB, so the FourStar BJD_TDB column is
+    already on the same scale -- adding 60 min would shift the dip ~1 hr late
+    (verified: FourStar aligns with the TESS dip to ~5 min at tcorr_min=0).
+    Hence the default is 0; ``tcorr_min`` is kept as a knob.
     """
     df = pd.read_csv(_abspath(path), sep="\t")
     t = np.array(df["BJD_TDB"], dtype=float) + tcorr_min / (60.0 * 24.0)

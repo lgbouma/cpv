@@ -154,7 +154,8 @@ def _plot_one_model(name, results, t, flux, dip_windows, t_ref, period):
 
 
 def _plot_overview(dataset_id, t_all, flux_all, dip_windows, flare_windows,
-                   best_name, best_mr, t_ref, period, ok_best):
+                   best_name, best_mr, t_ref, period, ok_best,
+                   model_on_top=False):
     fig = Figure(figsize=(10, 5))
     ax = fig.subplots()
 
@@ -167,20 +168,25 @@ def _plot_overview(dataset_id, t_all, flux_all, dip_windows, flare_windows,
     for (x0, x1) in flare_windows:
         ax.axvspan(x0, x1, color="tab:red", alpha=0.08, lw=0)
 
+    # By default the data (zorder 5-6) sit above the model curves. For very
+    # dense folded light curves (e.g. the full-sector _S88 fold) the model is
+    # otherwise buried under the points, so lift the curves above the data.
+    z_band, z_model = (7, 9) if model_on_top else (2, 3)
+
     if ok_best:
         use = ~in_flare
         tgrid = np.linspace(t_all[use].min(), t_all[use].max(), 1500)
         ax.plot(tgrid, _model_at_depth(best_name, best_mr, tgrid, t_ref, period,
                                        +1), "-", color="tab:green", lw=1.2,
-                alpha=0.4, zorder=2, label=r"depth $\pm1\sigma$")
+                alpha=0.4, zorder=z_band, label=r"depth $\pm1\sigma$")
         ax.plot(tgrid, _model_at_depth(best_name, best_mr, tgrid, t_ref, period,
                                        -1), "-", color="tab:green", lw=1.2,
-                alpha=0.4, zorder=2)
+                alpha=0.4, zorder=z_band)
         ax.plot(tgrid, _model_at(best_name, best_mr, tgrid, t_ref, period), "-",
-                color="tab:green", lw=1.8, zorder=3,
+                color="tab:green", lw=1.8, zorder=z_model,
                 label=f"preferred: {best_name}")
         ax.plot(tgrid, _baseline_at(best_name, best_mr, tgrid, t_ref, period),
-                ":", color="tab:orange", lw=1.5, zorder=3,
+                ":", color="tab:orange", lw=1.5, zorder=z_model,
                 label="baseline (no dip)")
 
     # data on TOP of the model curves.
@@ -267,7 +273,8 @@ def write_diagnostics(record, t_all, flux_all, dip_windows, flare_windows,
 
     best = results[preferred]
     fig = _plot_overview(dataset_id, t_all, flux_all, dip_windows,
-                         flare_windows, preferred, best, t_ref, period, _ok(best))
+                         flare_windows, preferred, best, t_ref, period,
+                         _ok(best), model_on_top=dataset_id.endswith("_S88"))
     _save(fig, os.path.join(outdir, f"{dataset_id}__overview.png"))
 
     fig = _plot_comparison(dataset_id, results, preferred)

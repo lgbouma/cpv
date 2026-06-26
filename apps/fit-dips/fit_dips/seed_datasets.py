@@ -145,8 +145,12 @@ def build_resolved():
         P_LP12_502, ""))
 
     # --- TIC 300651846, 2025 Feb 10 (FourStar NB2.09 + simultaneous TESS) ---
+    # trim_after drops the degraded last ~half hour. The driver expressed the
+    # cut in its +60 min-shifted frame (>2460717.87); with the spurious +60 min
+    # removed (see loaders.load_fourstar_xls) the same physical points are at
+    # raw times 60 min earlier, so the cut moves back by 60 min.
     fourstar_spec = {"loader": "fourstar_xls", "path": FOURSTAR,
-                     "trim_after": 2460717.87}
+                     "trim_after": 2460717.87 - 60.0 / 1440.0}
     out.append((
         "TIC300651846_20250210_NB2.09", "TIC 300651846", "2025-02-10", "NB2.09",
         "FourStar", 1, fourstar_spec, P_TIC300, ""))
@@ -212,7 +216,8 @@ def build_resolved():
     return out
 
 
-def make_phasefold_variant(base_id, ncycle=2, save=True):
+def make_phasefold_variant(base_id, ncycle=2, save=True, suffix=None,
+                           full_window=False):
     """Create a phase-folded multi-cycle variant of a fitted base dataset.
 
     Motivation: a strictly-simultaneous single-cycle light curve (e.g. a TESS
@@ -231,6 +236,16 @@ def make_phasefold_variant(base_id, ncycle=2, save=True):
 
     The fit then runs in flux-vs-phase with ~(2*ncycle+1)x the in-dip sampling,
     tightening the dip depth / width / mid-phase relative to the single cycle.
+
+    ``full_window=True`` is the limiting case: instead of a +/-ncycle extension,
+    the base data window is DROPPED so the loader returns the entire available
+    light curve (e.g. the full TESS sector), and every cycle in it is folded
+    onto the base cycle. An explicit ``suffix`` (e.g. "S88") then names the
+    variant ``<base_id>_<suffix>``. Caveat: only flares at the base cycle's
+    phase are masked; flares at other phases elsewhere in the sector survive in
+    the out-of-dip baseline.
+
+    ``suffix`` overrides the default ``pm<ncycle>cycle`` id suffix when set.
 
     The base dataset must already carry dip labels, a period, and a data block.
     """
@@ -257,24 +272,36 @@ def make_phasefold_variant(base_id, ncycle=2, save=True):
             "phase-folding would wrap the labels onto themselves")
     fold_ref = 0.5 * (lab_lo + lab_hi)
 
-    # Extended window: the base data window (or labeled region) grown by
-    # ncycle cycles on each side. The loader keeps only the data that exists.
-    win = data.get("window")
-    nom_lo, nom_hi = (float(win[0]), float(win[1])) if win else (lab_lo, lab_hi)
-    ext = [nom_lo - ncycle * P, nom_hi + ncycle * P]
-
     new_data = dict(data)
-    new_data["window"] = ext
+    if full_window:
+        # Limiting case: fold the ENTIRE available light curve. Drop the base
+        # night/segment window so the loader returns every point on disk.
+        new_data.pop("window", None)
+        if not suffix:
+            raise ValueError("full_window variant requires an explicit suffix")
+        vid = f"{base_id}_{suffix}"
+        note = (f"Phase-folded full light curve of {base_id} (all available "
+                f"cycles); in-dip/oot/flare labels propagated by phase at "
+                f"P={P * 24:.4f} h. Only flares at the base cycle's phase are "
+                f"masked; flares at other phases across the sector remain in "
+                f"the out-of-dip baseline.")
+    else:
+        # Extended window: the base data window (or labeled region) grown by
+        # ncycle cycles on each side. The loader keeps only data that exists.
+        win = data.get("window")
+        nom_lo, nom_hi = (float(win[0]), float(win[1])) if win \
+            else (lab_lo, lab_hi)
+        new_data["window"] = [nom_lo - ncycle * P, nom_hi + ncycle * P]
+        vid = f"{base_id}_{suffix}" if suffix else f"{base_id}_pm{ncycle}cycle"
+        note = (f"Phase-folded +/-{ncycle} cycles of {base_id} "
+                f"({2 * ncycle + 1}-cycle window); in-dip/oot/flare labels "
+                f"propagated by phase at P={P * 24:.4f} h.")
     new_data["fold_period"] = float(P)
     new_data["fold_ref"] = float(fold_ref)
 
-    vid = f"{base_id}_pm{ncycle}cycle"
     rec = registry.new_dataset(
         vid, base["star"], base["date_ut"], base["band"], base["instrument"],
-        base["ref"], data=new_data, period_day=P,
-        note=(f"Phase-folded +/-{ncycle} cycles of {base_id} "
-              f"({2 * ncycle + 1}-cycle window); in-dip/oot/flare labels "
-              f"propagated by phase at P={P * 24:.4f} h."))
+        base["ref"], data=new_data, period_day=P, note=note)
     rec["labels"] = {"dips": dips, "flares": flares, "confirmed": True}
     if save:
         registry.save(rec)

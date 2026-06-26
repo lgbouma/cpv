@@ -148,7 +148,10 @@ def run_dataset(dataset_id):
         raise
     title = (f"{rec['id']}  ({rec['star']} {rec['date_ut']} {rec['band']}, "
              f"{rec['instrument']})")
-    labeler = labeling.DipLabeler(t_all, flux_all, title, on_fit)
+    # Only the dense full-sector folded variant gets the phase-binned overlay.
+    bin_period = rec.get("period_day") if rec["id"].endswith("_S88") else None
+    labeler = labeling.DipLabeler(t_all, flux_all, title, on_fit,
+                                  bin_period=bin_period)
     labeler.run()
 
 
@@ -179,11 +182,18 @@ def fit_saved(dataset_id):
     return payload
 
 
-def make_phasefold_dataset(base_id, ncycle=2, fit=True):
-    """Seed a +/-ncycle phase-folded variant of ``base_id`` and (optionally) fit it."""
+def make_phasefold_dataset(base_id, ncycle=2, fit=True, suffix=None,
+                           full_window=False):
+    """Seed a phase-folded variant of ``base_id`` and (optionally) fit it.
+
+    Default: a +/-ncycle window variant. With ``full_window=True``, fold the
+    entire available light curve into ``<base_id>_<suffix>`` instead.
+    """
     from . import seed_datasets
-    rec = seed_datasets.make_phasefold_variant(base_id, ncycle=ncycle, save=True)
-    print(f"created {rec['id']}  (window={rec['data']['window']}, "
+    rec = seed_datasets.make_phasefold_variant(
+        base_id, ncycle=ncycle, save=True, suffix=suffix,
+        full_window=full_window)
+    print(f"created {rec['id']}  (window={rec['data'].get('window')}, "
           f"fold_ref={rec['data']['fold_ref']:.6f}, "
           f"P={rec['period_day'] * 24:.4f} h)")
     print(f"  propagated labels: {len(rec['labels']['dips'])} dip(s), "
@@ -220,6 +230,13 @@ def main(argv=None):
                          "and fit it, then exit")
     ap.add_argument("--ncycle", type=int, default=2,
                     help="cycles per side for --make-phasefold (default 2)")
+    ap.add_argument("--full-window", action="store_true",
+                    help="with --make-phasefold, fold the ENTIRE light curve "
+                         "(drop the window) instead of +/-ncycle; "
+                         "requires --suffix")
+    ap.add_argument("--suffix", metavar="STR",
+                    help="with --make-phasefold, name the variant "
+                         "<BASE_ID>_<STR> (e.g. S88) instead of pm<ncycle>cycle")
     args = ap.parse_args(argv)
 
     if args.list:
@@ -229,7 +246,12 @@ def main(argv=None):
         if not registry.exists(args.make_phasefold):
             print(f"no such dataset: {args.make_phasefold}")
             sys.exit(1)
-        make_phasefold_dataset(args.make_phasefold, ncycle=args.ncycle)
+        if args.full_window and not args.suffix:
+            print("--full-window requires --suffix")
+            sys.exit(1)
+        make_phasefold_dataset(args.make_phasefold, ncycle=args.ncycle,
+                               suffix=args.suffix,
+                               full_window=args.full_window)
         return
     if args.fit_saved:
         if not registry.exists(args.fit_saved):

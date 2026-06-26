@@ -71,20 +71,58 @@ _INSTRUCTIONS = (
 )
 
 
+def _phase_bin(t, flux, period, per_period=200):
+    """Bin (t, flux) into ~``per_period`` equal-width bins per ``period``.
+
+    Intended for a phase-folded light curve (times already folded onto one
+    cycle, e.g. the _S88 variant), so the data span is ~one period and the
+    result is ~``per_period`` binned points. Returns (t_mean, flux_mean) over
+    the non-empty bins. Falls back to the raw arrays if the span/period is
+    degenerate.
+    """
+    t = np.asarray(t, dtype=float)
+    flux = np.asarray(flux, dtype=float)
+    lo, hi = float(t.min()), float(t.max())
+    span = hi - lo
+    if span <= 0 or not np.isfinite(period) or period <= 0:
+        return t, flux
+    nb = max(1, int(np.ceil(per_period * span / period)))
+    edges = np.linspace(lo, hi, nb + 1)
+    cnt, _ = np.histogram(t, bins=edges)
+    tsum, _ = np.histogram(t, bins=edges, weights=t)
+    fsum, _ = np.histogram(t, bins=edges, weights=flux)
+    m = cnt > 0
+    return tsum[m] / cnt[m], fsum[m] / cnt[m]
+
+
 class DipLabeler:
-    def __init__(self, t, flux, title, on_fit):
+    def __init__(self, t, flux, title, on_fit, bin_period=None):
         self.t = np.asarray(t, dtype=float)
         self.flux = np.asarray(flux, dtype=float)
         self.title = title
         self.on_fit = on_fit
+        self.bin_period = bin_period   # if set, overlay a phase-binned curve
         self.state = LabelState()
         self.mode = "dip"
         self.awaiting_confirm = False
         self._spans = []   # axvspan patches
 
         self.fig, self.ax = plt.subplots(figsize=(11, 6))
-        self.pts = self.ax.plot(self.t, self.flux, ".", color="k", ms=3,
-                                zorder=3)[0]
+        self.binned = None
+        if bin_period:
+            # Dense folded light curve (e.g. _S88): faint gray raw points with
+            # a black ~200/period phase-binned overlay, so dip/flare edges stay
+            # legible while dragging out the regions to fit.
+            self.pts = self.ax.plot(self.t, self.flux, ".", color="0.6", ms=2,
+                                    alpha=0.5, zorder=2)[0]
+            tb, fb = _phase_bin(self.t, self.flux, bin_period)
+            self.binned = self.ax.plot(
+                tb, fb, "o", color="k", ms=4, alpha=1.0, mec="white", mew=0.4,
+                zorder=4, label="binned (200/period)")[0]
+            self.ax.legend(loc="best", fontsize=8)
+        else:
+            self.pts = self.ax.plot(self.t, self.flux, ".", color="k", ms=3,
+                                    zorder=3)[0]
         self.model_line = None
         self.baseline_line = None
         # Tight default x-range: fill the axes with the data plus a small pad.
