@@ -77,9 +77,16 @@ def extract_panel(rgb: np.ndarray, dark: np.ndarray, box: FluxBox,
     meta = PANELS[(box.figure, box.row, box.col)]
     calib = calibrate(dark, box)
     spec = METHODS[method]
-    mm = clean_mask(rgb, box, red_fill=spec["red_fill"])
     reduce_band = spec["reduce"]
+    # red_fill methods detect from the red-filled mask but measure flux off the
+    # genuine-black markers (pos masks), so they don't trace the overlaid model.
+    if spec["red_fill"]:
+        mm, blk = clean_mask(rgb, box, red_fill=True, return_black=True)
+    else:
+        mm, blk = clean_mask(rgb, box, red_fill=False), None
     band_masks = split_band_masks(mm, len(meta["bands"]))
+    pos_masks = ([bm & blk for bm in band_masks] if blk is not None
+                 else [None] * len(band_masks))
 
     # The plot's true axis limits are the data values at the box spines:
     # x0/x1 are the left/right spines, y0/y1 the top spine / flux-box bottom.
@@ -92,8 +99,8 @@ def extract_panel(rgb: np.ndarray, dark: np.ndarray, box: FluxBox,
                       box, xlim, ylim)
 
     # bands[0] = I_C (optical, upper, circle); bands[1] = IR (lower, cross)
-    for bi, bmask in enumerate(band_masks):
-        bjd, flux = _pts_to_arrays(reduce_band(bmask), calib, box)
+    for bi, (bmask, pmask) in enumerate(zip(band_masks, pos_masks)):
+        bjd, flux = _pts_to_arrays(reduce_band(bmask, pmask), calib, box)
         res.bands.append(BandData(meta["bands"][bi], bi == 0, bjd, flux))
     return res
 

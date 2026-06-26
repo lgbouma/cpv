@@ -121,13 +121,19 @@ def reclaim_occluded_red(sub: np.ndarray, reach: int = 14) -> np.ndarray:
 
 
 def clean_mask(rgb: np.ndarray, box: FluxBox, margin: int = 10,
-               red_fill: bool = False) -> np.ndarray:
+               red_fill: bool = False, return_black: bool = False):
     """Marker mask with model, legend, epoch text, and frame margins removed.
 
     The margin clears the inward-pointing axis tick marks (~8 px) on all four
     spines; the data sits well inside this margin in every panel. With
     ``red_fill`` the red-occluded marker interiors are restored (see
-    ``reclaim_occluded_red``) instead of being dropped."""
+    ``reclaim_occluded_red``) instead of being dropped.
+
+    With ``return_black`` we also return the genuine-black subset of the cleaned
+    mask (``mm & black_mask``). For ``red_fill`` this is the real marker pixels
+    *without* the reclaimed model curve, so a reducer can detect markers from the
+    filled mask but read each point's y (flux) off the black markers only --
+    keeping the extraction from tracing Tanimoto's overlaid red model."""
     sub = rgb[box.y0:box.y1 + 1, box.x0:box.x1 + 1]
     mm = (reclaim_occluded_red(sub) if red_fill else marker_mask(sub)).copy()
     mm[:margin, :] = False; mm[-margin:, :] = False
@@ -138,6 +144,8 @@ def clean_mask(rgb: np.ndarray, box: FluxBox, margin: int = 10,
     tb = detect_text_box(mm)
     if tb:
         mm[tb[1]:tb[3] + 1, tb[0]:tb[2] + 1] = False
+    if return_black:
+        return mm, mm & black_mask(sub)
     return mm
 
 
@@ -325,15 +333,22 @@ def _estimate_geom(band_mask: np.ndarray) -> tuple[int, int]:
     return r, pitch
 
 
-def _comb_centers(cand: np.ndarray, band_mask: np.ndarray,
+def _comb_centers(cand: np.ndarray, det_mask: np.ndarray,
+                  pos_mask: np.ndarray,
                   pitch: int) -> list[tuple[float, float]]:
     """Turn thresholded matched-filter cores into one center per ~marker.
 
     Each connected core region is split into ``round(width / pitch)`` evenly
     spaced x-positions (so a solid, fully-overlapping ribbon yields a comb at
     the marker pitch while a resolved/isolated marker yields a single point).
-    Each center's y is the median, and x the mean, of the real band pixels in a
-    half-pitch window — i.e. a local marker centroid, not a column slice."""
+
+    The x position and the comb geometry come from ``det_mask`` (the detection
+    mask); the y (flux) is the median of ``pos_mask`` pixels in the same
+    half-pitch window. For per_marker/cadence the two masks are identical. For
+    red_aware ``det_mask`` is the red-filled mask (so markers detect cleanly
+    even where the model punches holes) while ``pos_mask`` is the genuine-black
+    subset -- so the flux is read off the real markers, not the reclaimed model
+    curve. If a window has no black pixel we fall back to the detection mask."""
     lab, n = ndi.label(cand)
     hw = max(2, pitch // 2)
     centers = []
@@ -345,16 +360,17 @@ def _comb_centers(cand: np.ndarray, band_mask: np.ndarray,
         for xp in xpos:
             xi = int(round(xp))
             lo_x = max(0, xi - hw)
-            win = band_mask[:, lo_x:xi + hw + 1]
-            wy, wx = np.nonzero(win)
-            if wy.size == 0:
+            dy, dx = np.nonzero(det_mask[:, lo_x:xi + hw + 1])
+            if dx.size == 0:
                 continue
-            centers.append((float(np.mean(wx)) + lo_x, float(np.median(wy))))
+            py, _ = np.nonzero(pos_mask[:, lo_x:xi + hw + 1])
+            yvals = py if py.size else dy
+            centers.append((float(np.mean(dx)) + lo_x, float(np.median(yvals))))
     centers.sort()
     return centers
 
 
-def detect_markers_matched(band_mask: np.ndarray,
+def detect_markers_matched(band_mask: np.ndarray, pos_mask: np.ndarray = None,
                            thr_frac: float = 0.45) -> list[tuple[float, float]]:
     """Option 1: per-marker detection by matched filtering with a disk kernel.
 
@@ -364,9 +380,16 @@ def detect_markers_matched(band_mask: np.ndarray,
     kernel localizes both circle (I_C) and cross (IR) clusters; the actual
     center is the centroid of the real pixels, so it is shape-agnostic.
 
+    Detection and the marker-pitch comb run on ``band_mask``; the y (flux) of
+    each point is read from ``pos_mask`` if given (else ``band_mask``). red_aware
+    passes the genuine-black mask here so it detects from the red-filled mask but
+    measures flux off the black markers -- see ``_comb_centers``.
+
     Returns box-local (x_px, y_px) centers."""
     if band_mask.sum() == 0:
         return []
+    if pos_mask is None:
+        pos_mask = band_mask
     r, pitch = _estimate_geom(band_mask)
     kern = _disk(r).astype(float)
     resp = ndi.correlate(band_mask.astype(float), kern, mode="constant")
@@ -377,26 +400,35 @@ def detect_markers_matched(band_mask: np.ndarray,
     # is one resolved marker (isolated) or a merged run; _comb_centers emits a
     # marker-pitch comb across it, placing each point at a local pixel centroid.
     cand = rn >= thr_frac
-    return _reject_outliers(_comb_centers(cand, band_mask, pitch))
+    return _reject_outliers(_comb_centers(cand, band_mask, pos_mask, pitch))
 
 
-def bin_cadence(band_mask: np.ndarray) -> list[tuple[float, float]]:
+def bin_cadence(band_mask: np.ndarray,
+                pos_mask: np.ndarray = None) -> list[tuple[float, float]]:
     """Option 2: cadence-matched binning.
 
     Bin x at the estimated marker pitch and take the MEDIAN y of the band
     pixels in each bin (x = mean of their columns). Robust and simple; collapses
     the per-column oversampling and the inter-marker centroid wander.
 
+    ``pos_mask`` (the genuine-black subset, if given) supplies the y values while
+    ``band_mask`` gates the bin and sets x -- mirroring ``detect_markers_matched``
+    so flux is read off the real markers. For per_marker/cadence the two coincide.
+
     Returns box-local (x_px, y_px) points."""
     if band_mask.sum() == 0:
         return []
+    if pos_mask is None:
+        pos_mask = band_mask
     H, W = band_mask.shape
     _, pitch = _estimate_geom(band_mask)
     pts = []
     for xa in range(0, W, pitch):
-        sub = band_mask[:, xa:xa + pitch]
-        wy, wx = np.nonzero(sub)
-        if wy.size >= 2:
-            pts.append((float(np.mean(wx)) + xa, float(np.median(wy))))
+        dy, dx = np.nonzero(band_mask[:, xa:xa + pitch])
+        if dy.size < 2:
+            continue
+        py, _ = np.nonzero(pos_mask[:, xa:xa + pitch])
+        yvals = py if py.size else dy
+        pts.append((float(np.mean(dx)) + xa, float(np.median(yvals))))
     pts.sort()
     return _reject_outliers(pts)
