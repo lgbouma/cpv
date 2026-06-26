@@ -17,7 +17,7 @@ import numpy as np
 from scipy import ndimage as ndi
 
 from .image_io import gray
-from .color_masks import marker_mask
+from .color_masks import marker_mask, black_mask, red_mask
 from .panels import FluxBox
 
 
@@ -100,13 +100,36 @@ def detect_text_box(mask: np.ndarray, region=(0.58, 0.0, 1.0, 0.66),
             min(W - 1, xb + pad), min(H - 1, yb + pad))
 
 
-def clean_mask(rgb: np.ndarray, box: FluxBox, margin: int = 10) -> np.ndarray:
+def reclaim_occluded_red(sub: np.ndarray, reach: int = 14) -> np.ndarray:
+    """Black markers with red-model-occluded interiors filled back in.
+
+    Tanimoto overlay a red model curve on the black markers; ``marker_mask``
+    removes red, which punches holes through marker centers wherever the model
+    crosses them (worst inside the dip, where the model lives). We reclaim a red
+    pixel iff it is vertically sandwiched between black within ``reach`` px
+    (~one marker diameter): such pixels are occluded marker interiors. The bare
+    model curve in data gaps and between the two bands has no flanking black, so
+    it is left out."""
+    bk = black_mask(sub)
+    rd = red_mask(sub)
+    above = np.zeros_like(bk)
+    below = np.zeros_like(bk)
+    for k in range(1, reach + 1):
+        above[k:, :] |= bk[:-k, :]   # black exists within reach px above
+        below[:-k, :] |= bk[k:, :]   # black exists within reach px below
+    return bk | (rd & above & below)
+
+
+def clean_mask(rgb: np.ndarray, box: FluxBox, margin: int = 10,
+               red_fill: bool = False) -> np.ndarray:
     """Marker mask with model, legend, epoch text, and frame margins removed.
 
     The margin clears the inward-pointing axis tick marks (~8 px) on all four
-    spines; the data sits well inside this margin in every panel."""
+    spines; the data sits well inside this margin in every panel. With
+    ``red_fill`` the red-occluded marker interiors are restored (see
+    ``reclaim_occluded_red``) instead of being dropped."""
     sub = rgb[box.y0:box.y1 + 1, box.x0:box.x1 + 1]
-    mm = marker_mask(sub).copy()
+    mm = (reclaim_occluded_red(sub) if red_fill else marker_mask(sub)).copy()
     mm[:margin, :] = False; mm[-margin:, :] = False
     mm[:, :margin] = False; mm[:, -margin:] = False
     lb = detect_legend_box(rgb, box)
@@ -202,3 +225,178 @@ def extract_bands(mask: np.ndarray, n_bands: int, xbin: int = 2,
 
     clear_up.sort(); clear_lo.sort()
     return _reject_outliers(clear_up), _reject_outliers(clear_lo)
+
+
+# ---------------------------------------------------------------------------
+# Band separation into per-band PIXEL masks (shared by both extraction methods)
+# ---------------------------------------------------------------------------
+def split_band_masks(mask: np.ndarray, n_bands: int, xbin: int = 2,
+                     min_pix: int = 2, gap_min: int = 14) -> list[np.ndarray]:
+    """Assign every marker pixel to a band, returning one boolean mask per band.
+
+    Reuses the per-column y-gap split that ``extract_bands`` uses to separate
+    the upper (optical I_C) band from the lower (IR) band, but instead of
+    collapsing each column to a single mean point it keeps the individual
+    pixels. This lets a downstream reducer (matched-filter marker detection or
+    cadence binning) work from the real marker pixels.
+
+    Returns ``[band0]`` for 1-band panels, else ``[upper, lower]`` (band0 is
+    always the optical/circle band).
+    """
+    H, W = mask.shape
+    if n_bands == 1:
+        return [mask.copy()]
+
+    band0 = np.zeros_like(mask)
+    band1 = np.zeros_like(mask)
+    ygrid = np.arange(H)
+    xs_centers = list(range(0, W - xbin + 1, xbin))
+
+    cols = []  # (xc, xcen, ysplit, mean) deferred to the assignment pass
+    clear_up, clear_lo = [], []
+    for xc in xs_centers:
+        ys = _column_ys(mask, xc, xc + xbin)
+        if ys.size < min_pix:
+            continue
+        xcen = xc + (xbin - 1) / 2.0
+        if ys.size == 1:
+            cols.append((xc, xcen, None, float(ys[0])))
+            continue
+        gaps = np.diff(ys)
+        k = int(gaps.argmax())
+        if gaps[k] >= gap_min:
+            ysplit = 0.5 * (ys[k] + ys[k + 1])
+            cols.append((xc, xcen, ysplit, None))
+            clear_up.append((xcen, float(ys[:k + 1].mean())))
+            clear_lo.append((xcen, float(ys[k + 1:].mean())))
+        else:
+            cols.append((xc, xcen, None, float(ys.mean())))
+
+    up = np.array(clear_up) if clear_up else np.empty((0, 2))
+    lo = np.array(clear_lo) if clear_lo else np.empty((0, 2))
+
+    def _interp(trend, x):
+        if trend.shape[0] == 0:
+            return None
+        return float(np.interp(x, trend[:, 0], trend[:, 1]))
+
+    for xc, xcen, ysplit, mean in cols:
+        seg = slice(xc, xc + xbin)
+        sub = mask[:, seg]
+        if ysplit is not None:
+            up_sel = (ygrid <= ysplit)[:, None]
+            band0[:, seg] = sub & up_sel
+            band1[:, seg] = sub & ~up_sel
+        else:
+            yu = _interp(up, xcen)
+            yl = _interp(lo, xcen)
+            if yu is None and yl is None:
+                continue
+            to_upper = (yl is None) or (yu is not None and
+                                        abs(mean - yu) <= abs(mean - yl))
+            if to_upper:
+                band0[:, seg] |= sub
+            else:
+                band1[:, seg] |= sub
+    return [band0, band1]
+
+
+def _estimate_geom(band_mask: np.ndarray) -> tuple[int, int]:
+    """Rough (radius, pitch) in px from the band's per-column vertical extent.
+
+    The median per-column extent reflects ~2 overlapping markers, so a marker
+    radius ~ median/3 and a marker pitch ~ one diameter is a reasonable, if
+    approximate, estimate. Both are clamped to sane ranges and used only to set
+    the matched-filter kernel size and the cadence bin width."""
+    H, W = band_mask.shape
+    ext = []
+    for x in range(W):
+        ys = np.flatnonzero(band_mask[:, x])
+        if ys.size:
+            ext.append(ys.max() - ys.min() + 1)
+    if not ext:
+        return 4, 8
+    med = float(np.median(ext))
+    r = int(np.clip(round(med / 3.0), 3, 8))
+    # The ribbon runs ~2 markers thick (median extent ~2 diameters), i.e. the
+    # true marker pitch is ~one radius, not one diameter; sampling at the radius
+    # recovers ~one point per real marker without the per-column oversampling.
+    pitch = max(3, r)
+    return r, pitch
+
+
+def _comb_centers(cand: np.ndarray, band_mask: np.ndarray,
+                  pitch: int) -> list[tuple[float, float]]:
+    """Turn thresholded matched-filter cores into one center per ~marker.
+
+    Each connected core region is split into ``round(width / pitch)`` evenly
+    spaced x-positions (so a solid, fully-overlapping ribbon yields a comb at
+    the marker pitch while a resolved/isolated marker yields a single point).
+    Each center's y is the median, and x the mean, of the real band pixels in a
+    half-pitch window — i.e. a local marker centroid, not a column slice."""
+    lab, n = ndi.label(cand)
+    hw = max(2, pitch // 2)
+    centers = []
+    for i in range(1, n + 1):
+        xs = np.where(lab == i)[1]
+        xa, xb = int(xs.min()), int(xs.max())
+        k = max(1, int(round((xb - xa + 1) / float(pitch))))
+        xpos = [0.5 * (xa + xb)] if k == 1 else list(np.linspace(xa, xb, k))
+        for xp in xpos:
+            xi = int(round(xp))
+            lo_x = max(0, xi - hw)
+            win = band_mask[:, lo_x:xi + hw + 1]
+            wy, wx = np.nonzero(win)
+            if wy.size == 0:
+                continue
+            centers.append((float(np.mean(wx)) + lo_x, float(np.median(wy))))
+    centers.sort()
+    return centers
+
+
+def detect_markers_matched(band_mask: np.ndarray,
+                           thr_frac: float = 0.45) -> list[tuple[float, float]]:
+    """Option 1: per-marker detection by matched filtering with a disk kernel.
+
+    Correlate the band mask with a filled-disk kernel (sized from the data),
+    keep local maxima of the normalized response above ``thr_frac`` as marker
+    cores, then resolve one centroid per marker via ``_comb_centers``. The disk
+    kernel localizes both circle (I_C) and cross (IR) clusters; the actual
+    center is the centroid of the real pixels, so it is shape-agnostic.
+
+    Returns box-local (x_px, y_px) centers."""
+    if band_mask.sum() == 0:
+        return []
+    r, pitch = _estimate_geom(band_mask)
+    kern = _disk(r).astype(float)
+    resp = ndi.correlate(band_mask.astype(float), kern, mode="constant")
+    if resp.max() <= 0:
+        return []
+    rn = resp / resp.max()
+    # Core = where a full marker disk fits (high response). Each connected core
+    # is one resolved marker (isolated) or a merged run; _comb_centers emits a
+    # marker-pitch comb across it, placing each point at a local pixel centroid.
+    cand = rn >= thr_frac
+    return _reject_outliers(_comb_centers(cand, band_mask, pitch))
+
+
+def bin_cadence(band_mask: np.ndarray) -> list[tuple[float, float]]:
+    """Option 2: cadence-matched binning.
+
+    Bin x at the estimated marker pitch and take the MEDIAN y of the band
+    pixels in each bin (x = mean of their columns). Robust and simple; collapses
+    the per-column oversampling and the inter-marker centroid wander.
+
+    Returns box-local (x_px, y_px) points."""
+    if band_mask.sum() == 0:
+        return []
+    H, W = band_mask.shape
+    _, pitch = _estimate_geom(band_mask)
+    pts = []
+    for xa in range(0, W, pitch):
+        sub = band_mask[:, xa:xa + pitch]
+        wy, wx = np.nonzero(sub)
+        if wy.size >= 2:
+            pts.append((float(np.mean(wx)) + xa, float(np.median(wy))))
+    pts.sort()
+    return _reject_outliers(pts)

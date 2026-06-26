@@ -31,25 +31,29 @@ def test_calibration_quality():
 
 
 def test_extraction_sane():
-    results = extract_all()
-    assert len(results) == 20
-    df = to_dataframe(results)
-    assert not df.isna().any().any()
-    # relative flux must sit in the plotted range (I_C ~1.0, IR offset ~0.9)
-    assert df.rel_flux.between(0.85, 1.10).all()
-    # every band has a reasonable number of points
-    for r in results:
-        for bd in r.bands:
-            assert bd.bjd.size >= 40, (r.epoch, bd.band, bd.bjd.size)
-            # points are time-ordered and span a non-trivial range
-            assert np.all(np.diff(bd.bjd) >= 0)
-            assert np.ptp(bd.bjd) > 0.05
+    # all extraction methods must produce sane, well-sampled curves
+    for method in ("per_marker", "cadence", "red_aware"):
+        results = extract_all(method)
+        assert len(results) == 20, method
+        df = to_dataframe(results)
+        assert not df.isna().any().any(), method
+        # relative flux must sit in the plotted range (I_C ~1.0, IR offset ~0.9)
+        assert df.rel_flux.between(0.85, 1.10).all(), method
+        # every band has a reasonable number of points (one per ~marker; the
+        # sparsest are partial-coverage non-CSV panels)
+        for r in results:
+            for bd in r.bands:
+                assert bd.bjd.size >= 15, (method, r.epoch, bd.band, bd.bjd.size)
+                # points are time-ordered and span a non-trivial range
+                assert np.all(np.diff(bd.bjd) >= 0)
+                assert np.ptp(bd.bjd) > 0.05
 
 
 def test_csv_epochs_present():
-    results = extract_all()
-    csv_epochs = {r.epoch for r in results if r.in_csv}
-    assert len(csv_epochs) == 9
+    for method in ("per_marker", "cadence", "red_aware"):
+        results = extract_all(method)
+        csv_epochs = {r.epoch for r in results if r.in_csv}
+        assert len(csv_epochs) == 9, method
 
 
 if __name__ == "__main__":
