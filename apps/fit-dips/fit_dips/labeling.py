@@ -95,49 +95,81 @@ def _phase_bin(t, flux, period, per_period=200):
     return tsum[m] / cnt[m], fsum[m] / cnt[m]
 
 
-class DipLabeler:
-    def __init__(self, t, flux, title, on_fit, bin_period=None):
-        self.t = np.asarray(t, dtype=float)
-        self.flux = np.asarray(flux, dtype=float)
-        self.title = title
-        self.on_fit = on_fit
-        self.bin_period = bin_period   # if set, overlay a phase-binned curve
+class MultiDipLabeler:
+    """Stacked, shared-x labeler over one or more co-temporal light curves.
+
+    Each panel is a dict ``{t, flux, title, on_fit, bin_period}``. All panels
+    share a single :class:`LabelState`, so a dip/flare window dragged in any
+    panel propagates to every panel -- guaranteeing identical in/out-of-dip
+    times across bands on the same night. The masks are still evaluated per
+    panel against that panel's own time array, so different per-band sampling
+    is handled correctly. Pressing 'y' fits *every* panel through its own
+    ``on_fit`` callback and overlays each preferred model.
+
+    The single-panel case (``len(panels) == 1``) reproduces the original
+    one-axis labeler, including the optional phase-binned overlay; see
+    :class:`DipLabeler` for the thin one-panel wrapper.
+    """
+
+    def __init__(self, panels, group_title, on_group_fit=None):
+        assert len(panels) >= 1
+        self.group_title = group_title
+        # Optional group-level fit hook: when set, 'y' calls it ONCE with the
+        # shared LabelState and expects one overlay payload per panel (used for
+        # the cross-band shared-duration joint fit). When None, each panel is
+        # fit independently through its own on_fit (single-band / --solo).
+        self.on_group_fit = on_group_fit
         self.state = LabelState()
         self.mode = "dip"
         self.awaiting_confirm = False
-        self._spans = []   # axvspan patches
+        self._spans = []   # axvspan patches across ALL axes
 
-        self.fig, self.ax = plt.subplots(figsize=(11, 6))
-        self.binned = None
-        if bin_period:
-            # Dense folded light curve (e.g. _S88): faint gray raw points with
-            # a black ~200/period phase-binned overlay, so dip/flare edges stay
-            # legible while dragging out the regions to fit.
-            self.pts = self.ax.plot(self.t, self.flux, ".", color="0.6", ms=2,
-                                    alpha=0.5, zorder=2)[0]
-            tb, fb = _phase_bin(self.t, self.flux, bin_period)
-            self.binned = self.ax.plot(
-                tb, fb, "o", color="k", ms=4, alpha=1.0, mec="white", mew=0.4,
-                zorder=4, label="binned (200/period)")[0]
-            self.ax.legend(loc="best", fontsize=8)
-        else:
-            self.pts = self.ax.plot(self.t, self.flux, ".", color="k", ms=3,
-                                    zorder=3)[0]
-        self.model_line = None
-        self.baseline_line = None
-        # Tight default x-range: fill the axes with the data plus a small pad.
-        span = float(self.t.max() - self.t.min())
+        n = len(panels)
+        height = 6.0 if n == 1 else (2.7 * n + 1.4)
+        self.fig, axes = plt.subplots(
+            n, 1, sharex=True, figsize=(11, height), squeeze=False)
+        self.axes = list(axes[:, 0])
+
+        # Per-panel render state lives in the panel dict alongside its data.
+        self.panels = []
+        all_t = []
+        for ax, p in zip(self.axes, panels):
+            panel = dict(p)
+            panel["ax"] = ax
+            panel["t"] = np.asarray(panel["t"], dtype=float)
+            panel["flux"] = np.asarray(panel["flux"], dtype=float)
+            panel.setdefault("bin_period", None)
+            panel["binned"] = None
+            panel["class_artists"] = []   # colored points from classify preview
+            panel["model_line"] = None
+            panel["baseline_line"] = None
+            panel["dip_marker_lines"] = []
+            all_t.append(panel["t"])
+            self._render_base(panel)
+            ax.set_ylabel("normalized flux")
+            if panel.get("title"):
+                ax.set_title(panel["title"], fontsize=8, loc="left")
+            self.panels.append(panel)
+        self.axes[-1].set_xlabel("time [BJD]")
+
+        # Shared, tight x-range over the union of all panels' times.
+        tmin = min(float(t.min()) for t in all_t)
+        tmax = max(float(t.max()) for t in all_t)
+        span = tmax - tmin
         pad = 0.02 * span if span > 0 else 1.0
-        self.ax.set_xlim(self.t.min() - pad, self.t.max() + pad)
-        self.ax.margins(x=0)  # keep span/overlay redraws from re-padding x
-        self.ax.set_xlabel("time [BJD]")
-        self.ax.set_ylabel("normalized flux")
-        self._set_title()
+        self.axes[0].set_xlim(tmin - pad, tmax + pad)
+        for ax in self.axes:
+            ax.margins(x=0)  # keep span/overlay redraws from re-padding x
 
-        self.span = SpanSelector(
-            self.ax, self._on_select, "horizontal", useblit=True,
-            props=dict(alpha=0.25, facecolor="tab:blue"),
-            interactive=False, drag_from_anywhere=True)
+        # One SpanSelector per axis (kept referenced so they aren't GC'd); each
+        # routes to the shared handler so a drag in any panel labels them all.
+        self._selectors = [
+            SpanSelector(
+                ax, self._on_select, "horizontal", useblit=True,
+                props=dict(alpha=0.25, facecolor="tab:blue"),
+                interactive=False, drag_from_anywhere=True)
+            for ax in self.axes]
+
         # Disconnect matplotlib's default key bindings so they don't shadow ours
         # (e.g. 'f'=fullscreen, 'r'/'h'=home, 's'=save, 'p'=pan, 'o'=zoom).
         # Toolbar buttons for pan/zoom/save/home still work.
@@ -148,19 +180,41 @@ class DipLabeler:
             pass
         self.fig.canvas.mpl_connect("key_press_event", self._on_key)
 
+        self.fig.subplots_adjust(top=0.84, hspace=0.18)
+        self._suptitle = None
+        self._set_title()
+
     # -- display helpers --------------------------------------------------
+    def _render_base(self, panel):
+        """Draw the raw (and optional phase-binned) points for one panel."""
+        ax, t, flux = panel["ax"], panel["t"], panel["flux"]
+        if panel["bin_period"]:
+            # Dense folded light curve (e.g. _S88): faint gray raw points with
+            # a black ~200/period phase-binned overlay, so dip/flare edges stay
+            # legible while dragging out the regions to fit.
+            panel["pts"] = ax.plot(t, flux, ".", color="0.6", ms=2,
+                                   alpha=0.5, zorder=2)[0]
+            tb, fb = _phase_bin(t, flux, panel["bin_period"])
+            panel["binned"] = ax.plot(
+                tb, fb, "o", color="k", ms=4, alpha=1.0, mec="white", mew=0.4,
+                zorder=4, label="binned (200/period)")[0]
+            ax.legend(loc="best", fontsize=8)
+        else:
+            panel["pts"] = ax.plot(t, flux, ".", color="k", ms=3, zorder=3)[0]
+
     def _set_title(self, extra=""):
         mode_txt = f"MODE={self.mode.upper()}"
         ndip = len(self.state.dips)
         nfl = len(self.state.flares)
-        self.ax.set_title(
-            f"{self.title}\n{mode_txt}  dips={ndip} flares={nfl}  {extra}\n"
-            f"{_INSTRUCTIONS}", fontsize=9)
+        self._suptitle = self.fig.suptitle(
+            f"{self.group_title}\n{mode_txt}  dips={ndip} flares={nfl}  "
+            f"{extra}\n{_INSTRUCTIONS}", fontsize=9)
         self.fig.canvas.draw_idle()
 
     def _draw_span(self, x0, x1, color):
-        self._spans.append(
-            self.ax.axvspan(x0, x1, color=color, alpha=0.18, zorder=0))
+        for ax in self.axes:
+            self._spans.append(ax.axvspan(x0, x1, color=color, alpha=0.18,
+                                          zorder=0))
 
     def _redraw_spans(self):
         for s in self._spans:
@@ -185,59 +239,98 @@ class DipLabeler:
         self._set_title()
 
     def _classify_preview(self):
-        in_dip, in_flare, oot = self.state.masks(self.t)
-        self.pts.remove()
-        self.ax.plot(self.t[oot], self.flux[oot], ".", color="k", ms=3,
-                     zorder=3, label="out-of-dip")
-        self.ax.plot(self.t[in_dip], self.flux[in_dip], ".", color="tab:blue",
-                     ms=4, zorder=4, label="in-dip")
-        self.ax.plot(self.t[in_flare], self.flux[in_flare], ".",
-                     color="tab:red", ms=4, zorder=4, label="flare")
-        self.pts = self.ax.plot([], [], ".", color="k", ms=3)[0]
-        self.ax.legend(loc="best", fontsize=8)
+        n_oot_total = 0
+        for panel in self.panels:
+            ax, t, flux = panel["ax"], panel["t"], panel["flux"]
+            in_dip, in_flare, oot = self.state.masks(t)
+            n_oot_total += int(np.sum(oot))
+            # Clear any prior preview (raw points + last classification).
+            if panel["pts"] is not None:
+                panel["pts"].remove()
+                panel["pts"] = None
+            for a in panel["class_artists"]:
+                a.remove()
+            panel["class_artists"] = []
+            panel["class_artists"] += [
+                ax.plot(t[oot], flux[oot], ".", color="k", ms=3, zorder=3,
+                        label="out-of-dip")[0],
+                ax.plot(t[in_dip], flux[in_dip], ".", color="tab:blue", ms=4,
+                        zorder=4, label="in-dip")[0],
+                ax.plot(t[in_flare], flux[in_flare], ".", color="tab:red",
+                        ms=4, zorder=4, label="flare")[0]]
+            ax.legend(loc="best", fontsize=8)
         self.awaiting_confirm = True
-        n_oot = int(np.sum(oot))
-        self._set_title(extra=f"CONFIRM? {n_oot} pts auto out-of-dip -> 'y'/'n'")
+        self._set_title(
+            extra=f"CONFIRM? {n_oot_total} pts auto out-of-dip -> 'y'/'n'")
+
+    def _overlay_fit(self, panel, payload):
+        ax = panel["ax"]
+        if panel["model_line"] is not None:
+            panel["model_line"].remove()
+        if panel["baseline_line"] is not None:
+            panel["baseline_line"].remove()
+            panel["baseline_line"] = None
+        for ln in panel["dip_marker_lines"]:
+            ln.remove()
+        panel["dip_marker_lines"] = []
+        panel["model_line"] = ax.plot(
+            payload["tgrid"], payload["model"], "-", color="tab:green", lw=2,
+            zorder=5, label=f"preferred: {payload['preferred']}")[0]
+        if "baseline" in payload:
+            panel["baseline_line"] = ax.plot(
+                payload["tgrid"], payload["baseline"], ":", color="tab:orange",
+                lw=1.5, zorder=5, label="baseline (no dip)")[0]
+        for t0 in payload.get("dip_markers", []):
+            panel["dip_marker_lines"].append(
+                ax.axvline(t0, color="tab:green", ls=":", lw=1, zorder=2))
+        ax.legend(loc="best", fontsize=8)
 
     def _do_fit(self):
-        self._set_title(extra="fitting...")
+        self._set_title(extra="fitting all panels...")
         plt.pause(0.01)
-        payload = self.on_fit(self.state)
-        if payload is None:
-            self._set_title(extra="fit returned nothing")
-            return
-        tgrid = payload["tgrid"]
-        model = payload["model"]
-        if self.model_line is not None:
-            self.model_line.remove()
-        if self.baseline_line is not None:
-            self.baseline_line.remove()
-            self.baseline_line = None
-        self.model_line = self.ax.plot(
-            tgrid, model, "-", color="tab:green", lw=2, zorder=5,
-            label=f"preferred: {payload['preferred']}")[0]
-        if "baseline" in payload:
-            self.baseline_line = self.ax.plot(
-                tgrid, payload["baseline"], ":", color="tab:orange", lw=1.5,
-                zorder=5, label="baseline (no dip)")[0]
-        for t0 in payload.get("dip_markers", []):
-            self.ax.axvline(t0, color="tab:green", ls=":", lw=1, zorder=2)
-        self.ax.legend(loc="best", fontsize=8)
+        if self.on_group_fit is not None:
+            # One joint fit over the whole group; payloads align with panels.
+            payloads = self.on_group_fit(self.state)
+        else:
+            payloads = [panel["on_fit"](self.state) for panel in self.panels]
+        preferred = []
+        for panel, payload in zip(self.panels, payloads):
+            if payload is None:
+                continue
+            self._overlay_fit(panel, payload)
+            preferred.append(payload["preferred"])
+            header = panel.get("title") or "panel"
+            print(f"\n=== {header} ===")
+            print(payload["table_text"])
         self.awaiting_confirm = False
         self.state.confirmed = True
-        print("\n" + payload["table_text"])
-        self._set_title(extra=f"DONE -> preferred {payload['preferred']} "
-                              f"(saved). 'r' to redo, 'q' to quit.")
+        n = len(preferred)
+        self._set_title(extra=f"DONE -> fit {n} panel(s) (saved). "
+                              f"'r' to redo, 'q' to quit.")
+
+    def _clear_fit_overlays(self):
+        for panel in self.panels:
+            if panel["model_line"] is not None:
+                panel["model_line"].remove()
+                panel["model_line"] = None
+            if panel["baseline_line"] is not None:
+                panel["baseline_line"].remove()
+                panel["baseline_line"] = None
+            for ln in panel["dip_marker_lines"]:
+                ln.remove()
+            panel["dip_marker_lines"] = []
 
     def _on_key(self, event):
         k = event.key
         if k == "x":
             self.mode = "flare"
-            self.span.set_props(facecolor="tab:red")
+            for s in self._selectors:
+                s.set_props(facecolor="tab:red")
             self._set_title()
         elif k == "d":
             self.mode = "dip"
-            self.span.set_props(facecolor="tab:blue")
+            for s in self._selectors:
+                s.set_props(facecolor="tab:blue")
             self._set_title()
         elif k == "u":
             self.state.undo()
@@ -246,12 +339,7 @@ class DipLabeler:
         elif k == "r":
             self.state.reset()
             self._redraw_spans()
-            if self.model_line is not None:
-                self.model_line.remove()
-                self.model_line = None
-            if self.baseline_line is not None:
-                self.baseline_line.remove()
-                self.baseline_line = None
+            self._clear_fit_overlays()
             self._set_title(extra="reset")
         elif k == "enter":
             if len(self.state.dips) == 0:
@@ -270,3 +358,15 @@ class DipLabeler:
 
     def run(self):
         plt.show()
+
+
+class DipLabeler(MultiDipLabeler):
+    """Single-panel labeler -- a thin one-panel :class:`MultiDipLabeler`."""
+
+    def __init__(self, t, flux, title, on_fit, bin_period=None):
+        super().__init__(
+            [{"t": t, "flux": flux, "title": "", "on_fit": on_fit,
+              "bin_period": bin_period}],
+            group_title=title)
+        # Back-compat aliases for the original single-axis attribute names.
+        self.ax = self.axes[0]

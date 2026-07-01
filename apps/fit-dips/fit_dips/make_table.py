@@ -1,40 +1,48 @@
 """
-Render the measured dip depths into the "This work" rows of manuscript Table 3
-("Dip depths by bandpass", tab:dipdepths in papers/Bouma_2026_cgcd/ms.tex).
+Render the measured dip depths into Table 3 ("Dip depths by bandpass",
+tab:dipdepths in papers/Bouma_2026_cgcd/ms.tex).
 
-We write ONLY the data rows of the \\cutinhead{This work} block, in the exact
-column format of that table:
+We generate the FULL data-row body of that table -- both the "This work" rows and
+the refitted-literature rows -- in the exact column format:
 
     Star & Date (UT) & Band & $\\delta$ (\\%) & Ref. \\\\
 
 i.e. the only measured quantity written is the depth and its uncertainty,
-$\\delta\\pm\\sigma_\\delta$, to two decimals.  No FWHM column.  Rows are emitted
-in the manuscript's hand-curated order (the per-star band ordering is not
-alphabetical, so it is encoded explicitly in THIS_WORK below); a dataset that
-is not yet fitted prints an $X.XX\\pm X.XX$ placeholder, so the block always has
-the same shape as the inline table.  When a folded variant of a dataset exists
-and is done, its (better-constrained) depth is used in place of the single-cycle
-fit -- preferring the full-sector `_S88` fold, then `_pm2cycle` (see
-_resolve_id).  A dataset whose preferred model has several dips emits one row
-per dip (e.g. the three TIC 300651846 dips).
+$\\delta\\pm\\sigma_\\delta$, to two decimals (the uncertainty floored at the same
+``ERR_FLOOR_PCT`` as the CSV export, so the table and the beta-fit input agree).
+No FWHM column.  Rows are emitted in the manuscript's hand-curated order (encoded
+in ``TABLE`` below); the Star cell is shown once per contiguous block and blanked
+on its repeats, the Date cell once per epoch.  When a folded variant of a dataset
+exists and is done, its (better-constrained) depth is used in place of the
+single-cycle fit -- preferring the full-sector ``_S88`` fold, then ``_pm2cycle``
+(see ``_resolve_id``).  A dataset whose preferred model has several dips emits one
+row per dip (e.g. the second TIC 300651846 and TIC 262400835 2020 Dec 13 dips).
+
+Every star in the table is now fit (or refit) in this work: ``This work`` rows
+(ref 1) are our own data; all literature rows (refs 2--5) are digitized and
+refitted here, so each carries the ``$^\\dagger$`` "refitted" marker.  TIC 20178925
+(Gunther+2022) is intentionally omitted -- its SSO and TESS data show different
+dip widths, so the fit's shared-duration assumption is not well represented; this
+mirrors ``export_csv.DROP_STARS``.
 
 The rows are injected DIRECTLY into ms.tex, between the sentinel comments
 
     % BEGIN fit-dips rows ...
     % END fit-dips rows
 
-(just inside \\cutinhead{This work}).  We do NOT \\input an external file:
-AASTeX's deluxetable captures everything between \\startdata and \\enddata as a
-token list and replays it, and a file read during that replay (\\input or even
-the \\@@input primitive) derails the alignment with a "Misplaced \\noalign"
-error.  In-place injection sidesteps that entirely.  The Literature rows below
-the markers are hand-kept in ms.tex and are never touched.
+(just inside \\startdata).  We do NOT \\input an external file: AASTeX's
+deluxetable captures everything between \\startdata and \\enddata as a token list
+and replays it, and a file read during that replay (\\input or even the \\@@input
+primitive) derails the alignment with a "Misplaced \\noalign" error.  In-place
+injection sidesteps that entirely.  The \\tablecomments reference list below the
+markers is hand-kept in ms.tex and is never touched here.
 
 Run:  python -m fit_dips.make_table   (from apps/fit-dips/)
 """
 import os
 
 from . import registry
+from .export_csv import ERR_FLOOR_PCT
 
 MS_TEX = os.path.abspath(os.path.join(
     registry.DATASETS_DIR, "..", "..", "..", "papers", "Bouma_2026_cgcd",
@@ -47,18 +55,21 @@ END_MARK = "% END fit-dips rows"
 PLACEHOLDER = r"$X.XX\pm X.XX$"
 
 # Photometric bands rendered in math italics; everything else (TESS, Tierras,
-# NB2.09) stays upright text.
+# NB2.09) stays upright text. Literature bands pass an explicit LaTeX label.
 _MATH_BANDS = {"g", "r", "i", "z", "B"}
 
-# The "This work" block, in manuscript order. Each group is
-#   (star_display, date_display, id_prefix, [band entries in display order])
+# The table, in manuscript order. Each group is
+#   (star_display, date_display, id_prefix, [band entries], ref, dagger)
 # where the dataset id for a band is f"{id_prefix}_{key}". A band entry is
 # either a band string (key == display, rendered via _band_display) or a
 # (key, display_latex) tuple that overrides only the displayed label while
-# keeping the dataset-id lookup key. The 2020 Dec 16 epoch was observed
-# with MuSCAT, so its g/r/z datasets are shown as g', r', z_s (the
-# instrument-correct labels; see svo_filter column of
-# dipdepths_thiswork_and_literature.csv).
+# keeping the dataset-id lookup key. ``date_display`` is a string (shown on the
+# group's first row) or a list of strings (shown on successive rows, for the
+# two-line Koen+2023 date range). ``dagger`` appends the "refitted" marker to
+# the Ref. cell.
+#
+# The 2020 Dec 16 epoch was observed with MuSCAT1, so its g/r/z datasets are
+# shown as g', r', z_s (the instrument-correct labels).
 THIS_WORK = [
     (r"TIC\,262400835", "2020 Dec 13", "TIC262400835_20201213",
      ["g", "r", "i", "z", "TESS"]),
@@ -74,8 +85,45 @@ THIS_WORK = [
      ["TESS", "NB2.09"]),
 ]
 
+# Literature, digitized and refitted in this work (all daggered). Refs:
+# 2 = Koen+2023, 3 = Yu+2015, 4 = Onitsuka+2017, 5 = Tanimoto+2020.
+LITERATURE = [
+    (r"TIC\,435899024", ["2021 May 25--", "--2021 June 01"],
+     "TIC435899024_20210525",
+     [("B", "$B$"), ("V", "$V$"), ("R", "$R$"), ("I", "$I$")], 2),
+    (r"PTFO\,8-8695", "2014 Jan 19", "PTFO8-8695_20140119",
+     [("I+z", r"$I{+}z$"), ("H", "$H$")], 3),
+    (r"PTFO\,8-8695", "2016 Feb 9", "PTFO8-8695_20160209",
+     [("gp", r"$g'$"), ("rp", r"$r'$"), ("zs", r"$z_{\rm s}$")], 4),
+    (r"PTFO\,8-8695", "2014 Feb 23", "PTFO8-8695_20140223",
+     [("I_C", r"$I_{\rm C}$"), ("K_s", r"$K_{\rm s}$")], 5),
+    (r"PTFO\,8-8695", "2014 Dec 27", "PTFO8-8695_20141227",
+     [("I_C", r"$I_{\rm C}$"), ("K_s", r"$K_{\rm s}$")], 5),
+    (r"PTFO\,8-8695", "2015 Jan 10", "PTFO8-8695_20150110",
+     [("I_C", r"$I_{\rm C}$"), ("K_s", r"$K_{\rm s}$")], 5),
+    (r"PTFO\,8-8695", "2015 Jan 23", "PTFO8-8695_20150123",
+     [("I_C", r"$I_{\rm C}$"), ("J", "$J$")], 5),
+    (r"PTFO\,8-8695", "2015 Feb 10", "PTFO8-8695_20150210",
+     [("I_C", r"$I_{\rm C}$"), ("H", "$H$")], 5),
+    (r"PTFO\,8-8695", "2015 Feb 14", "PTFO8-8695_20150214",
+     [("I_C", r"$I_{\rm C}$"), ("K_s", r"$K_{\rm s}$")], 5),
+    (r"PTFO\,8-8695", "2015 Feb 23", "PTFO8-8695_20150223",
+     [("I_C", r"$I_{\rm C}$"), ("K_s", r"$K_{\rm s}$")], 5),
+    (r"PTFO\,8-8695", "2016 Nov 25", "PTFO8-8695_20161125",
+     [("I_C", r"$I_{\rm C}$"), ("J", "$J$")], 5),
+    (r"PTFO\,8-8695", "2016 Dec 9", "PTFO8-8695_20161209",
+     [("I_C", r"$I_{\rm C}$"), ("J", "$J$")], 5),
+]
+
+# Unified table: This work (ref 1, no dagger) followed by the refitted
+# literature groups (each carries its own ref + dagger).
+TABLE = [(star, date, prefix, bands, 1, False)
+         for (star, date, prefix, bands) in THIS_WORK] + \
+        [(star, date, prefix, bands, ref, True)
+         for (star, date, prefix, bands, ref) in LITERATURE]
+
 # Column widths, chosen to line up with the inline table in ms.tex.
-_W_STAR, _W_DATE, _W_BAND, _W_DEPTH = 14, 11, 8, 14
+_W_STAR, _W_DATE, _W_BAND, _W_DEPTH = 14, 14, 11, 14
 
 
 def _band_display(band):
@@ -83,7 +131,7 @@ def _band_display(band):
 
 
 def _parse_band(entry):
-    """Split a THIS_WORK band entry into (lookup_key, display_latex).
+    """Split a band entry into (lookup_key, display_latex).
 
     An entry is either a band string (key == display, rendered via
     _band_display) or a (key, display_latex) tuple that overrides only
@@ -113,6 +161,7 @@ def _resolve_id(dataset_id):
 def _depths(dataset_id):
     """Return a list of $\\delta\\pm\\sigma$ strings (2 dp), one per fitted dip.
 
+    The uncertainty is floored at ``ERR_FLOOR_PCT`` (shared with the CSV export).
     Falls back to a single placeholder if the dataset is missing, not done, or
     has no preferred-model dips.
     """
@@ -124,28 +173,47 @@ def _depths(dataset_id):
     if rec.get("status") != registry.STATUS_DONE or not pref \
             or pref not in rec.get("fits", {}):
         return [PLACEHOLDER]
-    dips = rec["fits"][pref].get("dips", [])
+    # Prefer the cross-band joint (shared-duration) dips when present; they
+    # carry the tied-duration depth estimate. Fall back to the independent
+    # Stage-1 preferred-model dips otherwise.
+    dips = (rec.get("joint_dip_fit", {}).get("dips")
+            or rec["fits"][pref].get("dips", []))
     if not dips:
         return [PLACEHOLDER]
-    return [f"${d['delta_pct']:.2f}\\pm {d['delta_pct_err']:.2f}$"
+    return [f"${d['delta_pct']:.2f}\\pm {max(d['delta_pct_err'], ERR_FLOOR_PCT):.2f}$"
             for d in dips]
 
 
+def _ref_cell(ref, dagger):
+    return f"{ref}$^\\dagger$" if dagger else f"{ref}"
+
+
 def build_rows():
-    """Return the list of fully-formatted LaTeX row strings (no trailing \\n)."""
+    """Return the list of fully-formatted LaTeX row strings (no trailing \\n).
+
+    The Star cell is shown only when it differs from the previous row's star
+    (so a multi-epoch star like PTFO 8-8695 is labeled once); the Date cell is
+    shown on each epoch group's first row (or across successive rows when the
+    group supplies a list of date fragments).
+    """
     rows = []
-    for star, date, prefix, bands in THIS_WORK:
-        first = True  # show star/date only on the first row of the group
+    prev_star = None
+    for star, date, prefix, bands, ref, dagger in TABLE:
+        group = []  # (band_display, depth) for every dip in the group
         for entry in bands:
             band_key, band_disp = _parse_band(entry)
             for depth in _depths(f"{prefix}_{band_key}"):
-                s = star if first else ""
-                d = date if first else ""
-                rows.append(
-                    f"{s:<{_W_STAR}} & {d:<{_W_DATE}} & "
-                    f"{band_disp:<{_W_BAND}} & "
-                    f"{depth:<{_W_DEPTH}} & 1 \\\\")
-                first = False
+                group.append((band_disp, depth))
+        dates = date if isinstance(date, list) else [date]
+        ref_cell = _ref_cell(ref, dagger)
+        for j, (band_disp, depth) in enumerate(group):
+            star_cell = star if (j == 0 and star != prev_star) else ""
+            date_cell = dates[j] if j < len(dates) else ""
+            rows.append(
+                f"{star_cell:<{_W_STAR}} & {date_cell:<{_W_DATE}} & "
+                f"{band_disp:<{_W_BAND}} & {depth:<{_W_DEPTH}} & "
+                f"{ref_cell} \\\\")
+        prev_star = star
     return rows
 
 
@@ -162,7 +230,7 @@ def render():
             f"expected exactly one BEGIN and one (later) END marker in "
             f"{MS_TEX}; found BEGIN at {begins}, END at {ends}. Add:\n"
             f"  {BEGIN_MARK}\n  {END_MARK}\n"
-            f"just inside \\cutinhead{{This work}}.")
+            f"just inside \\startdata.")
 
     new_lines = lines[:begins[0] + 1] + rows + lines[ends[0]:]
     with open(MS_TEX, "w") as f:
@@ -172,4 +240,4 @@ def render():
 
 if __name__ == "__main__":
     path, n = render()
-    print(f"injected {n} \"This work\" dip row(s) into {path}")
+    print(f"injected {n} dip row(s) into {path}")

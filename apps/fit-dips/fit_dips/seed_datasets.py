@@ -165,7 +165,7 @@ def build_resolved():
     # --- PTFO 8-8695, Yu+2015 Fig 6 (digitized; time = hours rel. to mid-dip) ---
     out.append((
         "PTFO8-8695_20140119_I+z", "PTFO 8-8695", "2014-01-19", "I+z",
-        "Yu+2015 (TRAPPIST)", 3,
+        "Yu+2015 (TRAPPIST)", 4,
         {"loader": "generic_csv",
          "path": f"{LIT}/Yu2015_fig6_trappist.csv",
          "time_col": "t_minus_t0_hr", "flux_col": "relative_flux",
@@ -173,12 +173,37 @@ def build_resolved():
         None, "Digitized from Yu+2015 Fig 6; time relative to mid-dip."))
     out.append((
         "PTFO8-8695_20140119_H", "PTFO 8-8695", "2014-01-19", "H",
-        "Yu+2015 (FourStar)", 3,
+        "Yu+2015 (FourStar)", 4,
         {"loader": "generic_csv",
          "path": f"{LIT}/Yu2015_fig6_fourstar.csv",
          "time_col": "t_minus_t0_hr", "flux_col": "relative_flux",
          "time_scale": 1.0 / 24.0},
         None, "Digitized from Yu+2015 Fig 6; time relative to mid-dip."))
+
+    # --- PTFO 8-8695, Tanimoto+2020 PASJ 72,23 Fig 12/13 (digitized "red_aware")
+    # The 9 epochs overlapping Table 3, I_C + one IR band each (18 datasets).
+    # CSVs written by apps/extract-points/export_to_fitdips.py; time =
+    # BJD - integer offset (days within the night), flux on the relative scale.
+    # Period null (single-night windows) -> polynomial baselines only.
+    TANIMOTO = {
+        "2014-02-23": ["I_C", "K_s"], "2014-12-27": ["I_C", "K_s"],
+        "2015-01-10": ["I_C", "K_s"], "2015-01-23": ["I_C", "J"],
+        "2015-02-10": ["I_C", "H"], "2015-02-14": ["I_C", "K_s"],
+        "2015-02-23": ["I_C", "K_s"], "2016-11-25": ["I_C", "J"],
+        "2016-12-09": ["I_C", "J"],
+    }
+    for date, bands in TANIMOTO.items():
+        ymd = date.replace("-", "")
+        for band in bands:
+            out.append((
+                f"PTFO8-8695_{ymd}_{band}", "PTFO 8-8695", date, band,
+                "Tanimoto+2020", 6,
+                {"loader": "generic_csv",
+                 "path": f"{LIT}/Tanimoto2020_{ymd}_{band}.csv",
+                 "time_col": "bjd_minus_offset", "flux_col": "relative_flux",
+                 "time_scale": 1.0},
+                None, "Digitized (red_aware) from Tanimoto+2020 PASJ 72,23 "
+                "Fig 12/13; time = BJD - offset (days)."))
 
     # --- TIC 20178925, Gunther+2022 SPECULOOS-South (r', z') + TESS, 2019 Nov 07 ---
     # Time is BJD_TDB - 2458795 (already days); flux is band-offset relative flux.
@@ -192,7 +217,7 @@ def build_resolved():
              "Gunther+2022 (TESS)")):
         out.append((
             f"TIC20178925_20191107_{did_band}", "TIC 20178925", "2019-11-07",
-            band, inst, 4,
+            band, inst, 2,
             {"loader": "generic_csv", "path": f"{LIT}/{fname}",
              "time_col": "bjdtdb_minus_2458795_days", "flux_col": "relative_flux",
              "time_scale": 1.0},
@@ -205,13 +230,30 @@ def build_resolved():
     for band in ("B", "V", "R", "I"):
         out.append((
             f"TIC435899024_20210525_{band}", "TIC 435899024", "2021-05-25",
-            band, "Koen+2023 (SAAO)", 5,
+            band, "Koen+2023 (SAAO)", 3,
             {"loader": "generic_csv",
              "path": f"{LIT}/Koen_2023_J1252_{band}.csv",
              "time_col": "phase", "flux_col": "magnitude",
              "time_scale": P_J1252, "flux_in_mag": True},
             None, "Digitized from Koen+2023; phase folded at "
             f"P={P_J1252:.6f} d (phase->days), differential mag."))
+
+    # --- PTFO 8-8695, Onitsuka+2017 OAO 1.88m/MuSCAT simultaneous, 2016-02-09 ---
+    # Three-band (g', r', z_s) photometry from Onitsuka+2017 PASJ 69,L2 (CVSO 30).
+    # Time = BJD - 2457428 (days within the night); flux on the relative scale.
+    # All three bands share this time axis, so they auto-group into one stacked,
+    # shared-window labeler. Period null (single-night) -> polynomial baselines.
+    for band, did_band, fname in (
+            ("g'", "gp", "Onitsuka_2017_gp.csv"),
+            ("r'", "rp", "Onitsuka_2017_rp.csv"),
+            ("z_s", "zs", "Onitsuka_2017_zs.csv")):
+        out.append((
+            f"PTFO8-8695_20160209_{did_band}", "PTFO 8-8695", "2016-02-09",
+            band, "Onitsuka+2017 (MuSCAT)", 5,
+            {"loader": "generic_csv", "path": f"{LIT}/{fname}",
+             "time_col": "BJD_minus_2457428", "flux_col": "relative_flux",
+             "time_scale": 1.0},
+            None, "Digitized from Onitsuka+2017 PASJ 69,L2; BJD-2457428 (days)."))
 
     return out
 

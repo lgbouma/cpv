@@ -1096,7 +1096,7 @@ def plot_money(
     ax_s.set_ylabel(
         r"$\delta / \delta_{" + f"{lambda0:.3f}" + r"\,\mu\mathrm{m}}$"
     )
-    ax_s.set_ylim((ratio - ratio_err).min() / 1.25, 3.7)
+    ax_s.set_ylim((ratio - ratio_err).min() / 1.25, 3.0)
 
     # Star-shape legend, drawn once: the six stars in a 3-row x 2-column block
     # (the 68%-incl-sigma_int dashed proxy is dropped to keep it compact and

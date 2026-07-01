@@ -258,6 +258,79 @@ def _plot_resid_hist(dataset_id, name, mr, t, flux, t_ref, period):
     return fig
 
 
+def write_joint_diagnostic(record, s1, init_mr, bres, joint):
+    """Plot the cross-band shared-duration (joint) fit for one band.
+
+    Overlays the joint-constrained model (tied T14=2W and t0) on the data with
+    the band's independent Stage-1 fit shown faint for comparison, and titles
+    the figure with the initial-vs-joint chi2 and the group dBIC of the tie.
+    Written as ``<id>__joint_fit.png`` AFTER write_diagnostics (which clears the
+    directory), so it is preserved.
+    """
+    dataset_id = record["id"]
+    outdir = _outdir(dataset_id)
+    name = init_mr.name
+    t, flux = s1["t"], s1["flux"]
+    t_ref, period, dip_windows = s1["t_ref"], s1["period"], s1["dip_windows"]
+
+    fig = Figure(figsize=(9, 6))
+    ax1, ax2 = fig.subplots(2, 1, sharex=True,
+                            gridspec_kw=dict(height_ratios=[3, 1]))
+    in_dip = _in_dip_mask(t, dip_windows)
+    tgrid = np.linspace(t.min(), t.max(), 1500)
+
+    jflat = []
+    for d in bres["dips"]:
+        jflat += [d.A, d.t0, d.w, d.tau]
+    base_grid = baseline_value(name, init_mr.baseline_params, tgrid, t_ref,
+                               period)
+    jmodel = base_grid - dip_model(tgrid, jflat, "trap") if jflat \
+        else np.array(base_grid)
+
+    ax1.plot(tgrid, _model_at(name, init_mr, tgrid, t_ref, period), "--",
+             color="0.6", lw=1.2, zorder=2, label="independent (initial)")
+    ax1.plot(tgrid, jmodel, "-", color="tab:green", lw=1.8, zorder=3,
+             label="joint (shared $T_{14}$)")
+    ax1.plot(tgrid, base_grid, ":", color="tab:orange", lw=1.5, zorder=3,
+             label="baseline (no dip)")
+    for d in bres["dips"]:
+        ax1.axvline(d.t0, color="tab:green", ls=":", lw=1, zorder=2)
+    ax1.plot(t[~in_dip], flux[~in_dip], ".", color="k", ms=3, zorder=5,
+             label="out-of-dip")
+    ax1.plot(t[in_dip], flux[in_dip], ".", color="tab:blue", ms=4, zorder=6,
+             label="in-dip")
+
+    base_pts = baseline_value(name, init_mr.baseline_params, t, t_ref, period)
+    jmod_pts = base_pts - dip_model(t, jflat, "trap") if jflat \
+        else np.array(base_pts)
+    resid = flux - jmod_pts
+    se = float(bres["sigma_eff"])
+    ax2.plot(t, resid, ".", color="k", ms=3, zorder=3)
+    ax2.axhspan(-se, se, color="tab:green", alpha=0.15, lw=0)
+    ax2.axhline(0, color="tab:green", lw=1)
+
+    ax1.legend(loc="best", fontsize=8)
+    ax1.set_ylabel("normalized flux")
+    ax2.set_ylabel("residual")
+    ax2.set_xlabel("time [BJD]")
+    ax1.margins(x=0)
+
+    sh_txt = "  ".join(
+        f"$T_{{14}}$={s['T14']*24:.2f}$\\pm${s['T14_err']*24:.2f}h"
+        for s in joint["shared"])
+    depth_txt = "  ".join(
+        f"$\\delta$={d.delta_pct:.2f}$\\pm${d.delta_pct_err:.2f}% "
+        f"FWHM={d.duration*24:.2f}h" for d in bres["dips"])
+    dbic = joint["group"].get("dBIC_tie", float("nan"))
+    ax1.set_title(
+        f"{dataset_id}: joint shared-duration   {sh_txt}\n"
+        f"$\\chi^2_\\nu$ joint={bres['chi2_red']:.3f} vs "
+        f"init={init_mr.chi2_red:.3f}   group $\\Delta$BIC(tie)={dbic:.2f}\n"
+        f"{depth_txt}", fontsize=8)
+    _save(fig, os.path.join(outdir, f"{dataset_id}__joint_fit.png"))
+    return outdir
+
+
 def write_diagnostics(record, t_all, flux_all, dip_windows, flare_windows,
                       t_use, flux_use, t_ref, period, results, preferred):
     """Write all diagnostic figures for a dataset; return the output dir."""

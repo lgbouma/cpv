@@ -362,3 +362,189 @@ def fit_all_models(t, flux, dip_windows, sigma0, period=None, t_ref=None,
     for r in results.values():
         r.dBIC = float(r.BIC - best_bic)
     return results, preferred
+
+
+def fit_group_shared_dip(bands):
+    """Joint cross-band dip refit with a SHARED total duration and mid-time.
+
+    Given several co-temporal bands of the SAME night (each already through the
+    per-band Stage-1 model comparison so its baseline is fixed), refit all dips
+    at once under the physical constraint that, for each dip, the total duration
+    ``T14 = 2W`` and the mid-time ``t0`` are IDENTICAL across bands, while the
+    depth ``A`` and the ingress/egress fraction ``r = tau/W`` stay free per band.
+
+    This relies on the decoupled (two-stage) fit: each band's baseline was fit to
+    out-of-dip points only and is therefore independent of the dip, so tying the
+    dip never disturbs any continuum.  Only the dip stage becomes joint.
+
+    Parameters
+    ----------
+    bands : list of dict, one per band, each with
+        ``name``            preferred model name (must be a ``*_trap`` profile)
+        ``t``, ``flux``     the (non-flare) points that were fit
+        ``dip_windows``     shared labeled dip windows (same list for all bands)
+        ``baseline_params`` the Stage-1 preferred baseline coefficients
+        ``t_ref``, ``period``
+        ``sigma0``          per-band p2p noise
+        ``f``               per-band Stage-1 rescale (sigma_eff = f*sigma0)
+        ``init``            (optional) the Stage-1 preferred :class:`ModelResult`,
+                            used to assemble the group initial-vs-joint BIC.
+
+    Returns
+    -------
+    dict with keys ``converged``, ``shared`` (list of per-dip {t0, t0_err, W,
+    W_err, T14, T14_err}), ``bands`` (per input band: joint ``dips`` plus its
+    joint-stage chi2/BIC at the SAME sigma_eff as Stage-1), and ``group``
+    (group-level joint chi2/BIC and, when every ``init`` was supplied, the
+    initial chi2/BIC and ``dBIC_tie`` = BIC_joint - BIC_initial).  ``None`` if no
+    dip window is populated in any band.
+
+    Per-band joint parameter counts attribute each shared (t0, W) pair as
+    ``2 / B_i`` to each of the ``B_i`` bands that cover dip ``i`` (so the
+    per-band counts sum to the integer group count).  The group BIC uses the
+    rigorous ``K*ln(N_total) - 2*lnL`` with integer K and total points N.
+    """
+    nbnd = len(bands)
+    windows = [tuple(w) for w in bands[0]["dip_windows"]]
+    D = len(windows)
+
+    Ts = [np.asarray(b["t"], dtype=float) for b in bands]
+    Fs = [np.asarray(b["flux"], dtype=float) for b in bands]
+    baselines = [models.baseline_value(b["name"], b["baseline_params"], Ts[i],
+                                       b["t_ref"], b["period"])
+                 for i, b in enumerate(bands)]
+    targets = [baselines[i] - Fs[i] for i in range(nbnd)]   # positive in dip
+    sigma_eff = [float(b["f"]) * float(b["sigma0"]) for b in bands]
+
+    masks = [[(Ts[bi] >= w[0]) & (Ts[bi] <= w[1]) for w in windows]
+             for bi in range(nbnd)]
+    present_bands = [[bi for bi in range(nbnd) if masks[bi][i].any()]
+                     for i in range(D)]
+    shared_dips = [i for i in range(D) if present_bands[i]]
+    if not shared_dips:
+        return None
+    span_global = max(float(T.max() - T.min()) for T in Ts)
+
+    # --- pack parameters: shared [t0_i, W_i] then per-band [A_{b,i}, r_{b,i}] --
+    p0, lo, hi = [], [], []
+    shared_idx = {}
+    for i in shared_dips:
+        x0, x1 = windows[i]
+        dw = x1 - x0
+        t0s, Ws = [], []
+        for bi in present_bands[i]:
+            m = masks[bi][i]
+            t0s.append(float(Ts[bi][m][np.argmin(Fs[bi][m])]))
+            Ws.append(max(dw / 2.0, 1e-4))
+        shared_idx[i] = (len(p0), len(p0) + 1)
+        p0 += [float(np.median(t0s)), float(np.median(Ws))]
+        lo += [x0 - 0.5 * dw, 1e-5]
+        hi += [x1 + 0.5 * dw, span_global]
+    band_idx = [dict() for _ in range(nbnd)]
+    for bi in range(nbnd):
+        for i in shared_dips:
+            if bi not in present_bands[i]:
+                continue
+            m = masks[bi][i]
+            local_base = float(np.nanmedian(baselines[bi][m]))
+            depth = max(local_base - float(np.nanmin(Fs[bi][m])), 1e-4)
+            band_idx[bi][i] = (len(p0), len(p0) + 1)
+            p0 += [depth, 0.25]
+            lo += [0.0, 1e-4]
+            hi += [1.0, 1.0]
+    p0 = np.array(p0)
+    lo = np.array(lo)
+    hi = np.array(hi)
+
+    def resid(p):
+        out = []
+        for bi in range(nbnd):
+            dec = np.zeros_like(Ts[bi])
+            for i, idx in band_idx[bi].items():
+                t0 = p[shared_idx[i][0]]
+                W = p[shared_idx[i][1]]
+                A, r = p[idx[0]], p[idx[1]]
+                dec = dec + models._trapezoid_dip(Ts[bi], A, t0, W, r * W)
+            out.append((dec - targets[bi]) / sigma_eff[bi])
+        return np.concatenate(out)
+
+    sol = least_squares(resid, p0, bounds=(lo, hi), method="trf", max_nfev=40000)
+    p = sol.x
+    converged = bool(sol.success)
+    try:
+        perr = np.sqrt(np.clip(np.diag(np.linalg.inv(sol.jac.T @ sol.jac)),
+                               0.0, np.inf))
+    except np.linalg.LinAlgError:
+        perr = np.full(p.size, np.nan)
+
+    shared = []
+    for i in shared_dips:
+        it0, iW = shared_idx[i]
+        W, We = float(p[iW]), float(perr[iW])
+        shared.append({"dip": i, "t0": float(p[it0]), "t0_err": float(perr[it0]),
+                       "W": W, "W_err": We, "T14": 2.0 * W, "T14_err": 2.0 * We})
+
+    band_results = []
+    g_chi2 = g_lnL = g_k = g_n = 0.0
+    for bi, b in enumerate(bands):
+        nb = len(b["baseline_params"])
+        n = int(Ts[bi].size)
+        dips, k_dip = [], 0.0
+        dec = np.zeros_like(Ts[bi])
+        for i in [i for i in shared_dips if i in band_idx[bi]]:
+            it0, iW = shared_idx[i]
+            iA, ir = band_idx[bi][i]
+            t0, W, A, r = (float(p[it0]), float(p[iW]),
+                           float(p[iA]), float(p[ir]))
+            t0e, We, Ae, re = (float(perr[it0]), float(perr[iW]),
+                               float(perr[iA]), float(perr[ir]))
+            tau = r * W
+            tau_e = float(np.hypot(r * We, W * re))
+            dec = dec + models._trapezoid_dip(Ts[bi], A, t0, W, tau)
+            base0 = float(models.baseline_value(
+                b["name"], b["baseline_params"], [t0], b["t_ref"],
+                b["period"])[0])
+            dur = float(models.trap_fwhm(W, tau))
+            dur_e = float(np.hypot(2.0 * We, tau_e))
+            dips.append(DipResult(
+                A=A, A_err=Ae, t0=t0, t0_err=t0e, w=W, w_err=We,
+                delta_pct=float(100.0 * A / base0),
+                delta_pct_err=float(100.0 * Ae / base0),
+                duration=dur, duration_err=dur_e,
+                profile="trap", tau=tau, tau_err=tau_e))
+            k_dip += 2.0 + 2.0 / len(present_bands[i])
+        resid_b = Fs[bi] - (baselines[bi] - dec)
+        chi2_0 = float(np.sum(resid_b ** 2) / b["sigma0"] ** 2)
+        f = float(b["f"])
+        se = f * float(b["sigma0"])
+        chi2 = chi2_0 / f ** 2
+        k = nb + k_dip + 1.0
+        nu = max(n - k, 1)
+        lnL = -0.5 * (chi2 + n * np.log(2.0 * np.pi * se ** 2))
+        band_results.append({
+            "present_dips": [i for i in shared_dips if i in band_idx[bi]],
+            "dips": dips, "n": n, "k": float(k),
+            "chi2_red0": float(chi2_0 / nu), "chi2_red": float(chi2 / nu),
+            "lnL": float(lnL), "BIC": float(k * np.log(n) - 2.0 * lnL),
+            "sigma0": float(b["sigma0"]), "f": f, "sigma_eff": float(se)})
+        g_chi2 += chi2
+        g_lnL += lnL
+        g_k += k
+        g_n += n
+
+    group = {"n": int(g_n), "k_joint": float(g_k), "chi2_joint": float(g_chi2),
+             "lnL_joint": float(g_lnL),
+             "BIC_joint": float(g_k * np.log(g_n) - 2.0 * g_lnL)}
+    if all(b.get("init") is not None for b in bands):
+        ki = sum(b["init"].k for b in bands)
+        li = sum(b["init"].lnL for b in bands)
+        ci = sum(b["init"].chi2_red * max(b["init"].n - b["init"].k, 1)
+                 for b in bands)
+        group.update(
+            k_initial=float(ki), lnL_initial=float(li), chi2_initial=float(ci),
+            BIC_initial=float(ki * np.log(g_n) - 2.0 * li),
+            dBIC_tie=float((g_k * np.log(g_n) - 2.0 * g_lnL)
+                           - (ki * np.log(g_n) - 2.0 * li)))
+
+    return {"converged": converged, "shared": shared,
+            "bands": band_results, "group": group}

@@ -89,7 +89,8 @@ def reset(dataset_id, keep_labels=False):
     rec["fits"] = {}
     rec["preferred_model"] = None
     rec["sigma0_p2p_rms"] = None
-    for key in ("t_ref", "error_rescale_f", "sigma_eff", "diagnostics_dir"):
+    for key in ("t_ref", "error_rescale_f", "sigma_eff", "diagnostics_dir",
+                "joint_dip_fit"):
         rec.pop(key, None)
     if not keep_labels:
         rec["labels"] = {"dips": [], "flares": [], "confirmed": False}

@@ -32,6 +32,31 @@ passing `families=[...]` to `fit_all_models`).
   mid-dip).
 - Reported **duration** = FWHM (width at half depth) = `2*W_i - tau_i`
   (trapezoid; `2.6339*w_i` for a sech).
+
+### Cross-band shared duration (multi-band nights)
+
+When a night is observed in several bands simultaneously, the dip's **total
+duration** `T14 = 2*W` (first-to-fourth contact) is a geometric crossing time
+and is therefore the same in every band, whereas the **depth** `A` and the
+**ingress/egress fraction** `r = tau/W` are wavelength-dependent. So for an
+auto-grouped multi-band epoch (>= 2 bands), after each band's independent
+baseline+BIC selection, a single **joint dip refit** ties `W` and the mid-time
+`t0` across all bands for each dip, leaving `A` and `r` (hence `tau`, the
+flat-bottom, and the per-band FWHM) free. The fit minimizes the stacked,
+per-band noise-weighted residual; the decoupled baselines are untouched (they
+were fit to out-of-dip points only). Bands that lack points under a given
+window simply do not contribute that dip; the shared `W`,`t0` stay constrained
+by the others. The tie is the **default** for groups; a single band (or
+`--solo`) is unaffected.
+
+Both stages are recorded. Each band's JSON keeps its full Stage-1 model
+comparison in `fits`, and gains a `joint_dip_fit` block with the tied dips, the
+shared `W`/`t0` (+/- errors), this band's joint-stage chi2/BIC (at the same
+`sigma_eff` as Stage-1), and `group_stats` with the **initial-vs-joint** chi2,
+BIC, and `dBIC_tie = BIC_joint - BIC_initial` (negative => the tie is favored).
+`make_table.py` reports the joint (tied) depths when the block is present. A
+`<id>__joint_fit.png` diagnostic overlays the joint model on each band with the
+independent fit shown faint for comparison.
 - The (trapezoid) dip is combined with every candidate **baseline** and compared
   by BIC. The default baseline pool is `poly1`, `poly2`, `fourier1`, `fourier2`
   (Fourier at the star's known rotation period; skipped if no period is set);
@@ -66,7 +91,12 @@ python -m fit_dips.seed_datasets
 python -m fit_dips.app --list
 
 # label + fit one dataset (opens an interactive window)
-python -m fit_dips.app --dataset LP12-502_20231215_Tierras
+# Same-night siblings (same star + date, overlapping in time) are auto-grouped
+# into stacked, shared-x panels: a dip/flare window dragged in ANY panel
+# propagates to all of them, so the in/out-of-dip times are identical across
+# bands on a night. One 'y' then fits every band and saves each separately.
+python -m fit_dips.app --dataset PTFO8-8695_20140223_I_C
+#   add --solo to label just this band in a single panel (no grouping)
 
 # interactive picker
 python -m fit_dips.app
@@ -93,6 +123,17 @@ python -m fit_dips.app --reset LP12-502_20231215_Tierras
 matplotlib's default key bindings are disconnected in the labeler so they don't
 shadow these (e.g. `f`=fullscreen, `r`/`h`=home, `s`=save). Pan/zoom/save/home
 still work via the toolbar buttons.
+
+**Multi-band nights.** When a dataset has same-night siblings, the window stacks
+them as shared-x panels (one per band). Every control above acts on the *shared*
+window set: a drag in any panel adds a dip/flare to all of them, and `enter`
+classifies each panel against its own samples. `y` then runs each band's
+Stage-1 baseline+BIC selection and a single **joint dip refit** that ties the
+total duration `T14 = 2*W` and the mid-time `t0` across bands (depth and
+ingress/egress stay per-band; see "Cross-band shared duration" above), saving
+each band's own JSON + diagnostics in one go. Folded variants (`_S88`,
+`_pm2cycle`) are never grouped; use `--solo` to force a single panel (and skip
+the tie).
 
 After `y`, the preferred model (solid green) and its baseline-only continuum
 (orange dotted) are overlaid, the model-comparison table prints to the terminal,
@@ -168,7 +209,8 @@ baselines only, as for PTFO 8-8695):
 ```
 fit_dips/
   models.py      sech dip + baseline families + combined model
-  fitting.py     least-squares fit, global error rescale f, BIC model comparison
+  fitting.py     least-squares fit, global error rescale f, BIC model
+                 comparison, cross-band shared-duration joint dip refit
   loaders.py     per-instrument light-curve readers
   registry.py    per-dataset JSON store + status
   seed_datasets.py  seed registry from Table 3
