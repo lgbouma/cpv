@@ -12,9 +12,10 @@ env: cpv  (/Users/luke/local/miniconda3/envs/cpv/bin/python)
 """
 
 import os
+import sys
 from astropy.io import fits
 from glob import glob
-from os.path import join
+from os.path import join, dirname, abspath
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,6 +26,14 @@ from astropy import units as u
 from cdips.utils.lcutils import astropy_utc_time_to_bjd_tdb
 from aesthetic.plot import set_style, savefig
 from complexrotators.paths import RESULTSDIR
+
+# ── coincidence labels (produced by apps/label-coincidences) ──────────────────
+_APPDIR = join(dirname(dirname(abspath(__file__))), 'apps', 'label-coincidences')
+if _APPDIR not in sys.path:
+    sys.path.insert(0, _APPDIR)
+from label_coincidences.labels import colkey as _colkey, load_labels, \
+    get_column_labels
+from label_coincidences.render import draw_coincidence_markers
 
 # ── LP 12-502 phase parameters (from get_ew_timeseries.t_to_phase) ──────────
 T0_LP   = 2450000 + 1791.12 - 0.3 * 18.5611 / 24  # BJD TDB
@@ -42,6 +51,8 @@ COLUMNS = [
         ra=202.94307059819 * u.deg,
         dec=29.27621104174 * u.deg,
         label='DG CVn\n2024 Apr 28',
+        # extend EW y-axis downward so the '^' markers clear the data
+        ew_ymin_pad=0.10,
     ),
     dict(
         mode='time',
@@ -51,6 +62,7 @@ COLUMNS = [
         ra=16.733175 * u.deg,
         dec=80.45945 * u.deg,
         label='LP 12-502\n2024 Nov 04',
+        ew_ymin_pad=0.10,
     ),
     dict(
         mode='time',
@@ -226,6 +238,7 @@ def plot_dbsp_halpha_mosaic():
     )
 
     c = 'k'
+    labels_df = load_labels()
 
     for col_ix, col in enumerate(COLUMNS):
         ax_ew = axs[0, col_ix]
@@ -254,11 +267,14 @@ def plot_dbsp_halpha_mosaic():
                 elinewidth=0.2, capsize=0, capthick=0,
                 markersize=ms, mew=0
             )
-            ax_fl.set_ylim(-3.1, 3.1)
+            ax_fl.set_ylim(-3.1, 3.41)   # +10% headroom at top for 'v' markers
 
-            # Optional EW y-axis lower bound override
+            # Optional EW y-axis lower bound override / downward pad
             if 'ew_ymin' in col:
                 ax_ew.set_ylim(bottom=col['ew_ymin'])
+            if col.get('ew_ymin_pad'):
+                lo, hi = ax_ew.get_ylim()
+                ax_ew.set_ylim(lo - col['ew_ymin_pad'] * (hi - lo), hi)
 
             # Instrument / photometer labels
             ax_ew.text(0.97, 0.05, 'DBSP', transform=ax_ew.transAxes,
@@ -336,7 +352,7 @@ def plot_dbsp_halpha_mosaic():
                     capsize=0, alpha=0.3, zorder=1
                 )
 
-            ax_fl.set_ylim(-4.5, 3.5)
+            ax_fl.set_ylim(-4.5, 3.85)   # +10% headroom at top for 'v' markers
             ax_ew.set_xlim(0.18, 1.02)
 
             # Instrument / photometer labels
@@ -344,6 +360,14 @@ def plot_dbsp_halpha_mosaic():
                        ha='right', va='bottom', fontsize='xx-small')
             ax_fl.text(0.97, 0.05, 'Tierras', transform=ax_fl.transAxes,
                        ha='right', va='bottom', fontsize='xx-small')
+
+        # ── coincidence markers: '^' near EW-panel floor, 'v' near flux-panel
+        # ceiling; color encodes kind (C0 dip, C1 flare) ────────────────────
+        ck = _colkey(col)
+        _dips = get_column_labels(labels_df, 'mosaic', ck, 'dip')
+        _flares = get_column_labels(labels_df, 'mosaic', ck, 'flare')
+        draw_coincidence_markers(ax_ew, _dips, _flares, row='top')
+        draw_coincidence_markers(ax_fl, _dips, _flares, row='bottom')
 
     # ── axis labels ──────────────────────────────────────────────────────────
     fs = 'small'

@@ -11,9 +11,10 @@ env: cpv  (/Users/luke/local/miniconda3/envs/cpv/bin/python)
 """
 
 import os
+import sys
 from astropy.io import fits
 from glob import glob
-from os.path import join
+from os.path import join, dirname, abspath
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,6 +26,14 @@ from cdips.utils.lcutils import astropy_utc_time_to_bjd_tdb
 from aesthetic.plot import set_style, savefig
 from complexrotators.paths import RESULTSDIR
 
+# ── coincidence labels (produced by apps/label-coincidences) ──────────────────
+_APPDIR = join(dirname(dirname(abspath(__file__))), 'apps', 'label-coincidences')
+if _APPDIR not in sys.path:
+    sys.path.insert(0, _APPDIR)
+from label_coincidences.labels import colkey as _colkey, load_labels, \
+    get_column_labels
+from label_coincidences.render import draw_coincidence_markers
+
 COLUMNS = [
     dict(
         mode='time',
@@ -35,6 +44,8 @@ COLUMNS = [
         dec=80.45945 * u.deg,
         label='LP 12-502\n2024 Nov 05',
         xlim_min=-1.2,
+        # extend EW y-axis downward so the '^' markers clear the data
+        ew_ymin_pad=0.10,
     ),
     dict(
         mode='time',
@@ -140,6 +151,7 @@ def plot_dbsp_halpha_mosaic_supp():
     )
 
     c = 'k'
+    labels_df = load_labels()
 
     for col_ix, col in enumerate(COLUMNS):
         ax_ew = axs[0, col_ix]
@@ -169,6 +181,9 @@ def plot_dbsp_halpha_mosaic_supp():
 
         if 'ew_ymin' in col:
             ax_ew.set_ylim(bottom=col['ew_ymin'])
+        if col.get('ew_ymin_pad'):
+            lo, hi = ax_ew.get_ylim()
+            ax_ew.set_ylim(lo - col['ew_ymin_pad'] * (hi - lo), hi)
 
         ax_ew.text(0.97, 0.05, 'DBSP', transform=ax_ew.transAxes,
                    ha='right', va='bottom', fontsize='xx-small')
@@ -178,6 +193,14 @@ def plot_dbsp_halpha_mosaic_supp():
         t_pad = 0.04 * (t_hours.max() - t_hours.min())
         xlim_min = col.get('xlim_min', t_hours.min() - t_pad)
         ax_ew.set_xlim(xlim_min, t_hours.max() + t_pad)
+
+        # ── coincidence markers: '^' near EW-panel floor, 'v' near flux-panel
+        # ceiling; color encodes kind (C0 dip, C1 flare) ────────────────────
+        ck = _colkey(col)
+        _dips = get_column_labels(labels_df, 'supp', ck, 'dip')
+        _flares = get_column_labels(labels_df, 'supp', ck, 'flare')
+        draw_coincidence_markers(ax_ew, _dips, _flares, row='top')
+        draw_coincidence_markers(ax_fl, _dips, _flares, row='bottom')
 
     # ── axis labels ──────────────────────────────────────────────────────────
     fs = 'small'
