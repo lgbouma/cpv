@@ -275,6 +275,57 @@ def run_variant(
     print("Reading: dBIC > 10 => strong preference for the lower-BIC "
           "model.\n")
 
+    # PSIS-LOO / WAIC comparison.  Reuses the idatas already in memory
+    # (a pure re-analysis of the cached posterior draws -- no refitting):
+    # PSIS-LOO's effective parameter count p_loo and per-point Pareto k
+    # diagnose how much of Model 4 (perdip)'s raw-k flexibility actually
+    # earns its keep, and flag the mechanically-saturated two-band dips.
+    loo_rows = [fdb.compute_loo(name, idatas[name])
+                for name in ("shared", "perstar", "broken", "perdip")]
+    loo_df = pd.DataFrame(loo_rows)
+    loo_df.to_csv(join(outdir, "loo_comparison.csv"), index=False)
+
+    compare_df = fdb.compare_models(idatas)
+    compare_df.to_csv(join(outdir, "loo_compare.csv"), index=False)
+
+    pointwise = pd.concat(
+        [fdb.export_loo_pointwise_df(name, idatas[name], data)
+         for name in ("shared", "perstar", "broken", "perdip")],
+        ignore_index=True,
+    )
+    pointwise.to_csv(
+        join(outdir, f"loo_pointwise_{variant_tag}.csv"), index=False
+    )
+
+    print("\n=== Model comparison (PSIS-LOO; higher elpd = better) ===")
+    loo_cols = ["model", "elpd_loo", "se_loo", "p_loo", "elpd_waic",
+                "p_waic", "n_khat_high", "n_khat_medium", "warning_loo"]
+    print(loo_df[loo_cols].to_string(
+        index=False, float_format=lambda v: f"{v:.2f}"))
+    print("\n=== az.compare (paired elpd_diff with propagated dse) ===")
+    print(compare_df.to_string(
+        index=False, float_format=lambda v: f"{v:.2f}"))
+
+    # The actual deliverable: for perdip, p_loo vs raw k, and how many
+    # high-Pareto-k points fall in mechanically-saturated 2-band dips.
+    k_perdip = int(bic_df.loc[bic_df["model"] == "perdip", "k"].iloc[0])
+    p_loo_perdip = float(
+        loo_df.loc[loo_df["model"] == "perdip", "p_loo"].iloc[0])
+    pw_pd = pointwise[pointwise["model"] == "perdip"]
+    high = pw_pd[pw_pd["pareto_k"] > 0.7]
+    n_high, n_tot = len(high), len(pw_pd)
+    n_high_2band = int((high["n_bands_in_dip"] == 2).sum())
+    frac_pts = n_high / n_tot if n_tot else float("nan")
+    frac_2band = n_high_2band / n_high if n_high else float("nan")
+    print(f"\n[perdip] p_loo = {p_loo_perdip:.1f} vs raw k = {k_perdip} "
+          f"(so ~{k_perdip - p_loo_perdip:.1f} of the {k_perdip} raw "
+          "parameters are not earning their keep out-of-sample).")
+    print(f"[perdip] Pareto k > 0.7 (unreliable/overly influential): "
+          f"{n_high}/{n_tot} points ({100 * frac_pts:.0f}%); of those, "
+          f"{n_high_2band} ({100 * frac_2band:.0f}%) are in 2-band dips.")
+    print("PSIS-LOO Pareto-k warnings above are the diagnostic signal, "
+          "not noise.\n")
+
     # Figures.  Filenames carry the variant_tag suffix so the two
     # variants' PDFs remain distinguishable when gathered together.
     vt = variant_tag
