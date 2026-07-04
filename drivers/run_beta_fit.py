@@ -1,10 +1,12 @@
 """
 Driver for the dip-depth extinction-law (beta) fits.
 
-Fits three models to the multi-band dip-depth dataset (single power law
-with shared beta; single power law with independent per-star beta; and a
-broken power law with a free breakpoint), compares them by Delta-BIC,
-and writes the money plot, per-model QA plots, and the beta-violin plot.
+Fits four models to the multi-band dip-depth dataset (single power law
+with shared beta; single power law with independent per-star beta; a
+broken power law with a free breakpoint; and a single power law with an
+independent beta per dip), compares them by Delta-BIC, and writes the
+money plot, per-model QA plots, the beta-violin plot, and the per-dip
+beta table and violins.
 
 Usage:
     python drivers/run_beta_fit.py [options]
@@ -245,7 +247,7 @@ def run_variant(
     print(f"Cache key    : {key[:16]}")
 
     idatas = {}
-    for name in ("shared", "perstar", "broken"):
+    for name in ("shared", "perstar", "broken", "perdip"):
         LOG.info("[%s] fitting model: %s", tag, name)
         idatas[name] = fdb.get_or_fit(
             name, data, cfg, cache_dir, refit=refit
@@ -253,7 +255,7 @@ def run_variant(
 
     # Model comparison (Delta-BIC).
     rows = [fdb.compute_bic(name, idatas[name], data, cfg)
-            for name in ("shared", "perstar", "broken")]
+            for name in ("shared", "perstar", "broken", "perdip")]
     bic_df = pd.DataFrame(rows)
     bic_df["dBIC"] = bic_df["BIC"] - bic_df["BIC"].min()
     bic_df.to_csv(join(outdir, "bic_comparison.csv"), index=False)
@@ -280,7 +282,7 @@ def run_variant(
         idatas, data, join(outdir, f"money_plot_beta_{vt}.pdf"),
         fit_sigma_int=fit_si,
     )
-    for name in ("shared", "perstar", "broken"):
+    for name in ("shared", "perstar", "broken", "perdip"):
         fdb.plot_qa(
             name, idatas[name], join(outdir, f"qa_{name}_{vt}.pdf")
         )
@@ -291,6 +293,17 @@ def run_variant(
     fdb.plot_depth_scatter(
         idatas["shared"], idatas["perstar"], idatas["broken"], data,
         join(outdir, f"depth_scatter_{vt}.pdf"),
+    )
+    fdb.export_perdip_table(
+        idatas["perdip"], data, join(outdir, f"perdip_beta_{vt}.csv")
+    )
+    fdb.export_samebandpair_table(
+        idatas["perdip"], data,
+        join(outdir, f"perdip_samebandpair_{vt}.csv"),
+    )
+    fdb.plot_beta_dip_violins(
+        idatas["perstar"], idatas["perdip"], data,
+        join(outdir, f"beta_dip_violins_{vt}.pdf"),
     )
 
     best = bic_df.loc[bic_df["BIC"].idxmin(), "model"]

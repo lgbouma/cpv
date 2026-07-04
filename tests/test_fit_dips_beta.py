@@ -1,6 +1,7 @@
 """Tests for complexrotators.fit_dips_beta.load_depths category filtering."""
 from os.path import dirname, join
 
+import numpy as np
 import pandas as pd
 
 from complexrotators import fit_dips_beta as fdb
@@ -53,3 +54,30 @@ def test_categories_and_exclusions_compose():
     )
     assert drop not in set(tw2["row_id"])
     assert len(tw2) == len(tw) - 1
+
+
+def test_pop_params_has_perdip():
+    assert fdb.POP_PARAMS["perdip"] == ["beta_e", "sigma_int"]
+
+
+def test_k_params_perdip():
+    data = {"N_e": 20, "N_s": 5}
+    assert fdb._k_params("perdip", data, fit_sigma_int=True) == 41
+    assert fdb._k_params("perdip", data, fit_sigma_int=False) == 40
+
+
+def test_build_model_perdip_free_rvs():
+    # Tiny hand-built `data` dict (2 dips, 4 rows) matching the subset of
+    # keys build_model_perdip consumes, for speed.
+    y = np.array([0.3, 0.1, -0.2, -0.4])
+    data = {
+        "y": y,
+        "s": np.array([0.05, 0.05, 0.05, 0.05]),
+        "epoch_idx": np.array([0, 0, 1, 1]),
+        "delta": np.array([-0.1, 0.2, -0.1, 0.2]),
+        "N_e": 2,
+        "ybar": float(np.mean(y)),
+    }
+    model = fdb.build_model_perdip(data, fit_sigma_int=True)
+    names = {v.name for v in model.free_RVs}
+    assert {"c_e", "beta_e", "sigma_int"} <= names

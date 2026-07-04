@@ -70,6 +70,11 @@ _MATH_BANDS = {"g", "r", "i", "z", "B"}
 #
 # The 2020 Dec 16 epoch was observed with MuSCAT1, so its g/r/z datasets are
 # shown as g', r', z_s (the instrument-correct labels).
+#
+# ``date_display`` is the human-facing date and is INDEPENDENT of the id_prefix
+# date token.  TIC 300651846 is displayed "2025 Feb 11" (the UT -- and, at LCO,
+# local -- date of its three dips, ~04:00-06:06 UT) while its dataset ids keep
+# the "..._20250210" night-start token; do not sync them.
 THIS_WORK = [
     (r"TIC\,262400835", "2020 Dec 13", "TIC262400835_20201213",
      ["g", "r", "i", "z", "TESS"]),
@@ -81,7 +86,7 @@ THIS_WORK = [
      ["B", "g", "TESS"]),
     (r"LP\,12-502", "2023 Dec 15", "LP12-502_20231215",
      ["B", "g", "Tierras", "TESS"]),
-    (r"TIC\,300651846", "2025 Feb 10", "TIC300651846_20250210",
+    (r"TIC\,300651846", "2025 Feb 11", "TIC300651846_20250210",
      ["TESS", "NB2.09"]),
 ]
 
@@ -158,61 +163,105 @@ def _resolve_id(dataset_id):
     return dataset_id
 
 
-def _depths(dataset_id):
-    """Return a list of $\\delta\\pm\\sigma$ strings (2 dp), one per fitted dip.
+def _dip_records(dataset_id):
+    """Return the list of preferred-model dip dicts, one per fitted dip.
 
-    The uncertainty is floored at ``ERR_FLOOR_PCT`` (shared with the CSV export).
-    Falls back to a single placeholder if the dataset is missing, not done, or
-    has no preferred-model dips.
+    Prefers the cross-band joint (shared-duration) dips when present -- they
+    carry the tied-duration depth estimate -- and falls back to the independent
+    Stage-1 preferred-model dips otherwise.  Returns ``[]`` if the dataset is
+    missing, not done, or has no dips; callers substitute a placeholder.
     """
     rid = _resolve_id(dataset_id)
     if not registry.exists(rid):
-        return [PLACEHOLDER]
+        return []
     rec = registry.load(rid)
     pref = rec.get("preferred_model")
     if rec.get("status") != registry.STATUS_DONE or not pref \
             or pref not in rec.get("fits", {}):
-        return [PLACEHOLDER]
-    # Prefer the cross-band joint (shared-duration) dips when present; they
-    # carry the tied-duration depth estimate. Fall back to the independent
-    # Stage-1 preferred-model dips otherwise.
-    dips = (rec.get("joint_dip_fit", {}).get("dips")
+        return []
+    return (rec.get("joint_dip_fit", {}).get("dips")
             or rec["fits"][pref].get("dips", []))
-    if not dips:
-        return [PLACEHOLDER]
-    return [f"${d['delta_pct']:.2f}\\pm {max(d['delta_pct_err'], ERR_FLOOR_PCT):.2f}$"
-            for d in dips]
+
+
+def _fmt_depth(dip):
+    """Format one dip's depth as ``$\\delta\\pm\\sigma$`` (2 dp, floored err)."""
+    return (f"${dip['delta_pct']:.2f}\\pm "
+            f"{max(dip['delta_pct_err'], ERR_FLOOR_PCT):.2f}$")
 
 
 def _ref_cell(ref, dagger):
     return f"{ref}$^\\dagger$" if dagger else f"{ref}"
 
 
+def _multidip_date_cell(k, b, dates, t0s):
+    """Date-column text for row (dip ``k``, band ``b``) of a multi-dip epoch.
+
+    Dips are emitted dip-outer, band-inner and share one observing date, so a
+    plain calendar date can't tell them apart.  We label them by their offset
+    from the first dip: the calendar date sits on dip 0's first row, ``(dip 1)``
+    on its next row, and ``(+X.X h)`` on the first row of each later dip (its
+    remaining rows are blank).  Falls back to ``(dip N)`` when a ``t0`` is
+    unavailable.
+    """
+    if k == 0:
+        if b == 0:
+            return dates[0]
+        if b == 1:
+            return "(dip 1)"
+        return ""
+    if b != 0:
+        return ""
+    if t0s[k] is not None and t0s[0] is not None:
+        return f"(+{(t0s[k] - t0s[0]) * 24.0:.1f} h)"
+    return f"(dip {k + 1})"
+
+
 def build_rows():
     """Return the list of fully-formatted LaTeX row strings (no trailing \\n).
 
     The Star cell is shown only when it differs from the previous row's star
-    (so a multi-epoch star like PTFO 8-8695 is labeled once); the Date cell is
-    shown on each epoch group's first row (or across successive rows when the
-    group supplies a list of date fragments).
+    (so a multi-epoch star like PTFO 8-8695 is labeled once).  Rows are emitted
+    dip-outer, band-inner, so an epoch's simultaneous bandpasses for a given dip
+    are adjacent (e.g. TIC 300651846's three successive dips each show TESS then
+    NB2.09).  Single-dip epochs render exactly as before: the Date cell on the
+    group's first row, or across successive rows when the group supplies a list
+    of date fragments.  Multi-dip epochs instead label each dip by its time
+    offset via ``_multidip_date_cell``.
     """
     rows = []
     prev_star = None
     for star, date, prefix, bands, ref, dagger in TABLE:
-        group = []  # (band_display, depth) for every dip in the group
+        # Per band: (display label, [dip records]); a missing/not-done dataset
+        # contributes no records and is filled with the placeholder below.
+        per_band = []
         for entry in bands:
             band_key, band_disp = _parse_band(entry)
-            for depth in _depths(f"{prefix}_{band_key}"):
-                group.append((band_disp, depth))
+            per_band.append((band_disp, _dip_records(f"{prefix}_{band_key}")))
+        ndip = max((len(recs) for _, recs in per_band), default=1) or 1
+        # Each dip's t0 (BJD), taken from the first band that measured it; used
+        # only to label multi-dip epochs by their time offset.
+        t0s = []
+        for k in range(ndip):
+            t0 = next((recs[k]["t0"] for _, recs in per_band
+                       if k < len(recs) and "t0" in recs[k]), None)
+            t0s.append(t0)
+
         dates = date if isinstance(date, list) else [date]
         ref_cell = _ref_cell(ref, dagger)
-        for j, (band_disp, depth) in enumerate(group):
-            star_cell = star if (j == 0 and star != prev_star) else ""
-            date_cell = dates[j] if j < len(dates) else ""
-            rows.append(
-                f"{star_cell:<{_W_STAR}} & {date_cell:<{_W_DATE}} & "
-                f"{band_disp:<{_W_BAND}} & {depth:<{_W_DEPTH}} & "
-                f"{ref_cell} \\\\")
+        j = 0  # row index within the group
+        for k in range(ndip):
+            for b, (band_disp, recs) in enumerate(per_band):
+                depth = _fmt_depth(recs[k]) if k < len(recs) else PLACEHOLDER
+                if ndip == 1:
+                    date_cell = dates[j] if j < len(dates) else ""
+                else:
+                    date_cell = _multidip_date_cell(k, b, dates, t0s)
+                star_cell = star if (j == 0 and star != prev_star) else ""
+                rows.append(
+                    f"{star_cell:<{_W_STAR}} & {date_cell:<{_W_DATE}} & "
+                    f"{band_disp:<{_W_BAND}} & {depth:<{_W_DEPTH}} & "
+                    f"{ref_cell} \\\\")
+                j += 1
         prev_star = star
     return rows
 
