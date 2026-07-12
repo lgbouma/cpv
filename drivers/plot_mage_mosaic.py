@@ -16,6 +16,13 @@ C/D/E/F: flux vs phase + Hα linecore twinx (= sixpanel panel D),
 G/H/I/J: specriver pcolor removeavg (= sixpanel panel E),
          for dates 20250118 / 20250119 / 20250120 / 20250121.
 
+Variants (see plot_mage_mosaic()):
+    avg          : show_simult=False
+    simult       : show_simult=True
+    simult_tworow: show_simult=True, tworow=True; adds a duplicate G/H/I/J-style
+                   row (K/L/M/N) below G/H/I/J, identical except its color
+                   scale is vmin/vmax = -0.2/+0.2 instead of -0.2/+0.5.
+
 env: cpv  (use /Users/luke/local/miniconda3/envs/cpv/bin/python)
 """
 
@@ -26,6 +33,7 @@ from copy import deepcopy
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
+from matplotlib.transforms import blended_transform_factory
 from scipy.ndimage import gaussian_filter1d
 
 from astrobase.lcmath import phase_magseries, phase_bin_magseries
@@ -45,9 +53,11 @@ PERIOD = 0.3439207894624283          # days
 T0 = 2460693.243837336 - 2457000     # TJD (BTJD), same as sixpanel driver
 YLIM = [-8, 5]                       # flux vs phase ylim [%]
 ADOPTED_VEQ = 89.65                  # km/s
+DELTA_V = 73.0                       # spectrograph velocity resolution [km/s]
 PCTILE = 25                          # for removeavg gaussian smoothed percentile
 BINSIZE_PHASE = 0.005
 VMIN_RIVER, VMAX_RIVER = -0.2, 0.5  # specriver colormap range
+VMIN_RIVER2, VMAX_RIVER2 = -0.2, 0.2  # specriver colormap range, "tworow" duplicate row
 
 DATES = ['20250118', '20250119', '20250120', '20250121']
 DATE_LABELS = ['2025/01/18', '2025/01/19', '2025/01/20', '2025/01/21']
@@ -234,7 +244,7 @@ def _plot_phase_linecore(ax, lc_times, lc_fluxs, sd, datestr, show_simult=False)
     return xmin, xmax, ax2
 
 
-def _plot_specriver(ax, fig, sd):
+def _plot_specriver(ax, fig, sd, vmin=VMIN_RIVER, vmax=VMAX_RIVER):
     """Draw specriver pcolor removeavg (sixpanel panel E) on ax.
 
     Returns the pcolor mappable for colorbar use, and (xmin, xmax).
@@ -250,7 +260,7 @@ def _plot_specriver(ax, fig, sd):
     y_vel = xvals[0]        # Δv/v_eq (assumed same for all spectra)
     x_phase = specphases    # phases (n_spec,)
 
-    norm = colors.Normalize(vmin=VMIN_RIVER, vmax=VMAX_RIVER)
+    norm = colors.Normalize(vmin=vmin, vmax=vmax)
     c = ax.pcolor(
         x_phase, y_vel, flux_arr_sub,
         cmap='Spectral_r', norm=norm, shading='auto', rasterized=True,
@@ -272,7 +282,44 @@ def _plot_specriver(ax, fig, sd):
     return c, xmin, xmax
 
 
-def plot_mage_mosaic(show_simult=False):
+def _add_specriver_colorbar(fig, ax_r, c_mappable):
+    """Inset colorbar for a specriver panel, ticked at the mappable's own
+    vmin/vmax (so it works for any color-scale range)."""
+    vmin, vmax = c_mappable.norm.vmin, c_mappable.norm.vmax
+    cax = ax_r.inset_axes([1.03, 0.01, 0.04, 0.35])
+    cb = fig.colorbar(c_mappable, cax=cax, orientation='vertical', extend='both')
+    cb.set_label(r"$f_\lambda$ - $f_{\langle t \rangle}$",
+                 rotation=90, labelpad=0.5, fontsize='xx-small')
+    cb.set_ticks([vmin, vmax])
+    cb.set_ticklabels([str(vmin), str(vmax)])
+    cb.ax.tick_params(labelsize='xx-small')
+    cb.update_ticks()
+
+
+def _add_velocity_marker(ax_r):
+    """Velocity-resolution errorbar marker, lower-left of a specriver panel.
+    Horizontal position in axes-fraction x; vertical extent is δv/v_eq in the
+    panel's own Δv/v_eq data units so it can be read against the specriver.
+    """
+    trans = blended_transform_factory(ax_r.transAxes, ax_r.transData)
+    delta_v_norm = DELTA_V / ADOPTED_VEQ
+    ylim_r = ax_r.get_ylim()
+    y_center = ylim_r[0] + 0.14 * (ylim_r[1] - ylim_r[0])
+    x_marker = 0.16
+    ax_r.errorbar(
+        x_marker, y_center, yerr=delta_v_norm / 2,
+        transform=trans, fmt='none', ecolor='k',
+        elinewidth=0.7, capsize=2, capthick=0.7,
+        clip_on=False, zorder=10,
+    )
+    ax_r.text(
+        x_marker + 0.06, y_center, r'$\delta v$',
+        transform=trans, rotation=90, ha='left', va='center',
+        fontsize='x-small', clip_on=False,
+    )
+
+
+def plot_mage_mosaic(show_simult=False, tworow=False):
 
     # ── load LC ────────────────────────────────────────────────────────────
     (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend,
@@ -290,22 +337,42 @@ def plot_mage_mosaic(show_simult=False):
     plt.close('all')
     set_style('science')
 
-    fig = plt.figure(figsize=(7, 6.))
-    axd = fig.subplot_mosaic(
-        """
-        AAAB
-        AAAB
-        ....
-        CDEF
-        GHIJ
-        GHIJ
-        """,
-        gridspec_kw={
-            'height_ratios': [1, 1, 0.05, 1.8, 1, 1],
-            'hspace': 0.55,
-            'wspace': 0.5,
-        },
-    )
+    if tworow:
+        fig = plt.figure(figsize=(7, 7.7))
+        axd = fig.subplot_mosaic(
+            """
+            AAAB
+            AAAB
+            ....
+            CDEF
+            GHIJ
+            GHIJ
+            KLMN
+            KLMN
+            """,
+            gridspec_kw={
+                'height_ratios': [1, 1, 0.05, 1.8, 1, 1, 1, 1],
+                'hspace': 0.55,
+                'wspace': 0.5,
+            },
+        )
+    else:
+        fig = plt.figure(figsize=(7, 6.))
+        axd = fig.subplot_mosaic(
+            """
+            AAAB
+            AAAB
+            ....
+            CDEF
+            GHIJ
+            GHIJ
+            """,
+            gridspec_kw={
+                'height_ratios': [1, 1, 0.05, 1.8, 1, 1],
+                'hspace': 0.55,
+                'wspace': 0.5,
+            },
+        )
 
     # ── Panel A: flux vs time ───────────────────────────────────────────────
     ax_A = axd['A']
@@ -426,27 +493,83 @@ def plot_mage_mosaic(show_simult=False):
         if rk != 'G':
             ax_r.set_ylabel('')
 
+        # when a KLMN duplicate row follows, GHIJ is no longer the bottom
+        # row: drop its x-label/tick labels (same treatment CDEF gets above)
+        if tworow:
+            ax_r.set_xlabel('')
+            ax_r.tick_params(axis='x', labelbottom=False)
+
         # inset colorbar only on J
         if rk == 'J':
-            cax = ax_r.inset_axes([1.03, 0.01, 0.04, 0.35])
-            cb = fig.colorbar(c_mappable, cax=cax, orientation='vertical', extend='both')
-            cb.set_label(r"$f_\lambda$ - $f_{\langle t \rangle}$",
-                         rotation=90, labelpad=0.5, fontsize='xx-small')
-            cb.set_ticks([VMIN_RIVER, VMAX_RIVER])
-            cb.set_ticklabels([str(VMIN_RIVER), str(VMAX_RIVER)])
-            cb.ax.tick_params(labelsize='xx-small')
-            cb.update_ticks()
+            _add_specriver_colorbar(fig, ax_r, c_mappable)
+
+        # velocity-resolution errorbar marker, lower-left of the bottom-left
+        # specriver panel.
+        if rk == 'G':
+            _add_velocity_marker(ax_r)
+
+    # ── Panels K/L/M/N: duplicate specriver row, vmin/vmax = -0.2/+0.2 ─────
+    if tworow:
+        river2_keys = ['K', 'L', 'M', 'N']   # duplicate specriver row
+
+        for rk2, datestr in zip(river2_keys, DATES):
+            ax_r2 = axd[rk2]
+            sd = spec[datestr]
+
+            c_mappable2, xmin_r2, xmax_r2 = _plot_specriver(
+                ax_r2, fig, sd, vmin=VMIN_RIVER2, vmax=VMAX_RIVER2
+            )
+
+            # drop Δv/v_eq y-label on L, M, N (keep tick labels)
+            if rk2 != 'K':
+                ax_r2.set_ylabel('')
+
+            # inset colorbar only on N
+            if rk2 == 'N':
+                _add_specriver_colorbar(fig, ax_r2, c_mappable2)
+
+            # velocity-resolution errorbar marker, lower-left of the
+            # bottom-left specriver panel.
+            if rk2 == 'K':
+                _add_velocity_marker(ax_r2)
 
     # enforce consistent ylim on panel B (must come after all other axes work)
     axd['B'].set_ylim(YLIM)
 
-    # tighten gap between CDEF and GHIJ rows
+    # Tighten the CDEF-GHIJ gap (and GHIJ-KLMN gap, if present) to the same
+    # small absolute size. gridspec's scalar hspace already makes the
+    # *default* (pre-shift) row-to-row gaps uniform, but shifting GHIJ up by
+    # a fixed amount also drags its bottom edge up, which *widens* the gap
+    # below it by that same amount. So a naive "+const" shift applied to
+    # both GHIJ and KLMN cancels out and leaves the GHIJ-KLMN gap at its
+    # (larger) default rather than tightened. Instead, measure the true
+    # default gaps first, then solve for the shifts that land both
+    # transitions on the same TIGHT_GAP.
+    TIGHT_GAP = 0.008  # target gap size, figure-fraction units
+
+    gap_cg_default = axd['C'].get_position().y0 - axd['G'].get_position().y1
+    if tworow:
+        gap_gk_default = axd['G'].get_position().y0 - axd['K'].get_position().y1
+
+    d_g = gap_cg_default - TIGHT_GAP
     for key in ['G', 'H', 'I', 'J']:
         pos = axd[key].get_position()
-        axd[key].set_position([pos.x0, pos.y0 + 0.04, pos.width, pos.height])
+        axd[key].set_position([pos.x0, pos.y0 + d_g, pos.width, pos.height])
+
+    if tworow:
+        # K must cancel the widening caused by G's shift (+d_g) on top of
+        # its own tightening (-TIGHT_GAP from the default), hence the extra
+        # + d_g term relative to a naive same-size shift.
+        d_k = gap_gk_default + d_g - TIGHT_GAP
+        for key in ['K', 'L', 'M', 'N']:
+            pos = axd[key].get_position()
+            axd[key].set_position([pos.x0, pos.y0 + d_k, pos.width, pos.height])
 
     # ── save ───────────────────────────────────────────────────────────────
-    suffix = 'simult' if show_simult else 'avg'
+    if tworow:
+        suffix = 'simult_tworow'
+    else:
+        suffix = 'simult' if show_simult else 'avg'
     outpath = join(PLOTDIR, f'mage_mosaic_{suffix}.png')
     savefig(fig, outpath, dpi=300)
     print(f'Saved {outpath}')
@@ -457,5 +580,6 @@ def plot_mage_mosaic(show_simult=False):
 
 
 if __name__ == '__main__':
-    plot_mage_mosaic(show_simult=False)   # mage_mosaic_avg.png/pdf
-    plot_mage_mosaic(show_simult=True)    # mage_mosaic_simult.png/pdf
+    plot_mage_mosaic(show_simult=False)                    # mage_mosaic_avg.png/pdf
+    plot_mage_mosaic(show_simult=True)                      # mage_mosaic_simult.png/pdf
+    plot_mage_mosaic(show_simult=True, tworow=True)         # mage_mosaic_simult_tworow.png/pdf

@@ -199,8 +199,10 @@ def plot_dbsp_halpha_mosaic_supp():
         ck = _colkey(col)
         _dips = get_column_labels(labels_df, 'supp', ck, 'dip')
         _flares = get_column_labels(labels_df, 'supp', ck, 'flare')
-        draw_coincidence_markers(ax_ew, _dips, _flares, row='top')
-        draw_coincidence_markers(ax_fl, _dips, _flares, row='bottom')
+        draw_coincidence_markers(ax_ew, _dips, _flares, row='top',
+                                 dip_alpha=0.7, flare_alpha=0.9)
+        draw_coincidence_markers(ax_fl, _dips, _flares, row='bottom',
+                                 dip_alpha=0.7, flare_alpha=0.9)
 
     # ── axis labels ──────────────────────────────────────────────────────────
     fs = 'small'
