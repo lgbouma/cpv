@@ -1522,7 +1522,7 @@ def plot_multicolor_phase_lp12502(outdir, BINMS=3, dates=None, suffix='',
     total_dy = sum(_resolve_dy(g) for g in groups)
     total_gap = DGAP * (len(groups) - 1)
     fig_h = max(3.0, (total_dy + total_gap + 14) / 14)
-    fig_h = round(fig_h * 2) / 2  # round to nearest 0.5
+    fig_h = 1.2 * round(fig_h * 2) / 2  # round to nearest 0.5
 
     set_style("science")
     fig, ax = plt.subplots(figsize=(2.5, fig_h))
@@ -1782,8 +1782,12 @@ def plot_cpvvetter(
         'unpopular': 'dtr_flux',
         'tars': 'flux',
     }
+    if isinstance(data, pd.DataFrame):
+        _colnames = list(data.columns)
+    else:
+        _colnames = list(data.dtype.names)
     if lcpipeline in ['spoc2min', 'cdips', 'tess-spoc', 'unpopular', 'tars']:
-        if FLUXKEYDICT[lcpipeline] in data.dtype.names:
+        if FLUXKEYDICT[lcpipeline] in _colnames:
             _flux = nparr(data[FLUXKEYDICT[lcpipeline]])
         else:
             _flux = nparr(data['dtr_flux'])

@@ -75,7 +75,7 @@ from astroquery.mast import Catalogs
 from cdips.utils.lcutils import astropy_utc_time_to_bjd_tdb
 
 def get_cqv_search_sample():
-    localdir = '/Users/luke/local/SPOCLC'
+    localdir = os.path.expanduser('~/local/SPOCLC')
     csvpath = join(localdir, 'gaia_X_spoc2min_merge.csv')
     df = pd.read_csv(csvpath)
 
@@ -481,7 +481,7 @@ def get_tic8_row(ticid, cachedir):
 
 
 def get_specriver_data(
-    ticid, linestr, specdir='/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/',
+    ticid, linestr, specdir=os.path.expanduser('~/Dropbox/proj/cpv/data/spectra/HIRES/'),
     dlambda=20,
     usespectype='deblazed',
     gaussian_filter_sigma=2,
@@ -514,9 +514,9 @@ def get_specriver_data(
     elif usespectype == 'reduced':
         datadir = reducdir
     elif usespectype == 'mike':
-        datadir = '/Users/luke/Dropbox/proj/cpv/data/spectra/MIKE/RAW/20250102/Final-Science-Products'
+        datadir = os.path.expanduser('~/Dropbox/proj/cpv/data/spectra/MIKE/RAW/20250102/Final-Science-Products')
     elif 'mage' in usespectype:
-        datadir = '/Users/luke/Dropbox/proj/cpv/data/spectra/MAGE_REDUX/Final-Products'
+        datadir = os.path.expanduser('~/Dropbox/proj/cpv/data/spectra/MAGE_REDUX/Final-Products')
     assert os.path.exists(datadir)
 
     if ticid in ['402980664', '141146667']:
