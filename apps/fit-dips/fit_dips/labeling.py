@@ -98,7 +98,9 @@ def _phase_bin(t, flux, period, per_period=200):
 class MultiDipLabeler:
     """Stacked, shared-x labeler over one or more co-temporal light curves.
 
-    Each panel is a dict ``{t, flux, title, on_fit, bin_period}``. All panels
+    Each panel is a dict ``{t, flux, title, on_fit, bin_period, ylim}``
+    (``ylim``, optional, sets that panel's initial y-range and turns off
+    y-autoscale so classify/overlay redraws keep the view). All panels
     share a single :class:`LabelState`, so a dip/flare window dragged in any
     panel propagates to every panel -- guaranteeing identical in/out-of-dip
     times across bands on the same night. The masks are still evaluated per
@@ -139,6 +141,7 @@ class MultiDipLabeler:
             panel["t"] = np.asarray(panel["t"], dtype=float)
             panel["flux"] = np.asarray(panel["flux"], dtype=float)
             panel.setdefault("bin_period", None)
+            panel.setdefault("ylim", None)
             panel["binned"] = None
             panel["class_artists"] = []   # colored points from classify preview
             panel["model_line"] = None
@@ -146,6 +149,8 @@ class MultiDipLabeler:
             panel["dip_marker_lines"] = []
             all_t.append(panel["t"])
             self._render_base(panel)
+            if panel["ylim"]:
+                ax.set_ylim(*panel["ylim"])   # fixed initial view (autoscale off)
             ax.set_ylabel("normalized flux")
             if panel.get("title"):
                 ax.set_title(panel["title"], fontsize=8, loc="left")

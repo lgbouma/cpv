@@ -31,6 +31,15 @@ from scipy.optimize import least_squares
 
 from . import models
 
+# Trapezoid geometry cap tied to the labeled in-dip window. The dip half-duration
+# W is bounded at TRAP_W_CAP_FACTOR * (window half-width), so the total duration
+# T14 = 2W stays within this factor of the box the user drew; the mid-time t0 is
+# pinned to the window edges. Together these keep a trapezoid from widening or
+# drifting out of its label to merge with an adjacent dip. k=1.2 leaves a little
+# slack over an exact bracket (k=1). Applies to both the single-band fit and the
+# cross-band joint (shared-duration) fit.
+TRAP_W_CAP_FACTOR = 1.1
+
 
 @dataclass
 class DipResult:
@@ -111,9 +120,13 @@ def _dip_init_from_windows(t, flux, dip_windows, baseline, profile="sech"):
         depth = max(local_base - float(np.nanmin(flux[m])), 1e-4)
         if profile == "trap":
             W = max(dw / 2.0, 1e-4)            # half the labeled window
+            # Cap W at k*(dw/2) and pin t0 to the window, so the trapezoid stays
+            # within the labeled box instead of widening/drifting to merge with
+            # an adjacent dip (see TRAP_W_CAP_FACTOR).
+            W_cap = max(TRAP_W_CAP_FACTOR * 0.5 * dw, 1e-4)
             p0 += [depth, t0, W, 0.25]         # r=0.25 -> modest ingress
-            lo += [0.0, x0 - 0.5 * dw, 1e-5, 1e-4]
-            hi += [1.0, x1 + 0.5 * dw, span, 1.0]
+            lo += [0.0, x0, 1e-5, 1e-4]
+            hi += [1.0, x1, W_cap, 1.0]
         else:
             width = max(dw / 4.0, 1e-4)
             p0 += [depth, t0, width]
@@ -423,14 +436,17 @@ def fit_group_shared_dip(bands):
     shared_dips = [i for i in range(D) if present_bands[i]]
     if not shared_dips:
         return None
-    span_global = max(float(T.max() - T.min()) for T in Ts)
-
     # --- pack parameters: shared [t0_i, W_i] then per-band [A_{b,i}, r_{b,i}] --
+    # The shared half-duration W is capped at k*(dw/2) and the shared mid-time t0
+    # is pinned to the labeled window (from the primary band), exactly as in the
+    # single-band fit, so a tied dip cannot widen or drift out of its box to
+    # merge with a neighbor (see TRAP_W_CAP_FACTOR).
     p0, lo, hi = [], [], []
     shared_idx = {}
     for i in shared_dips:
         x0, x1 = windows[i]
         dw = x1 - x0
+        W_cap = max(TRAP_W_CAP_FACTOR * 0.5 * dw, 1e-4)
         t0s, Ws = [], []
         for bi in present_bands[i]:
             m = masks[bi][i]
@@ -438,8 +454,8 @@ def fit_group_shared_dip(bands):
             Ws.append(max(dw / 2.0, 1e-4))
         shared_idx[i] = (len(p0), len(p0) + 1)
         p0 += [float(np.median(t0s)), float(np.median(Ws))]
-        lo += [x0 - 0.5 * dw, 1e-5]
-        hi += [x1 + 0.5 * dw, span_global]
+        lo += [x0, 1e-5]
+        hi += [x1, W_cap]
     band_idx = [dict() for _ in range(nbnd)]
     for bi in range(nbnd):
         for i in shared_dips:

@@ -107,23 +107,23 @@ if len(phase_binned):
                alpha=0.9, marker='o', linewidths=0)
 
 # TESS raw and phase-binned
-ax.scatter(_phase, (_f - 1)*100, s=0.08, color='C0', alpha=0.3, marker='o', linewidths=0)
+ax.scatter(_phase, (_f - 1)*100, s=0.08, color='lightgray', alpha=0.85, marker='o', linewidths=0)
 if len(phase_bin_center):
-    ax.scatter(phase_bin_center, (flux_phase_binned - 1)*100, s=5, color='C0',
+    ax.scatter(phase_bin_center, (flux_phase_binned - 1)*100, s=5, color='black',
                alpha=0.9, marker='o', linewidths=0)
 
-ax.set_xlabel('Phase ($P$=8.26 hr)', fontsize=6)
-ax.set_ylabel('Relative flux (%)', fontsize=6)
-ax.tick_params(axis='both', which='major', labelsize=5.5)
+ax.set_xlabel('Phase ($P$=8.26 hr)', fontsize=8)
+ax.set_ylabel('Relative flux (%)', fontsize=8)
+ax.tick_params(axis='both', which='major', labelsize=8)
 ax.set_xlim(-0.55,0.55)
 ax.set_ylim(-8, 11)
 ax.set_yticks([-5, 0, 5, 10])
-ax.set_title('TIC 300651846: 2.09$\mu$m', fontsize=7)
+ax.set_title('TIC 300651846: 2.09$\mu$m', fontsize=8)
 
 # Annotations for datasets
 ax.text(0.49, 10, 'FourStar\n2025/02/10', color='maroon', ha='right',
         va='center', fontsize=4.5)
-ax.text(0.49, -0.5, 'TESS\nSimult.', color='C0', ha='right', va='top',
+ax.text(0.49, -0.5, 'TESS\nSimult.', color='black', ha='right', va='top',
         fontsize=4.5)
 
 # Filter response inset
@@ -139,7 +139,7 @@ tess_trans = tess_bp[:,1] / tess_bp[:,1].max()
 
 axins = ax.inset_axes([0.025, 0.06, 0.38, 0.12])
 axins.set_facecolor('white')
-axins.fill_between(tess_wave, tess_trans, color='C0', alpha=0.8, lw=0)
+axins.fill_between(tess_wave, tess_trans, color='black', alpha=0.6, lw=0)
 axins.fill_between(nb209_wave, nb209_trans, color='maroon', alpha=0.9, lw=0)
 axins.set_xlim(0.3, 2.3)
 axins.set_ylim(0, 1.3)
@@ -153,7 +153,7 @@ axins.set_yticks([])
 for _spine in ['top', 'left', 'right']:
     axins.spines[_spine].set_visible(False)
 axins.set_xlabel('μm', fontsize=5, labelpad=1)
-axins.text(0.77, 1, 'TESS', color='C0', ha='center', va='bottom', fontsize=4)
+axins.text(0.77, 1, 'TESS', color='black', ha='center', va='bottom', fontsize=4)
 axins.text(2.09, 1, 'FourStar\n2.09μm', color='maroon', ha='center',
            va='bottom', fontsize=4)
 

@@ -116,7 +116,7 @@ from scipy.interpolate import interp1d, PchipInterpolator
 from aesthetic.plot import savefig, format_ax, set_style
 
 from complexrotators.paths import (
-    DATADIR, PHOTDIR, SPOCDIR, LOCALDIR, TABLEDIR
+    DATADIR, PHOTDIR, SPOCDIR, LOCALDIR, TABLEDIR, RESULTSDIR
 )
 from complexrotators.lcprocessing import (
     cpv_periodsearch, subtract_secondary_sinusoid
@@ -1202,12 +1202,20 @@ def get_ylimguess(y):
     return [ymin,ymax]
 
 
-def _get_all_tic262400835_data():
+def _get_all_tic262400835_data(reextracted=False, trim_edges_min=0):
+    # If reextracted is True, the MuSCAT2 (M2) light curves are loaded from the
+    # 2026-07 Murgas re-extraction (3-column .dat: BJD, norm flux, flux_err)
+    # instead of the original achromatic FITS. MuSCAT1 and TESS are unchanged.
+    # trim_edges_min: if >0, drop the first and last N minutes of the 2020 Dec
+    # 15 MuSCAT2 re-extraction night (per band) to remove its edge-of-night
+    # offset. (Dec 13 is left untrimmed.)
+
     # get median-filtered tess 20 second data. (4.5day blended rotation
     # removed).
     df0 = pd.read_csv(
-        '/Users/luke/Dropbox/proj/cpv/results/river/tic_262400835/'
-        'HARDCOPY_spoc_tess_lightcurve_median_PDCSAP_FLUX_allsector_sigclipped.csv'
+        join(RESULTSDIR, 'river', 'tic_262400835',
+             'HARDCOPY_spoc_tess_lightcurve_median_PDCSAP_FLUX_allsector'
+             '_sigclipped.csv')
     )
     time, flux = np.array(df0.time), np.array(df0.flux)
     tess_texp = np.nanmedian(np.diff(time))
@@ -1229,33 +1237,65 @@ def _get_all_tic262400835_data():
         texp = np.nanmedian(np.diff(time))
         datasets[datasetname] = [time, flux, err, texp]
 
-    # get MUSCAT2 data
-    m2_files = glob(
-        join(PHOTDIR, 'MUSCAT', 'tic262400835_*achromatic*.fits')
-    )
-    for m2_file in m2_files:
-        timestamp = os.path.basename(m2_file).split("_")[1]
-        hl = fits.open(m2_file)
-        # two transits...
-        for color in ['g','r','z_s']:
-            fitskey = 'flux_'+color
-            datasetname = 'M2_'+color.replace('_s','')+"_"+timestamp
-            time, flux, err = (
-                nparr(hl[fitskey].data['time_bjd']),
-                nparr(hl[fitskey].data['flux']),
-                None
-            )
-            texp = np.nanmedian(np.diff(time))
-            datasets[datasetname] = [time, flux, err, texp]
+    if not reextracted:
+        # get MUSCAT2 data (original achromatic FITS extraction)
+        m2_files = glob(
+            join(PHOTDIR, 'MUSCAT', 'tic262400835_*achromatic*.fits')
+        )
+        for m2_file in m2_files:
+            timestamp = os.path.basename(m2_file).split("_")[1]
+            hl = fits.open(m2_file)
+            # two transits...
+            for color in ['g','r','z_s']:
+                fitskey = 'flux_'+color
+                datasetname = 'M2_'+color.replace('_s','')+"_"+timestamp
+                time, flux, err = (
+                    nparr(hl[fitskey].data['time_bjd']),
+                    nparr(hl[fitskey].data['flux']),
+                    None
+                )
+                texp = np.nanmedian(np.diff(time))
+                datasets[datasetname] = [time, flux, err, texp]
+    else:
+        # get MUSCAT2 data (2026-07 Murgas re-extraction, 3-column .dat:
+        # BJD_TDB, normalized flux, flux_err). z_s is delivered unbinned.
+        m2_dir = join(PHOTDIR, 'MUSCAT', 'TIC262400835_MuSCAT2_Murgas',
+                      'TIC262400835_MuSCAT2')
+        # (datfile band tag, dataset color key)
+        band_map = [('g', 'g'), ('r', 'r'), ('zs', 'z')]
+        for datestamp in ['20201213', '20201215']:
+            timestamp = datestamp[2:]  # 20201213 -> 201213
+            for datband, color in band_map:
+                datpath = join(
+                    m2_dir, f'TIC262400835_MuSCAT2_{datband}_{datestamp}.dat'
+                )
+                arr = np.genfromtxt(datpath)
+                time, flux, err = arr[:, 0], arr[:, 1], arr[:, 2]
+                if trim_edges_min > 0 and datestamp == '20201215':
+                    dt = trim_edges_min / (60*24)
+                    keep = (
+                        (time > np.nanmin(time) + dt) &
+                        (time < np.nanmax(time) - dt)
+                    )
+                    time, flux, err = time[keep], flux[keep], err[keep]
+                texp = np.nanmedian(np.diff(time))
+                datasetname = 'M2_'+color+"_"+timestamp
+                datasets[datasetname] = [time, flux, err, texp]
 
     return datasets
 
 
-def plot_multicolor_phase(outdir, BINMS=2.5):
+def plot_multicolor_phase(outdir, BINMS=2.5, reextracted=False,
+                          trim_edges_min=0):
     # currently hard-coded for TIC 262400835
+    # reextracted: use the 2026-07 Murgas MuSCAT2 re-extraction (see
+    # _get_all_tic262400835_data); output filenames get a "_reextracted" suffix.
+    # trim_edges_min: drop the first/last N min of each MuSCAT2 night.
 
     #keys: tess20sec, M1_g|r|z_201216, M2_g|r|z_201213|201215
-    datasets = _get_all_tic262400835_data()
+    datasets = _get_all_tic262400835_data(
+        reextracted=reextracted, trim_edges_min=trim_edges_min)
+    sfx = '_reextracted' if reextracted else ''
 
     t0 = np.nanmin(datasets['tess20sec'][0]) + 0.5/24
     period = 0.29822 # manually tuned...
@@ -1267,19 +1307,21 @@ def plot_multicolor_phase(outdir, BINMS=2.5):
     # ... but first, just look at the data.
 
     # initialize
-    outpath = join(outdir, 'TIC262400835_multicolor_phase_stacked.png')
+    outpath = join(outdir, f'TIC262400835_multicolor_phase_stacked{sfx}.png')
     set_style("science")
 
     time, flux = datasets['tess20sec'][0], datasets['tess20sec'][1]
     fig, ax = plot_phased_light_curve(time, flux, t0, period, None,
                                       savethefigure=False,
-                                      figsize=(2.5,6),
+                                      figsize=(2.0,4.8),
                                       showtext=False,
                                       ylim=[-57.8, 6.5])
+    # nudge the four header labels (TESS + 3 night headers) up in flux %.
+    HEADER_TEXT_YSHIFT = 0.5 if reextracted else 0
     _,y = time, flux-np.nanmean(flux)
     props = dict(boxstyle='square', facecolor='white', alpha=0.5, pad=0.15,
                  linewidth=0)
-    ax.text(.535, 2.5 + np.nanmedian(1e2*(y)), 'TESS S32',
+    ax.text(.535, 2.5 + np.nanmedian(1e2*(y)) + HEADER_TEXT_YSHIFT, 'TESS S32',
             ha='right',va='center', color='k',
             fontsize=5, bbox=props, zorder=1003)
 
@@ -1298,34 +1340,44 @@ def plot_multicolor_phase(outdir, BINMS=2.5):
     BPTOCOLORDICT = {
         'g': 'g', 'r': 'r', 'z': 'purple'
     }
+    # cosmetic offsets for the re-extracted plot (flux %). EXTRA_YSHIFT nudges a
+    # dataset's plotted points (and its band label); BAND_LABEL_YSHIFT nudges
+    # only the single-letter band label.
+    EXTRA_YSHIFT = {'M2_r_201215': -1.3} if reextracted else {}
+    BAND_LABEL_YSHIFT = (
+        {'M2_r_201215': 2.8, 'M2_g_201215': 2.0} if reextracted else {}
+    )
     ix = 0
     orb_bds = {}
     for k in keylist:
         bandpass = k.split("_")[1]
         color = BPTOCOLORDICT[bandpass]
+        yshift = EXTRA_YSHIFT.get(k, 0)
         time, flux = datasets[k][0], datasets[k][1]
         x,y = time, flux-np.nanmean(flux)
         _pd = phase_magseries(x, y, period, t0, wrap=True, sort=True)
         x_fold, y = _pd['phase'], _pd['mags']
-        ax.scatter(x_fold, 1e2*(y)+y_offset, color=color, label="data", marker='.',
-                   s=1, rasterized=True, alpha=0.3, linewidths=0)
+        ax.scatter(x_fold, 1e2*(y)+y_offset+yshift, color=color, label="data",
+                   marker='.', s=1, rasterized=True, alpha=0.3, linewidths=0)
 
         binsize_minutes = 15
         bs_days = (binsize_minutes / (60*24))
         orb_bd = phase_bin_magseries(x_fold, y, binsize=bs_days, minbinelems=1)
         ax.scatter(
-            orb_bd['binnedphases'], 1e2*(orb_bd['binnedmags'])+y_offset, color=color,
-            s=BINMS, linewidths=0, alpha=1, zorder=1002
+            orb_bd['binnedphases'], 1e2*(orb_bd['binnedmags'])+y_offset+yshift,
+            color=color, s=BINMS, linewidths=0, alpha=1, zorder=1002
         )
         orb_bds[k] = orb_bd
 
         if '_z_' in k:
             txt = f'2020 Dec {k[-2:]}\nMuSCAT{k[1]} $'+f'{k[3]}'+'$'
+            text_yshift = HEADER_TEXT_YSHIFT
         else:
             txt = '$'+f'{k[3]}'+'$'
+            text_yshift = BAND_LABEL_YSHIFT.get(k, 0)
         props = dict(boxstyle='square', facecolor='white', alpha=0.7, pad=0.15,
                      linewidth=0)
-        ax.text(.535, 2.5+np.nanmedian(1e2*(y)+y_offset), txt,
+        ax.text(.535, 2.5+np.nanmedian(1e2*(y)+y_offset)+yshift+text_yshift, txt,
                 ha='right',va='center', color='k',
                 fontsize=5, bbox=props, zorder=1003)
 
@@ -1337,15 +1389,16 @@ def plot_multicolor_phase(outdir, BINMS=2.5):
         ix += 1
 
     ax.set_ylim([-58, 6.5])
-    ax.set_ylabel(f'Relative flux (%)')
-    ax.set_xlabel(f'Phase ($P$=7.16 hr)')
-    ax.set_title('TIC 262400835: $grz$', fontsize='medium')
+    ax.set_ylabel(f'Relative flux (%)', fontsize=8)
+    ax.set_xlabel(f'Phase ($P$=7.16 hr)', fontsize=8)
+    ax.set_title('TIC 262400835: $grz$', fontsize=8)
+    ax.tick_params(axis='both', which='major', labelsize=8)
 
     savefig(fig, outpath, dpi=350)
     plt.close('all')
 
     # now do it in bonafide color
-    outpath = join(outdir, 'TIC262400835_multicolor_phase.png')
+    outpath = join(outdir, f'TIC262400835_multicolor_phase{sfx}.png')
 
     time, flux = datasets['tess20sec'][0], datasets['tess20sec'][1]
 
@@ -1606,7 +1659,7 @@ def plot_multicolor_phase_lp12502(outdir, BINMS=3, dates=None, suffix='',
             y_offset -= DGAP
 
     ax.set_xlim(XLIM)
-    ax.set_ylim([y_offset - 5, 8])
+    ax.set_ylim([-44.1, 3.1])
     ax.set_xlabel(f'Phase ($P$ = {18.5611:.2f} hr)')
     ax.set_ylabel('Relative flux (%)')
 

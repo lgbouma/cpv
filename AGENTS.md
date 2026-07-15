@@ -6,16 +6,17 @@ This guide exists for agents working in the complex periodic variable repository
 
 - This repository is an amalgam of scripts and pipelines used to study a specific class of variable star, complex periodic variables.
 
+## Environment
+
+- NEVER USE DEFAULT PYTHON ENVIRONMENT
+- During testing and development, this code is deployed on local laptops and servers.  IMPORTANT: during development, use the `cpv` conda environment for all Python development, tests, and automation runs.  For instance, use /Users/luke/local/miniconda3/envs/cpv/bin/python and miniconda3/envs/cpv/bin/pytest directly.  If it doesn't exist, make a suitable uv replacement, also called "cpv".
+
 ## Coding standards
 
 - Write Python that passes PEP 8; keep lines readable and use descriptive names.
 - Use Google-style docstrings for every public module, class, function, and method to describe arguments, returns, raises, and any non-obvious behavior.
 - Use f-strings for logging messages.
 - Favor small, testable functions and keep high-level routines thin when possible.
-
-## Deployment
-
-- During testing and development, this code is deployed on local laptops and servers.  IMPORTANT: during development, use the `cpv` conda environment for all Python development, tests, and automation runs.  For instance, use /Users/luke/local/miniconda3/envs/cpv/bin/python and miniconda3/envs/cpv/bin/pytest directly.  If it doesn't exist, make a suitable uv replacement, also called "cpv".
 
 ## Workflow expectations
 

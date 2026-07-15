@@ -14,7 +14,11 @@
 #               groups already 'done', so you can relabel over several sittings.
 #
 # TIC 300651846 keeps only NB2.09 + TESS_S88 (per request): the raw TESS window
-# and the TESS_pm2cycle fold are cleared and NOT relabeled.
+# and the TESS_pm2cycle fold are cleared and NOT relabeled. NB2.09 and the
+# full-sector fold (S88) are each fit solo, then tied with an explicit-id joint
+# refit (--refit-ids) so NB2.09 inherits its dip geometry (T14=2W, t0) from the
+# dense folded TESS light curve -- the auto-grouper skips folds, so we pair them
+# by name.
 #
 # Usage:
 #   cd apps/fit-dips
@@ -93,8 +97,13 @@ if [[ "$cmd" == "relabel" ]]; then
   for primary in "${GROUP_PRIMARIES[@]}"; do
     launch "$primary"
   done
-  launch TIC300651846_20250210_NB2.09 --solo      # not tied to the raw TESS window
+  launch TIC300651846_20250210_NB2.09 --solo      # fit solo, then tied below
   launch TIC300651846_20250210_TESS_S88           # full-sector folded variant
+  # tie NB2.09's dip geometry (T14=2W, t0) to the folded TESS (S88 is primary,
+  # so its windows are shared); bypasses the auto-grouper, which skips folds.
+  echo ">>> tie NB2.09 <- TESS_S88 (cross-band shared-duration joint refit)"
+  "$PY" -m fit_dips.app --refit-ids \
+    TIC300651846_20250210_TESS_S88,TIC300651846_20250210_NB2.09
   echo
   echo "============ remaining unfit ==========================================="
   "$PY" -m fit_dips.app --list | grep -E "not_started|started_failed" \

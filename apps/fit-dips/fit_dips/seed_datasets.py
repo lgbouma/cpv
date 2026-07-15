@@ -39,6 +39,14 @@ M2_FITS = {
     "20201213": f"{MUSCAT}/tic262400835_201213_achromatic_k.fits",
     "20201215": f"{MUSCAT}/tic262400835_201215_achromatic_k.fits",
 }
+# 2026-07 Murgas MuSCAT2 re-extraction (3-column .dat per band per night). The
+# 'z' dataset band maps to the 'zs' file tag. These supersede M2_FITS.
+_M2_DAT_DIR = f"{MUSCAT}/TIC262400835_MuSCAT2_Murgas/TIC262400835_MuSCAT2"
+
+
+def _m2_dat(ts, band):
+    tag = "zs" if band == "z" else band
+    return f"{_M2_DAT_DIR}/TIC262400835_MuSCAT2_{tag}_{ts}.dat"
 M1_CSV = {
     "g": f"{MUSCAT}/TIC262400835_201216_muscat_g_c2345_r8.csv",
     "r": f"{MUSCAT}/TIC262400835_201216_muscat_r_c2345_r10.csv",
@@ -78,12 +86,13 @@ def build_resolved():
     out = []
 
     # --- TIC 262400835, MuSCAT2, 2020 Dec 13 & 15 (g, r, i, z) ---
+    # Uses the 2026-07 Murgas re-extraction (.dat); see _m2_dat.
     for ts, date in (("20201213", "2020-12-13"), ("20201215", "2020-12-15")):
         for band in ("g", "r", "i", "z"):
             out.append((
                 f"TIC262400835_{ts}_{band}", "TIC 262400835", date, band,
                 "MuSCAT2", 1,
-                {"loader": "muscat2_fits", "path": M2_FITS[ts], "band": band},
+                {"loader": "muscat2_dat", "path": _m2_dat(ts, band)},
                 P_TIC262, ""))
 
     # --- TIC 262400835, MuSCAT1, 2020 Dec 16 (g, r, z) ---
@@ -95,10 +104,8 @@ def build_resolved():
 
     # --- TIC 262400835, TESS night windows (S32) ---
     tess_nights = {
-        "20201213": {"loader": "muscat2_fits", "path": M2_FITS["20201213"],
-                     "band": "g"},
-        "20201215": {"loader": "muscat2_fits", "path": M2_FITS["20201215"],
-                     "band": "g"},
+        "20201213": {"loader": "muscat2_dat", "path": _m2_dat("20201213", "g")},
+        "20201215": {"loader": "muscat2_dat", "path": _m2_dat("20201215", "g")},
         "20201216": {"loader": "muscat_csv", "path": M1_CSV["g"]},
     }
     for ts, date in (("20201213", "2020-12-13"), ("20201215", "2020-12-15"),

@@ -293,9 +293,19 @@ def find_epoch_group(primary_id, group=True):
     return [primary_id] + sorted(sibs)
 
 
-def run_dataset(dataset_id, group=True):
+def run_dataset(dataset_id, group=True, ids=None):
+    """Interactive label+fit for a dataset and its co-temporal siblings.
+
+    Normally the group is auto-discovered with :func:`find_epoch_group`. Pass an
+    explicit ordered ``ids`` list to override that discovery -- e.g. to group a
+    phase-folded variant (``_S88``, which the auto-grouper skips) with the
+    ground-based night, so a region drawn on the dense fold propagates to the
+    other band and 'y' runs the cross-band shared-duration joint fit. ``ids[0]``
+    is treated as the primary (top panel).
+    """
     from . import labeling  # imported here so --list works headless
-    ids = find_epoch_group(dataset_id, group=group)
+    if ids is None:
+        ids = find_epoch_group(dataset_id, group=group)
     if len(ids) > 1:
         print(f"epoch group ({len(ids)} bands): {', '.join(ids)}")
 
@@ -317,11 +327,15 @@ def run_dataset(dataset_id, group=True):
             if did == dataset_id:   # primary must load; siblings may be skipped
                 raise
             continue
-        # Only the dense full-sector folded variant gets the phase-binned overlay.
-        bin_period = rec.get("period_day") if did.endswith("_S88") else None
+        # Only the dense full-sector folded variant gets the phase-binned
+        # overlay, and a fixed initial y-range (the raw scatter is broad, so
+        # autoscale zooms out too far to label the dips comfortably).
+        is_s88 = did.endswith("_S88")
+        bin_period = rec.get("period_day") if is_s88 else None
         panels.append({
             "t": t_all, "flux": flux_all, "on_fit": on_fit,
             "bin_period": bin_period,
+            "ylim": [0.92, 1.06] if is_s88 else None,
             "title": f"{rec['band']} ({rec['instrument']})  [{did}]",
         })
         records.append(rec)
@@ -408,6 +422,58 @@ def refit_group(primary_id, group=True):
         print(payload["table_text"])
 
 
+def refit_ids(ids):
+    """Headless cross-band shared-duration joint refit over an EXPLICIT id list.
+
+    Like :func:`refit_group` but takes the group members verbatim instead of
+    discovering them with :func:`find_epoch_group` -- so it can tie bands that
+    the auto-grouper deliberately skips, notably a phase-folded variant (whose
+    ``data`` carries a ``fold_ref``). This is what lets TIC 300651846's FourStar
+    NB2.09 inherit its dip geometry (T14=2W and t0) from the full-sector folded
+    TESS light curve (``_S88``), which ``find_epoch_group`` excludes.
+
+    The folded variant and the ground-based night live on the SAME absolute-BJD
+    cycle (the fold collapses every cycle onto ``fold_ref``), so the shared-t0/W
+    tie is well posed; the guard below refuses to run if a band has no points in
+    the primary's dip windows (e.g. a ``fold_ref`` cycle that misses the night).
+
+    ``ids[0]`` is the primary: its saved dip/flare windows become the shared
+    window set imposed on every band (siblings inherit its geometry), so it
+    should be the highest-SNR band bracketing the dip -- here the folded TESS.
+    """
+    records = [registry.load(d) for d in ids if registry.exists(d)]
+    records = [r for r in records if r.get("data") is not None]
+    if len(records) < 2:
+        print(f"refit_ids needs >=2 loadable datasets; got {len(records)}")
+        return
+    prec = records[0]
+    labels = prec.get("labels") or {}
+    if not labels.get("dips"):
+        print(f"{prec['id']}: primary has no saved dip labels; cannot refit")
+        return
+    windows = [tuple(w) for w in labels["dips"]]
+    for rec in records:
+        t, _, _ = loaders.load_lightcurve(rec["data"])
+        inside = np.zeros(np.size(t), dtype=bool)
+        for x0, x1 in windows:
+            inside |= (t >= x0) & (t <= x1)
+        if not inside.any():
+            print(f"{rec['id']}: no points inside {prec['id']}'s dip windows "
+                  f"(t in [{np.min(t):.5f},{np.max(t):.5f}]); aborting joint "
+                  f"refit")
+            return
+    from .labeling import LabelState
+    state = LabelState()
+    state.dips = [list(w) for w in labels.get("dips", [])]
+    state.flares = [list(w) for w in labels.get("flares", [])]
+    print(f"refit ids ({len(records)} bands; shared windows from "
+          f"{prec['id']}): {', '.join(r['id'] for r in records)}")
+    payloads = build_group_fit_callback(records)(state)
+    for rec, payload in zip(records, payloads):
+        print(f"\n=== {rec['id']} ===")
+        print(payload["table_text"])
+
+
 def make_phasefold_dataset(base_id, ncycle=2, fit=True, suffix=None,
                            full_window=False):
     """Seed a phase-folded variant of ``base_id`` and (optionally) fit it.
@@ -458,6 +524,19 @@ def main(argv=None):
                     help="headlessly refit ID's epoch GROUP from saved labels "
                          "with the cross-band shared-duration joint fit (no "
                          "GUI), then exit; add --solo to refit ID alone")
+    ap.add_argument("--dataset-ids", metavar="ID1,ID2,...",
+                    help="interactively label+fit an EXPLICIT comma-separated "
+                         "id list as one group (bypasses epoch auto-grouping, "
+                         "so it can include a phase-folded _S88 variant); the "
+                         "FIRST id is the primary (top panel). Regions drawn in "
+                         "any panel propagate to all; 'y' runs the cross-band "
+                         "shared-duration joint fit and saves every member.")
+    ap.add_argument("--refit-ids", metavar="ID1,ID2,...",
+                    help="headless cross-band shared-duration joint refit over "
+                         "an EXPLICIT comma-separated id list (bypasses epoch "
+                         "auto-grouping, so it can include a phase-folded _S88 "
+                         "variant); the FIRST id is the primary whose saved "
+                         "dip/flare windows are shared across the group")
     ap.add_argument("--make-phasefold", metavar="BASE_ID",
                     help="create a +/-ncycle phase-folded variant of BASE_ID "
                          "and fit it, then exit")
@@ -497,6 +576,22 @@ def main(argv=None):
             print(f"no such dataset: {args.refit}")
             sys.exit(1)
         refit_group(args.refit, group=not args.solo)
+        return
+    if args.refit_ids:
+        ids = [s.strip() for s in args.refit_ids.split(",") if s.strip()]
+        missing = [i for i in ids if not registry.exists(i)]
+        if missing:
+            print(f"no such dataset(s): {', '.join(missing)}")
+            sys.exit(1)
+        refit_ids(ids)
+        return
+    if args.dataset_ids:
+        ids = [s.strip() for s in args.dataset_ids.split(",") if s.strip()]
+        missing = [i for i in ids if not registry.exists(i)]
+        if missing:
+            print(f"no such dataset(s): {', '.join(missing)}")
+            sys.exit(1)
+        run_dataset(ids[0], ids=ids)
         return
     if args.reset:
         if not registry.exists(args.reset):

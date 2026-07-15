@@ -59,6 +59,7 @@ def test_unknown_loader_raises():
 
 
 def test_loaders_registered():
-    for name in ("muscat_csv", "muscat2_fits", "tierras_csv", "keplercam_dat",
-                 "fourstar_xls", "tess_fits", "tess_pkl", "generic_csv"):
+    for name in ("muscat_csv", "muscat2_fits", "muscat2_dat", "tierras_csv",
+                 "keplercam_dat", "fourstar_xls", "tess_fits", "tess_pkl",
+                 "generic_csv"):
         assert name in loaders.LOADERS

@@ -287,18 +287,21 @@ def write_joint_diagnostic(record, s1, init_mr, bres, joint):
     jmodel = base_grid - dip_model(tgrid, jflat, "trap") if jflat \
         else np.array(base_grid)
 
-    ax1.plot(tgrid, _model_at(name, init_mr, tgrid, t_ref, period), "--",
-             color="0.6", lw=1.2, zorder=2, label="independent (initial)")
-    ax1.plot(tgrid, jmodel, "-", color="tab:green", lw=1.8, zorder=3,
-             label="joint (shared $T_{14}$)")
-    ax1.plot(tgrid, base_grid, ":", color="tab:orange", lw=1.5, zorder=3,
-             label="baseline (no dip)")
-    for d in bres["dips"]:
-        ax1.axvline(d.t0, color="tab:green", ls=":", lw=1, zorder=2)
+    # Model curves sit ABOVE the data (data at zorder 5-6): these joint-fit
+    # panels are often the dense folded light curve, where the curves would
+    # otherwise be buried under the points.
     ax1.plot(t[~in_dip], flux[~in_dip], ".", color="k", ms=3, zorder=5,
              label="out-of-dip")
     ax1.plot(t[in_dip], flux[in_dip], ".", color="tab:blue", ms=4, zorder=6,
              label="in-dip")
+    ax1.plot(tgrid, _model_at(name, init_mr, tgrid, t_ref, period), "--",
+             color="0.6", lw=1.2, zorder=8, label="independent (initial)")
+    ax1.plot(tgrid, jmodel, "-", color="tab:green", lw=1.8, zorder=9,
+             label="joint (shared $T_{14}$)")
+    ax1.plot(tgrid, base_grid, ":", color="tab:orange", lw=1.5, zorder=9,
+             label="baseline (no dip)")
+    for d in bres["dips"]:
+        ax1.axvline(d.t0, color="tab:green", ls=":", lw=1, zorder=7)
 
     base_pts = baseline_value(name, init_mr.baseline_params, t, t_ref, period)
     jmod_pts = base_pts - dip_model(t, jflat, "trap") if jflat \

@@ -59,6 +59,14 @@ BINSIZE_PHASE = 0.005
 VMIN_RIVER, VMAX_RIVER = -0.2, 0.5  # specriver colormap range
 VMIN_RIVER2, VMAX_RIVER2 = -0.2, 0.2  # specriver colormap range, "tworow" duplicate row
 
+# RV sinusoid overlay: v(φ)/v_eq = K_OVER_VEQ * sin(2π(φ − RV_PHI0)).
+# The model period IS the phase-fold period PERIOD (0.3439207894624283 d ≈
+# 8.254 hr, not the rounded 8.26 hr). Because the x-axis is already phase in
+# units of PERIOD, the sinusoid is exactly period-1 in phase, so it tracks
+# whatever precise period these plots are folded at — no rescaling needed.
+K_OVER_VEQ = 4.0                     # RV semi-amplitude in units of v_eq
+RV_PHI0 = -0.1                       # reference phase of the RV sinusoid
+
 DATES = ['20250118', '20250119', '20250120', '20250121']
 DATE_LABELS = ['2025/01/18', '2025/01/19', '2025/01/20', '2025/01/21']
 
@@ -319,6 +327,20 @@ def _add_velocity_marker(ax_r):
     )
 
 
+def _overplot_rv_sinusoid(ax):
+    """Overplot a thin, semi-transparent velocity sinusoid on a specriver
+    panel: v(φ)/v_eq = K_OVER_VEQ * sin(2π(φ − RV_PHI0)), period = 1 phase
+    unit. Preserves the panel's existing x/y limits so the pcolor is unaffected.
+    """
+    xlim = ax.get_xlim()
+    ylim = ax.get_ylim()
+    phi = np.linspace(xlim[0], xlim[1], 600)
+    v_over_veq = K_OVER_VEQ * np.sin(2 * np.pi * (phi - RV_PHI0))
+    ax.plot(phi, v_over_veq, color='k', lw=0.7, ls=':', alpha=0.18, zorder=6)
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
+
+
 def plot_mage_mosaic(show_simult=False, tworow=False):
 
     # ── load LC ────────────────────────────────────────────────────────────
@@ -483,6 +505,9 @@ def plot_mage_mosaic(show_simult=False, tworow=False):
         c_mappable, xmin_r, xmax_r = _plot_specriver(ax_r, fig, sd)
         colorbars[rk] = c_mappable
 
+        # thin semi-transparent RV sinusoid overlay
+        _overplot_rv_sinusoid(ax_r)
+
         # sync xlim of phase panel to specriver
         ax_p.set_xlim(xmin_r, xmax_r)
         # also sync twinx xlim
@@ -519,6 +544,9 @@ def plot_mage_mosaic(show_simult=False, tworow=False):
             c_mappable2, xmin_r2, xmax_r2 = _plot_specriver(
                 ax_r2, fig, sd, vmin=VMIN_RIVER2, vmax=VMAX_RIVER2
             )
+
+            # thin semi-transparent RV sinusoid overlay
+            _overplot_rv_sinusoid(ax_r2)
 
             # drop Δv/v_eq y-label on L, M, N (keep tick labels)
             if rk2 != 'K':

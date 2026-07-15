@@ -50,6 +50,15 @@ PCTILE = 25                          # for removeavg gaussian smoothed percentil
 SMOOTH_SIGMA = 5                     # gaussian_filter1d sigma for MIKE
 BINSIZE_PHASE = 0.005
 VMIN_RIVER, VMAX_RIVER = -0.2, 0.2  # specriver colormap range
+VEL_BINFAC = 2                      # bin factor along the velocity axis
+
+# RV sinusoid overlay: v(φ)/v_eq = K_OVER_VEQ * sin(2π(φ − RV_PHI0)).
+# The model period IS the phase-fold period PERIOD (0.3439207894624283 d ≈
+# 8.254 hr, not the rounded 8.26 hr). Because the x-axis is already phase in
+# units of PERIOD, the sinusoid is exactly period-1 in phase, so it tracks
+# whatever precise period these plots are folded at — no rescaling needed.
+K_OVER_VEQ = 4.0                    # RV semi-amplitude in units of v_eq
+RV_PHI0 = -0.05                     # reference phase of the RV sinusoid
 
 DATESTR = '20250102'
 DATE_LABEL = '2025/01/02 MIKE'
@@ -194,6 +203,21 @@ def _plot_phase_linecore(ax, lc_times, lc_fluxs, sd):
     return xmin, xmax, ax2
 
 
+def _bin_velocity(y_vel, flux_arr, binfac=VEL_BINFAC):
+    """Block-average the velocity axis by an integer factor.
+
+    y_vel: (n_wav,) velocity grid; flux_arr: (n_wav, n_spec).  Trailing
+    pixels are trimmed if n_wav is not divisible by binfac.
+    """
+    y_vel = np.asarray(y_vel)
+    n_trim = (len(y_vel) // binfac) * binfac
+    y_binned = y_vel[:n_trim].reshape(-1, binfac).mean(axis=1)
+    f_binned = np.nanmean(
+        flux_arr[:n_trim].reshape(-1, binfac, flux_arr.shape[1]), axis=1
+    )
+    return y_binned, f_binned
+
+
 def _plot_specriver(ax, fig, sd, vmin=VMIN_RIVER, vmax=VMAX_RIVER):
     """Draw specriver pcolor removeavg on ax.
 
@@ -209,6 +233,8 @@ def _plot_specriver(ax, fig, sd, vmin=VMIN_RIVER, vmax=VMAX_RIVER):
     #   color  = flux_arr_sub (n_wav × n_spec)
     y_vel = xvals[0]        # Δv/v_eq (assumed same for all spectra)
     x_phase = specphases    # phases (n_spec,)
+
+    y_vel, flux_arr_sub = _bin_velocity(y_vel, flux_arr_sub)
 
     norm = colors.Normalize(vmin=vmin, vmax=vmax)
     c = ax.pcolor(
@@ -252,7 +278,7 @@ def _add_velocity_marker(ax_r):
     panel's own Δv/v_eq data units so it can be read against the specriver.
     """
     trans = blended_transform_factory(ax_r.transAxes, ax_r.transData)
-    delta_v_norm = DELTA_V / ADOPTED_VEQ
+    delta_v_norm = VEL_BINFAC * DELTA_V / ADOPTED_VEQ
     ylim_r = ax_r.get_ylim()
     y_center = ylim_r[0] + 0.14 * (ylim_r[1] - ylim_r[0])
     x_marker = 0.16
@@ -267,6 +293,20 @@ def _add_velocity_marker(ax_r):
         transform=trans, rotation=90, ha='left', va='center',
         fontsize='x-small', clip_on=False,
     )
+
+
+def _overplot_rv_sinusoid(ax):
+    """Overplot a thin, semi-transparent velocity sinusoid on the specriver
+    panel: v(φ)/v_eq = K_OVER_VEQ * sin(2π(φ − RV_PHI0)), period = 1 phase
+    unit. Preserves the panel's existing x/y limits so the pcolor is unaffected.
+    """
+    xlim = ax.get_xlim()
+    ylim = ax.get_ylim()
+    phi = np.linspace(xlim[0], xlim[1], 600)
+    v_over_veq = K_OVER_VEQ * np.sin(2 * np.pi * (phi - RV_PHI0))
+    ax.plot(phi, v_over_veq, color='k', lw=0.7, ls=':', alpha=0.18, zorder=6)
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
 
 
 def plot_mike_mosaic():
@@ -287,7 +327,7 @@ def plot_mike_mosaic():
     plt.close('all')
     set_style('science')
 
-    fig = plt.figure(figsize=(1.85, 4.2))
+    fig = plt.figure(figsize=(1.75, 4.2))
     axd = fig.subplot_mosaic(
         """
         A
@@ -315,6 +355,9 @@ def plot_mike_mosaic():
 
     # ── Panel B: specriver ─────────────────────────────────────────────────
     c_mappable, xmin_r, xmax_r = _plot_specriver(ax_r, fig, sd)
+
+    # thin semi-transparent RV sinusoid overlay
+    _overplot_rv_sinusoid(ax_r)
 
     # sync xlim of phase panel to specriver
     ax_p.set_xlim(xmin_r, xmax_r)

@@ -94,6 +94,14 @@ def load_muscat2_fits(path, band, window=None, **_):
     return _finite_normalize(t, flux, None, window)
 
 
+def load_muscat2_dat(path, window=None, **_):
+    """MuSCAT2 re-extraction (2026-07 Murgas delivery): 3-column whitespace
+    .dat with (BJD_TDB, normalized flux, flux_err) and no header. One file per
+    band per night (g/r/i/zs)."""
+    a = np.genfromtxt(_abspath(path))
+    return _finite_normalize(a[:, 0], a[:, 1], a[:, 2], window)
+
+
 def load_fourstar_xls(path, window=None, flux_offset=0.76, tcorr_min=0.0,
                       trim_after=None, **_):
     """FourStar NB2.09 aperture photometry (tab-separated .xls).
@@ -152,6 +160,7 @@ def load_generic_csv(path, time_col, flux_col, fluxerr_col=None, window=None,
 LOADERS = {
     "muscat_csv": load_muscat_csv,
     "muscat2_fits": load_muscat2_fits,
+    "muscat2_dat": load_muscat2_dat,
     "tierras_csv": load_tierras_csv,
     "keplercam_dat": load_keplercam_dat,
     "fourstar_xls": load_fourstar_xls,
