@@ -1506,7 +1506,7 @@ def plot_money(
         rlabel = r"$(\delta - {\rm mod})/s$"
     axr_s.set_ylabel(rlabel, fontsize=8)
     for axrp in (axr_s, axr_b):
-        axrp.set_xlabel(r"$\lambda_{\rm eff}$ [$\mu$m]")
+        axrp.set_xlabel(r"Wavelength, $\lambda$ ($\mu$m)")
         axrp.set_xticks([0.4, 0.6, 1, 2])
         axrp.xaxis.set_major_formatter(mticker.ScalarFormatter())
         axrp.xaxis.set_minor_formatter(mticker.NullFormatter())
