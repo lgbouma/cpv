@@ -179,7 +179,7 @@ def main_tic4029():
     ticid = "TIC_402980664"
 
     # resid flux from subtracting the sinusoid model; made by build_4029_mask.py
-    manual_csvpath = f'/Users/luke/Dropbox/proj/cpv/results/4029_mask/lc_lsresid_{model_id}.csv'
+    manual_csvpath = os.path.expanduser(f'~/Dropbox/proj/cpv/results/4029_mask/lc_lsresid_{model_id}.csv')
     df = pd.read_csv(manual_csvpath)
     t = np.array(df.time)
     f = 1+np.array(df.r_flux)

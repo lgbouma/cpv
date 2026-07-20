@@ -6,9 +6,9 @@ import numpy as np, matplotlib.pyplot as plt, pandas as pd
 from cdips_followup.spectools import viz_1d_spectrum
 from cdips_followup.spectools import read_hires
 
-datadir = "/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC141146667_RDX"
+datadir = os.path.expanduser("~/Dropbox/proj/cpv/data/spectra/HIRES/TIC141146667_RDX")
 idstring = 'TIC141146667'
-outdir = '/Users/luke/Dropbox/proj/cpv/results/TIC141146667_HIRES_raw'
+outdir = os.path.expanduser('~/Dropbox/proj/cpv/results/TIC141146667_HIRES_raw')
 if not os.path.exists(outdir): os.mkdir(outdir)
 
 linestrs, chips, orders, xlims, ylims, wav0s = (

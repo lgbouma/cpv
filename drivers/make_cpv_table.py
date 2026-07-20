@@ -495,7 +495,7 @@ def flatten_tdf(tdf, ticid):
 def get_banyan_result(gdr2_df):
 
     import sys
-    sys.path.append("/Users/luke/Dropbox/proj/banyan_sigma")
+    sys.path.append(os.path.expanduser("~/Dropbox/proj/banyan_sigma"))
     from core import membership_probability
 
     dr2_source_id = str(gdr2_df.dr2_source_id.iloc[0])

@@ -7,7 +7,7 @@ from numpy import array as nparr
 
 def get_twomin():
 
-    csvpath = "/Users/luke/local/SPOCLC/gaia_X_spoc2min_merge.csv"
+    csvpath = os.path.expanduser("~/local/SPOCLC/gaia_X_spoc2min_merge.csv")
     tdf = pd.read_csv(csvpath)
 
     sel = (
@@ -51,7 +51,7 @@ def main():
         gdf = pd.read_csv(csvpath)
 
     import sys
-    sys.path.append("/Users/luke/Dropbox/proj/banyan_sigma")
+    sys.path.append(os.path.expanduser("~/Dropbox/proj/banyan_sigma"))
     from core import membership_probability
 
     fn = lambda x: np.array(x).astype(float)

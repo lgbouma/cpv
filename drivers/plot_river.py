@@ -87,7 +87,7 @@ def single_ticid():
     nterms = 2
     model_id = f"manual_20230617_mask_v0_nterms{nterms}"
     # specifies lc subtrxn model
-    manual_csvpath = f'/Users/luke/Dropbox/proj/cpv/results/4029_mask/lc_lsresid_{model_id}.csv'
+    manual_csvpath = os.path.expanduser(f'~/Dropbox/proj/cpv/results/4029_mask/lc_lsresid_{model_id}.csv')
 
     savstr = model_id # can be None; used for cacheing
 

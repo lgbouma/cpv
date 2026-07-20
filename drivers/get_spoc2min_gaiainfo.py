@@ -6,7 +6,7 @@ import os
 from os.path import join
 from cdips.utils.gaiaqueries import given_votable_get_df
 
-SPOCDIR = "/Users/luke/local/SPOCLC"
+SPOCDIR = os.path.expanduser("~/local/SPOCLC")
 
 gzpath = join(SPOCDIR, "s1s58_sample-result.vot.gz")
 

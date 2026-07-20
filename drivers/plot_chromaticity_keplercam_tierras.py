@@ -24,8 +24,8 @@ def get_groundphot(
     assert inst in ['KeplerCam','Tierras']
     assert bandpass in [None, 'g', 'B', 'Tierras']
 
-    TIERRASDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/TIERRAS'
-    KEPLERCAMDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/KeplerCam'
+    TIERRASDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/TIERRAS')
+    KEPLERCAMDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/KeplerCam')
 
     if inst == 'Tierras':
         csvpath = glob(join(

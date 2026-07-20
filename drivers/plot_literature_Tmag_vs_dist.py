@@ -116,7 +116,7 @@ def get_literature_cpv_df():
 
 def get_twomin():
 
-    csvpath = "/Users/luke/local/SPOCLC/gaia_X_spoc2min_merge.csv"
+    csvpath = os.path.expanduser("~/local/SPOCLC/gaia_X_spoc2min_merge.csv")
     tdf = pd.read_csv(csvpath)
 
     sel = (

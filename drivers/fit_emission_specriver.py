@@ -35,8 +35,8 @@ from complexrotators.modelfitter import ModelFitter
 # Pre-requisite: running plot_movie_specriver.py
 # NOTE: if you change v_eq, this requires a rerun.
 pklpath = (
-    '/Users/luke/Dropbox/proj/cpv/results/movie_specriver/'
-    'TIC_141146667/141146667_specriver_cache.pkl'
+    os.path.expanduser('~/Dropbox/proj/cpv/results/movie_specriver/'
+    'TIC_141146667/141146667_specriver_cache.pkl')
 )
 with open(pklpath, 'rb') as f:
     d = pickle.load(f)

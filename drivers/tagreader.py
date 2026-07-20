@@ -46,7 +46,7 @@ def get_directory_tags(directory):
     return file_tags
 
 # Example usage
-directory_path = "/Users/luke/vet_subset"
+directory_path = os.path.expanduser("~/vet_subset")
 tags_by_file = get_directory_tags(directory_path)
 
 # Create a DataFrame from the file paths and tags

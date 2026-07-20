@@ -44,7 +44,7 @@ mdf['coord'] = c.to_string('hmsdms', precision=1)
 
 selcols = 'ticid,coord,dr3_bp_rp,period,Vmag,Jmag'.split(',')
 
-outpath = '/Users/luke/Dropbox/Documents/proposals/2023_10_COO/CPV_24A/latex/24a_targets.tex'
+outpath = os.path.expanduser('~/Dropbox/Documents/proposals/2023_10_COO/CPV_24A/latex/24a_targets.tex')
 
 mdf[selcols].to_latex(outpath, index=False, float_format="%.2f")
 

@@ -18,13 +18,13 @@ def get_ylimguess(y):
     ymax = yhigh + 0.35*ydiff
     return [ymin,ymax]
 
-deblzdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC141146667_DEBLAZED/data/mir3/iodfitsdb'
-reducdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC141146667_REDUCED/data/mir3/iodfits'
+deblzdir = os.path.expanduser('~/Dropbox/proj/cpv/data/spectra/HIRES/TIC141146667_DEBLAZED/data/mir3/iodfitsdb')
+reducdir = os.path.expanduser('~/Dropbox/proj/cpv/data/spectra/HIRES/TIC141146667_REDUCED/data/mir3/iodfits')
 
 deblzpaths = np.sort(glob(join(deblzdir, 'ij*fits')))
 reducpaths = np.sort(glob(join(reducdir, 'ij*fits')))
 
-specpath = '/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC141146667_DEBLAZED/data/mir3/iodfitsdb/ij537.172.fits'
+specpath = os.path.expanduser('~/Dropbox/proj/cpv/data/spectra/HIRES/TIC141146667_DEBLAZED/data/mir3/iodfitsdb/ij537.172.fits')
 _, wav_2d = read_hires(specpath, is_registered=0, return_err=0)
 
 blz_flxs = []
@@ -59,7 +59,7 @@ for deblzpath, reducpath in zip(deblzpaths, reducpaths):
     blz_flxs.append(blz_flx)
     idxs.append(idx)
 
-    outdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC141146667_BLAZE'
+    outdir = os.path.expanduser('~/Dropbox/proj/cpv/data/spectra/HIRES/TIC141146667_BLAZE')
     savpath = join(
         outdir, os.path.basename(deblzpath).replace(".fits","_viz.png")
     )
@@ -100,7 +100,7 @@ outdf = pd.DataFrame({
     'wav': wav,
     'blz_flx': blz_flxs[most_median_like_sample_index,:]
 })
-outdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC141146667_BLAZE'
+outdir = os.path.expanduser('~/Dropbox/proj/cpv/data/spectra/HIRES/TIC141146667_BLAZE')
 
 csvpath = join(
     outdir, "j537_ichip_order00_preferred_median_blaze_flux.csv"

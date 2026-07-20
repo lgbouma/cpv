@@ -112,7 +112,7 @@ def plot_tessmag_vs_distance(showliterature=1, showprediction=1, basems=9,
     # 120second candidates
     if showprediction:
         sgdf = pd.read_csv(
-            '/Users/luke/Dropbox/Documents/proposals/2023_04_TESS_Cycle_VI/scripts/sgdf_yield_c6.csv'
+            os.path.expanduser('~/Dropbox/Documents/proposals/2023_04_TESS_Cycle_VI/scripts/sgdf_yield_c6.csv')
         )
         ax.scatter(
             sgdf.dist_pc, sgdf.TESSMAG,

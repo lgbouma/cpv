@@ -55,7 +55,7 @@ def make_plot(ticid, sector=None, showtitles=0, showphase=1,
     else:
         lcpath = lcpaths[0]
 
-    cachedir = '/Users/luke/local/complexrotators/cpv_finding/normal_stars'
+    cachedir = os.path.expanduser('~/local/complexrotators/cpv_finding/normal_stars')
     if not os.path.exists(cachedir): os.mkdir(cachedir)
 
     # get the relevant light curve data

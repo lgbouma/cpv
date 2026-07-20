@@ -649,7 +649,7 @@ def plot_phase_timegroups(
     if do4029_resid:
         # for now, just lp12-502
         model_id = f"manual_20230617_mask_v0_nterms2"
-        manual_csvpath = f'/Users/luke/Dropbox/proj/cpv/results/4029_mask/lc_lsresid_{model_id}.csv'
+        manual_csvpath = os.path.expanduser(f'~/Dropbox/proj/cpv/results/4029_mask/lc_lsresid_{model_id}.csv')
         df = pd.read_csv(manual_csvpath)
         times = np.array(df.time)
         # residual flux from subtracting the model given in model_id
@@ -809,7 +809,7 @@ def plot_phase_timegroups_mosaic(
     if isinstance(model_id, str):
         # for now, just lp12-502
         assert ticid == "TIC_402980664"
-        manual_csvpath = f'/Users/luke/Dropbox/proj/cpv/results/4029_mask/lc_lsresid_{model_id}.csv'
+        manual_csvpath = os.path.expanduser(f'~/Dropbox/proj/cpv/results/4029_mask/lc_lsresid_{model_id}.csv')
         df = pd.read_csv(manual_csvpath)
         times = np.array(df.time)
         # residual flux from subtracting the model given in model_id
@@ -1469,9 +1469,9 @@ def plot_multicolor_phase_lp12502(outdir, BINMS=3, dates=None, suffix='',
     period = 18.5611/24  # days (~18.56 hr)
     t0 += 0.45 * period
 
-    TESSDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess'
-    TIERRASDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/TIERRAS'
-    KEPLERCAMDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/KeplerCam'
+    TESSDIR = join(os.path.expanduser('~'), 'Dropbox/proj/cpv/data/photometry/tess')
+    TIERRASDIR = join(os.path.expanduser('~'), 'Dropbox/proj/cpv/data/photometry/TIERRAS')
+    KEPLERCAMDIR = join(os.path.expanduser('~'), 'Dropbox/proj/cpv/data/photometry/KeplerCam')
 
     # Load TESS S73 SAP_FLUX; use permissive quality filter
     # (Dec 08 window has quality=4096 "CosmicRayInOptAp" but flux looks normal)
@@ -3152,7 +3152,7 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0,
     for ticid, sector, ax in zip(df.ticid, df.sector, axs):
 
         #lcdir = f'/nfs/phtess2/ar0/TESS/SPOCLC/sector-{sector}'
-        lcdir = '/Users/luke/local/complexrotators/fav3/'
+        lcdir = os.path.expanduser('~/local/complexrotators/fav3/')
         lcpaths = glob(join(lcdir, f"*{ticid}*_lc.fits"))
         if not len(lcpaths) == 1:
             print('bad lcpaths')
@@ -3162,7 +3162,7 @@ def plot_lc_mosaic(outdir, subset_id=None, showtitles=0,
             assert 0
         lcpath = lcpaths[0]
 
-        cachedir = '/Users/luke/local/complexrotators/cpv_finding/2023catalog_LGB_RJ_concat'
+        cachedir = os.path.expanduser('~/local/complexrotators/cpv_finding/2023catalog_LGB_RJ_concat')
 
         # get the relevant light curve data
         (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
@@ -3437,7 +3437,7 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
 
     for ticid, sector, ax in zip(df.ticid, df.showsector, axs):
 
-        lcdir = '/Users/luke/.lightkurve/cache/mastDownload/TESS'
+        lcdir = os.path.expanduser('~/.lightkurve/cache/mastDownload/TESS')
         lcpaths = glob(join(
             lcdir, f"tess*s{str(sector).zfill(4)}*{ticid}*",
             f"*{ticid}*_lc.fits")
@@ -3451,7 +3451,7 @@ def plot_full_lcmosaic(outdir, showtitles=1, titlefontsize=3.5,
 
         lcpath = lcpaths[0]
 
-        cachedir = '/Users/luke/local/complexrotators/cpv_finding/2023catalog_LGB_RJ_concat_BACKUP'
+        cachedir = os.path.expanduser('~/local/complexrotators/cpv_finding/2023catalog_LGB_RJ_concat_BACKUP')
 
         # get the relevant light curve data
         (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
@@ -3674,7 +3674,7 @@ def plot_beforeafter_mosaic(outdir, showtitles=1, titlefontsize=3.75,
     beforesectorfound, aftersectorfound = [], []
     for sectorcol in ['beforesector','aftersector']:
         for ticid, sector in zip(df['ticid'], df[sectorcol]):
-            lcdir = '/Users/luke/.lightkurve/cache/mastDownload/TESS'
+            lcdir = os.path.expanduser('~/.lightkurve/cache/mastDownload/TESS')
             lcpaths = glob(join(
                 lcdir, f"tess*s{str(sector).zfill(4)}*{ticid}*",
                 f"*{ticid}*_lc.fits")
@@ -3800,7 +3800,7 @@ def plot_beforeafter_mosaic(outdir, showtitles=1, titlefontsize=3.75,
     _periods = []
     for ticid, sector, ax in zip(ticids, sectors, axs):
 
-        lcdir = '/Users/luke/.lightkurve/cache/mastDownload/TESS'
+        lcdir = os.path.expanduser('~/.lightkurve/cache/mastDownload/TESS')
         lcpaths = glob(join(
             lcdir, f"tess*s{str(sector).zfill(4)}*{ticid}*",
             f"*{ticid}*_lc.fits")
@@ -3814,7 +3814,7 @@ def plot_beforeafter_mosaic(outdir, showtitles=1, titlefontsize=3.75,
 
         lcpath = lcpaths[0]
 
-        cachedir = '/Users/luke/local/complexrotators/cpv_finding/2023catalog_LGB_RJ_concat'
+        cachedir = os.path.expanduser('~/local/complexrotators/cpv_finding/2023catalog_LGB_RJ_concat')
 
         # get the relevant light curve data
         (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend, cadence_sec,
@@ -4811,7 +4811,7 @@ def plot_magnetic_bstar_comparison(outdir, showtitles=1, titlefontsize=3.75,
 
     for ticid, sector, ax, opt in zip(ticids, showsectors, axs, optionalid):
 
-        lcdir = '/Users/luke/.lightkurve/cache/mastDownload/TESS'
+        lcdir = os.path.expanduser('~/.lightkurve/cache/mastDownload/TESS')
         lcpaths = glob(join(
             lcdir, f"tess*s{str(sector).zfill(4)}*{ticid}*",
             f"*{ticid}*_lc.fits")
@@ -5059,7 +5059,7 @@ def plot_lineevolnpanel(outdir, starid=None, jstr=None):
     #
 
     from cdips_followup.spectools import read_hires
-    specdir = f'/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/{starid}_RDX'
+    specdir = os.path.expanduser(f'~/Dropbox/proj/cpv/data/spectra/HIRES/{starid}_RDX')
     bpaths = np.sort(glob(join(specdir, f'b{jstr}*.fits')))
     ipaths = np.sort(glob(join(specdir, f'i{jstr}*.fits')))
     rpaths = np.sort(glob(join(specdir, f'r{jstr}*.fits')))
@@ -5444,7 +5444,7 @@ def plot_movie_phase_timegroups(
     if isinstance(model_id, str):
         # for now, just lp12-502
         assert ticid == "TIC_402980664"
-        manual_csvpath = f'/Users/luke/Dropbox/proj/cpv/results/4029_mask/lc_lsresid_{model_id}.csv'
+        manual_csvpath = os.path.expanduser(f'~/Dropbox/proj/cpv/results/4029_mask/lc_lsresid_{model_id}.csv')
         df = pd.read_csv(manual_csvpath)
         times = np.array(df.time)
         # residual flux from subtracting the model given in model_id
@@ -6487,7 +6487,7 @@ def plot_movie_sixpanel_specriver(
                 xlim = ax.get_xlim()
                 for ix in range(3):
                     csvpath = join(
-                        '/Users/luke/Dropbox/proj/hotcold/drivers',
+                        os.path.expanduser('~/Dropbox/proj/hotcold/drivers'),
                         'results/halpha_to_rv_timerseries',
                         f'circular_fit_compt_{ix}.csv'
                     )

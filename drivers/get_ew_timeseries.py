@@ -74,15 +74,15 @@ def plot_ew_timeseries(
         side = 'red'
 
     if inst == 'DBSP':
-        dbdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/'
+        dbdir = os.path.expanduser('~/Dropbox/proj/cpv/data/spectra/DBSP_REDUX/')
         fitsdir = join(dbdir, f'{utcdatestr}/p200_dbsp_{side}_A/Science')
         ewdir = join(dbdir, f'{utcdatestr}/p200_dbsp_{side}_A/Balmer_EWs')
         fitspaths = np.sort(glob(join(fitsdir, f"spec1d_{side}*{targetid}*fits")))
 
     elif inst == 'HIRES':
-        hrdir = '/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/'
+        hrdir = os.path.expanduser('~/Dropbox/proj/cpv/data/spectra/HIRES/')
         fitsdir = join(hrdir, 'TIC402980664_RDX')
-        ewdir = '/Users/luke/Dropbox/proj/cpv/results/HIRES_results/Balmer_EWs'
+        ewdir = os.path.expanduser('~/Dropbox/proj/cpv/results/HIRES_results/Balmer_EWs')
         fitspaths = np.sort(glob(join(fitsdir, f"{chip}{hiresdate}*fits")))
 
     print(len(fitspaths))
@@ -159,7 +159,7 @@ def plot_ew_timeseries(
 
         # get tess data
         if photinst == 'tess':
-            TESSDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess'
+            TESSDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/tess')
             fitspath = join(
                 TESSDIR,
                 'tess2024300212641-s0085-0000000402980664-0282-s_lc.fits'
@@ -174,9 +174,9 @@ def plot_ew_timeseries(
             flux_err /= med_flux
             ms = 1
         elif photinst == 'tierras':
-            TIERRASDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/TIERRAS'
-            KEPLERCAMDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/KeplerCam'
-            TESSDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess'
+            TIERRASDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/TIERRAS')
+            KEPLERCAMDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/KeplerCam')
+            TESSDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/tess')
             if utcdatestr == '20231111':
                 inst == 'tierras'
                 df = pd.read_csv(
@@ -390,9 +390,9 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, targetid):
                     ax.yaxis.set_major_locator(MultipleLocator(2))
 
             else:
-                TIERRASDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/TIERRAS'
-                KEPLERCAMDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/KeplerCam'
-                TESSDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess'
+                TIERRASDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/TIERRAS')
+                KEPLERCAMDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/KeplerCam')
+                TESSDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/tess')
                 if utcdatestr == '20231111':
                     inst = 'tierras'
                     df = pd.read_csv(
@@ -599,8 +599,8 @@ def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
                     ax.set_xticklabels([])
 
             else:
-                TIERRASDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/TIERRAS'
-                KEPLERCAMDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/KeplerCam'
+                TIERRASDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/TIERRAS')
+                KEPLERCAMDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/KeplerCam')
                 if utcdatestr == '20231111':
                     df = pd.read_csv(
                         join(TIERRASDIR, "20231111_TIC402980664_circular_fixed_ap_phot_13.csv")
@@ -719,8 +719,8 @@ def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
                           transform=axd['A'].transAxes, ha='right',va='bottom',
                           color=datec, fontsize='small')
 
-            TIERRASDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/TIERRAS'
-            KEPLERCAMDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/KeplerCam'
+            TIERRASDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/TIERRAS')
+            KEPLERCAMDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/KeplerCam')
             if utcdatestr == '20231111':
                 df = pd.read_csv(
                     join(TIERRASDIR, "20231111_TIC402980664_circular_fixed_ap_phot_13.csv")

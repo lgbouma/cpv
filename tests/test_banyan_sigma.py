@@ -1,8 +1,9 @@
+import os
 import numpy as np, pandas as pd
 import sys
 
 # implicitly, from banyan-sigma core import...
-sys.path.append("/Users/luke/Dropbox/proj/banyan_sigma")
+sys.path.append(os.path.expanduser("~/Dropbox/proj/banyan_sigma"))
 from core import membership_probability
 
 ra=311.2911826481039

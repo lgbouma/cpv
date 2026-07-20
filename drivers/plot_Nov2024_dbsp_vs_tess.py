@@ -36,8 +36,8 @@ RA          = 16.733175 * u.deg
 DEC         = 80.45945  * u.deg
 UTCDATESTRS = "20241104,20241105,20241106,20241107,20241108".split(",")
 
-DBSP_REDUX = '/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX'
-TESSDIR    = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess'
+DBSP_REDUX = join(os.path.expanduser('~'), 'Dropbox/proj/cpv/data/spectra/DBSP_REDUX')
+TESSDIR    = join(os.path.expanduser('~'), 'Dropbox/proj/cpv/data/photometry/tess')
 
 
 def _t_to_phase(t_bjd):

@@ -69,8 +69,8 @@ def given_specpaths_get_timeseries_data(spectrum_paths, order):
 def plot_continuum_timeseries(ylim=None):
 
     # TIC 4029 (j533 also exists, and is decent)
-    datadir = "/Users/luke/Dropbox/proj/cpv/data/spectra/HIRES/TIC402980664_RDX"
-    outdir = '/Users/luke/Dropbox/proj/cpv/results/HIRES_results'
+    datadir = os.path.expanduser("~/Dropbox/proj/cpv/data/spectra/HIRES/TIC402980664_RDX")
+    outdir = os.path.expanduser('~/Dropbox/proj/cpv/results/HIRES_results')
     datestr = 'j547'
 
     #  # TIC 1411
@@ -151,7 +151,7 @@ def plot_continuum_timeseries(ylim=None):
                             fontsize=4)
 
 
-            outdir = f'/Users/luke/Dropbox/proj/cpv/results/HIRES_continuum_evoln/{datestr}'
+            outdir = os.path.expanduser(f'~/Dropbox/proj/cpv/results/HIRES_continuum_evoln/{datestr}')
             if not os.path.exists(outdir): os.mkdir(outdir)
             s = ''
             s += 'ordermednorm'

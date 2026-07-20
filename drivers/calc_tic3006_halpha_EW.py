@@ -22,8 +22,8 @@ import pandas as pd
 from scipy.optimize import curve_fit
 from cdips.utils.lcutils import p2p_rms
 
-DATADIR = '/Users/lbouma/Dropbox/proj/cpv/results/movie_sixpanel_specriver'
-OUTDIR = '/Users/lbouma/Dropbox/proj/cpv/results/TIC3006_Halpha_static_EW'
+DATADIR = os.path.expanduser('~/Dropbox/proj/cpv/results/movie_sixpanel_specriver')
+OUTDIR = os.path.expanduser('~/Dropbox/proj/cpv/results/TIC3006_Halpha_static_EW')
 
 # TIC 300651846: 2*pi*Rstar/Prot, per complexrotators/plotting.py
 ADOPTED_VEQ = 89.65  # km/s

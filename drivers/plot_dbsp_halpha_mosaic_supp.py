@@ -69,8 +69,8 @@ COLUMNS = [
     ),
 ]
 
-DBSP_REDUX = '/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX'
-TESSDIR    = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess'
+DBSP_REDUX = join(os.path.expanduser('~'), 'Dropbox/proj/cpv/data/spectra/DBSP_REDUX')
+TESSDIR    = join(os.path.expanduser('~'), 'Dropbox/proj/cpv/data/photometry/tess')
 
 
 def _load_ew_data(targetid, utcdatestr, ra, dec):

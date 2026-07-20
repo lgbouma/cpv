@@ -13,11 +13,11 @@ from complexrotators.plotting import (
 from gyrojo.plotting import add_gradient_patch
 from cdips.lcproc import detrend as dtr
 
-outdir = '/Users/luke/Dropbox/proj/cpv/results/tic1411_obsepoch'
+outdir = os.path.expanduser('~/Dropbox/proj/cpv/results/tic1411_obsepoch')
 
 ticid = "141146667"
 
-lcpath = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess/mastDownload/TESS/tess2024030031500-s0075-0000000141146667-0270-s/tess2024030031500-s0075-0000000141146667-0270-s_lc.fits'
+lcpath = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/tess/mastDownload/TESS/tess2024030031500-s0075-0000000141146667-0270-s/tess2024030031500-s0075-0000000141146667-0270-s_lc.fits')
 
 
 (time, flux, qual, x_obs, y_obs, y_flat,

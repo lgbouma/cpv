@@ -1,12 +1,13 @@
 """
 Make plot of completeness fraction for the 2-minute data between Sectors 1-55.
 """
+import os
 import numpy as np, pandas as pd, matplotlib.pyplot as plt
 
 def make_figure(factor=2):
 
     # S1-S58 2-min data
-    csvpath = "/Users/luke/local/SPOCLC/gaia_X_spoc2min_merge.csv"
+    csvpath = os.path.expanduser("~/local/SPOCLC/gaia_X_spoc2min_merge.csv")
     tdf = pd.read_csv(csvpath)
 
     sel = (
@@ -38,7 +39,7 @@ def make_figure(factor=2):
         # from gaiadr2.gaia_source import as g
         # where g.parallax > 6.6666666666
         # and g.bp_rp > 1.5
-        gdf = pd.read_csv('/Users/luke/local/complexrotators/lt150pc_mkdwarf-result.csv')
+        gdf = pd.read_csv(os.path.expanduser('~/local/complexrotators/lt150pc_mkdwarf-result.csv'))
 
 
     Tmag_pred = (

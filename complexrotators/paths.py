@@ -37,7 +37,7 @@ QLPDIR = '/ar1/TESS/QLP'
 
 # banyan-sigma needs to be installed here
 if 'marduk' in socket.gethostname() or 'MacBookPro.lan' in socket.gethostname():
-    BANYANDIR = '/Users/luke/Dropbox/proj/banyan_sigma'
+    BANYANDIR = os.path.expanduser('~/Dropbox/proj/banyan_sigma')
 elif socket.gethostname() in ['wh1']:
     BANYANDIR = '/ar1/PROJ/luke/proj/banyan_sigma'
 elif socket.gethostname() in ['wh2', 'wh3']:

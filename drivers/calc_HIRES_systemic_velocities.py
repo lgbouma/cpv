@@ -217,7 +217,7 @@ if __name__ == "__main__":
     )
     print(f'wrote {csvpath}')
 
-    outdir = '/Users/luke/Dropbox/proj/hotcold/paper/tables'
+    outdir = os.path.expanduser('~/Dropbox/proj/hotcold/paper/tables')
     csvpath = join(outdir, f'tab_{starid}_rel_rv.csv')
     outdf[['mjd','mean_rel_rv','std_rel_rv']].to_csv(
         csvpath, index=False

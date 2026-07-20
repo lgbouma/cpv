@@ -51,7 +51,7 @@ else:
     f_binned = np.array([])
     phase_binned = np.array([])
 
-tessdir = '/Users/luke/local/complexrotators/cpv_finding/spoc2min_debug'
+tessdir = join(os.path.expanduser("~"), 'local/complexrotators/cpv_finding/spoc2min_debug')
 tesspath = join(tessdir, '300651846_S0088_120sec_spoc2min_cpv_periodsearch.pkl')
 with open(tesspath, 'rb') as __f:
     d = pickle.load(__f)

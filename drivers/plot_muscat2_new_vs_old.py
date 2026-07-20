@@ -12,9 +12,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
 
-DATADIR = "/Users/lbouma/Dropbox/proj/cpv/data/photometry/MUSCAT"
+DATADIR = os.path.expanduser("~/Dropbox/proj/cpv/data/photometry/MUSCAT")
 NEWDIR = os.path.join(DATADIR, "TIC262400835_MuSCAT2_Murgas/TIC262400835_MuSCAT2")
-OUTDIR = "/Users/lbouma/Dropbox/proj/cpv/results/muscat2_new_vs_old"
+OUTDIR = os.path.expanduser("~/Dropbox/proj/cpv/results/muscat2_new_vs_old")
 os.makedirs(OUTDIR, exist_ok=True)
 
 # night -> (old fits basename, new .dat date tag)

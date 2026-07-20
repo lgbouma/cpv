@@ -87,9 +87,9 @@ COLUMNS = [
     ),
 ]
 
-DBSP_REDUX = '/Users/luke/Dropbox/proj/cpv/data/spectra/DBSP_REDUX'
-TIERRASDIR = '/Users/luke/Dropbox/proj/cpv/data/photometry/TIERRAS'
-TESSDIR    = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess'
+DBSP_REDUX = join(os.path.expanduser('~'), 'Dropbox/proj/cpv/data/spectra/DBSP_REDUX')
+TIERRASDIR = join(os.path.expanduser('~'), 'Dropbox/proj/cpv/data/photometry/TIERRAS')
+TESSDIR    = join(os.path.expanduser('~'), 'Dropbox/proj/cpv/data/photometry/tess')
 
 
 def _t_to_phase_lp(t_bjd):

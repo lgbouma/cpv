@@ -40,7 +40,7 @@ def main():
     ##########################################
 
     if ticid == '141146667':
-        lcdir = ('/Users/luke/Dropbox/proj/cpv/data/photometry/'+
+        lcdir = (os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/')+
                  'tess/mastDownload/TESS/'+
                  'tess2024030031500-s0075-0000000141146667-0270-s'
                 )
@@ -48,7 +48,7 @@ def main():
             lcdir, "tess2024030031500-s0075-0000000141146667-0270-s_lc.fits"
         )
     elif ticid == '402980664':
-        lcdir = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess'
+        lcdir = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/tess')
         if datestr in ['j546', 'j547']:
             lcpath = join(
                 lcdir, "tess2024326142117-s0086-0000000402980664-0283-s_lc.fits"
@@ -60,7 +60,7 @@ def main():
         else:
             raise NotImplementedError
     elif ticid == '300651846':
-        lcdir = '/Users/luke/Dropbox/proj/cpv/data/photometry/tess'
+        lcdir = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/tess')
         if datestr in ['20250102']:
             lcpath = join(
                 lcdir, 'tess2024353092137-s0087-0000000300651846-0284-s_lc.fits'
