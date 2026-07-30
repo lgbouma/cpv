@@ -33,6 +33,9 @@ from typing import Dict, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.colors import LogNorm
+
+from aesthetic.plot import set_style
 
 try:
     from complexrotators.paths import RESULTSDIR
@@ -67,8 +70,10 @@ BETA_MAX = 4.0
 #     Lines are drawn for representative gray-floor depths.
 DELTA_IR = (0.01, 0.03)
 
-# Representative model quoted in the ms subsection draft.
-REP = {"beta": 2.5, "tau0": 0.1, "R": 2.0}
+# Representative model; matches the core+halo toy plotted in
+# plot_diluted_transmission_spectrum.py (Delta-chi2 = 0.7 vs the
+# global minimum, inside the joint 68% region).
+REP = {"beta": 2.0, "tau0": 0.09, "R": 3.0}
 
 # Delta-chi2 thresholds: (1-param 68, 95), (2-param joint 68, 95).
 DCHI2_1D = (1.0, 4.0)
@@ -253,6 +258,8 @@ def make_corner(res: Dict[str, np.ndarray], targets: Dict[str, float],
                 span(rmax, grids[2][-1], facecolor=("C0", 0.07),
                      edgecolor=to_rgba("C0", 0.55), hatch=h, lw=0)
                 line(rmax, c="C0", lw=0.8)
+
+    set_style('science')
     fig, axs = plt.subplots(3, 3, figsize=(7.5, 7.5))
     for i in range(3):
         for j in range(3):
@@ -261,25 +268,29 @@ def make_corner(res: Dict[str, np.ndarray], targets: Dict[str, float],
                 ax.set_axis_off()
                 continue
             if i == j:
-                d1 = profile_1d(chi2, i)
+                d1 = np.maximum(profile_1d(chi2, i), 1e-3)
                 ax.plot(grids[i], d1, c="k", lw=1.2)
                 for t, ls in zip(DCHI2_1D, [":", "--"]):
                     ax.axhline(t, c="gray", lw=0.7, ls=ls)
                 ax.axvline(rep[i], c="C3", lw=0.9)
                 overlay(ax, i, "x")
-                ax.set_ylim(0, 10)
+                ax.set_yscale("log")
+                ax.set_ylim(3e-2, 3e2)
                 ax.set_ylabel(r"$\Delta\chi^2$" if j == 0 else "")
             else:
                 axk = tuple(k for k in range(3) if k not in (i, j))[0]
-                d2 = chi2.min(axis=axk) - chi2.min()
+                d2 = np.maximum(chi2.min(axis=axk) - chi2.min(),
+                                1e-3)
                 # chi2 axes are (beta, tau0, R); after min over axk,
                 # remaining axes are ordered (j, i) with j < i.
                 xx, yy = np.meshgrid(grids[j], grids[i],
                                      indexing="ij")
-                ax.contourf(xx, yy, d2, levels=[0, *DCHI2_2D],
-                            colors=["0.35", "0.75"])
-                ax.contour(xx, yy, d2, levels=DCHI2_2D,
-                           colors="k", linewidths=0.6)
+                pcm = ax.pcolormesh(
+                    xx, yy, d2, norm=LogNorm(vmin=1e-1, vmax=1e3),
+                    cmap="Greys_r", shading="auto", rasterized=True
+                )
+                ax.contour(xx, yy, d2, levels=DCHI2_2D, colors="C1",
+                           linewidths=0.8, linestyles=["-", "--"])
                 ax.plot(rep[j], rep[i], marker="*", c="C3", ms=9,
                         mec="k", mew=0.4, ls="none")
                 overlay(ax, j, "x")
@@ -302,13 +313,17 @@ def make_corner(res: Dict[str, np.ndarray], targets: Dict[str, float],
         rf"Core-halo params allowed by "
         rf"$\beta_1$={targets['beta1']}$\pm${targets['beta1_unc']}, "
         rf"$\beta_2$={targets['beta2']}$\pm${targets['beta2_unc']}"
-        "\n(dark/light: 68/95% joint; star: representative model;\n"
+        "\n(grayscale: profile $\\Delta\\chi^2$; orange: joint "
+        "68/95%; star: representative model;\n"
         "hatched = excluded by priors -- red: $\\beta$>4 "
         r"super-Rayleigh (dotted $\beta$=2 ISM-like); "
         "blue: $A_h+A_c$>$A_\\star$ for "
         rf"$\delta_{{\rm IR}}$={DELTA_IR[0]:.0%}, {DELTA_IR[1]:.0%})",
         fontsize=9)
     fig.tight_layout(rect=(0, 0, 1, 0.94))
+    cax = fig.add_axes([0.76, 0.60, 0.018, 0.24])
+    cb = fig.colorbar(pcm, cax=cax)
+    cb.set_label(r"profile $\Delta\chi^2$")
     os.makedirs(outdir, exist_ok=True)
     outpath = join(outdir, "allowed_core_halo_params.png")
     fig.savefig(outpath, dpi=300)

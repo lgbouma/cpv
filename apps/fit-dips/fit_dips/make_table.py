@@ -54,6 +54,16 @@ END_MARK = "% END fit-dips rows"
 
 PLACEHOLDER = r"$X.XX\pm X.XX$"
 
+# (id_prefix, band_key) pairs listed in the table but EXCLUDED from the
+# extinction-law fits (low S/N and uncertain crowding correction; see
+# Section "Extinction law methodology" in ms.tex).  Their band cells carry
+# a $^{\ddagger}$ marker explained in the hand-kept \tablecomments.
+EXCLUDED = {
+    ("TIC262400835_20201213", "TESS"),
+    ("TIC262400835_20201215", "TESS"),
+    ("TIC262400835_20201216", "TESS"),
+}
+
 # Photometric bands rendered in math italics; everything else (TESS, Tierras,
 # NB2.09) stays upright text. Literature bands pass an explicit LaTeX label.
 _MATH_BANDS = {"g", "r", "i", "z", "B"}
@@ -236,6 +246,8 @@ def build_rows():
         per_band = []
         for entry in bands:
             band_key, band_disp = _parse_band(entry)
+            if (prefix, band_key) in EXCLUDED:
+                band_disp += r"$^{\ddagger}$"
             per_band.append((band_disp, _dip_records(f"{prefix}_{band_key}")))
         ndip = max((len(recs) for _, recs in per_band), default=1) or 1
         # Each dip's t0 (BJD), taken from the first band that measured it; used
