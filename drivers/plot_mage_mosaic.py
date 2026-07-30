@@ -22,6 +22,15 @@ Variants (see plot_mage_mosaic()):
     simult_tworow: show_simult=True, tworow=True; adds a duplicate G/H/I/J-style
                    row (K/L/M/N) below G/H/I/J, identical except its color
                    scale is vmin/vmax = -0.2/+0.2 instead of -0.2/+0.5.
+    simult_tworow_fournightavg:
+                   like simult_tworow (show_simult=True, tworow=True,
+                   fournightavg=True), but the subtracted "average" template is
+                   a SINGLE Gaussian-smoothed 25th-percentile spectrum pooled
+                   over ALL four nights (each spectrum interpolated onto a
+                   common velocity grid), rather than one template per night.
+                   Only the specriver panels (G-J, K-N) change; the C-F
+                   linecore twinx is computed before any subtraction and is
+                   unaffected.
 
 env: cpv  (use /Users/luke/local/miniconda3/envs/cpv/bin/python)
 """
@@ -134,10 +143,56 @@ def _make_specriver_data(datestr):
         'specphases': xval_phase,
         'xvals': xvals,
         'orig_yvals': orig_yvals,
+        'flux_arr': flux_arr,       # raw (n_wav × n_spec), before avg subtraction
+        'vel': xvals[0],            # this night's Δv/v_eq grid (n_wav,)
         'flux_arr_sub': flux_arr_sub,
         'norm_flxs': norm_flxs,
         'linecore_sums': linecore_sums,
     }
+
+
+def _apply_fournight_template(spec):
+    """Replace each night's per-night 25th-percentile template subtraction with
+    a single template pooled over all four nights.
+
+    Because the four nights have slightly different velocity grids (differing
+    both in pixel count and in edge velocities), the spectra cannot simply be
+    stacked. Instead every spectrum from every night is interpolated onto a
+    common velocity grid spanning all nights, the Gaussian-smoothed PCTILE-th
+    percentile spectrum is computed once over that pooled set, and it is then
+    subtracted from each night after being interpolated back onto that night's
+    own native grid.
+
+    Mutates `spec` in place: only 'flux_arr_sub' (used by the specriver panels)
+    is overwritten. The linecore/twinx quantities are derived from raw flux and
+    are intentionally left untouched.
+    """
+    # common velocity grid spanning the union of all nights' ranges
+    all_vel = [spec[d]['vel'] for d in DATES]
+    vmin = min(v.min() for v in all_vel)
+    vmax = max(v.max() for v in all_vel)
+    n_common = max(len(v) for v in all_vel)
+    common_vel = np.linspace(vmin, vmax, n_common)
+
+    # pool every spectrum (all nights) onto the common grid → (n_common, n_tot)
+    pooled = []
+    for d in DATES:
+        v = spec[d]['vel']
+        flux_arr = spec[d]['flux_arr']       # raw (n_wav × n_spec)
+        for j in range(flux_arr.shape[1]):
+            pooled.append(np.interp(common_vel, v, flux_arr[:, j]))
+    pooled = np.array(pooled).T
+
+    pctflux = np.nanpercentile(pooled, PCTILE, axis=1)
+    common_template = gaussian_filter1d(pctflux, sigma=1)  # sigma=1 for MaGE
+
+    # subtract the pooled template from each night on its own native grid
+    for d in DATES:
+        sd = spec[d]
+        template = np.interp(sd['vel'], common_vel, common_template)
+        sd['flux_arr_sub'] = sd['flux_arr'] - template[:, None]
+
+    return spec
 
 
 def _plot_phase_linecore(ax, lc_times, lc_fluxs, sd, datestr, show_simult=False):
@@ -341,7 +396,7 @@ def _overplot_rv_sinusoid(ax):
     ax.set_ylim(ylim)
 
 
-def plot_mage_mosaic(show_simult=False, tworow=False):
+def plot_mage_mosaic(show_simult=False, tworow=False, fournightavg=False):
 
     # ── load LC ────────────────────────────────────────────────────────────
     (time, flux, qual, x_obs, y_obs, y_flat, y_trend, x_trend,
@@ -354,6 +409,11 @@ def plot_mage_mosaic(show_simult=False, tworow=False):
     # ── load spectral data ─────────────────────────────────────────────────
     print('Loading spectral data...')
     spec = {d: _make_specriver_data(d) for d in DATES}
+
+    # optionally replace per-night avg subtraction with a single template
+    # pooled over all four nights.
+    if fournightavg:
+        _apply_fournight_template(spec)
 
     # ── figure ─────────────────────────────────────────────────────────────
     plt.close('all')
@@ -596,6 +656,8 @@ def plot_mage_mosaic(show_simult=False, tworow=False):
     # ── save ───────────────────────────────────────────────────────────────
     if tworow:
         suffix = 'simult_tworow'
+        if fournightavg:
+            suffix = 'simult_tworow_fournightavg'
     else:
         suffix = 'simult' if show_simult else 'avg'
     outpath = join(PLOTDIR, f'mage_mosaic_{suffix}.png')
@@ -611,3 +673,4 @@ if __name__ == '__main__':
     plot_mage_mosaic(show_simult=False)                    # mage_mosaic_avg.png/pdf
     plot_mage_mosaic(show_simult=True)                      # mage_mosaic_simult.png/pdf
     plot_mage_mosaic(show_simult=True, tworow=True)         # mage_mosaic_simult_tworow.png/pdf
+    plot_mage_mosaic(show_simult=True, tworow=True, fournightavg=True)  # mage_mosaic_simult_tworow_fournightavg.png/pdf

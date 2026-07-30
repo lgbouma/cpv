@@ -1530,7 +1530,7 @@ def plot_multicolor_phase_lp12502(outdir, BINMS=3, dates=None, suffix='',
         'TESS_bin': 'k',
         'Tierras': 'C1',
         'KeplerCam_g': 'C2',
-        'KeplerCam_B': 'b',
+        'KeplerCam_B': 'C0',
     }
     props = dict(boxstyle='square', facecolor='white', alpha=0.7, pad=0.15, linewidth=0)
     XLIM = [-0.6, 0.6] if xlim is None else xlim

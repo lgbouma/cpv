@@ -567,6 +567,13 @@ def run_variant(
         idatas, data, join(outdir, f"money_plot_beta_{vt}.pdf"),
         fit_sigma_int=fit_si,
     )
+    # Same figure, linear-linear axes (y in [0,3], same x range): a
+    # visualization check on how the relation reads without the log-log
+    # compression.
+    fdb.plot_money(
+        idatas, data, join(outdir, f"money_plot_beta_{vt}_linear.pdf"),
+        fit_sigma_int=fit_si, log_axes=False,
+    )
     for name in ("shared", "perstar", "broken", "perdip"):
         fdb.plot_qa(
             name, idatas[name], join(outdir, f"qa_{name}_{vt}.pdf")

@@ -1299,7 +1299,8 @@ def _median_vector(idata, name: str) -> np.ndarray:
 
 
 def plot_money(
-    idatas: Dict, data: Dict, outpath: str, fit_sigma_int: bool = True
+    idatas: Dict, data: Dict, outpath: str, fit_sigma_int: bool = True,
+    log_axes: bool = True,
 ) -> None:
     """Money plot: delta/delta0 vs lambda_eff with Model 1 and Model 3.
 
@@ -1331,6 +1332,12 @@ def plot_money(
         fit_sigma_int: Whether the fits included sigma_int; only sets the
             residual-axis label (the denominators are read from each
             fit, so they are correct regardless).
+        log_axes: If True (default), the top row is log-log as usual. If
+            False, the identical figure is rendered with linear
+            wavelength and linear delta/delta0 axes (y limits 0-2.5, same
+            x range as the log version, smaller parameter annotation) --
+            a visualization variant only; nothing about the fit or the
+            plotted values changes.
     """
     set_style("science")
     fig, axes = plt.subplots(
@@ -1440,10 +1447,13 @@ def plot_money(
                   + f"{_sigma_int_median(shared):.2f}$ dex")
         txt_b += ("\n" + r"$\sigma_{\rm int} = "
                   + f"{_sigma_int_median(broken):.2f}$ dex")
-    ax_s.text(0.04, 0.04, txt_s, transform=ax_s.transAxes, fontsize=7,
-              va="bottom", ha="left")
-    ax_b.text(0.04, 0.04, txt_b, transform=ax_b.transAxes, fontsize=7,
-              va="bottom", ha="left")
+    # Smaller in the linear variant: the tighter y-range leaves the
+    # lower-left corner more crowded with data than in the log version.
+    ann_fs = 7 if log_axes else 5.5
+    ax_s.text(0.04, 0.04, txt_s, transform=ax_s.transAxes,
+              fontsize=ann_fs, va="bottom", ha="left")
+    ax_b.text(0.04, 0.04, txt_b, transform=ax_b.transAxes,
+              fontsize=ann_fs, va="bottom", ha="left")
 
     # Top-row cosmetics.  sharey="row" keeps the two columns on a common
     # y-scale; set the limits once from the data (with error bars).
@@ -1510,6 +1520,26 @@ def plot_money(
         axrp.set_xticks([0.4, 0.6, 1, 2])
         axrp.xaxis.set_major_formatter(mticker.ScalarFormatter())
         axrp.xaxis.set_minor_formatter(mticker.NullFormatter())
+
+    # Linear-linear variant: the curves, bands, points and residuals are
+    # all drawn identically above; only the axis scales, ticks and limits
+    # are swapped here.  The x-limits are read off the log-scaled axis
+    # BEFORE switching scale (get_xlim resolves the pending autoscale), so
+    # the linear panel spans exactly the same wavelength range as the log
+    # version rather than matplotlib's linear autoscale of the same data.
+    if not log_axes:
+        xlim = ax_s.get_xlim()
+        for axp in (ax_s, ax_b):
+            axp.set_xscale("linear")
+            axp.set_yscale("linear")
+            axp.set_yticks([0, 0.5, 1.0, 1.5, 2.0, 2.5])
+            axp.yaxis.set_minor_locator(mticker.AutoMinorLocator())
+        for axrp in (axr_s, axr_b):
+            axrp.set_xscale("linear")
+            axrp.set_xticks([0.5, 1.0, 1.5, 2.0])
+            axrp.xaxis.set_minor_locator(mticker.AutoMinorLocator())
+        ax_s.set_ylim(0.0, 2.5)   # sharey="row" carries this to ax_b
+        axr_s.set_xlim(*xlim)     # sharex=True carries this to all four
 
     fig.savefig(outpath, bbox_inches="tight")
     plt.close(fig)
