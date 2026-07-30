@@ -28,6 +28,11 @@ dependencies = [
     "lightkurve",
     "pyarrow",
     "aesthetic",
+    "astrobase",
+    "cdips",
+    "pygam",
+    "mpl-scatter-density",
+    "pyeebls==0.2.0",
 ]
 
 [project.urls]
@@ -40,3 +45,11 @@ include = ["cpv", "cpv.*", "complexrotators", "complexrotators.*"]
 markers = [
     "network: requires network connectivity to external services",
 ]
+
+[tool.uv]
+no-build-isolation-package = ["pyeebls"]
+
+[[tool.uv.dependency-metadata]]
+name = "pyeebls"
+version = "0.2.0"
+requires-dist = []
