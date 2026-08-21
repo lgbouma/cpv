@@ -5711,7 +5711,8 @@ def plot_movie_specriver(
     # get spec data #
     #################
     from complexrotators.getters import get_specriver_data
-    specpaths, spectimes, xvals, yvals, yvalsnonorm, norm_flxs = get_specriver_data(
+    (specpaths, spectimes, xvals, yvals, yvalsnonorm, norm_flxs,
+     norm_flx_errs) = get_specriver_data(
         ticid, linestr, dlambda=dlambda, usespectype='reduced'
     )
 
@@ -6163,7 +6164,8 @@ def plot_movie_sixpanel_specriver(
     elif ticid in ['300651846']:
         usespectype = 'mage'
 
-    specpaths, spectimes, xvals, yvals, yvalsnonorm, norm_flxs = get_specriver_data(
+    (specpaths, spectimes, xvals, yvals, yvalsnonorm, norm_flxs,
+     norm_flx_errs) = get_specriver_data(
         ticid, linestr, dlambda=dlambda, usespectype=usespectype, datestr=datestr
     )
 

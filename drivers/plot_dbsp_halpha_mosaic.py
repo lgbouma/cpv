@@ -6,6 +6,12 @@ variability for DG CVn (2024 Apr 28) and LP 12-502 (2024 Nov 04,
 Top row   : Hα EW [Å] vs time (cols 0-2) or phase (col 3)
 Bottom row: Δ Flux [%] vs time (cols 0-2) or phase (col 3)
 
+Tierras photometry comes from either the original delivery (per-night
+circular_fixed_ap_phot CSVs for LP 12-502; TIC368129164_global_lc.csv for
+DG CVn) or, if `tierras_datestamp` is passed (e.g. '20260818'), from the
+reprocessed TIC*_global_lc_<datestamp>.csv files; the latter appends
+_<datestamp> to the output filename.
+
 Style: black-on-white ('science').
 
 env: cpv  (/Users/luke/local/miniconda3/envs/cpv/bin/python)
@@ -147,7 +153,29 @@ def _load_ew_data(targetid, utcdatestr, ra, dec):
     return t_hours, ews_ang, errs_ang, x0_btjd, t_bjd
 
 
-def _load_phot_data_time(utcdatestr, photinst, x0_btjd):
+def _read_tierras_global_night(ticid, tierras_datestamp, utcdatestr):
+    """Read one night's frames from a reprocessed global Tierras LC.
+
+    A "night" is all frames within the UT date `utcdatestr`, selected as
+    floor(BJD TDB - 0.5) == JD of that date's UT midnight.  Returns a
+    dataframe with the same flux column names as the old per-night CSVs.
+    """
+    df = pd.read_csv(
+        join(TIERRASDIR, f'TIC{ticid}_global_lc_{tierras_datestamp}.csv'),
+        comment='#'
+    )
+    datestr = f'{utcdatestr[:4]}-{utcdatestr[4:6]}-{utcdatestr[6:]}'
+    night = int(Time(datestr, scale='utc').jd - 0.5)
+    sel = np.floor(df['BJD TDB'].values - 0.5).astype(int) == night
+    assert sel.sum() > 0, f'no frames on {utcdatestr} in TIC{ticid} {tierras_datestamp}'
+    return df[sel].rename(
+        {'Flux': 'Target Relative Flux',
+         'Flux Error': 'Target Relative Flux Error'},
+        axis='columns'
+    )
+
+
+def _load_phot_data_time(utcdatestr, photinst, x0_btjd, tierras_datestamp=None):
     """Load photometry for a single-night time-axis column.
 
     Returns (t_hours, delta_flux_pct, flux_err_pct, ms).
@@ -169,9 +197,17 @@ def _load_phot_data_time(utcdatestr, photinst, x0_btjd):
 
     elif photinst == 'tierras':
         if utcdatestr == '20240428':
-            df = pd.read_csv(
-                join(TIERRASDIR, 'TIC368129164_global_lc.csv'), comment='#'
-            )
+            if tierras_datestamp is None:
+                df = pd.read_csv(
+                    join(TIERRASDIR, 'TIC368129164_global_lc.csv'), comment='#'
+                )
+            else:
+                df = pd.read_csv(
+                    join(TIERRASDIR,
+                         f'TIC368129164_global_lc_{tierras_datestamp}.csv'),
+                    comment='#'
+                )
+            # restrict to the DBSP overlap region of the night
             sel = (df['BJD TDB'] > 2460428.81) & (df['BJD TDB'] < 2460429.2)
             df = df[sel].rename(
                 {'Flux': 'Target Relative Flux',
@@ -179,10 +215,15 @@ def _load_phot_data_time(utcdatestr, photinst, x0_btjd):
                 axis='columns'
             )
         elif utcdatestr == '20231111':
-            df = pd.read_csv(join(
-                TIERRASDIR,
-                '20231111_TIC402980664_circular_fixed_ap_phot_13.csv'
-            ))
+            if tierras_datestamp is None:
+                df = pd.read_csv(join(
+                    TIERRASDIR,
+                    '20231111_TIC402980664_circular_fixed_ap_phot_13.csv'
+                ))
+            else:
+                df = _read_tierras_global_night(
+                    '402980664', tierras_datestamp, utcdatestr
+                )
         else:
             raise NotImplementedError(f'No Tierras handler for {utcdatestr}')
         assert len(df) > 0
@@ -204,17 +245,22 @@ def _load_phot_data_time(utcdatestr, photinst, x0_btjd):
     return t_hours, delta_flux_pct, flux_err_pct, ms
 
 
-def _load_phot_tierras_phase(utcdatestr):
+def _load_phot_tierras_phase(utcdatestr, tierras_datestamp=None):
     """Load Tierras photometry for a phase-axis column.
 
     Returns (t_bjd, delta_flux_pct, flux_err_pct) where delta_flux_pct is
     100*(flux/median - 1) so each night is independently centred on 0.
     """
-    fns = {
-        '20231111': '20231111_TIC402980664_circular_fixed_ap_phot_13.csv',
-        '20231112': '20231112_TIC402980664_circular_fixed_ap_phot_21.csv',
-    }
-    df       = pd.read_csv(join(TIERRASDIR, fns[utcdatestr]))
+    if tierras_datestamp is None:
+        fns = {
+            '20231111': '20231111_TIC402980664_circular_fixed_ap_phot_13.csv',
+            '20231112': '20231112_TIC402980664_circular_fixed_ap_phot_21.csv',
+        }
+        df = pd.read_csv(join(TIERRASDIR, fns[utcdatestr]))
+    else:
+        df = _read_tierras_global_night(
+            '402980664', tierras_datestamp, utcdatestr
+        )
     t_bjd    = np.array(df['BJD TDB'])
     flux     = np.array(df['Target Relative Flux'])
     flux_err = np.array(df['Target Relative Flux Error'])
@@ -224,7 +270,10 @@ def _load_phot_tierras_phase(utcdatestr):
     return t_bjd, pct, pct_err
 
 
-def plot_dbsp_halpha_mosaic():
+def plot_dbsp_halpha_mosaic(tierras_datestamp=None):
+    """tierras_datestamp: None → original Tierras delivery; else e.g.
+    '20260818' → TIC*_global_lc_<datestamp>.csv, with the datestamp appended
+    to the output filename."""
 
     plt.close('all')
     set_style('science')
@@ -259,7 +308,8 @@ def plot_dbsp_halpha_mosaic():
             )
 
             t_ph, dflux, dflux_err, ms = _load_phot_data_time(
-                col['utcdatestr'], col['photinst'], x0_btjd
+                col['utcdatestr'], col['photinst'], x0_btjd,
+                tierras_datestamp=tierras_datestamp
             )
             ax_fl.errorbar(
                 t_ph, dflux, yerr=dflux_err,
@@ -297,7 +347,9 @@ def plot_dbsp_halpha_mosaic():
             # both datasets overlap and the transition is most visible.
             phot = {}
             for datestr in col['utcdatestrs']:
-                t_p, pct_p, err_p = _load_phot_tierras_phase(datestr)
+                t_p, pct_p, err_p = _load_phot_tierras_phase(
+                    datestr, tierras_datestamp=tierras_datestamp
+                )
                 si = np.argsort(t_p)
                 phot[datestr] = (t_p[si], pct_p[si], err_p[si])
 
@@ -389,10 +441,12 @@ def plot_dbsp_halpha_mosaic():
 
     outdir = join(RESULTSDIR, 'EW_results')
     os.makedirs(outdir, exist_ok=True)
-    outpath = join(outdir, 'DBSP_HAlpha_mosaic.png')
+    sfx = '' if tierras_datestamp is None else f'_{tierras_datestamp}'
+    outpath = join(outdir, f'DBSP_HAlpha_mosaic{sfx}.png')
     savefig(fig, outpath, dpi=300)
     print(f'Saved {outpath}')
 
 
 if __name__ == '__main__':
-    plot_dbsp_halpha_mosaic()
+    tierras_datestamp = sys.argv[1] if len(sys.argv) > 1 else None
+    plot_dbsp_halpha_mosaic(tierras_datestamp=tierras_datestamp)

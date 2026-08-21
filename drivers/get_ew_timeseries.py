@@ -1,4 +1,5 @@
 import os
+import sys
 from astropy.io import fits
 from glob import glob
 from os.path import join
@@ -31,6 +32,30 @@ UTCDICT = {
     # DG CVn
     '20240428': '20240428: DBSP + TIERRAS',
 }
+
+def _read_tierras_global_night(ticid, tierras_datestamp, utcdatestr):
+    """Read one night's frames from a reprocessed global Tierras LC, e.g.
+    TIC402980664_global_lc_20260818.csv.  A "night" is all frames within the
+    UT date `utcdatestr`, selected as floor(BJD TDB - 0.5) == JD of that
+    date's UT midnight.  Columns are renamed to match the old per-night CSVs;
+    NB the new 'Flux' is already normalized to ~1, unlike the old raw
+    'Target Relative Flux' target/ensemble ratio (median ~0.073).
+    """
+    TIERRASDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/TIERRAS')
+    df = pd.read_csv(
+        join(TIERRASDIR, f'TIC{ticid}_global_lc_{tierras_datestamp}.csv'),
+        comment='#'
+    )
+    datestr = f'{utcdatestr[:4]}-{utcdatestr[4:6]}-{utcdatestr[6:]}'
+    night = int(Time(datestr, scale='utc').jd - 0.5)
+    sel = np.floor(df['BJD TDB'].values - 0.5).astype(int) == night
+    assert sel.sum() > 0, f'no frames on {utcdatestr} in TIC{ticid} {tierras_datestamp}'
+    return df[sel].rename(
+        {'Flux': 'Target Relative Flux',
+         'Flux Error': 'Target Relative Flux Error'},
+        axis='columns'
+    )
+
 
 def plot_ew_timeseries(
     linename = 'HGamma',
@@ -332,7 +357,8 @@ def plot_stack_ew_timeseries(ha, hb, hc, utcdatestr, uinsts, targetid):
     outpath = join(outdir, f'{targetid}_{uinsts}_stackew_vs_time_DBSP_UT{utcdatestr}.png')
     savefig(fig, outpath)
 
-def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, targetid):
+def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, targetid,
+                           tierras_datestamp=None):
 
     linekeys = 'f,Hα,Hβ,Hγ'.split(',')
 
@@ -395,14 +421,24 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, targetid):
                 TESSDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/tess')
                 if utcdatestr == '20231111':
                     inst = 'tierras'
-                    df = pd.read_csv(
-                        join(TIERRASDIR, "20231111_TIC402980664_circular_fixed_ap_phot_13.csv")
-                    )
+                    if tierras_datestamp is None:
+                        df = pd.read_csv(
+                            join(TIERRASDIR, "20231111_TIC402980664_circular_fixed_ap_phot_13.csv")
+                        )
+                    else:
+                        df = _read_tierras_global_night(
+                            '402980664', tierras_datestamp, utcdatestr
+                        )
                 elif utcdatestr == '20231112':
                     inst = 'tierras'
-                    df = pd.read_csv(
-                        join(TIERRASDIR, "20231112_TIC402980664_circular_fixed_ap_phot_21.csv")
-                    )
+                    if tierras_datestamp is None:
+                        df = pd.read_csv(
+                            join(TIERRASDIR, "20231112_TIC402980664_circular_fixed_ap_phot_21.csv")
+                        )
+                    else:
+                        df = _read_tierras_global_night(
+                            '402980664', tierras_datestamp, utcdatestr
+                        )
                 elif utcdatestr == '20231203':
                     inst = 'tierras'
                     df = pd.read_csv(
@@ -463,7 +499,9 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, targetid):
                 flux = np.array(df['Target Relative Flux'])
                 flux_err = np.array(df['Target Relative Flux Error'])
 
-                if utcdatestr not in ['20231207', '20240428'] and inst=='tierras':
+                if (utcdatestr not in ['20231207', '20240428']
+                        and inst == 'tierras' and tierras_datestamp is None):
+                    # old raw target/ensemble ratio; hardcoded offset ~median
                     x0 = 73
                     yval = 1e3*flux - x0
                     yerr = 1e3*flux_err
@@ -494,12 +532,13 @@ def plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, targetid):
     outdir = join(RESULTSDIR, 'EW_results')
     if not os.path.exists(outdir): os.mkdir(outdir)
     uinsts = "_".join(np.unique(insts))
-    outpath = join(outdir, f'{targetid}_stackew_vs_phase_{uinsts}_{"_".join(utcdatestrs)}.png')
+    sfx = '' if tierras_datestamp is None else f'_{tierras_datestamp}'
+    outpath = join(outdir, f'{targetid}_stackew_vs_phase_{uinsts}_{"_".join(utcdatestrs)}{sfx}.png')
     savefig(fig, outpath)
 
 
 def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
-                                 show_vel=0, noline=0):
+                                 show_vel=0, noline=0, tierras_datestamp=None):
 
     linekeys = 'f,Hα,Hβ,Hγ'.split(',')
 
@@ -577,7 +616,8 @@ def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
 
                 WRITEOUT = 1
                 if WRITEOUT:
-                    csvname = f'{targetid}_{lk}_{utcdatestr}_{ix}.csv'
+                    _sfx = '' if tierras_datestamp is None else f'_{tierras_datestamp}'
+                    csvname = f'{targetid}_{lk}_{utcdatestr}_{ix}{_sfx}.csv'
                     outdf = pd.DataFrame(
                         {'t':nparr(t),
                          'phase':nparr(phase),
@@ -602,13 +642,23 @@ def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
                 TIERRASDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/TIERRAS')
                 KEPLERCAMDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/KeplerCam')
                 if utcdatestr == '20231111':
-                    df = pd.read_csv(
-                        join(TIERRASDIR, "20231111_TIC402980664_circular_fixed_ap_phot_13.csv")
-                    )
+                    if tierras_datestamp is None:
+                        df = pd.read_csv(
+                            join(TIERRASDIR, "20231111_TIC402980664_circular_fixed_ap_phot_13.csv")
+                        )
+                    else:
+                        df = _read_tierras_global_night(
+                            '402980664', tierras_datestamp, utcdatestr
+                        )
                 elif utcdatestr == '20231112':
-                    df = pd.read_csv(
-                        join(TIERRASDIR, "20231112_TIC402980664_circular_fixed_ap_phot_21.csv")
-                    )
+                    if tierras_datestamp is None:
+                        df = pd.read_csv(
+                            join(TIERRASDIR, "20231112_TIC402980664_circular_fixed_ap_phot_21.csv")
+                        )
+                    else:
+                        df = _read_tierras_global_night(
+                            '402980664', tierras_datestamp, utcdatestr
+                        )
                 elif utcdatestr == '20231203':
                     df = pd.read_csv(
                         join(TIERRASDIR, "20231203_TIC402980664_circular_fixed_ap_phot_18.csv")
@@ -628,7 +678,8 @@ def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
                 flux = np.array(df['Target Relative Flux'])
                 flux_err = np.array(df['Target Relative Flux Error'])
 
-                if utcdatestr != '20231207':
+                if utcdatestr != '20231207' and tierras_datestamp is None:
+                    # old raw target/ensemble ratio; hardcoded offset ~median
                     x0 = 73
                     yval = 1e3*flux - x0
                     yerr = 1e3*flux_err
@@ -644,7 +695,8 @@ def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
 
                 WRITEOUT = 1
                 if WRITEOUT:
-                    csvname = f'{targetid}_{lk}_{utcdatestr}_{ix}.csv'
+                    _sfx = '' if tierras_datestamp is None else f'_{tierras_datestamp}'
+                    csvname = f'{targetid}_{lk}_{utcdatestr}_{ix}{_sfx}.csv'
                     outdf = pd.DataFrame(
                         {'t':nparr(t),
                          'phase':nparr(phase),
@@ -663,7 +715,8 @@ def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
 
     fig.tight_layout(h_pad=0, w_pad=0.5)
 
-    outdir = join(RESULTSDIR, 'movie_EW_results')
+    dsfx = '' if tierras_datestamp is None else f'_{tierras_datestamp}'
+    outdir = join(RESULTSDIR, f'movie_EW_results{dsfx}')
     if not os.path.exists(outdir): os.mkdir(outdir)
     uinsts = "_".join(np.unique(insts))
     outpath = join(outdir, f'stackew_vs_phase_{uinsts}_{"_".join(utcdatestrs)}.png')
@@ -722,13 +775,23 @@ def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
             TIERRASDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/TIERRAS')
             KEPLERCAMDIR = os.path.expanduser('~/Dropbox/proj/cpv/data/photometry/KeplerCam')
             if utcdatestr == '20231111':
-                df = pd.read_csv(
-                    join(TIERRASDIR, "20231111_TIC402980664_circular_fixed_ap_phot_13.csv")
-                )
+                if tierras_datestamp is None:
+                    df = pd.read_csv(
+                        join(TIERRASDIR, "20231111_TIC402980664_circular_fixed_ap_phot_13.csv")
+                    )
+                else:
+                    df = _read_tierras_global_night(
+                        '402980664', tierras_datestamp, utcdatestr
+                    )
             elif utcdatestr == '20231112':
-                df = pd.read_csv(
-                    join(TIERRASDIR, "20231112_TIC402980664_circular_fixed_ap_phot_21.csv")
-                )
+                if tierras_datestamp is None:
+                    df = pd.read_csv(
+                        join(TIERRASDIR, "20231112_TIC402980664_circular_fixed_ap_phot_21.csv")
+                    )
+                else:
+                    df = _read_tierras_global_night(
+                        '402980664', tierras_datestamp, utcdatestr
+                    )
             elif utcdatestr == '20231203':
                 df = pd.read_csv(
                     join(TIERRASDIR, "20231203_TIC402980664_circular_fixed_ap_phot_18.csv")
@@ -748,7 +811,8 @@ def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
             flux = np.array(df['Target Relative Flux'])
             flux_err = np.array(df['Target Relative Flux Error'])
 
-            if utcdatestr != '20231207':
+            if utcdatestr != '20231207' and tierras_datestamp is None:
+                # old raw target/ensemble ratio; hardcoded offset ~median
                 x0 = 73
                 yval = 1e3*flux - x0
                 yerr = 1e3*flux_err
@@ -768,7 +832,11 @@ def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
 
             ax.set_ylabel('Broadband flux [%]')
             #ax.set_ylim([-5, 5])
-            ax.set_ylim([-3.8, 3.8])
+            if tierras_datestamp is None:
+                ax.set_ylim([-3.8, 3.8])
+            else:
+                # honest % units (new global LC); night-2 dip reaches ~-4.5%
+                ax.set_ylim([-4.8, 3.8])
 
             #
             # B, C, D : line EW vs phase
@@ -925,12 +993,12 @@ def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
         fig.tight_layout(h_pad=0, w_pad=0.5)
 
         if not noline:
-            outdir = join(RESULTSDIR, 'movie_EW_results')
+            outdir = join(RESULTSDIR, f'movie_EW_results{dsfx}')
         else:
-            outdir = join(RESULTSDIR, 'movie_EW_results_noline')
+            outdir = join(RESULTSDIR, f'movie_EW_results_noline{dsfx}')
 
         if show_vel:
-            outdir = join(RESULTSDIR, 'movie_EW_results_showvel')
+            outdir = join(RESULTSDIR, f'movie_EW_results_showvel{dsfx}')
         if not os.path.exists(outdir): os.mkdir(outdir)
         uinsts = "_".join(np.unique(insts))
 
@@ -951,6 +1019,11 @@ def plot_movie_stack_ew_vs_phase(targetid, has, hbs, hcs, utcdatestrs, insts,
 
 
 if __name__ == "__main__":
+
+    # optional CLI arg: Tierras reprocessing datestamp (e.g. '20260818') →
+    # use TIC*_global_lc_<datestamp>.csv and write movie frames to
+    # movie_EW_results_showvel_<datestamp>/
+    tierras_datestamp = sys.argv[1] if len(sys.argv) > 1 else None
 
     # NOTE: if you add new dates, gotta add to UTCDICT
 
@@ -1020,11 +1093,13 @@ if __name__ == "__main__":
         hbs.append(hb)
         hcs.append(hc)
 
-    plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, targetid)
+    plot_stack_ew_vs_phase(has, hbs, hcs, utcdatestrs, insts, targetid,
+                           tierras_datestamp=tierras_datestamp)
 
     if utcdatestrs == "20231111,20231112".split(","):
         plot_movie_stack_ew_vs_phase(
-            targetid, has, hbs, hcs, utcdatestrs, insts, show_vel=1
+            targetid, has, hbs, hcs, utcdatestrs, insts, show_vel=1,
+            tierras_datestamp=tierras_datestamp
         )
         assert 0
         #plot_movie_stack_ew_vs_phase(

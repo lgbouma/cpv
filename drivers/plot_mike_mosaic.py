@@ -8,8 +8,8 @@ Layout:
     B
     B
 
-A: flux vs phase + Hα linecore twinx (= mage mosaic panels C/D/E/F),
-   TESS sector 87.
+A: flux vs phase + Hα line-core EW twinx (continuum-subtracted EW,
+   polycont normalization; = mage mosaic panels C/D/E/F), TESS sector 87.
 B: specriver pcolor removeavg, color scale vmin/vmax = -0.2/+0.2
    (= the LOWEST row, K/L/M/N, of mage_mosaic_simult_tworow).
 
@@ -41,6 +41,8 @@ from complexrotators.lcprocessing import cpv_periodsearch
 TICID = '300651846'
 LINESTR = 'Hα'
 DLAMBDA = 15
+LAMBDA0 = 6562.8                     # angstrom
+C_KMS = 299792.458                   # km/s
 PERIOD = 0.3439207894624283          # days
 T0 = 2460693.243837336 - 2457000     # TJD (BTJD), same as sixpanel driver
 YLIM = [-8, 5]                       # flux vs phase ylim [%]
@@ -67,7 +69,11 @@ LCDIR = join(os.path.expanduser('~'), 'Dropbox/proj/cpv/data/photometry/tess')
 LCPATH = join(LCDIR, 'tess2024353092137-s0087-0000000300651846-0284-s_lc.fits')
 CACHEDIR = join(LOCALDIR, 'cpv_finding', 'spoc2min_debug')
 
-PLOTDIR = join(RESULTSDIR, 'mike_mosaic')
+# 20260820: polycont normalization + EW core metric, matching the MagE
+# mosaic fix (see mage_continuum_normalization_assessment.txt and
+# results/mage_mosaic_20260820/README.txt).  Kept separate from
+# results/mike_mosaic/ so the pre-fix plot remains for comparison.
+PLOTDIR = join(RESULTSDIR, 'mike_mosaic_20260820')
 os.makedirs(PLOTDIR, exist_ok=True)
 
 
@@ -81,10 +87,14 @@ def _make_specriver_data(datestr):
         orig_yvals  : list of normalized flux arrays before avg subtraction
         flux_arr_sub: (n_wav, n_spec) flux minus smoothed average
         norm_flxs   : continuum normalization values (n_spec,)
-        linecore_sums: sum of line-core flux for each spectrum
+        ew          : continuum-subtracted line-core EW [angstrom] (n_spec,)
+        ew_err      : 1-sigma EW uncertainty [angstrom], photon noise plus
+                      continuum-fit uncertainty in quadrature (n_spec,)
     """
-    specpaths, spectimes, xvals, yvals, yvalsnonorm, norm_flxs = get_specriver_data(
-        TICID, LINESTR, dlambda=DLAMBDA, usespectype='mike', datestr=datestr
+    (specpaths, spectimes, xvals, yvals, yvalsnonorm, norm_flxs,
+     norm_flx_errs) = get_specriver_data(
+        TICID, LINESTR, dlambda=DLAMBDA, usespectype='mike', datestr=datestr,
+        normmethod='polycont'
     )
 
     # normalize x to Δv/v_eq
@@ -108,11 +118,25 @@ def _make_specriver_data(datestr):
     for ix, yval in enumerate(yvals):
         flux_arr[:, ix] = yval
 
-    # linecore sums before avg subtraction
-    linecore_sums = np.array([
-        np.sum(yval[np.abs(xval) <= 1])
-        for yval, xval in zip(yvals, xvals)
-    ])
+    # Continuum-subtracted line-core equivalent width, before avg subtraction:
+    #   EW_i = Σ (f_rect − 1) Δλ  over |Δv/v_eq| ≤ 1.
+    # (yvals are rectified by the polycont fit, so f_rect ≈ f/f_cont.)  Same
+    # metric and error model as plot_mage_mosaic.py.
+    ew, ew_err = [], []
+    for yval, ynn, xval, nf, nfe in zip(
+        yvals, yvalsnonorm, xvals, norm_flxs, norm_flx_errs
+    ):
+        dlam = np.nanmedian(np.diff(xval)) * ADOPTED_VEQ * LAMBDA0 / C_KMS
+        core = np.abs(xval) <= 1
+        # yvalsnonorm skips the ragged-array trim in getters; align defensively
+        ynn = np.asarray(ynn)[:len(xval)]
+        ew.append(np.sum(yval[core] - 1) * dlam)
+        core_counts = np.sum(ynn[core])
+        sig_phot = dlam * np.sqrt(core_counts) / nf
+        sig_cont = nfe * dlam * np.sum(yval[core])
+        ew_err.append(np.sqrt(sig_phot**2 + sig_cont**2))
+    ew = np.array(ew)
+    ew_err = np.array(ew_err)
 
     # removeavg: subtract gaussian-smoothed 25th-percentile spectrum
     pctflux = np.nanpercentile(flux_arr, PCTILE, axis=1)
@@ -130,7 +154,9 @@ def _make_specriver_data(datestr):
         'orig_yvals': orig_yvals,
         'flux_arr_sub': flux_arr_sub,
         'norm_flxs': norm_flxs,
-        'linecore_sums': linecore_sums,
+        'norm_flx_errs': norm_flx_errs,
+        'ew': ew,
+        'ew_err': ew_err,
     }
 
 
@@ -142,30 +168,27 @@ def _plot_phase_linecore(ax, lc_times, lc_fluxs, sd):
     Returns the phase limits (xmin, xmax) and the twinx axis.
     """
     # ── linecore twinx (drawn first so TESS LC renders on top) ─────────────
-    linecore_sums = sd['linecore_sums']
-    norm_flxs = sd['norm_flxs']
+    # continuum-subtracted line-core EW, relative to the night median [%].
+    # The 1-σ errors include both photon noise and the continuum-fit
+    # uncertainty (no fudge factor).  Same as plot_mage_mosaic.py.
+    ew = sd['ew']
+    ew_err = sd['ew_err']
 
-    linecore_rel = linecore_sums / np.nanmedian(linecore_sums)
-    med_normflx = np.nanmedian(norm_flxs)
-    linecore_err = (
-        np.sqrt(linecore_sums * med_normflx) /
-        (linecore_sums * med_normflx)
-    )
-    linecore_rel_pct = 100.0 * (linecore_rel - np.nanmedian(linecore_rel))
-    linecorr_err_pct = 100.0 * linecore_err
-    FUDGE = 2
+    med_ew = np.nanmedian(ew)
+    ew_rel_pct = 100.0 * (ew / med_ew - 1)
+    ew_err_pct = 100.0 * ew_err / np.abs(med_ew)
 
     specphases = sd['specphases']
     xerr = np.nanmedian(np.diff(sd['spectimes']) / PERIOD) / 2
 
     ax2 = ax.twinx()
     ax2.errorbar(
-        specphases, linecore_rel_pct,
-        yerr=FUDGE * linecorr_err_pct, xerr=xerr,
+        specphases, ew_rel_pct,
+        yerr=ew_err_pct, xerr=xerr,
         lw=0.8, ls=':', marker='.', c='forestgreen', markersize=2,
         alpha=0.5, zorder=1,
     )
-    ax2.set_ylabel(r"$\Delta$ $f$$_{\mathrm{H\alpha\ core}}$ [%]",
+    ax2.set_ylabel(r"$\Delta$ EW$_{\mathrm{H\alpha\ core}}$ [%]",
                    fontsize='x-small', color='forestgreen')
     ax2.tick_params(axis='y', labelcolor='forestgreen', labelsize='x-small')
 

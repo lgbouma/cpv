@@ -245,7 +245,7 @@ def load_night(datestr):
         TICID, 'Hα', dlambda=20, gaussian_filter_sigma=None,
         usespectype='reduced', datestr=datestr,
     )
-    _, spectimes, xvals, yvals, _, _ = out
+    _, spectimes, xvals, yvals, _, _, _ = out
     v = np.asarray(xvals, dtype=float)
     yvals = np.asarray(yvals, dtype=float)
     spectimes = np.asarray(spectimes, dtype=float)

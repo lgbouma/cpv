@@ -94,7 +94,8 @@ def _load_tess_lc(lcpath, fluxkey, quality_bitmask=0):
 
 def _make_specriver_data(datestr):
     """Load HIRES spectra for one night; return processed arrays."""
-    specpaths, spectimes, xvals, yvals, yvalsnonorm, norm_flxs = get_specriver_data(
+    (specpaths, spectimes, xvals, yvals, yvalsnonorm, norm_flxs,
+     norm_flx_errs) = get_specriver_data(
         TICID, LINESTR, dlambda=DLAMBDA, usespectype='reduced', datestr=datestr
     )
 
