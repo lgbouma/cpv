@@ -480,18 +480,141 @@ def get_tic8_row(ticid, cachedir):
     return t8_row
 
 
+def fit_pseudocontinuum(
+    wav, flx, lambda0,
+    dlambda_cont=50.,
+    exclude_wav_bands=None,
+    poly_deg=2,
+    n_iter=4,
+    clip_hi=2.0,
+    clip_lo=3.0
+):
+    """
+    Fit a pseudo-continuum around a spectral line from many line-free pixels,
+    rather than sampling a single anchor pixel.
+
+    The fit is an iteratively sigma-clipped polynomial over the pixels with
+    |wav - lambda0| < dlambda_cont, excluding `exclude_wav_bands`.  Clipping is
+    asymmetric: positive outliers (emission components, cosmic rays) are
+    rejected harder (clip_hi sigma) than negative ones (clip_lo sigma), so a
+    time-variable emission feature cannot inflate the continuum estimate.
+
+    Args:
+        wav, flx: full-order wavelength [angstrom] and flux arrays (i.e. NOT
+            pre-cut to the narrow display window around the line).
+        lambda0: line rest wavelength [angstrom].
+        dlambda_cont: half-width [angstrom] of the fitting window.
+        exclude_wav_bands: list of (wav_lo, wav_hi) intervals [angstrom] to
+            exclude from the fit (line core+wings, known blends).
+        poly_deg: polynomial degree (2 allows for residual blaze curvature).
+        n_iter: number of sigma-clipping iterations.
+        clip_hi / clip_lo: positive / negative clip thresholds, in units of the
+            robust (MAD-based) residual scatter.
+
+    Returns dict with keys:
+        coeffs: np.polyfit coefficients in x = (wav - lambda0)/dlambda_cont.
+        poly: callable, evaluates the continuum at wavelength(s) [angstrom].
+        cont_lambda0: continuum evaluated at lambda0.
+        cont_frac_err: fractional statistical uncertainty of cont_lambda0
+            (scatter of unclipped pixels about the fit / sqrt(N_kept)).
+        n_kept: number of pixels in the final fit.
+    """
+    if exclude_wav_bands is None:
+        exclude_wav_bands = []
+
+    sel = np.abs(wav - lambda0) < dlambda_cont
+    w, f = wav[sel], flx[sel]
+
+    keep0 = np.isfinite(f) & np.isfinite(w)
+    for (w0, w1) in exclude_wav_bands:
+        keep0 &= ~((w >= w0) & (w <= w1))
+
+    assert keep0.sum() > 5 * (poly_deg + 1), (
+        'too few line-free pixels for pseudo-continuum fit'
+    )
+
+    # center/scale the abscissa for numerical conditioning
+    x = (w - lambda0) / dlambda_cont
+
+    keep = keep0.copy()
+    for _ in range(n_iter):
+        coeffs = np.polyfit(x[keep], f[keep], poly_deg)
+        resid = f - np.polyval(coeffs, x)
+        _r = resid[keep]
+        sigma = 1.4826 * np.nanmedian(np.abs(_r - np.nanmedian(_r)))
+        newkeep = keep0 & (resid < clip_hi * sigma) & (resid > -clip_lo * sigma)
+        if newkeep.sum() < max(2 * (poly_deg + 1), 0.3 * keep0.sum()):
+            break
+        if (newkeep == keep).all():
+            keep = newkeep
+            break
+        keep = newkeep
+
+    coeffs = np.polyfit(x[keep], f[keep], poly_deg)
+    resid = f[keep] - np.polyval(coeffs, x[keep])
+    cont_lambda0 = float(np.polyval(coeffs, 0.))
+    cont_frac_err = float(
+        np.std(resid) / np.sqrt(keep.sum()) / np.abs(cont_lambda0)
+    )
+
+    poly = lambda _w: np.polyval(coeffs, (_w - lambda0) / dlambda_cont)
+
+    return {
+        'coeffs': coeffs,
+        'poly': poly,
+        'cont_lambda0': cont_lambda0,
+        'cont_frac_err': cont_frac_err,
+        'n_kept': int(keep.sum()),
+    }
+
+
+# Wavelength intervals excluded from the pseudo-continuum fit, per line.  The
+# line core+wings exclusion (CONT_CORE_MASK_KMS, symmetric in velocity so that
+# red- and blue-shifted emission are treated identically) is applied on top of
+# these.  Vetted against the MagE night-median spectra for Hα (Ca I 6572.78
+# falls inside the core+wings mask, but is listed explicitly in case the core
+# mask is ever narrowed).  NOT yet vetted for Hβ.
+CONT_CORE_MASK_KMS = 600.
+CONT_EXTRA_MASKS = {
+    'Hα': [(6572.78 - 1.5, 6572.78 + 1.5)],  # Ca I 6572.78
+    'Hβ': [],
+}
+
+
 def get_specriver_data(
     ticid, linestr, specdir=os.path.expanduser('~/Dropbox/proj/cpv/data/spectra/HIRES/'),
     dlambda=20,
     usespectype='deblazed',
     gaussian_filter_sigma=2,
-    datestr=None
+    datestr=None,
+    normmethod=None,
+    dlambda_cont=50.
 ):
     """
     Get flux vs wavelength cutouts for your desired line, given HIRES/MIKE/MagE
     .fits spectra in a directory.
 
     usespectype: 'deblazed' or 'reduced'
+
+    normmethod: 'anchor', 'polycont', or None.
+        'anchor': legacy behavior; the continuum is a single pixel of a
+            sigma=5-pixel Gaussian-smoothed cutout at a fixed velocity offset
+            (normatvel).  For MagE (23.4 km/s/pix) that kernel is 117 km/s
+            wide, so nearby emission components leak into the normalization
+            (see mage_continuum_normalization_assessment.txt).
+        'polycont': fit a sigma-clipped polynomial pseudo-continuum over
+            +/- dlambda_cont angstrom (line core+wings and known blends
+            masked, symmetric in velocity), and rectify the cutout by the
+            fitted polynomial.  norm_flx is the continuum at line center.
+        None: resolves to 'polycont' for MagE and 'anchor' otherwise (the
+            HIRES/MIKE kernels are 6.6/11 km/s, where the anchor pathology is
+            small, and this keeps those published products reproducible).
+
+    Returns:
+        specpaths, spectimes, xvals, yvals, yvalsnonorm, norm_flxs,
+        norm_flx_errs
+        (norm_flx_errs: fractional continuum uncertainties for 'polycont',
+         else NaN.)
     """
 
     from cdips_followup.spectools import read_hires
@@ -606,6 +729,19 @@ def get_specriver_data(
     order = infodict[linestr][2]
     normatvel = infodict[linestr][3]
 
+    if normmethod is None:
+        normmethod = 'polycont' if usespectype == 'mage' else 'anchor'
+    assert normmethod in ['anchor', 'polycont']
+    print(f'get_specriver_data: normmethod={normmethod}')
+
+    if normmethod == 'polycont':
+        _c_kms = const.c.to(u.km/u.s).value
+        _dw_core = λ0 * CONT_CORE_MASK_KMS / _c_kms
+        cont_exclude_bands = (
+            [(λ0 - _dw_core, λ0 + _dw_core)]
+            + CONT_EXTRA_MASKS.get(linestr, [])
+        )
+
     def get_vel(wav, wav0):
         deltawvlen = ( wav - wav0 )
         delta_v = const.c * (deltawvlen / wav0)
@@ -617,10 +753,14 @@ def get_specriver_data(
     elif ticid in ['300651846'] and usespectype == 'mike':
         specpaths = np.sort(glob(join(datadir, f"tic3006{chip}*.fits")))
     elif ticid in ['300651846'] and usespectype == 'mage':
+        # NB: the historical exclusion of the first 20250119 exposure
+        # (spec1184) is now applied INSIDE the loop, after the stale-duplicate
+        # check, so that spec1185 (a stale copy of spec1184's data) is still
+        # recognized and dropped.
         if datestr == '20250118':
             specpaths = np.sort(glob(join(datadir, f"tic3006_spec0*.fits")))
         elif datestr == '20250119':
-            specpaths = np.sort(glob(join(datadir, f"tic3006_spec1*.fits")))[1:]
+            specpaths = np.sort(glob(join(datadir, f"tic3006_spec1*.fits")))
         elif datestr == '20250120':
             specpaths = np.sort(glob(join(datadir, f"tic3006_spec2*.fits")))
         elif datestr == '20250121':
@@ -630,6 +770,18 @@ def get_specriver_data(
     yvals, xvals, spectimes = [], [], []
     yvalsnonorm = []
     norm_flxs = []
+    norm_flx_errs = []
+    keptpaths = []
+
+    # For MagE, match each spectrum's time by filename (the CSV's row order
+    # need not track the kept-file order once duplicates are dropped).
+    if usespectype == 'mage':
+        _mage_time_by_base = {
+            os.path.basename(f): t for f, t in
+            zip(timedf['file'], timedf['bjd_tdb_midtime'])
+        }
+        _prev_order_flx = None
+        _n_dropped_dupes = 0
 
     if ticid in ['402980664', '141146667']: # HIRES
         # NOTE hack in case you opt for "REDUCED" only..
@@ -665,6 +817,41 @@ def get_specriver_data(
         start = 10
         end = -10
         flx, wav = flx_2d[order, start:end], wav_2d[order, start:end]
+
+        # MAGE_REDUX contains exposures whose extracted spectra are stale
+        # numerical copies of the preceding exposure (headers/times differ;
+        # data identical to ~1e-7 relative, vs >~8% for genuinely distinct
+        # neighbors).  Drop them: they would be plotted at phases at which
+        # they were not taken, and double-weight the percentile template.
+        if usespectype == 'mage':
+            if (
+                _prev_order_flx is not None
+                and len(_prev_order_flx) == len(flx)
+            ):
+                _reldiff = (
+                    np.nanmax(np.abs(flx - _prev_order_flx))
+                    / np.nanmedian(np.abs(flx))
+                )
+                if _reldiff < 1e-4:
+                    print(
+                        f'!!! dropping {os.path.basename(specpath)}: '
+                        f'order-{order} flux identical to previous kept '
+                        f'exposure (reldiff {_reldiff:.1e}); stale duplicate '
+                        'in MAGE_REDUX.'
+                    )
+                    _n_dropped_dupes += 1
+                    continue
+            _prev_order_flx = flx.copy()
+
+            # historical exclusion of the first 20250119 exposure (was a
+            # "[1:]" on the glob); applied after the duplicate check so that
+            # spec1185 is still compared against spec1184.
+            if (
+                datestr == '20250119'
+                and os.path.basename(specpath).startswith('tic3006_spec1184')
+            ):
+                print('!!! dropping tic3006_spec1184 (historical exclusion)')
+                continue
 
         if (
             linestr == 'Hα' and usespectype == 'reduced' and
@@ -704,36 +891,59 @@ def get_specriver_data(
                 #  -> deblz_flx_2d = reduc_flx_2d / blz_flx_2d
                 flx = flx / blaze_flx
 
+        # full-order arrays, retained for the pseudo-continuum fit (the fit
+        # window is wider than the display cutout).
+        wav_order, flx_order = wav, flx
+
         sel = (wav > λmin) & (wav < λmax)
         wav = wav[sel]
         flx = flx[sel]
 
         vels = get_vel(wav, λ0)
 
-        # Normalize flux to 1 at whatever normatvel is given at.
-        # This might mean the median flux in the selected wavelength
-        # region.  It might mean a particular specified velocity, if
-        # `normatvel` is non-null.  NB: there is no actual smoothing
-        # happening in this step.
-        if normatvel is None:
-            norm_flx = np.nanmedian(flx)
+        if normmethod == 'polycont':
+            # Fit a sigma-clipped pseudo-continuum over +/- dlambda_cont with
+            # the line core+wings and known blends masked, then rectify the
+            # cutout by the fitted polynomial (this also removes the local
+            # blaze/absorption slope).  norm_flx is the continuum at line
+            # center, kept as the photon-count proxy used downstream.
+            contfit = fit_pseudocontinuum(
+                wav_order, flx_order, λ0,
+                dlambda_cont=dlambda_cont,
+                exclude_wav_bands=cont_exclude_bands
+            )
+            norm_flx = contfit['cont_lambda0']
+            norm_flx_err = contfit['cont_frac_err']
+            normed_flx = flx / contfit['poly'](wav)
         else:
-            fn = lambda x: gaussian_filter1d(x, sigma=5)
-            norm_flx = fn(flx)[ np.argmin(abs(vels - normatvel)) ]
+            # Legacy 'anchor' normalization: flux at a single fixed velocity
+            # offset.  This might mean the median flux in the selected
+            # wavelength region.  It might mean a particular specified
+            # velocity, if `normatvel` is non-null.  NB: there is no actual
+            # smoothing happening in this step.
+            if normatvel is None:
+                norm_flx = np.nanmedian(flx)
+            else:
+                fn = lambda x: gaussian_filter1d(x, sigma=5)
+                norm_flx = fn(flx)[ np.argmin(abs(vels - normatvel)) ]
+            norm_flx_err = np.nan
+            normed_flx = flx / norm_flx
 
         # NOTE : by default you are doing some gaussian smoothing...
         if gaussian_filter_sigma is not None:
             fn = lambda x: gaussian_filter1d(
                 x, sigma=gaussian_filter_sigma
             )
-            yvals.append(fn(flx/norm_flx))
+            yvals.append(fn(normed_flx))
             yvalsnonorm.append(fn(flx))
         else:
-            yvals.append(flx/norm_flx)
+            yvals.append(normed_flx)
             yvalsnonorm.append(flx)
 
         norm_flxs.append(norm_flx) # floating normalization due to seeing
+        norm_flx_errs.append(norm_flx_err)
         xvals.append(vels)
+        keptpaths.append(specpath)
 
         if ticid in ['402980664', '141146667']: # HIRES
             hl = fits.open(specpath)
@@ -759,8 +969,25 @@ def get_specriver_data(
             ].iloc[0]
             spectimes.append(jumptime_bjd_tdb - 2457000) # to TJD
 
+        elif ticid == '300651846' and usespectype == 'mage':
+            # match by filename, so dropped duplicates cannot misalign times
+            _base = os.path.basename(specpath)
+            assert _base in _mage_time_by_base, (
+                f'{_base} missing from tic3006_mage_bjd_times.csv'
+            )
+            spectimes.append(_mage_time_by_base[_base] - 2457000)
+
         elif ticid == '300651846':
             spectimes = seltimedf.bjd_tdb_midtime - 2457000
+
+    if usespectype == 'mage' and _n_dropped_dupes > 0:
+        print(
+            f'!!! get_specriver_data: dropped {_n_dropped_dupes} stale '
+            f'duplicate exposure(s) for {datestr}; '
+            f'{len(keptpaths)} independent spectra remain.'
+        )
+
+    specpaths = np.array(keptpaths)
 
     # ragged array handling bc of variable wavelength solutions
     from copy import deepcopy
@@ -780,7 +1007,8 @@ def get_specriver_data(
         xvals = deepcopy(_xvals)
         yvals = deepcopy(_yvals)
 
-    return specpaths, np.array(spectimes), xvals, yvals, yvalsnonorm, norm_flxs
+    return (specpaths, np.array(spectimes), xvals, yvals, yvalsnonorm,
+            norm_flxs, norm_flx_errs)
 
 
 def get_bochanski2007_m_standard(
