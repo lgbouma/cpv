@@ -112,7 +112,7 @@ if len(phase_bin_center):
     ax.scatter(phase_bin_center, (flux_phase_binned - 1)*100, s=5, color='black',
                alpha=0.9, marker='o', linewidths=0)
 
-ax.set_xlabel('Phase ($P$=8.26 hr)', fontsize=8)
+ax.set_xlabel('Phase ($P$='+f'{period*24:.2f} hr)', fontsize=8)
 ax.set_ylabel('Relative flux (%)', fontsize=8)
 ax.tick_params(axis='both', which='major', labelsize=8)
 ax.set_xlim(-0.55,0.55)

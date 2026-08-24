@@ -263,8 +263,8 @@ def _plot_phase_linecore(ax, lc_times, lc_fluxs, sd, datestr, show_simult=False)
     ax2.tick_params(axis='y', labelcolor='forestgreen', labelsize='x-small')
 
     # cap outlier-driven scale for 20250119
-    if datestr == '20250119':
-        ax2.set_ylim(-25, 25)
+    #if datestr == '20250119':
+    #    ax2.set_ylim(-30, 30)
 
     # bring TESS LC axis in front of the twinx linecore axis
     ax2.set_zorder(1)
