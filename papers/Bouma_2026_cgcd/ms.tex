@@ -1,9 +1,9 @@
 % upon AAS submission
-%\documentclass[11pt,twocolumn,tighten,linenumbers]{aastex7}
-%\documentclass[11pt,twocolumn,tighten,linenumbers,trackchanges]{aastex7}
+%\documentclass[11pt,twocolumn,tighten,linenumbers,resetfootnote]{aastex7}
+%\documentclass[11pt,twocolumn,tighten,linenumbers,trackchanges,resetfootnote]{aastex7}
 
 % drafting / arxiv
-\documentclass[11pt,twocolumn,tighten]{aastex7}
+\documentclass[11pt,twocolumn,tighten,resetfootnote]{aastex7}
 
 %\turnoffedit
 
@@ -34,15 +34,13 @@
 \newcommand{\um}{\,\mu\mathrm{m}}
 \newcommand{\dex}{\,\mathrm{dex}}
 
-\renewcommand*{\thefootnote}{\fnsymbol{footnote}}
-
 %%%%%%%%%%%%%%%%
 % INSTITUTIONS %
 %%%%%%%%%%%%%%%%
 \newcommand{\ipac}{Caltech/IPAC, Pasadena, CA 91125, USA}
 \newcommand{\carnegie}{Carnegie Science Observatories, Pasadena, CA 91101, USA}
 \newcommand{\caltech}{Department of Astronomy, Caltech, Pasadena, CA 91125, USA}
-\newcommand{\standrews}{School of Physics and Astronomy, University of St Andrews, St Andrews, Scotland KY16 YSS, UK}
+\newcommand{\standrews}{School of Physics and Astronomy, University of St Andrews, St Andrews, Scotland KY16 9SS, UK}
 \newcommand{\epl}{Carnegie Science Earth and Planets Laboratory, Washington DC 20015, USA}
 \newcommand{\stsci}{Space Telescope Science Institute, Baltimore, MD 21218, USA}
 \newcommand{\cfa}{Center for Astrophysics $\vert$ Harvard \& Smithsonian, Cambridge, MA 02138, USA}
@@ -123,10 +121,6 @@
 \affiliation{\carnegie}
 \email{lbouma@ipac.caltech.edu}
 
-\author[]{COLLABORATORS INCLUDING (PLEASE NOTE: AUTHOR ORDER IS PROVISIONAL!)}
-\affiliation{\ipac}
-\email{lbouma@ipac.caltech.edu}
-
 \author[orcid=0000-0002-4128-7867,sname='P\'erez Paolino']{Facundo~P\'erez~Paolino}
 \affiliation{\caltech}
 \email{fperezpa@caltech.edu}
@@ -135,44 +129,39 @@
 \affiliation{\caltech}
 \email{lah@astro.caltech.edu}
  
-\author[orcid=0000-0002-5547-3775,sname='Spake']{Jessica~J.~Spake}
-\affiliation{\carnegie}
-\email{jspake@carnegiescience.edu}
-
-
 % --- Tierras ---
-\author[orcid=0000-0003-1361-985X,sname='Garc\'ia-Mej\'ia']{Juliana~Garc\'ia-Mej\'ia} % y
+\author[orcid=0000-0003-1361-985X,sname='Garc\'ia-Mej\'ia']{Juliana~Garc\'ia-Mej\'ia}
 \altaffiliation{51 Pegasi b Fellow, MIT Pappalardo Physics Fellow}
 \affiliation{\mitkavli}
 \affiliation{\cfa}
 \email{jgarciam@mit.edu}
  
 % --- KeplerCam ---
-\author[orcid=0000-0001-6637-5401,sname='Bieryla']{Allyson~Bieryla} % y
+\author[orcid=0000-0001-6637-5401,sname='Bieryla']{Allyson~Bieryla}
 \affiliation{\cfa}
 \email{abieryla@cfa.harvard.edu}
 
-\author[orcid=0000-0003-2171-5083,sname='Tamburo']{Patrick~Tamburo} % y
+\author[orcid=0000-0003-2171-5083,sname='Tamburo']{Patrick~Tamburo}
 \affiliation{\cfa}
 \email{patrick.tamburo@cfa.harvard.edu}
  
-\author[orcid=0000-0002-9003-484X,sname='Charbonneau']{David~Charbonneau} % y
+\author[orcid=0000-0002-9003-484X,sname='Charbonneau']{David~Charbonneau}
 \affiliation{\cfa}
 \email{dcharbonneau@cfa.harvard.edu}
  
-% --- MuSCAT (Japanese side) ---
-\author[orcid=0000-0002-4881-3620,sname='Livingston']{John~H.~Livingston} % y
+% --- MuSCAT1 (Japanese side) ---
+\author[orcid=0000-0002-4881-3620,sname='Livingston']{John~H.~Livingston}
 \affiliation{\abc}
 \affiliation{\naoj}
 \affiliation{\sokendai}
 \email{john.livingston@nao.ac.jp}
  
-\author[orcid=0000-0002-6480-3799,sname='Isogai']{Keisuke~Isogai} % y
+\author[orcid=0000-0002-6480-3799,sname='Isogai']{Keisuke~Isogai}
 \affiliation{\okayama}
 \affiliation{\utokyograd}
 \email{isogai@kusastro.kyoto-u.ac.jp}
  
-\author[orcid=0000-0001-8511-2981,sname='Narita']{Norio~Narita} % y
+\author[orcid=0000-0001-8511-2981,sname='Narita']{Norio~Narita}
 \affiliation{\komaba}
 \affiliation{\abc}
 \affiliation{\iac}
@@ -183,56 +172,55 @@
 \affiliation{\iac}
 \email{afukui@g.ecc.u-tokyo.ac.jp}
  
-% --- MuSCAT (Spanish side) ---
-\author[orcid=0000-0003-0987-1593,sname='Pall\'e']{Enric~Pall\'e} % y
+% --- MuSCAT2 (Spanish side) ---
+\author[orcid=0000-0003-0987-1593,sname='Pall\'e']{Enric~Pall\'e}
 \affiliation{\iac}
 \affiliation{\ull}
 \email{epalle@iac.es}
  
-\author[orcid=0000-0001-9087-1245,sname='Murgas']{Felipe~Murgas} % y
+\author[orcid=0000-0001-9087-1245,sname='Murgas']{Felipe~Murgas}
 \affiliation{\iac}
 \affiliation{\ull}
 \email{fmurgas@iac.es}
 
 
 % --- HIRES (helped observing 20240216) ---
-\author[orcid=0000-0002-9540-853X,sname='Carvalho']{Adolfo~S.~Carvalho} % y
+\author[orcid=0000-0002-9540-853X,sname='Carvalho']{Adolfo~S.~Carvalho}
 \affiliation{\caltech}
 \affiliation{\cfa}
 \email{adolfo.carvalho@cfa.harvard.edu}
  
 
 % --- HIRES (reductions) ---
-\author[0000-0002-0531-1073]{Howard Isaacson} % y
+\author[0000-0002-0531-1073]{Howard Isaacson}
 \affiliation{\berkeley}
 \email{hisaacson@berkeley.edu}
 
-\author[0000-0001-8638-0320]{Andrew W. Howard}
-\affiliation{\caltech}
-\email{ahoward@caltech.edu}
-
 %%%%%%%%%%
 
-\author[orcid=0000-0002-5741-3047,sname='Ciardi']{David~R.~Ciardi}
-\affiliation{\ipac}  % NExScI, Caltech/IPAC
-\email{ciardi@ipac.caltech.edu}
+\author[orcid=0000-0002-5547-3775,sname='Spake']{Jessica~J.~Spake}
+\affiliation{\carnegie}
+\email{jspake@carnegiescience.edu}
 
-\author[orcid=0000-0001-6381-515X,sname='Rebull']{Luisa~M.~Rebull} % y
+\author[orcid=0000-0001-6381-515X,sname='Rebull']{Luisa~M.~Rebull}
 \affiliation{\ipac}
 \email{rebull@ipac.caltech.edu}
 
- \author[orcid=0000-0002-1466-5236,sname='Jardine']{Moira~M.~Jardine} % y
+\author[orcid=0000-0002-1466-5236,sname='Jardine']{Moira~M.~Jardine}
 \affiliation{\standrews}
 \email{mmj@st-andrews.ac.uk}
  
-\author[orcid=0000-0003-3305-6281,sname='Valenti']{Jeff~A.~Valenti}
-\affiliation{\stsci}
-\email{valenti@stsci.edu}
+\author[orcid=0000-0002-5741-3047,sname='Ciardi']{David~R.~Ciardi}
+\affiliation{\ipac}
+\email{ciardi@ipac.caltech.edu}
 
-\author[orcid=0000-0001-6654-7859,sname='Weinberger']{Alycia~J.~Weinberger}
-\affiliation{\epl}
-\email{aweinberger@carnegiescience.edu}
+% \author[orcid=0000-0003-3305-6281,sname='Valenti']{Jeff~A.~Valenti}
+% \affiliation{\stsci}
+% \email{valenti@stsci.edu}
 
+% \author[0000-0001-8638-0320]{Andrew W. Howard} % Aug26
+% \affiliation{\caltech}
+% \email{ahoward@caltech.edu}
 
  
 
@@ -359,7 +347,7 @@ complicate the interpretation.  First, published dip depths rest on
 heterogeneous detrending choices, which propagate into the inferred
 chromaticity.  Second, if the occulting material is partially opaque,
 the observed slope is diluted relative to the intrinsic opacity
-law--an effect that has so far been ignored.  Third, the models
+law, an effect that has so far been ignored.  Third, the models
 considered have rarely extended beyond single power laws.  The
 exception is the pioneering study of PTFO~8-8695 by
 \citet{Tanimoto2020}, who explored broken extinction laws, albeit
@@ -424,7 +412,7 @@ material; Section~\ref{sec:conc} concludes.
   \colhead{}
 }
 \startdata
-TIC\,300651846 & 8.25  & $3159^{+56}_{-84}$ & $0.61^{+0.04}_{-0.03}$ & $0.40^{+0.02}_{-0.03}$ & 23  & $89.8 \pm 5.2$  & $2.49 \pm 0.15$ & N \\
+TIC\,300651846 & 8.25  & $3159^{+56}_{-84}$ & $0.61^{+0.04}_{-0.03}$ & $0.40^{+0.02}_{-0.03}$ & 23  & $89.7 \pm 5.2$  & $2.49 \pm 0.15$ & N \\
 LP\,12-502     & 18.56 & $3090^{+31}_{-59}$ & $0.37^{+0.02}_{-0.01}$ & $0.22^{+0.01}_{-0.02}$ & 80  & $24.2 \pm 1.0$  & $5.78 \pm 0.27$ & N \\
 DG\,CVn        & 6.44  & $3127^{+51}_{-42}$ & $0.72^{+0.02}_{-0.03}$ & $0.40^{+0.02}_{-0.06}$ & 150 & $135.8 \pm 4.7$ & $1.79 \pm 0.09$ & Y \\
 TIC\,262400835 & 7.16  & $3074^{+64}_{-58}$ & $1.00^{+0.04}_{-0.05}$ & $0.30^{+0.03}_{-0.04}$ & 19  & $169.6 \pm 7.6$ & $1.26 \pm 0.07$ & Y \\
@@ -459,84 +447,51 @@ TIC\,262400835 & 7.16  & $3074^{+64}_{-58}$ & $1.00^{+0.04}_{-0.05}$ & $0.30^{+0
 \subsection{Selection Function}
 \label{sec:selfn}
 
-We chose CPVs for spectroscopic and photometric follow-up by
-considering known CPVs in the literature and selecting on the
-basis of target brightness, period, morphology, accessibility for
-simultaneous photometry, and binarity
+We selected targets from the known CPV census
+weighing brightness, period, morphology, accessibility, and
+binarity
 \citep{Rebull2016,Stauffer2017,Rebull2018,Zhan2019,Rebull2020,Stauffer2021,Palumbo2022,Popinchalk2023,Bouma2024}.
-We weighted these factors as follows.
+Brighter stars enable higher S/N.
+Shorter periods maximize the fraction of a cycle covered per night,
+and hence the probability of catching a sharp dip, since morphologies
+are unpredictable beyond a few weeks.
+Sharp, large-amplitude dips are most easily distinguished from
+spot-induced variability.
+Proximity to the TESS continuous viewing zones maximizes the number of
+schedulable windows for simultaneous photometry and spectroscopy.
+Finally, we were agnostic to binarity, since no CPVs with close
+($<$0.1\,AU) companions capable of affecting the circumstellar
+environment are known.
 
-\begin{enumerate}[label={\it \roman*)},leftmargin=12pt,topsep=0pt,itemsep=-1ex,partopsep=1ex,parsep=1ex]
-	\item {\it Brightness:} Brighter stars provide more photons,
-	enabling higher S/N measurements.
-	%
-	\item  {\it Period:} Shorter periods are better, in that they enable
-	covering a larger fraction of a cycle in a single night's observations.
-	Since the morphologies are unpredictable over timescales of more
-	than a few weeks, maximizing the duty cycles maximizes the
-	probability of observing during a sharp, ``complex'', dip.
-	%
-  \item {\it Morphology:} We selected CPVs that showed sharp dips with large amplitude; such
-  features can be most easily distinguished from spot-induced
-  variability.   The desire for sharp dips can be in tension with the
-  desire for short periods, as the shortest period CPVs tend to have
-  smoother features (the origin of the \citet{Stauffer2017} ``scallop''
-  designation). 
-  %
-  \item {\it Accessibility:} We favored targets close to the TESS
-  continuous viewing zones, since they offered a greater number of
-  schedulable windows for simultaneous photometry and spectroscopy.
-  %
-  \item {\it Binarity:} We were agnostic to binarity, provided that
-  there was no evidence for close ($<$0.1\,AU) binarity that
-  might influence the immediate circumstellar environment of either
-  star.  While the CPV binary fraction is similar to that of
-  the field \citep{Bouma2024}, no CPVs in such close binaries are currently known. 
-\end{enumerate}
-
-Applying these considerations to the full census yielded five targets
-for our program: LP\,12-502, DG\,CVn, TIC\,300651846, and TIC\,262400835
-have new data presented in this work; 
+These considerations yielded five targets.  LP\,12-502, DG\,CVn,
+TIC\,300651846, and TIC\,262400835 have new data presented here;
 TIC\,141146667 was discussed in \citet{Bouma2025}.
-Table~\ref{tab:starparams} summarizes the stellar properties,
-while
-Tables~\ref{tab:obs_spec} and~\ref{tab:obs_phot} summarize our
-spectroscopic and photometric observations.  Most of these
-stars are best-in-class in at least one of the above dimensions:
-LP\,12-502 in morphology, TIC\,300651846 in southern accessibility,
-DG\,CVn in brightness (due to it being the closest CPV system known, and
-also a binary), and TIC\,141146667 for its short 3.9\,hour period and
-relative brightness.  
+Table~\ref{tab:starparams} lists the stellar properties, and
+Tables~\ref{tab:obs_spec} and~\ref{tab:obs_phot} the observations.
 
 This work is the first to highlight TIC~262400835
-(Gaia~DR3~3234917110482839680) as a CPV.  Although \citet{Bouma2024}
-noted the source, it was omitted from that catalog because automated
-methods did not recover it; it was instead found in 2020 through the
-CDIPS project \citep{Bouma2019}.  Its short period and complex
-morphology motivated two-minute and 20-second cadence observations in
-DDT028, during which we also acquired MuSCAT1 and MuSCAT2 photometry.
-Since then, \citet{Kerr2021} reported the system as being
-part of the $\approx$19\,Myr old ``Greater Taurus Subgroup 3A'', a
-designation which the latest MocaDB BANYAN-$\Sigma$ models support
-\citep{Gagne2026}.  The system is likely a triple.
-There is a resolved companion, Gaia DR3 3234920065420339712
-(ATO~J078.4822+02.6114, TIC 262400836), 10$\farcs$6 due West
-(projected separation $\sim$1{,}800\,AU), with consistent parallax and
-proper motion.  The companion is 0.3\,magnitudes bluer in BP-RP, and
-thus is likely the primary despite having a near-identical $G$-band
-magnitude.  Our seeing-limited photometry shows that TIC~262400835 is
-the host of the complex variability; it is likely an unresolved pair
-on the basis of its Gaia DR3 RUWE (1.5) and photometric excess.  The
-triple interpretation is also consistent with the TESS data, which
-within a single 20$''$ pixel show three distinct periods: the
-large-amplitude complex signal at $P_1$=7.16\,hr; a $P_2$=4.31\,day
-slow sinusoidal signal; and a faster $P_3$=12.70\,hr
-sinusoidal signal.  As described below, the MuSCAT1 and MuSCAT2 data
-enable associating the 7.16\,hr signal to TIC~262400835
-(Gaia~DR3~3234917110482839680), which is sufficient for the aims of
-this article.  \citet{Heinze2018} report the neighbor, TIC~262400836,
-as a $P$=4.3\,day close binary; we concur with the period but see no
-evidence for eclipses at that period in the TESS light curves.
+(Gaia~DR3~3234917110482839680) as a CPV.  It was found in 2020 through
+CDIPS \citep{Bouma2019} but omitted from the \citet{Bouma2024}
+catalog, whose automated
+methods did not recover it.  Its short period and complex
+morphology motivated TESS DDT028, during which we also acquired
+MuSCAT1 and MuSCAT2 photometry.
+\citet{Kerr2021} placed it in the $\approx$19\,Myr ``Greater
+Taurus Subgroup 3A''.
+The system is likely a triple.
+A resolved companion, TIC 262400836 (Gaia DR3 3234920065420339712),
+lies 10$\farcs$6 west
+($\sim$1{,}800\,AU projected) with consistent parallax and
+proper motion.  The companion is 0.3\,magnitudes bluer in BP-RP at
+near-identical $G$, and so is likely the primary.  
+TIC~262400835 itself is likely an unresolved
+pair, based on its Gaia DR3 RUWE (1.5) and photometric excess.  A
+single 21$''$ TESS pixel shows three periods: the complex signal at
+$P_1$=7.16\,hr, and sinusoidal signals at $P_2$=4.31\,day and
+$P_3$=12.70\,hr.  The MuSCAT data (Section~\ref{sec:muscat}) localize
+the 7.16\,hr signal to TIC~262400835, which suffices for this work.
+\citet{Heinze2018} reported the resolved companion (TIC~262400836) as a $P$=4.3\,day close
+binary; we recover the period but see no eclipses in the TESS data.
 
 
 \begin{deluxetable*}{llllcccc}
@@ -573,7 +528,7 @@ TIC\,300651846                        & MagE  & TESS    & 2025 Jan 20 & $\checkm
 TIC\,300651846                        & MagE  & TESS    & 2025 Jan 21 & $\checkmark$ & $\times$            & $\checkmark$ & $\times$     \\
 TIC\,141146667$^{\dagger}$            & HIRES & TESS    & 2024 Feb 17 & $\checkmark$ & $\checkmark$        & $\checkmark$ & ?     \\
 \enddata
-\tablecomments{ The latter four columns indicate (i) whether the
+\tablecomments{ The last four columns indicate (i) whether the
   spectrograph had sufficient resolution relative to the stellar
   equatorial velocity to resolve bound circumstellar gas in emission, (ii)
   whether such gas was seen, (iii) whether the H$\alpha$
@@ -604,7 +559,7 @@ to be simultaneous with TESS Sector 88.  Adopting the stellar radius
 and period from \citet{Bouma2024}, TIC~300651846 has $v_{\rm
 eq}$=\ticthreeveq\,\kms, implying near-critical sampling of the line
 core.  Figure~\ref{fig:mage} shows the resulting time-dynamic spectra
-in the vicinity of $H\alpha$, where the bottom row subtracts the
+in the vicinity of H$\alpha$, where the bottom row subtracts the
 time-averaged spectrum from each night to highlight
 variability---whether in the line core, or in the circumstellar
 environment.  
@@ -631,7 +586,7 @@ environment.
   18~January 2025.  Such emission is weakly visible from
   $\phi$=0.3-0.6 on 19~January and 20~January, and not present on
   21~January.  Despite the spectroscopic changes, the complex
-  morphology in the TESS light curves remained stable.  The errorbar
+  morphology in the TESS light curves remained stable.  The error bar
   in the lower left indicates the velocity resolution.  The faint
   model is a sinusoid with $K$=4\,$v_{\rm eq}$ and $\phi_0$=-0.12.
   }
@@ -696,8 +651,8 @@ nights: 11~November to 12~November 2023, 7~December 2023, and
 4~November to 8~November 2024.  We additionally observed DG~CVn
 ($V$=12.0), a known unresolved binary \citep{Osten2016} in which one
 component is a CPV, over the night of 28~April~2024.  We used the
-1$\farcs$5 slit, with the 1200 line/mm grating, blazed at 5000\,\AA\
-on the blue arm, and 1200 line/mm, blazed at 7100\,\AA\ on the red
+1$\farcs$5 slit, with the 1200 lines/mm grating, blazed at 5000\,\AA\
+on the blue arm, and 1200 lines/mm, blazed at 7100\,\AA\ on the red
 arm.  This delivered $R$$\approx$2{,}200 at H$\alpha$, corresponding
 to $\delta$$v$$\approx$140\,\kms.  For LP~12-502, $v_{\rm
 eq}$=\lptwelveveq\,\kms, yielding an experiment focused on equivalent
@@ -733,7 +688,7 @@ orbital phases with no ``complex'' flux dips; only a single broadband
 flare on 5~November yielded a corresponding spike in the Balmer lines
 similar to those visible in Figure~\ref{fig:dbsp}.  The night of
 7~December 2023 yielded viable DBSP data, but a TESS perigee contact
-extended into the DBSP observation, yielding insufficient overlapping
+extended into the DBSP observation, leaving insufficient overlapping
 photometry for further analysis.
 
 % Nov05,Nov06 2024 - where just at an orbital phase that showed no flux dips
@@ -801,8 +756,8 @@ Echelle Spectrometer (HIRES; \citealt{vogt_hires_1994}) on the 10\,m
 Keck I telescope.  We used the C2 decker
 (0$\farcs$86$\times$14$\farcs$0) in the red configuration, yielding a
 resolution $R$$\approx$45{,}000 ($\delta v$$\approx$6.7\,\kms).  The
-seeing averaged 1$\farcs$2, 1$\farcs$6, and 2$\farcs$1 in each
-respective night, with strong winds in the latter two nights.
+seeing averaged 1$\farcs$2, 1$\farcs$6, and 2$\farcs$1 on the three
+nights, respectively.
 % S/N 40-70 per pixel; 3 pixels per resolution element along dispersion.
 With 15-20 minute cadence, this configuration delivered an S/N of
 70-120 per resolution element in the H$\alpha$ order's continuum, and
@@ -813,8 +768,8 @@ the instrument provided a few resolution elements across the line
 core.  We reduced the echellogram using the standard techniques of the
 California Planet Survey \citep{Howard2010}.  
 
-We acquired simultaneous photometry for the December~2024 nights by
-observing simultaneously with TESS.  We attempted to acquire
+We acquired simultaneous photometry for the December~2024 nights
+from TESS.  We attempted to acquire
 simultaneous Tierras data for the November~2023 night but
 had poor weather in Arizona.
 Appendix~\ref{app:ootspec} details the results.
@@ -877,6 +832,42 @@ the spot term removed, and separately with the excess term removed,
 to assess whether the data required either.
 
 
+\begin{figure}[htp!]
+  \centering
+  \includegraphics[width=0.49\textwidth]{fourstar_vs_tess_phase.pdf}
+  \vspace{-0.4cm}
+	\caption{{\bf Magellan/FourStar 2.09\,$\mu$m photometry of
+  TIC~300651846 vs.~simultaneous TESS (0.6--1\,$\mu$m).}  The target
+  has a period of 8.25 hours and was observable for two-thirds of a
+  rotation cycle with FourStar on 11~February~2025.  Simultaneous
+  TESS data from Sector 88 are plotted underneath.  The two bands
+  (filter profiles in lower left) show dip depths in a ratio of
+  \fourstarobsratio$\pm$\fourstarobsratiounc\ (NB2.09/TESS).}
+  \label{fig:fourstar}
+\end{figure}
+
+\begin{figure}[htp!]
+  \centering
+  \includegraphics[width=0.45\textwidth]{TIC262400835_multicolor_phase_stacked.pdf}
+  \vspace{-0.3cm}
+  \caption{{\bf MuSCAT1 and MuSCAT2 $g'r'z_{\rm s}$ photometry of
+  TIC~262400835 vs.~simultaneous TESS.}  The target has a period of
+  7.16 hours.  The plotted TESS data, acquired at 20 second cadence,
+  span 19 November 2020 to 17 December 2020.}
+  \label{fig:muscat}
+\end{figure}
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.48\textwidth]{LP12502_multicolor_phase_stacked_Dec08Dec15.pdf}
+  \vspace{-0.4cm}
+  \caption{{\bf KeplerCam $gB$ and Tierras photometry of LP~12-502
+  vs.~simultaneous TESS.}  The target has a period of 18.56 hours.
+  The plotted TESS data are excerpts of 120 second cadence data from
+  Sector~73.}
+  \label{fig:keplercamtierras}
+\end{figure}
+
 
 \subsection{Magellan/FourStar}
 \label{sec:fourstar}
@@ -902,32 +893,6 @@ correction code.  Figure~\ref{fig:fourstar} shows the resulting light
 curve phased to $t_0$\,=\,BJD$_{\rm TDB}$\,2460693.244 and
 $P$\,=\,0.34392\,d (8.25\,hr), with the simultaneous TESS observation
 from Sector~88.
-
-\begin{figure}[htp!]
-  \centering
-  \includegraphics[width=0.48\textwidth]{fourstar_vs_tess_phase.pdf}
-  \vspace{-0.4cm}
-	\caption{{\bf Magellan/FourStar 2.09\,$\mu$m photometry of
-  TIC~300651846 vs.~simultaneous TESS (0.6--1\,$\mu$m).}  The target
-  has a period of 8.25 hours and was observable for two-thirds of a
-  rotation cycle with FourStar on 11~February~2025.  Simultaneous
-  TESS data from Sector 88 are plotted underneath.  The two bands
-  (filter profiles in lower left) show dip depths in a ratio of
-  \fourstarobsratio$\pm$\fourstarobsratiounc\ (NB2.09/TESS).}
-  \label{fig:fourstar}
-\end{figure}
-
-\begin{figure}[htp!]
-  \centering
-  \includegraphics[width=0.45\textwidth]{TIC262400835_multicolor_phase_stacked.pdf}
-  \vspace{-0.3cm}
-  \caption{{\bf MuSCAT1 and MuSCAT2 $g'r'z_{\rm s}$ photometry of
-  TIC~262400835 vs.~simultaneous TESS.}  The target has a period of
-  7.16 hours.  The plotted TESS data, acquired at 20 second cadence,
-  span 19 November 2020 to 17 December 2020.}
-  \label{fig:muscat}
-\end{figure}
-
 
 \subsection{MuSCAT1 and MuSCAT2}
 \label{sec:muscat}
@@ -955,55 +920,43 @@ contamination from TIC~262400836.  This aperture choice localized
 the 7.16\,hr ``dip'' signal to TIC~262400835.
 
 We also observed TIC~262400835 on the night of 16~December~2020 UT using
-MuSCAT1 \citep{Narita2015}, a multi-band imager on the 1.88\,m
-telescope at Okayama Astrophysical Observatory (OAO), Japan.  MuSCAT1
-is equipped with three CCDs, enabling simultaneous imaging in the
-$g'$, $r'$, and $z_s$ bands with negligible readout overhead. Each CCD
-provides a field of view of $6.1 \times 6.1$\,arcmin$^2$ over $1024
-\times 1024$ pixels.
+MuSCAT1 \citep{Narita2015}, a multi-band imager on 
+the 1.88\,m telescope of the National Astronomical Observatory of Japan
+(NAOJ) located in Okayama, Japan.
+MuSCAT1 is equipped with three CCDs, enabling simultaneous imaging in
+the $g'$, $r'$, and $z_s$ bands with negligible readout overhead. Each
+CCD provides a field of view of $6.1 \times 6.1$\,arcmin$^2$ over
+$1024 \times 1024$ pixels.
 
 We used exposure times of 60 seconds in the $g'$, $r'$, and $z_{\rm s}$
 bands.  We dark-subtracted and flat-fielded the raw images, and
 performed aperture photometry following \citet{Fukui2011}, adopting an
-aperture radius of 8, 10, and 14\,px ($2\farcs9$, $3\farcs6$, and
+aperture radii of 8, 10, and 14\,px ($2\farcs9$, $3\farcs6$, and
 $5\farcs1$) to exclude the flux of the companion $\sim$10\arcsec\
-to the West. These observations were conducted simultaneously with
+to the west. These observations were conducted simultaneously with
 TESS Sector 32, and the resulting light curves are shown in
 Figure~\ref{fig:muscat} alongside the MuSCAT2 data.
 
-
-
 \subsection{KeplerCam}
 \label{sec:keplercam}
-
-\begin{figure}[!t]
-  \centering
-  \includegraphics[width=0.48\textwidth]{LP12502_multicolor_phase_stacked_Dec08Dec15.pdf}
-  \vspace{-0.4cm}
-  \caption{{\bf KeplerCam $gB$ and Tierras photometry of LP~12-502
-  vs.~simultaneous TESS.}  The target has a period of 18.56 hours.
-  The plotted TESS data are excerpts of 120 second cadence data from
-  Sector~73.}
-  \label{fig:keplercamtierras}
-\end{figure}
 
 We observed LP~12-502 on 8 and 15~December 2023 UT using the KeplerCam
 CCD on the 1.2\,m telescope at the Fred Lawrence Whipple Observatory
 (FLWO) at Mount Hopkins, Arizona.   We took observations in
 alternating $g'$ and $B$ filters with 60 sec exposure in $g'$ and 300
 sec in $B$. KeplerCam is a 4096$\times$4096 Fairchild CCD which has a
-field-of-view of $23\farcm1\times23\farcm1$ and an image scale of
-0.672$"/$pix when binned by 2.   We reduce the data using standard IDL
+field of view of $23\farcm1\times23\farcm1$ and an image scale of
+0.672$"/$pix when binned by 2.   We reduced the data using standard IDL
 routines, and performed aperture photometry using AstroImageJ
 \citep{Collins2017}.
 The resulting measurements are in Figure~\ref{fig:keplercamtierras}.
-
-%  While we additionally observed on the night of 16 December 2023, there were high
-%  winds and very poor seeing.   The KeplerCam $B$ and $g$ light curves
-%  weakly suggest the presence of a flux dip; subsequent analysis of the
-%  simultaneous TESS light curve show a $\approx$1\% deep dip lasting an
-%  hour.  Due to the poor quality of these data relative to the nights of
-%  8~December and 15~December, we exclude them from further analysis.
+We additionally observed on the night of 16~December 2023, when high
+winds and very poor seeing degraded the data quality.  The KeplerCam
+$B$ and $g'$ light curves from that night weakly suggest the presence
+of a flux dip, and the simultaneous TESS light curve shows a
+$\approx$1\% deep dip lasting an hour.  Due to the poor quality of
+these data relative to the nights of 8~December and 15~December, we
+exclude them from further analysis.
 
 \begin{deluxetable*}{llllcc}
 \tablewidth{0pt}
@@ -1024,12 +977,12 @@ The resulting measurements are in Figure~\ref{fig:keplercamtierras}.
   \colhead{}
 }
 \startdata
-TIC\,262400835 & MuSCAT2             & 2020 Dec 13 & $g$, $r$, $i$, $z$, TESS      & $\checkmark$ & ?            \\
-TIC\,262400835 & MuSCAT2             & 2020 Dec 15 & $g$, $r$, $i$, $z$, TESS      & $\checkmark$ & $\checkmark$ \\
-TIC\,262400835 & MuSCAT1             & 2020 Dec 16 & $g$, $r$, $z$, TESS           & $\checkmark$ & $\checkmark$ \\
-LP\,12-502     & KeplerCam           & 2023 Dec 08 & $B$, $g$                      & $\checkmark$ & $\checkmark$ \\
-LP\,12-502     & KeplerCam + Tierras & 2023 Dec 15 & $B$, $g$, Tierras             & $\checkmark$ & $\checkmark$ \\
-LP\,12-502     & KeplerCam           & 2023 Dec 16 & $B$, $g$                      & $\checkmark$ & ? \\
+TIC\,262400835 & MuSCAT2             & 2020 Dec 13 & $g'$, $r'$, $i'$, $z_{\rm s}$, TESS      & $\checkmark$ & ?            \\
+TIC\,262400835 & MuSCAT2             & 2020 Dec 15 & $g'$, $r'$, $i'$, $z_{\rm s}$, TESS      & $\checkmark$ & $\checkmark$ \\
+TIC\,262400835 & MuSCAT1             & 2020 Dec 16 & $g'$, $r'$, $z_{\rm s}$, TESS           & $\checkmark$ & $\checkmark$ \\
+LP\,12-502     & KeplerCam           & 2023 Dec 08 & $B$, $g'$                      & $\checkmark$ & $\checkmark$ \\
+LP\,12-502     & KeplerCam + Tierras & 2023 Dec 15 & $B$, $g'$, Tierras             & $\checkmark$ & $\checkmark$ \\
+LP\,12-502     & KeplerCam           & 2023 Dec 16 & $B$, $g'$                      & $\checkmark$ & ? \\
 TIC\,300651846 & FourStar + TESS     & 2025 Feb 11 & NB2.09, TESS                  & $\checkmark$ & ? \\
 \enddata
 \tablecomments{``Dips Seen?'' indicates whether sharp flux dips were
@@ -1069,7 +1022,7 @@ Skies were clear on all four nights, with relative humidities between
 10\% and 52\%. The median image FWHM was $0\farcs9$, $1\farcs7$,
 $1\farcs3$, and $1\farcs1$, listed chronologically.
 
-To exctract light curves from the Tierras images, we first
+To extract light curves from the Tierras images, we first
 bias-corrected the images by subtracting bias levels derived from the
 overscan region of each detector half.
 %We did not flat-field the data given that, when these
@@ -1128,8 +1081,8 @@ th}$-16$^{\rm th}$ percentile spread of the first differences $\Delta
 F_j = F_j - F_{j+1}$), and subsequently renormalized to force the
 best-fitting model to have $\chi^2_{\rm red} \equiv 1$.  We then
 compared the model evidence using the Bayesian Information Criterion
-(BIC).  We found across all the photometric datasets that at most
-second-order baseline models minimized the BIC, and that the
+(BIC).  We found across all the photometric datasets that
+baseline models of at most second order minimized the BIC, and that the
 trapezoidal dip model (parametrized by depth, duration, mid-time, and
 fractional ingress/egress duration) offered better $\chi^2_{\rm red}$
 and $\Delta {\rm BIC}$ than the hyperbolic secant (parametrized by
@@ -1161,25 +1114,25 @@ photometric dataset.
 \startdata
 %\cutinhead{This work}
 % BEGIN fit-dips rows -- auto-generated by `python -m fit_dips.make_table`; do not edit by hand.
-TIC\,262400835 & 2020 Dec 13    & $g$         & $3.36\pm 0.19$ & 1 \\
-               &                & $r$         & $2.54\pm 0.10$ & 1 \\
-               &                & $i$         & $2.74\pm 0.07$ & 1 \\
-               &                & $z$         & $2.69\pm 0.09$ & 1 \\
+TIC\,262400835 & 2020 Dec 13    & $g'$        & $3.36\pm 0.19$ & 1 \\
+               &                & $r'$        & $2.54\pm 0.10$ & 1 \\
+               &                & $i'$        & $2.74\pm 0.07$ & 1 \\
+               &                & $z_{\rm s}$ & $2.69\pm 0.09$ & 1 \\
                &                & TESS$^{\ddagger}$ & $0.96\pm 0.12$ & 1 \\
-               & 2020 Dec 15    & $g$         & $4.67\pm 0.15$ & 1 \\
-               &                & $r$         & $3.46\pm 0.10$ & 1 \\
-               &                & $i$         & $3.64\pm 0.08$ & 1 \\
-               &                & $z$         & $2.99\pm 0.09$ & 1 \\
+               & 2020 Dec 15    & $g'$        & $4.67\pm 0.15$ & 1 \\
+               &                & $r'$        & $3.46\pm 0.10$ & 1 \\
+               &                & $i'$        & $3.64\pm 0.08$ & 1 \\
+               &                & $z_{\rm s}$ & $2.99\pm 0.09$ & 1 \\
                &                & TESS$^{\ddagger}$ & $1.95\pm 0.23$ & 1 \\
                & 2020 Dec 16    & $g'$        & $4.30\pm 0.20$ & 1 \\
                &                & $r'$        & $3.52\pm 0.08$ & 1 \\
                &                & $z_{\rm s}$ & $2.96\pm 0.06$ & 1 \\
                &                & TESS$^{\ddagger}$ & $2.17\pm 0.38$ & 1 \\
 LP\,12-502     & 2023 Dec 08    & $B$         & $5.57\pm 0.28$ & 1 \\
-               &                & $g$         & $4.63\pm 0.18$ & 1 \\
+               &                & $g'$        & $4.63\pm 0.18$ & 1 \\
                &                & TESS        & $2.44\pm 0.08$ & 1 \\
                & 2023 Dec 15    & $B$         & $4.48\pm 0.44$ & 1 \\
-               &                & $g$         & $3.48\pm 0.24$ & 1 \\
+               &                & $g'$        & $3.48\pm 0.24$ & 1 \\
                &                & Tierras     & $2.75\pm 0.09$ & 1 \\
                &                & TESS        & $2.18\pm 0.24$ & 1 \\
 TIC\,300651846 & 2025 Feb 11    & TESS        & $4.07\pm 0.05$ & 1 \\
@@ -1224,7 +1177,7 @@ PTFO\,8-8695   & 2014 Jan 19    & $I{+}z$     & $2.18\pm 0.08$ & 3$^\dagger$ \\
   {\it References}: (1)  This work.
   (2) \citet{Koen2023} SAAO\,1m/CCD ``J1252'';
   (3) \citet{Yu2015} Baade\,6.5m/FourStar $H$ and TRAPPIST $I{+}z$;
-  (4) \citet{Onitsuka2017} OAO\,1.88\,m/MuSCAT simultaneous;
+  (4) \citet{Onitsuka2017} NAOJ\,1.88\,m/MuSCAT simultaneous;
   (5) \citet{Tanimoto2020} HHO\,1.5\,m/HONIR.}
 \end{deluxetable}
 
@@ -1247,16 +1200,16 @@ second CPV showing this phenomenology, after TIC~141146667
 stellar longitudes, which is an azimuthal distribution predicted by
 models of rigidly rotating magnetospheres with tilted dipolar magnetic
 fields \citep{Townsend2008}.  Such models tend to produce ``pinched''
-plasma tori$^1$\footnote{$^1$See
-\url{http://user.astro.wisc.edu/\~townsend/static.php?ref=rrm-movies\#Download\_Bundles}
-last accessed 8 July 2026.}.  For TIC~300651846, the clearest signal
+plasma tori\footnote{See
+\url{http://user.astro.wisc.edu/\~townsend/static.php?ref=rrm-movies}
+last accessed 26 Aug 2026.}.  For TIC~300651846, the clearest signal
 shows a single clump appearing at $\phi$=0.1 near
 $\approx$4\,$R_\star$ (beyond $R_{\rm c}$=2.49$\pm$0.15\,$R_\star$), and
 rotating with the star for the next six hours.  The clump emits with an EW
 $\approx$60\% that of the star, and is internally unresolved at MagE's
 resolving power ($\approx$73\,\kms).  A secondary feature in the
 18~January~2025 night appears from $\phi$=0.6-0.7.  While this feature's
-interpretation is complicated by its brief lifetime, the star is presenting a
+interpretation is complicated by its brief lifetime, the star presents a
 triple-lined H$\alpha$ profile in three separate exposures.  This is consistent
 with the idea of opposing plasma clumps becoming visible at phase quadrature,
 when they are maximally visible.
@@ -1279,7 +1232,7 @@ The other nights in January~2025 showed much weaker circumstellar
 emission.  Close inspection of the 19~January and 20~January MagE data
 (Figure~\ref{fig:mage}) shows an emissive component appearing at
 similar orbital phases as on 18~January.  The MIKE data from 2~January
-show a similar signal (Figure~\ref{fig:mike}).  However this emission
+show a similar signal (Figure~\ref{fig:mike}).  However, this emission
 has an equivalent
 width $\approx$10\% that of the star's average
 H$\alpha$ profile, rather than $\approx$60\%; on 21~January, no
@@ -1309,32 +1262,30 @@ density.
 \subsection{Balmer dimming during transits}
 \label{subsec:ha_flux_dip_interpret}
 
-In cases where the star's equatorial velocity is much greater than the
-spectrograph's resolution, it is not possible to resolve circumstellar
-emission from the star's chromosphere as in Figure~\ref{fig:mage}.
-Nonetheless, during a plasma clump's transit, one would expect the
-plasma to scatter or absorb stellar H$\alpha$ photons such that the
-H$\alpha$ transit mirrors the broadband flux.  We refer to this
+With lower resolution spectra, it is no longer possible to separate
+circumstellar emission from the stellar chromosphere.
+Nonetheless, when a plasma clump transits, one would expect the
+plasma to scatter or absorb stellar H$\alpha$ photons, yielding an
+H$\alpha$ transit that mirrors the broadband flux.  We refer to this
 combination of absorption and scattering ({\it i.e.}, extinction) as dimming.
 Figures~\ref{fig:dbsp} and~\ref{fig:dbsp_detail} show low-resolution
 data that appear consistent with the hypothesis of greater H$\alpha$
-dimming during broadband transits: the local minima in flux tend to
-be correlated with local minima in the H$\alpha$ equivalent width
-time-series.  Moreover, Figures~\ref{fig:mage} and~\ref{fig:mike} all
+dimming during broadband transits: the local minima in flux are
+correlated with local minima in the H$\alpha$ equivalent width
+time-series.  Moreover, Figures~\ref{fig:mage} and~\ref{fig:mike} both
 show similar absorption in the H$\alpha$ line cores of TIC~300651846
 from $\phi$=0.9--1.0, consistent with absorption or scattering from
 the same plasma clump that is then seen in emission at phase
 quadrature.
 
-% TODO shorten by ~a sentence...
-However, there are two nuances in this type of low
-resolution data.  First, the largest amplitude variability in
-H$\alpha$ comes not from transiting plasma clumps, but from flares:
-minute-timescale broadband optical flares correspond to hour-long
-Balmer variability.  The orange markers in Figure~\ref{fig:dbsp} and
+This type of low
+resolution data presents two difficulties.  The first is flares:
+minute-timescale optical flares produce
+large-amplitude, hour-long
+Balmer flares.  The orange markers in Figure~\ref{fig:dbsp} and
 in Appendix~\ref{app:dbsp_ootspec} highlight such flare-induced
 variability, which complicates interpretation of H$\alpha$ EW
-time-series data.  The second nuance is connected to the {\it
+time-series data.  The second challenge is connected to the {\it
 consistency} with which local minima in flux yield local minima in
 H$\alpha$ EW.  The broadband flux dips in the three leftmost columns
 of Figure~\ref{fig:dbsp} are all coincident in time with local minima
@@ -1347,14 +1298,10 @@ $\approx$50 minutes.  The green ``H$\alpha$ core'' lines in
 Figures~\ref{fig:mage} and~\ref{fig:mike} show an analogous offset
 with the opposite sign: for TIC~300651846, the deepest H$\alpha$
 minimum {\it led} the deepest broadband flux minimum by
-$\approx$25 minutes on all five nights in January~2025.  The origin
-of these time offsets is not clear, but their repeatability suggests
+$\approx$25 minutes on all five nights in January~2025.  While the origin
+of these time offsets is not clear, their repeatability suggests
 that they are a stable feature associated with the material that
 causes CPV dips.
-In fact, these offsets seem to be more regular than the circumstellar
-emission itself, given our need to shift the reference phases 
-in Figures~\ref{fig:mage} and~\ref{fig:mike} to provide
-plausible visual agreement with the data.
 
 Summarizing, the low-resolution observations show
 $\delta$$\approx$1-3\% broad-band flux dips corresponding to
@@ -1484,8 +1431,8 @@ both our new light curves and archival photometry using a single procedure.
 \end{figure*}
 
 We collected literature photometry from observations of CPVs showing
-at least one dip observed in at least two bandpasses
-simultaneously.  We also required the dips themselves to be
+at least one dip in at least two simultaneous bandpasses.
+We required the dips to be
 visually distinguishable (based on d$f$/d$t$) from spot-induced
 modulation, which is also chromatic.  We excluded non-simultaneous
 literature datasets even when they carried novel information
@@ -1540,13 +1487,13 @@ where $c_{e(i)} \equiv \log_{10} \delta_{0,e(i)}$ is a fitted reference
 depth defined at the reference wavelength $\lambda_0$.  For observations that
 have TESS measurements, $c_{e(i)}$ will be near the observed TESS
 depth; for those without, $c_{e(i)}$ will be an extrapolation based on
-whichever bands were observed.  Finally, in the broken power-law
+whichever bands were observed.  In the broken power-law
 model, $w_i \equiv \log_{10}(\lambda_{{\rm eff},i}/\lambda_b)$ is the
 log-wavelength offset from a free break wavelength $\lambda_b$, and
 $h_i \equiv \kappa \ln(1 + e^{w_i/\kappa})$ is a smoothing function
 that ensures a continuous gradient in the transition from $\beta_1$
-blueward of the break to $\beta_2$ redward of it.  In the broken
-power-law model, we take $\lambda_b$ as the reference wavelength for
+blueward of the break to $\beta_2$ redward of it.  We
+take $\lambda_b$ as the reference wavelength for
 the per-epoch amplitudes $c_{e(i)}$ rather than $\lambda_0$, and we
 set the smoothing scale to $\kappa$=0.01\,dex, since our data do not
 constrain it.  Finally, our priors on the fits were $\beta \sim
@@ -1566,24 +1513,25 @@ convergence.
 
 Figure~\ref{fig:beta} and Table~\ref{tab:fitresults} summarize the
 results.  While Figure~\ref{fig:beta} shows the single power-law and
-broken-power law results in the $\delta$/$\delta_{0.788\,\mu{\rm
+broken power-law results in the $\delta$/$\delta_{0.788\,\mu{\rm
 m}}$--$\lambda_{\rm eff}$ plane, we emphasize that the fits are in the
-space of $y_i$ vs.~$\Lambda_i$.  The normalization $\delta_{0.788\,\mu{\rm m}}$ is
-the model-derived reference depth at the TESS effective wavelength for
-each dip epoch in Equations~\ref{eq:single}--\ref{eq:broken}.  To provide a consistent
+space of $y_i$ vs.~$\Lambda_i$.  The normalization
+$\delta_{0.788\,\mu{\rm m}}$ is the model-derived reference depth at
+the TESS effective wavelength for each dip epoch in
+Equations~\ref{eq:single}--\ref{eq:broken}.  To provide a consistent
 normalization for visual comparison, we adopted the
 $\delta_{0.788\,\mu{\rm m},i}$ values from the ``per-star'' power law
-fits, which favors neither of the two displayed models.
+fits, a choice that favors neither of the two displayed models.
 
-All four models agree that the dip depths are chromatic.  
-The model comparison diagnostics also indicate that a single power-law
-extinction curve can be improved upon, either by introducing a population-wide
-flattening of the extinction toward the near infrared, or by invoking
-epoch-to-epoch or star-to-star variability in the
+All four models agree that the dip depths are chromatic.  The model
+comparison diagnostics also indicate that a single power-law
+extinction curve can be improved upon, either by introducing a
+population-wide flattening of the extinction toward the near infrared,
+or by invoking epoch-to-epoch or star-to-star variability in the
 power-law index.  Key issues in the model comparison include whether
-the dip depth uncertainties $s_i$ are reliable; how to
-weigh each model's parameter count; and the degree to which the data
-can select between the models.
+the dip depth uncertainties $s_i$ are reliable; how to weigh each
+model's parameter count; and the degree to which the data can select
+between the models.
 
 If the dip depth uncertainties were unreliable, then we would want to
 incorporate an intrinsic scatter term $\sigma_{\rm int}$, effectively
@@ -1601,14 +1549,12 @@ dip depth uncertainties therefore seem plausible.
 
 Nonetheless, there is an issue with treating our dip depth
 uncertainties at face value: both the universal power-law and the
-broken power-law models both provide poor fits to the data
+broken power-law models provide poor fits to the data
 ($\chi^2_\nu$=\singlechirednosig\ and \brokenchirednosig,
-respectively).
-While inspection of $\chi^2_\nu$ and $\Delta {\rm BIC}$ in
-Table~\ref{tab:fitresults} would suggest that letting $\beta$ vary on
-a per-epoch basis is preferable, that alternative also comes with
-drawbacks.
-In particular, the ``$\beta$ per-epoch'' model is
+respectively).  While inspection of $\chi^2_\nu$ and $\Delta {\rm
+BIC}$ in Table~\ref{tab:fitresults} would suggest that letting $\beta$
+vary on a per-epoch basis is preferable, that alternative also comes
+with drawbacks.  In particular, the ``$\beta$ per-epoch'' model is
 pathological for dips observed with only two simultaneous bandpasses,
 comprising over half the dataset: this model precludes $\chi^2$ or BIC
 from accruing any residual information because it adds free parameters
@@ -1682,7 +1628,7 @@ is not starspot contamination; it seems too hot to be thermal dust
 emission; its persistence over four hours argues against a flare; and
 its emitting area is far too small for a stellar companion of this
 temperature.  None of the $\approx$100 stars fit with the same models
-\citep{PerezPaolino2025,PerezPaolino2025b}.  show a comparable excess.
+\citep{PerezPaolino2025,PerezPaolino2025b,PerezPaolino2025c} show a comparable excess.
 The excess may indicate warm, optically thick material above the
 photosphere, though we cannot exclude systematic errors in the
 synthetic atmospheres.  Distinguishing these possibilities, and
@@ -1725,13 +1671,12 @@ contribution to the flux is largest.
 \label{sec:dustyplasma}
 
 It is tempting to read Table~\ref{tab:fitresults} and
-Figure~\ref{fig:beta} as measurements of
-the dust opacity law, $\kappa(\lambda)$, whose shape is connected to
-the size distribution and composition of the dust grains.  While
-$\delta(\lambda)$ and $\kappa(\lambda)$ are
-related, there is a nuance: the mapping is only direct
-when the occulting material is optically thin.  Nothing about the data
-guarantees that we are in this regime.  Consider an absorbing
+Figure~\ref{fig:beta} as measurements of the dust opacity law,
+$\kappa(\lambda)$, whose shape is connected to the size distribution
+and composition of the dust grains.  While $\delta(\lambda)$ and
+$\kappa(\lambda)$ are related, there is a nuance: the mapping is only
+direct when the occulting material is optically thin.  Nothing about
+the data guarantees that we are in this regime.  Consider an absorbing
 clump of material occulting a uniform stellar disk of area $A_\star$.
 The dip depth $\delta$ is
 \begin{equation}
@@ -1741,61 +1686,51 @@ The dip depth $\delta$ is
 \end{equation}
 where $\Sigma$ is the surface density of the dust, $\kappa$ is the
 opacity (and only wavelength-dependent term), and the integral is over
-the dust clump's area.  Approximating
-$\kappa(\lambda) \propto \lambda^{-\beta}$ in the optical and
-near-infrared, one can show that the {\it observed} slope $\beta_{\rm obs}$ from
-$\delta(\lambda)$ in Figure~\ref{fig:beta} is related to the
-{\it underlying} dust opacity law's $\beta$ through
+the dust clump's area.  Approximating $\kappa(\lambda) \propto
+\lambda^{-\beta}$ in the optical and near-infrared, one can show that
+the {\it observed} slope $\beta_{\rm obs}$ from $\delta(\lambda)$ in
+Figure~\ref{fig:beta} is related to the {\it underlying} dust opacity
+law's $\beta$ through
 \begin{equation}
   \beta_{\rm obs} \equiv
   -\frac{{\rm d} \ln \delta}{{\rm d} \ln \lambda}
   = \beta \, \frac{{\rm d} \ln \delta}{{\rm d} \ln \kappa}.
   \label{eq:betaobs}
 \end{equation}
-The derivative on the right-hand side is a ``dilution factor'' which lies between
-0 and 1 for any surface density distribution.  The observed dip-depth
-$\beta_{\rm obs}$ of Table~\ref{tab:fitresults} and
+The derivative on the right-hand side is a ``dilution factor'' which
+lies between 0 and 1 for any surface density distribution.  The
+observed dip-depth $\beta_{\rm obs}$ of Table~\ref{tab:fitresults} and
 Section~\ref{subsec:beta} therefore provides only a lower bound on the
 dust opacity's $\beta$, with the two related by
 Equation~\ref{eq:betaobs}. 
 
 % NOTE:
 % each Σ scale in the distribution produces one bump centered at τ ~ 1
-% for that scale; the bimodal surface density distribution, with
+% for that scale. the bimodal surface density distribution, with
 % well-separated scales, gives two bumps with a valley between.
-%
-% NOTE also:
-% \bar{\tau} \equiv (\pi R^2)^{-1}\int \kappa\Sigma\,{\rm d}A
-%   = \kappa M/(\pi R^2)
 
 Figure~\ref{fig:betadilution} quantifies this damping for
-representative surface-density profiles and mean optical depths.  
-Note that while the ``uniform sphere'' profile has $\Sigma(r) \propto
-(R^2 -r^2)^{1/2}$, this is not visible in the top panels due to the
-color stretch.
-The Gaussian has width $w$ such that $\Sigma(r) \propto \exp(-r^2 / (2 w^2))$.
-The
-middle panel shows that for the smooth profiles, by a mean optical
-depth $\bar{\tau}$$\approx$1
-the observed slope falls to 40--60\% of the intrinsic slope, and by
-$\bar{\tau}$$\approx$3 to 20--30\%.
-The lower panel gives example vertical slices from the middle,
-setting
-$\bar{\tau}$$=$3 for the smooth profiles and exploring the impact of
-dilution on a ``steep''
-$\beta$=2 intrinsic grain opacity.
-All models flatten the extinction curve.
-However, even after accounting for this dilution, comparison with
-Figure~\ref{fig:beta} shows that the smooth profiles provide
-a poor fit to the data: their blue dips are not deep enough, and
-their $K$-band dips are too shallow.
+representative surface-density profiles and mean optical depths.  Note
+that while the ``uniform sphere'' profile has $\Sigma(r) \propto (R^2
+-r^2)^{1/2}$, this is not visible in the top panels due to the color
+stretch.  The Gaussian has width $w$ such that $\Sigma(r) \propto
+\exp(-r^2 / (2 w^2))$.  The middle panel shows that for the smooth
+profiles, by a mean optical depth $\bar{\tau}$$\approx$1 the observed
+slope falls to 40--60\% of the intrinsic slope, and by
+$\bar{\tau}$$\approx$3 to 20--30\%.  The lower panel gives example
+vertical slices from the middle, setting $\bar{\tau}$$=$3 for the
+smooth profiles and exploring the impact of dilution on a ``steep''
+$\beta$=2 intrinsic grain opacity.  All models flatten the extinction
+curve.  However, even after accounting for this dilution, comparison
+with Figure~\ref{fig:beta} shows that the smooth profiles provide a
+poor fit to the data: their blue dips are not deep enough, and their
+$K$-band dips are too shallow.
 
-If dust provides the opacity,
-the simplest physical interpretation of a
-broken power-law in $\delta(\lambda)$ is to therefore invoke a {\it bimodal}
-surface density distribution: an opaque core of projected area
-$A_c$ ($\tau \gg 1$ out through $K$ band) surrounded by an optically
-thin halo of area $A_h$ and depth $\tau_h(\lambda)$.  Such a 
+If dust provides the opacity, the simplest physical interpretation of
+a broken power-law in $\delta(\lambda)$ is therefore to invoke a {\it
+bimodal} surface density distribution: an opaque core of projected
+area $A_c$ ($\tau \gg 1$ out through $K$ band) surrounded by an
+optically thin halo of area $A_h$ and depth $\tau_h(\lambda)$.  Such a
 distribution yields
 \begin{equation}
   \delta(\lambda) \approx \frac{A_c}{A_\star}
@@ -1804,21 +1739,19 @@ distribution yields
 \end{equation}
 such that the infrared depths sit on the core's gray floor while the
 optical depths are dominated by the halo's chromatic term, with the
-break falling near where the two terms are comparable.
-The ``core+halo'' curve in the lower panel of
-Figure~\ref{fig:betadilution} shows an example with
-$A_{\rm h}/A_{\rm c}$=3 and $\tau_{\rm h}(1.2\,\mu{\rm m})$=0.1: the
-same $\beta$=2 opacity law that the smooth profiles flatten into a
-gray curve instead yields a broken power law resembling the data.
-A brute-force exploration of the parameter space indicates 
-an allowed parameter range of 
-$1 \lesssim A_{\rm h}/A_{\rm c} \lesssim 30$, $10^{-4}\lesssim
-\tau_{\rm h}\lesssim 0.3$ at 1.2\,$\mu$m, and $1\lesssim \beta
-\lesssim 4$, where the upper bound on $\beta$ is the
-Rayleigh-scattering limit.
-This range of $\beta$ excludes the possibility of a population
-dominated by mm to cm-sized solids, but is otherwise 
-consistent with a wide range of dust compositions and size
+break falling near where the two terms are comparable.  The
+``core+halo'' curve in the lower panel of
+Figure~\ref{fig:betadilution} shows an example with $A_{\rm h}/A_{\rm
+c}$=3 and $\tau_{\rm h}(1.2\,\mu{\rm m})$=0.1: the same $\beta$=2
+opacity law that the smooth profiles flatten into a gray curve instead
+yields a broken power law resembling the data.  A brute-force
+exploration of the parameter space indicates an allowed parameter
+range of $1 \lesssim A_{\rm h}/A_{\rm c} \lesssim 30$,
+$10^{-4}\lesssim \tau_{\rm h}\lesssim 0.3$ at 1.2\,$\mu$m, and
+$1<\beta<4$, where the upper bound on $\beta$ is the
+Rayleigh-scattering limit.  This range of $\beta$ excludes the
+possibility of a population dominated by mm to cm-sized solids, but is
+otherwise consistent with a wide range of dust compositions and size
 distributions.
 
 
@@ -1885,17 +1818,16 @@ evidence from TripleSpec for starspot covering fractions
 $\lesssim$20\% in LP~12-502 (Section~\ref{subsec:tspec_results}).
 
 While we disfavor scenario {\it (i)}, the data remain compatible with
-scenarios {\it (ii)} and {\it (iii)}.  In either, the dust must
-become collisionally charged \citep{Sanderson2023} to remain
-magnetically confined \citep{Daley-Yates2026}. 
-The two scenarios may differ in their expected extent of mixing
-between the gas and dust, and in the composition of the grains.
-Either origin channel would yield new information:
-in scenario~{\it (ii)} we would learn that young M dwarfs condense out dust,
-similar perhaps to how this process occurs in the atmospheres of AGB stars
-\citep{Hofner2018};
-in scenario~{\it (iii)} we would gain a new way of identifying and
-studying the detritus of planet formation.
+scenarios {\it (ii)} and {\it (iii)}.  In either, the dust must become
+collisionally charged \citep{Sanderson2023} to remain magnetically
+confined \citep{Daley-Yates2026}.  The two scenarios may differ in
+their expected extent of mixing between the gas and dust, and in the
+composition of the grains.  Either origin channel would yield new
+information: in scenario~{\it (ii)} we would learn that young M dwarfs
+condense out dust, similar perhaps to how this process occurs in the
+atmospheres of AGB stars \citep{Hofner2018}; in scenario~{\it (iii)}
+we would gain a new way of identifying and studying the detritus of
+planet formation.
 
 
 \subsection{Continued relevance of PTFO\,8-8695}
@@ -1908,8 +1840,8 @@ Jupiter candidate in Orion; \citet{Barnes2013} and \citet{Kamiaka2015}
 subsequently argued that its orbit was nodally precessing, and
 \citet{Johns-Krull2016} found that the source showed
 sinusoidal-in-time H$\alpha$ emission at circumstellar velocities.
-Photometric follow-up found the planet candidate's orbital period to
-stay fixed, but that the ephemeris jumped around in orbital phase and
+Photometric follow-up found that the planet candidate's orbital period
+stayed fixed, but that the signal jumped around in orbital phase and
 split into multiple dips per cycle
 \citep{Ciardi2015,Yu2015,Raetz2016,Onitsuka2017,Tanimoto2020}.
 \citet{Bouma2020} used TESS and Gaia to argue that the system shows
@@ -1930,13 +1862,14 @@ the source for five years in optical and infrared bands, and observed
 a break in the chromaticity of this system's dip depths going out to
 $K$-band similar to that reported in this work.  One of their proposed
 resolutions was the scenario of an opaque dust core with an optically
-thin dust halo; this is the same scenario that we favor from
-Section~\ref{subsec:extinction_results}.  The Spitzer 4.5\,$\mu$m
+thin dust halo; this is the same scenario that we favor in
+Section~\ref{sec:dustyplasma}.  The Spitzer 4.5\,$\mu$m
 light curve observed by \citet{Ciardi2015} showing a 0.5\% deep dip in
 2012 remains a unique dataset, as it provides the only information we
 have about the chromaticities of any CPV dips redward of $K$-band.
 
 \subsection{The chromaticity differs from analog magnetic rotators}
+\label{sec:analogs}
 
 Massive magnetic B stars are the only class of star known to exhibit
 similar light curves to CPVs.  The prototype, $\sigma$ Ori~E, has a
@@ -1969,140 +1902,102 @@ $u$-band photometry of CPVs does not exist, their behavior in the
 $griz$ optical bands is inconsistent with the predictions of the
 bound-free opacity.
 
-% \subsection{What data would help?}
-% \label{subsec:whatdata}
-% 
-% Actual Transmission spectroscopy.
-% 
-% Simultaneous in the optical, and the near+mid IR.
-% 
-% Also, UV, simultaneous with at least the optical.  Maybe w/ other
-% wavelengths too.
-
 
 \section{Conclusions}
 \label{sec:conc}
 
-CPVs show a combination of smooth, rotationally-induced modulation,
-along with sharp dips induced by the transits of magnetically bound
-circumstellar material.  The occulting material must be circumstellar
-because of how quickly it causes the broadband flux to change,
-and magnetically bound because of its
-synchronicity with the stellar rotation
-period 
-and its sensitivity to flaring 
-\citep{Stauffer2017,Bouma2024}.  The composition of the
-circumstellar material could, a priori, be gas, dust, or a combination
-thereof.  In this work we find that while circumstellar gas is
-conspicuously present, dust seems to provide the opacity source
-responsible for the dips.
+CPVs show smooth rotational modulation together with sharp dips from
+circumstellar material.  The material must be circumstellar given how
+quickly the flux changes, and magnetically bound, given its
+synchronicity with the stellar rotation period and its response to
+flares \citep{Stauffer2017,Bouma2024}.   A priori, the material could
+be gas ({\it i.e.}, plasma), dust, or both.  However, in
+Section~\ref{sec:origin} we rule out the ``gas-only'' scenario:
+neither H$^-$ nor hydrogen bound-free opacity yields the observed
+wavelength dependence, and the remaining option, Thomson scattering
+with chromaticity supplied by unocculted starspots, requires spot
+covering fractions that are excluded.  While gas is conspicuously
+present, dust must provide the opacity.
 
-Gas is conspicuously present {\it (i)} because of sinusoidal-in-time
-Balmer emission out of transit, and {\it (ii)} because of Balmer line
-dimming during transit.  Plasma clump emissivity out of transit was
-first seen in CPVs for TIC~141146667 \citep[$n_{\rm
-H}$$\approx$1$\times$10$^{11}$\,cm$^{-3}$;][]{Bouma2025}.  Observing
-TIC~300651846 and LP~12-502 at comparable sensitivity gave a
-detection of bound emitting
-circumstellar plasma for TIC~300651846 ($n_{\rm
-H}$$\approx$3--8$\times$10$^{11}$\,cm$^{-3}$;
-Section~\ref{subsec:mage_interpret}), and upper limits for LP~12-502
-($n_{\rm H}$\,$\lesssim$\,5$\times$$10^{10}$\,cm$^{-3}$;
-Appendix~\ref{app:keck_ootspec}).  The quoted range for TIC~300651846
-comes from the six-fold variation in H$\alpha$ clump luminosity seen
-night-to-night, implying a number density variation of
-2.5$\times$.
-This large spectroscopic change was accompanied by no
-discernable changes in simultaneous TESS data.  The lack of
-correlation between light curve morphology and circumstellar plasma
-number density suggests that gas is not responsible for the sharp
-dips, leaving dust as the only viable culprit.
+Gas is conspicuous for two reasons: sinusoidal-in-time Balmer emission
+out of transit, and Balmer dimming during transit.  The emission
+yields a measurement of the hydrogen number density of the bound
+material at a few stellar radii.  After TIC~141146667 ($n_{\rm
+H}$$\approx$1$\times$10$^{11}$\,cm$^{-3}$; \citealt{Bouma2025}),
+TIC~300651846 shows emitting plasma at $n_{\rm
+H}$$\approx$3--8$\times$10$^{11}$\,cm$^{-3}$
+(Section~\ref{subsec:mage_interpret}), and LP~12-502, observed at
+comparable sensitivity, gives $n_{\rm
+H}$\,$\lesssim$\,5$\times$10$^{10}$\,cm$^{-3}$
+(Appendix~\ref{app:keck_ootspec}).  The range for TIC~300651846
+reflects a six-fold change in clump H$\alpha$ luminosity, during which
+the simultaneous TESS light curve did not discernibly change.  The dip
+morphology is therefore decoupled from the plasma density, pointing to
+dust as the main opacity source.  Balmer dimming during broadband
+dips, meanwhile, appears in every CPV observed spectroscopically
+during a dip, with repeatable timing offsets of tens of minutes in two
+stars (Section~\ref{subsec:ha_flux_dip_interpret}).  The gas and dust
+are spatially associated, but the dust column does not track the gas
+density.
 
-The gas and dust appear spatially associated: both the
-high-resolution (Figures~\ref{fig:mage} and~\ref{fig:mike}) and
-low-resolution (Figure~\ref{fig:dbsp}) time-series spectra show
-H$\alpha$ transits occurring simultaneously or near-simultaneously
-with broadband flux transits.
-We did observe departures from strict simultaneity through
-repeatable transit timing offsets for two stars: for TIC~300651846 the deepest
-H$\alpha$ minimum preceded the deepest broadband flux local minimum by
-$\approx$25\,minutes on all five nights from January~2025; for
-LP~12-502 the offset was $\approx$50\,minutes late over both nights in
-November~2023.
-
-Chromaticities from broadband photometry currently provide the best
-information about the dust composition.  We compiled our new
-observations with the literature and fitted four variants of a $\delta
-\propto \lambda^{-\beta}$ extinction curve: a single power-law, a
-broken double power-law, a power-law that let $\beta$ vary per-star,
-and a power-law that let $\beta$ vary per epoch.  The results, shown
-in Table~\ref{tab:fitresults} and Figure~\ref{fig:beta}, show that the
-two simpler models (single and broken power-law) both yield
-poor fits ($\chired$$\gg$1).  This suggests either that there is
-star-to-star or epoch-to-epoch variability in the extinction law
-(produced for instance by an inhomogeneous and evolving dust population),
-or that there is an unknown source of intrinsic scatter that requires
-inflating the observed dip depth uncertainties.  Our analysis also
-highlighted the challenge of formal BIC-based model
-comparison for these data: the epoch-to-epoch depth variability of
-CPVs implies that we must marginalize over a transit depth at a
-reference wavelength for each observing epoch, which negates the
-statistical value of two-band epochs that lack TESS data.
-
-Our results therefore leave an open degeneracy: one can 
-improve on the single power law extinction curve by either
-introducing a broken power-law, or by invoking epoch-to-epoch or
-star-to-star variability in the power-law index.  While these ideas
-are not mutually exclusive, they cannot be distinguished with the current
-data because the near-infrared data for TIC~300651846 and PTFO~8-8695
-come with only a single optical anchor point each.  Nonetheless, 
-a broken power-law seems to provide the
-simplest explanation for the depth of CPV dips in the infrared
-(see~Figure~\ref{fig:fourstar}, and \citealt{Ciardi2015}).  Our fits
-for such a model yielded $\beta_1 = \brokenbetaone \pm
-\brokenbetaoneunc$ blueward of the break at $\lambda_b =
-\brokenlambdabreak \pm \brokenlambdabreakunc$\,$\mu$m, and $\beta_2 =
-\brokenbetatwo \pm \brokenbetatwounc$ redward of it.
+Broadband chromaticity currently provides the best information about
+the dust.  We combined our new observations with the literature and
+fitted four variants of a $\delta \propto \lambda^{-\beta}$ extinction
+curve.  While all four models agree that the dips are chromatic, a
+simple power law provides a poor fit ($\chired$$\gg$1).  Two
+modifications can improve it: the extinction law can flatten in the
+near-infrared, or there can be star-to-star or epoch-to-epoch
+variability in $\beta$.  The data currently cannot separate the two
+due to the limited resolution of the multi-band photometry: future
+{\it spectrophotometry} would solve this issue.  If at present we
+assume a universal law, then a broken power-law is preferred, with
+$\beta_1 = \brokenbetaone \pm \brokenbetaoneunc$ blueward of
+$\lambda_b = \brokenlambdabreak \pm \brokenlambdabreakunc$\,$\mu$m and
+$\beta_2 = \brokenbetatwo \pm \brokenbetatwounc$ redward.
 
 The break, rather than the slopes, carries most of the physical
-information
-(Sections~\ref{sec:dustyplasma} and~\ref{sec:origin}).
-The {\it observed} optical chromaticity $\beta_1$ provides
-a lower bound on the {\it intrinsic} spectral index of the dust
-opacity: for $\kappa \propto \lambda^{-\beta}$ we infer $1<\beta<4$.
-This excludes a dust population dominated by
-mm to cm-sized solids, but is otherwise consistent with a wide range of
-dust compositions and size distributions.
-The break itself can be produced
-by a bimodal dust surface
-density distribution: an opaque core surrounded by an optically thin
-halo.  We find that such a model can reproduce the data for halo to
-core area ratios $1 \lesssim A_{\rm h}/A_{\rm c} \lesssim 30$ and 
-halo optical depths $10^{-4}\lesssim \tau_{\rm h}\lesssim 0.3$ at
-1.2\,$\mu$m.
+information (Sections~\ref{sec:dustyplasma} and~\ref{sec:origin}).
+The {\it observed} optical chromaticity $\beta_1$ provides a lower
+bound on the {\it intrinsic} spectral index of the dust opacity: for
+$\kappa \propto \lambda^{-\beta}$ we infer $1<\beta<4$.  This excludes
+a dust population dominated by mm to cm-sized solids, but is otherwise
+consistent with a wide range of dust compositions and size
+distributions.  The break itself can be produced by a bimodal dust
+surface density distribution: an opaque core surrounded by an
+optically thin halo.  We find that such a model can reproduce the data
+for halo to core area ratios $1 \lesssim A_{\rm h}/A_{\rm c} \lesssim
+30$ and halo optical depths $10^{-4}\lesssim \tau_{\rm h}\lesssim 0.3$
+at 1.2\,$\mu$m.  In this picture, a minority of the projected area is
+opaque through $K$ band and the remainder is nearly transparent.
 
-While all approximations are wrong, some are useful.  The core+halo
-picture is useful in that it reproduces the observed extinction curve
-with a minimum of ingredients; it is surely also wrong in its details.
-Spectral features of the occulting dust and gas, particularly in the
-ultraviolet and infrared where data are currently
-lacking, offer one area for future work.
-
+Gas is conspicuous: it emits in corotation, dims during transit, and
+changes in density without altering the dips.  Dust is cryptic: it
+must supply the opacity, yet whether it condenses from the star or is
+captured from planetesimal debris (Section~\ref{sec:origin}) is
+unknown.  The core+halo picture of a dusty plasma makes three key
+predictions.  First, dips should be gray redward of $\lambda_b$ out to
+whatever wavelength the core becomes optically thin.  Second, dip
+depths should vary smoothly across the Balmer break, unlike the
+$u$-band jump of the hydrogen-dominated $\sigma$ Ori~E analogs
+(Section~\ref{sec:analogs}).  And third, if the grains contain
+silicates, the 10\,$\mu$m Si-O stretching feature should appear as
+excess depth above the gray floor, with a profile that could
+distinguish wind condensates from collisional debris.
 
 
 \begin{acknowledgements}
   \newline
-  L.G.B. gratefully acknowledges support from the Carnegie Fellowship
-  and the Heising-Simons 51 Pegasi~b Fellowship during the data
-  collection phase of this project.
-	J.G.M. gratefully acknowledges support from the Heising-Simons Foundation and
+  L.G.B. acknowledges support from the Carnegie Fellowship, the
+  Heising-Simons 51 Pegasi~b Fellowship, and NASA Grant 80NSSC24K0474
+  during this work's data collection.
+	J.G.M. acknowledges support from the Heising-Simons Foundation and
 	the Pappalardo family through the MIT Pappalardo Fellowship in Physics.
   We thank the staff of Magellan, Keck, and Palomar
   Observatories, including the telescope operators and instrument
   specialists, for their support of the observations presented in this
   work; we also thank Eric Persson and Andy Monson for assistance with FourStar
-  observation planning.
-  This work also used data from TESS \citep{TESS2min}.
+  planning.
+  This work used data from TESS \citep{TESS2min}.
   % via https://heasarc.gsfc.nasa.gov/docs/tess/approved-programs.html
   The 2-minute cadence observations used in this work were proposed by
   the guest observer (G) and director's discretionary time (DDT)
@@ -2158,12 +2053,12 @@ lacking, offer one area for future work.
 \end{acknowledgements}
 
 {\it \large Contributions}: 
-LGB led the inception, design, execution, and interpretation of the
+LGB led the design, execution, and interpretation of the
 project.  FPP performed the TSPEC analysis.  Data were acquired and reduced by
-JHL, KI, NN, and AK (MuSCAT1); EP, FM (MuSCAT2); JGM, PT, DC (Tierras); AB
+JHL, KI, NN, and AF (MuSCAT1); EP, FM (MuSCAT2); JGM, PT, DC (Tierras); AB
 (KeplerCam); FPP (TSPEC); and LGB (MIKE, MagE, FourStar, HIRES, DBSP, TSPEC).
-Observations by JSS (FourStar) and ASC (HIRES), and reduction assistance by HI
-and AWH (HIRES) enabled the work.  Finally, FPP, LAH, AJW, JJS, MMJ, JAV, and
+Observations by JJS (FourStar) and ASC (HIRES), and reduction assistance by HI
+(HIRES) enabled the work.  Finally, FPP, LAH, JJS, MMJ, and
 DRC contributed to the interpretation of the results, and all authors reviewed
 the manuscript.
 
@@ -2172,7 +2067,7 @@ the manuscript.
   Magellan:Clay,
   Keck:I,
   Hale,
-  OAO:1.88m,
+  NAOJ:1.88m,
   Sanchez,
   FLWO:Tierras,
   FLWO:1.2m,
@@ -2186,6 +2081,7 @@ the manuscript.
   astroariadne \citep{Vines2022},
   astropy (\citealt{astropy:2013,astropy:2018,astropy:2022}),
   carpy \citep{Kelson2000,Kelson2003},
+  Claude \citep{claude2026},
 	DBSP\_DRP \citep{dbsp_drp:joss,dbsp_drp:zenodo},
 	dustmaps \citep{2018JOSS....3..695M},
 	dynesty \citep{Speagle2020},
@@ -2256,16 +2152,16 @@ While the HIRES spectra and photometry of LP~12-502 presented abundant
 evidence for flare-induced variability, no variability could be
 clearly associated with any bound circumstellar hydrogen.
 Nonetheless, the same calculation as in
-Section~\ref{subsec:mage_interpret}, enables a conversion of this 
+Section~\ref{subsec:mage_interpret} enables a conversion of this 
 non-detection of H$\alpha$ emission  to an upper limit on the number
 density of bound circumstellar plasma.
 % via /Users/luke/Dropbox/proj/hotcold/drivers/calc_number_density_constraint_from_ha_emission.py
 For LP~12-502, $L_\star$=0.011$\pm$0.001\,L$_\odot$,
-$R_\star$=0.37$\pm$0.01 \citep{Bouma2024}, and we measure a mean
+$R_\star$=0.37$\pm$0.01\,R$_\odot$ \citep{Bouma2024}, and we measure a mean
 stellar H$\alpha$ EW and scatter of $0.22 \pm 0.02$\,\AA.  The implied
 stellar H$\alpha$ line luminosity is
 $\approx$3.0$\times$10$^{26}$\,erg\,s$^{-1}$, two orders of magnitude
-lower than TIC~300651846.
+lower than that of TIC~300651846.
 We derive an upper limit on the equivalent width of any excess
 H$\alpha$ by injecting synthetic emission into the spectra shown in
 Figure~\ref{fig:hires}.
@@ -2386,7 +2282,7 @@ chromaticity analysis in Section~\ref{subsec:beta}.
 
 %\clearpage
 
-\bibliographystyle{aasjournalv7}
+\bibliographystyle{aasjournalv7.1}
 \bibliography{cpvbib.bib}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
