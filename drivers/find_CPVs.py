@@ -35,6 +35,7 @@ LOGEXCEPTION = LOGGER.exception
 #############
 ## IMPORTS ##
 #############
+import argparse
 import os, pickle
 import time as timemod
 from os.path import join
@@ -56,9 +57,18 @@ from complexrotators.plotting import (
 
 from complexrotators import pipeline_utils as pu
 
-def get_ticids(sample_id, lcpipeline):
+def get_ticids(sample_id, lcpipeline, ticids=None):
+    """If ticids is passed (e.g. from the command line), it takes precedence
+    over whatever the sample_id would otherwise have yielded."""
 
-    if sample_id == 'debug':
+    if ticids is not None:
+
+        ticids = [str(t) for t in ticids]
+
+        N_stars_to_search = len(ticids)
+        N_lcs_to_search = -1
+
+    elif sample_id == 'debug':
         ticids = [
             #"425937691"
             #"332861442"
@@ -482,7 +492,8 @@ def find_CPV(ticid, sample_id, forcepdf=0, lcpipeline='spoc2min'):
         pu.save_status(logpath, 'exitcode', exitcode)
 
 
-def main():
+def main(cli_ticids=None, cli_sample_id=None, cli_lcpipeline=None,
+         cli_forcepdf=None):
 
     #################
     # begin options #
@@ -522,9 +533,20 @@ def main():
     # end options #
     ###############
 
+    # command line arguments, if given, override the options above.
+    if cli_lcpipeline is not None:
+        lcpipeline = cli_lcpipeline
+    if cli_forcepdf is not None:
+        forcepdf = cli_forcepdf
+    if cli_sample_id is not None:
+        sample_ids = [cli_sample_id]
+    elif cli_ticids is not None:
+        # e.g. "python drivers/find_CPVs.py -t 285994447"; cache under "debug".
+        sample_ids = ['debug']
+
     for sample_id in sample_ids:
 
-        ticids = get_ticids(sample_id, lcpipeline)
+        ticids = get_ticids(sample_id, lcpipeline, ticids=cli_ticids)
 
         if len(ticids) > 1000 and forcepdf:
             raise NotImplementedError
@@ -537,5 +559,44 @@ def main():
     LOGINFO("Finished 🎉🎉🎉")
 
 
+def parse_args():
+
+    parser = argparse.ArgumentParser(
+        description=(
+            "Run the CPV-finding pipeline.  With no arguments, the options "
+            "hard-coded in main() are used."
+        )
+    )
+    parser.add_argument(
+        '-t', '--ticid', type=str, nargs='+', default=None,
+        help=("one or more TIC IDs to run on, e.g. '-t 285994447'.  Overrides "
+              "the ticid list implied by --sample_id.")
+    )
+    parser.add_argument(
+        '-s', '--sample_id', type=str, default=None,
+        help=("sample to run on, e.g. 'debug', 'jan2026_knownCPVs'.  Also sets "
+              "the cache directory name.  Default when --ticid is passed: "
+              "'debug'.")
+    )
+    parser.add_argument(
+        '-l', '--lcpipeline', type=str, default=None,
+        choices=['qlp', 'spoc2min', 'tars'],
+        help="light curve pipeline to use."
+    )
+    parser.add_argument(
+        '--forcepdf', dest='forcepdf', action='store_const', const=1,
+        default=None,
+        help="force the vetting pdf to be made, even if exit codes say no."
+    )
+    parser.add_argument(
+        '--no-forcepdf', dest='forcepdf', action='store_const', const=0,
+        help="do not force the vetting pdf to be made."
+    )
+
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    main()
+    a = parse_args()
+    main(cli_ticids=a.ticid, cli_sample_id=a.sample_id,
+         cli_lcpipeline=a.lcpipeline, cli_forcepdf=a.forcepdf)

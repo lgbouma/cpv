@@ -124,6 +124,9 @@ from complexrotators.lcprocessing import (
 
 from astroquery.mast import Catalogs
 from cdips.lcproc import detrend as dtr
+from complexrotators.gaiaqueries import (
+    given_source_ids_get_gaia_data_fallback
+)
 from cdips.utils.gaiaqueries import (
     given_dr2_sourceids_get_edr3_xmatch, given_source_ids_get_gaia_data
 )
@@ -2156,7 +2159,7 @@ def plot_cpvvetter(
 
     dr2_source_ids = np.array([np.int64(dr2_source_id)])
     try:
-        gdf = given_source_ids_get_gaia_data(
+        gdf = given_source_ids_get_gaia_data_fallback(
             dr2_source_ids, runid, n_max=5, overwrite=False,
             enforce_all_sourceids_viable=True, savstr='', which_columns='*',
             table_name='gaia_source', gaia_datarelease='gaiadr2', getdr2ruwe=False
@@ -2165,13 +2168,14 @@ def plot_cpvvetter(
         LOGERROR(f'{ticid} = {runid} failed due to:\n{e}...')
         return 1
     try:
-        gdf_ruwe = given_source_ids_get_gaia_data(
+        gdf_ruwe = given_source_ids_get_gaia_data_fallback(
             dr2_source_ids, runid+"_ruwe", n_max=5, overwrite=False,
             enforce_all_sourceids_viable=True, savstr='', which_columns='*',
             table_name='gaia_source', gaia_datarelease='gaiadr2', getdr2ruwe=True
         )
         ruwe =  f"{gdf_ruwe['ruwe'].iloc[0]:.2f}"
-    except AttributeError:
+    except Exception:
+        # a failed RUWE lookup should not cost us the whole vetting PDF
         ruwe = 'NaN'
 
     Gmag = f"{gdf['phot_g_mean_mag'].iloc[0]:.1f}"
