@@ -172,7 +172,7 @@ wheels = [
 [[package]]
 name = "astrobase"
 version = "0.5.3"
-source = { registry = "https://pypi.org/simple" }
+source = { editable = "../astrobase" }
 dependencies = [
     { name = "astropy" },
     { name = "jplephem" },
@@ -186,10 +186,50 @@ dependencies = [
     { name = "tornado" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ee/39/35b98fc1b57ce23ea5017b335cc09821290844452306e5be8e1a0aa86b09/astrobase-0.5.3.tar.gz", hash = "sha256:1507772ff3aece5bb3816a8ce2afb7ec331c57fc7dbca9f85ee3bde9e34b7ca3", size = 963368, upload-time = "2021-01-16T21:44:03.842Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/f6/53/f11d9985fcc2a0b59908b1560f5b3957623109eac4667d0297d5357622a9/astrobase-0.5.3-py3-none-any.whl", hash = "sha256:0b20a0b87b4b349a89651c9b662c0bbdc4e311cc3c16d0114e8fb51af20e983d", size = 1039100, upload-time = "2021-01-16T21:44:01.929Z" },
+
+[package.metadata]
+requires-dist = [
+    { name = "astropy", specifier = ">=1.3" },
+    { name = "awscli", marker = "extra == 'all'" },
+    { name = "awscli", marker = "extra == 'aws'" },
+    { name = "batman-package", marker = "extra == 'all'" },
+    { name = "batman-package", marker = "extra == 'mandelagol'" },
+    { name = "batman-package", marker = "extra == 'tls'" },
+    { name = "boto3", marker = "extra == 'all'" },
+    { name = "boto3", marker = "extra == 'aws'" },
+    { name = "corner", marker = "extra == 'all'" },
+    { name = "corner", marker = "extra == 'mandelagol'" },
+    { name = "corner", marker = "extra == 'tls'" },
+    { name = "emcee", marker = "extra == 'all'", specifier = "==3.0rc1" },
+    { name = "emcee", marker = "extra == 'mandelagol'", specifier = "==3.0rc1" },
+    { name = "emcee", marker = "extra == 'tls'", specifier = "==3.0rc1" },
+    { name = "google-api-python-client", marker = "extra == 'all'" },
+    { name = "google-api-python-client", marker = "extra == 'gcp'" },
+    { name = "google-cloud-pubsub", marker = "extra == 'all'" },
+    { name = "google-cloud-pubsub", marker = "extra == 'gcp'" },
+    { name = "google-cloud-storage", marker = "extra == 'all'" },
+    { name = "google-cloud-storage", marker = "extra == 'gcp'" },
+    { name = "h5py", marker = "extra == 'all'" },
+    { name = "h5py", marker = "extra == 'mandelagol'" },
+    { name = "h5py", marker = "extra == 'tls'" },
+    { name = "jplephem" },
+    { name = "matplotlib", specifier = ">=2.0" },
+    { name = "numpy", specifier = ">=1.4.0" },
+    { name = "paramiko", marker = "extra == 'all'" },
+    { name = "paramiko", marker = "extra == 'aws'" },
+    { name = "paramiko", marker = "extra == 'gcp'" },
+    { name = "pillow" },
+    { name = "psycopg2-binary", marker = "extra == 'all'" },
+    { name = "pyeebls", specifier = ">=0.1.6" },
+    { name = "requests", specifier = ">=2.20" },
+    { name = "scikit-learn", specifier = ">=0.19" },
+    { name = "scipy", specifier = ">=0.17.0" },
+    { name = "tornado" },
+    { name = "tqdm" },
+    { name = "transitleastsquares", marker = "extra == 'all'", specifier = ">=1.0" },
+    { name = "transitleastsquares", marker = "extra == 'tls'", specifier = ">=1.0" },
 ]
+provides-extras = ["all", "mandelagol", "tls", "aws", "gcp"]
 
 [[package]]
 name = "astropy"
@@ -315,14 +355,7 @@ wheels = [
 [[package]]
 name = "cdips"
 version = "0.4"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "astropy" },
-    { name = "matplotlib" },
-    { name = "numpy" },
-    { name = "scipy" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/dd/4e/44182eff9ef5c22de32a51f6527313c3747d718ae14c349c7303812724e0/cdips-0.4.tar.gz", hash = "sha256:e22715ac18e60f18cf4ab979f53c534bfcf82130de4859827331ad61b74d3fd8", size = 44396517, upload-time = "2023-01-21T03:06:27.251Z" }
+source = { editable = "../cdips" }
 
 [[package]]
 name = "certifi"
@@ -546,7 +579,9 @@ dependencies = [
     { name = "pyeebls" },
     { name = "pygam" },
     { name = "pytest" },
+    { name = "rudolf" },
     { name = "s3fs" },
+    { name = "tehsors" },
     { name = "tess-point" },
     { name = "wotan" },
 ]
@@ -554,10 +589,10 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "aesthetic" },
-    { name = "astrobase" },
+    { name = "astrobase", editable = "../astrobase" },
     { name = "astropy", specifier = "==7.1.0" },
     { name = "astroquery" },
-    { name = "cdips" },
+    { name = "cdips", editable = "../cdips" },
     { name = "fsspec" },
     { name = "ipython" },
     { name = "lightkurve" },
@@ -570,7 +605,9 @@ requires-dist = [
     { name = "pyeebls", specifier = "==0.2.0" },
     { name = "pygam" },
     { name = "pytest", specifier = "==9.0.2" },
+    { name = "rudolf", editable = "../rudolf" },
     { name = "s3fs" },
+    { name = "tehsors", editable = "../tehsors" },
     { name = "tess-point" },
     { name = "wotan", specifier = "==1.10" },
 ]
@@ -808,6 +845,19 @@ sdist = { url = "https://files.pythonhosted.org/packages/00/78/f34251dadb8f39212
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fd/3c/6a2bf344106328fd04963664a60b9bb6496fc25df8e962fcdc1367285fb9/fsspec-2026.7.0-py3-none-any.whl", hash = "sha256:b57ddbafedfaef7018c1ecab32aa200a9d7ca26b77965f64e48b70061249d279", size = 206583, upload-time = "2026-07-28T16:34:49.538Z" },
 ]
+
+[[package]]
+name = "gyrointerp"
+version = "0.7"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "astropy" },
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "scipy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/df/44/92877b61c2d609fe20ba9e467d3cb08796f4209fade3709da26ac576fc8a/gyrointerp-0.7.tar.gz", hash = "sha256:cb0d785a7d1a4bccacb93227bab654064cd4e3a55c9da9c62a2c09740e838183", size = 13282344, upload-time = "2026-01-25T19:50:59.765Z" }
 
 [[package]]
 name = "html5lib"
@@ -1576,6 +1626,19 @@ wheels = [
 ]
 
 [[package]]
+name = "plotly"
+version = "7.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "narwhals" },
+    { name = "packaging" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ec/9e/8894e8eae20a5b2a44aa568b1d2d80291e8eea6ce7bc75cdc7a152aef0ac/plotly-7.0.0.tar.gz", hash = "sha256:08b21f1244a97e7a1a699833c4bb2678475aa108b3f1989886ed0b038ebfd849", size = 6218668, upload-time = "2026-08-25T17:47:29.088Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e0/2f/6f492108d9955bac97979d9949c1b35eab30fc630b1f22bbdd2c7cacbab4/plotly-7.0.0-py3-none-any.whl", hash = "sha256:78cbf7bd06d1b05bb3b8ec1b709864695229b55151b6f7530fbf55517ead6fdd", size = 9052859, upload-time = "2026-08-25T17:47:24.689Z" },
+]
+
+[[package]]
 name = "pluggy"
 version = "1.6.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1992,6 +2055,11 @@ wheels = [
 ]
 
 [[package]]
+name = "rudolf"
+version = "0.0.0"
+source = { editable = "../rudolf" }
+
+[[package]]
 name = "s3fs"
 version = "2026.7.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2148,6 +2216,43 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/28/e3/55dcc2cfbc3ca9c29519eb6884dd1415ecb53b0e934862d3559ddcb7e20b/stack_data-0.6.3.tar.gz", hash = "sha256:836a778de4fec4dcd1dcd89ed8abff8a221f58308462e1c4aa2a3cf30148f0b9", size = 44707, upload-time = "2023-09-30T13:58:05.479Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f1/7b/ce1eafaf1a76852e2ec9b22edecf1daa58175c090266e9f6c64afcd81d91/stack_data-0.6.3-py3-none-any.whl", hash = "sha256:d5558e0c25a4cb0853cddad3d77da9891a08cb85dd9f9f91b9f8cd66e511e695", size = 24521, upload-time = "2023-09-30T13:58:03.53Z" },
+]
+
+[[package]]
+name = "tehsors"
+version = "0.1.0"
+source = { editable = "../tehsors" }
+dependencies = [
+    { name = "astropy" },
+    { name = "astroquery" },
+    { name = "fsspec" },
+    { name = "gyrointerp" },
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "plotly" },
+    { name = "pytest" },
+    { name = "s3fs" },
+    { name = "scikit-learn" },
+    { name = "scipy" },
+    { name = "tess-point" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "astropy" },
+    { name = "astroquery" },
+    { name = "fsspec" },
+    { name = "gyrointerp" },
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "plotly" },
+    { name = "pytest" },
+    { name = "s3fs" },
+    { name = "scikit-learn" },
+    { name = "scipy" },
+    { name = "tess-point" },
 ]
 
 [[package]]

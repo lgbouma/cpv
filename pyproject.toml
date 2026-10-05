@@ -33,6 +33,8 @@ dependencies = [
     "pygam",
     "mpl-scatter-density",
     "pyeebls==0.2.0",
+    "tehsors",
+    "rudolf",
 ]
 
 [project.urls]
@@ -53,3 +55,9 @@ no-build-isolation-package = ["pyeebls"]
 name = "pyeebls"
 version = "0.2.0"
 requires-dist = []
+
+[tool.uv.sources]
+cdips = { path = "../cdips", editable = true }
+tehsors = { path = "../tehsors", editable = true }
+astrobase = { path = "../astrobase", editable = true }
+rudolf = { path = "../rudolf", editable = true }
